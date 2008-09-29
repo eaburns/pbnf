@@ -40,7 +40,11 @@ take advantage of parallel computing.
 \section{Goal}
 
 Our goal for this project is to explore novel methods of performing
-heuristic search on machines with many CPU cores. We hope to examine algorithms that memorize memory contention while spreading the work out among cores as efficiently as possible. Any algorithms we design or examine should be generalizable across as many domains as possible, but efficient regardless of the number of cores available.
+heuristic search on machines with many CPU cores. We hope to examine
+algorithms that minimize memory contention while spreading the work
+out among cores as efficiently as possible. Any algorithms we design
+or examine should be generalizable across as many domains as possible
+and efficient regardless of the number of cores available.
 
 \section{Previous Work}
 
@@ -78,7 +82,7 @@ A. Hansen
 \begin{itemize}
 
 
-\item Implement algorithms known:
+\item Implement previous algorithms:
   \begin{itemize}
   \item DTS
   \item Parallel window search
@@ -86,40 +90,69 @@ A. Hansen
   \item Parallel A* with shared OPEN list?
   \end{itemize}
 
-\item Attempt to create a new parallel best first search algorithm:\\
-  search(init, cores)
-\begin{algorithmic}
+\item Create a new parallel best first search algorithm:\\
+  \begin{itemize}
+  \item search(init, cores)
+  \begin{algorithmic}[1]
   \STATE create a thread for each core, giving each a link to its ''right'' neighbor and a queue for messages from its ''left'' neighbor
-  \STATE give the initial node to first thread
-  \WHILE{any thread has nodes on its OPEN list}
-    \FOR {$i=0$ to min(n, length of OPEN list)}
-      \STATE expand first node on OPEN list
-      \IF{node is goal}
-        \STATE create goal token
-        \STATE gotgoal(goal)
-      \ENDIF
-    \ENDFOR
-    \STATE send first node on OPEN list ''right''
-    \STATE receive message from ''left'' queue
-    \IF{message is goal token}
-      \STATE gotgoal(goal)
-    \ELSIF{message is node}
-      \STATE insert into OPEN list
-    \ENDIF
-  \ENDWHILE
-  \end{algorithmic}
-  gotgoal(goal)
-  \begin{algorithmic}
-      \IF{g value is less than current incumbent}
-        \STATE prune all nodes off OPEN list with g values higher than goal
-        \IF{if OPEN list is not empty}
-          \STATE mark goal as incumbent
-          \ENDIF
-        \STATE pass goal ''right''
-      \ENDIF
+  \STATE put initial node on first thread's ''left'' queue
+  \STATE start threadsearch() on each thread
   \end{algorithmic}
 
-\item Refine the, above mentioned, algorithm.
+  \item threadsearch()
+  \begin{algorithmic}[1]
+  \STATE current $\leftarrow$ NULL
+  \LOOP
+    \FOR {$i=0$ to min(n, length($open$))}
+      \STATE $node \leftarrow$ head of $open$
+      \IF{$node$ is a goal}
+        \STATE create GOAL token
+        \STATE gotgoal($node$)
+      \ELSE
+        \STATE insert children($node$) into $open$
+      \ENDIF
+    \ENDFOR
+    \IF{length($open$) $> 0$}
+      \STATE pass head of $open$ ''right''
+    \ELSE
+      \STATE pass NO WORK token ''right''
+    \ENDIF
+    \STATE receive $message$ from ''left'' queue
+    \IF{$message$ is GOAL token}
+      \IF{$message$ originated at this thread and is not marked incumbent}
+        \STATE pass TERMINATION token ''right'' then break loop
+      \ELSE
+        \STATE gotgoal(token)
+      \ENDIF
+    \ELSIF{$message$ is a node}
+      \STATE insert $message$ into $open$
+    \ELSIF{$message$ is NO WORK token}
+      \IF{$message$ originated at this thread}
+        \STATE pass TERMINATION token ''right'' then break loop
+      \ELSIF{length($open$) $= 0$}
+        \STATE pass token ''right''
+      \ENDIF
+    \ELSIF{$message$ is TERMINATION token}
+      \STATE pass $message$ ''right'' then break loop
+    \ENDIF
+  \ENDLOOP
+  \STATE return $current$
+  \end{algorithmic}
+
+  \item gotgoal($new$):
+  \begin{algorithmic}[1]
+      \IF{g($new$) $<$ g($current$)}
+        \STATE prune all nodes off $open$ with g values higher than g($current$)
+        \STATE $current \leftarrow new$
+        \IF{$open$ is not empty}
+          \STATE mark $new$ as incumbent
+          \ENDIF
+        \STATE pass $new$ ''right''
+      \ENDIF
+  \end{algorithmic}
+  \end{itemize}
+
+\item Refine the new algorithm.
 
 \item Model our new idea using TLA for proofs.
 
@@ -152,6 +185,7 @@ A. Hansen
 \section{To Do}
 
 \begin{itemize}
+\item Decide on a programming language to use
 \item Find a multi-core computer to run experiments on
 \item Get numbers from AWA* (which is similar to our algo.)
 \item Impl. PRA*
