@@ -1,0 +1,171 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{algorithmic}
+
+\title{\textbf{Parallel Heuristic Search}}
+
+\author{Ethan Burns and Seth Lemons \\
+  Department of Computer Science \\
+  University of New Hampshire \\
+  Durham, NH 03820 \\
+  \{eaburns,seth.lemons\}@unh.edu}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Problem}
+
+Over the past few decades we have seen major increases in the
+processing speeds of CPUs.  We are coming to a point, however, where
+it is no longer feasible to create processors with higher clock
+speeds.  It is widely accepted that the next generations of computers
+are going to rely on parallelism instead of processor cycles for
+increased performance.  In order to make better use of this upcoming
+hardware, the artificial intelligence community will need to begin
+creating algorithms that make use of concurrency between multiple CPU
+cores.
+
+Heuristic search is one of the most fundamental tools used in the
+field of artificial intelligence.  Heuristic search is used to explore
+possible actions that can be taken in order to achieve a goal.  This
+technique generalizes across many problem domains.  Today, most
+heuristic search algorithms are sequential; they only make use of a
+single processor core.  In order to adapt the field of artificial
+intelligence to the next generation of computers, we believe that it
+will be necessary to reformulate search algorithms so that they can
+take advantage of parallel computing.
+
+\section{Goal}
+
+Our goal for this project is to explore novel methods of performing
+heuristic search on machines with many CPU cores. We hope to examine algorithms that memorize memory contention while spreading the work out among cores as efficiently as possible. Any algorithms we design or examine should be generalizable across as many domains as possible, but efficient regardless of the number of cores available.
+
+\section{Previous Work}
+
+\begin{itemize}
+
+\item
+\emph{Parallel Heuristic Search: Two Approaches} -- Curt Powley, Chris
+Ferguson and Richard E. Korf.
+
+\item
+\emph{Adaptive Parallel Iterative Deepening Search} -- Diane J. Cook
+and R. Craig Varnell
+
+\item
+\emph{PRA*: Masively Parallel Heuristic Search} -- Matthew Evett,
+James Hendler, Ambuj Mahanti and Dana Nau
+
+\item
+\emph{A Simple Parallel Algorithm for the Single-Source Shortest Path
+  Problem on Planar Digraphs} -- Jesper L. Traeff and Christos
+D. Zaroliagis
+
+\item
+\emph{Efficient Parallel Algorithms for Computing All Pair Shortest
+  Paths in Directed Graphs} -- Yijie Han, V.Y. Pan and J.H. Reif
+
+\item
+\emph{Parallel Structured Duplicate Detection} -- Rong Zhou and Eric
+A. Hansen
+
+\end{itemize}
+
+\section{Approach}
+
+\begin{itemize}
+
+
+\item Implement algorithms known:
+  \begin{itemize}
+  \item DTS
+  \item Parallel window search
+  \item PRA*
+  \item Parallel A* with shared OPEN list?
+  \end{itemize}
+
+\item Attempt to create a new parallel best first search algorithm:\\
+  search(init, cores)
+\begin{algorithmic}
+  \STATE create a thread for each core, giving each a link to its ''right'' neighbor and a queue for messages from its ''left'' neighbor
+  \STATE give the initial node to first thread
+  \WHILE{any thread has nodes on its OPEN list}
+    \FOR {$i=0$ to min(n, length of OPEN list)}
+      \STATE expand first node on OPEN list
+      \IF{node is goal}
+        \STATE create goal token
+        \STATE gotgoal(goal)
+      \ENDIF
+    \ENDFOR
+    \STATE send first node on OPEN list ''right''
+    \STATE receive message from ''left'' queue
+    \IF{message is goal token}
+      \STATE gotgoal(goal)
+    \ELSIF{message is node}
+      \STATE insert into OPEN list
+    \ENDIF
+  \ENDWHILE
+  \end{algorithmic}
+  gotgoal(goal)
+  \begin{algorithmic}
+      \IF{g value is less than current incumbent}
+        \STATE prune all nodes off OPEN list with g values higher than goal
+        \IF{if OPEN list is not empty}
+          \STATE mark goal as incumbent
+          \ENDIF
+        \STATE pass goal ''right''
+      \ENDIF
+  \end{algorithmic}
+
+\item Refine the, above mentioned, algorithm.
+
+\item Model our new idea using TLA for proofs.
+
+\item Test our new algorithm against previous parallel algorithms
+  listed above.
+
+\end{itemize}
+
+\section{Division of Labor}
+
+\begin{itemize}
+\item Ethan is in charge of:
+  \begin{itemize}
+  \item Get numbers from AWA* (which is similar to our algo.)
+  \item TLA modeling
+  \item Implementation of PRA*
+  \item Implementation of Parallel A* with shared OPEN list?
+  \item Refinement and implementation of our new approach
+  \end{itemize}
+\item Seth is in charge of:
+  \begin{itemize}
+  \item Write paper
+  \item Find a multi-core computer to run experiments on
+  \item Implementation of DTS
+  \item Implementation of Parallel window search
+  \item Refinement and implementation of our new approach
+  \end{itemize}
+\end{itemize}
+
+\section{To Do}
+
+\begin{itemize}
+\item Find a multi-core computer to run experiments on
+\item Get numbers from AWA* (which is similar to our algo.)
+\item Impl. PRA*
+\item Impl. Parallel A* with shared OPEN list?
+\item Impl. DTS
+\item Impl. Parallel Window Search
+\item Refine new approach:
+  \begin{itemize}
+  \item When to expand and when to pass nodes
+  \item CLOSED list?
+  \item More?
+  \end{itemize}
+\item Write paper
+\item TLA modeling
+\end{itemize}
+
+\end{document}
