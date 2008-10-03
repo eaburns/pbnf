@@ -1,0 +1,92 @@
+Describe yourself or the organization you represent in 200 words or
+less:
+
+The Artificial Intelligence Group at the University of New Hampshire
+is a community of graduate students, undergraduate students, and
+faculty who are interested in learning about and expanding the field
+of artificial intelligence. Our research includes, among other things,
+heuristic search, machine learning, and applications of artificial
+intelligence to bioinformatics. Members of our group as well as other
+researchers at our university have explored parallel algorithms on
+several multi-core platforms, most recently the Cell microprocessor
+architecture. Our group is hoping to create, implement, and evaluate
+multi-threaded AI applications, such as new algorithms for parallel
+heuristic search. Our undergraduate program offers students many
+opportunities to use equipment in a hands on fashion, both for
+research and application development. In addition, our computer
+science department organizes community outreach programs to teach high
+school students about information technology.
+
+
+Describe the type of equipment you're seeking in 200 words or less:
+
+In order to better explore the area of parallel heuristic search, we
+are interested in acquiring a machine which supports a large number of
+concurrent threads, preferably upwards of 100. We feel that, for our
+research, the speed of individual processors in not as important as
+the number of supported threads. This is because we are exploring the
+speedup of parallelism as the number of threads increases. Additionally
+a system that suits our needs must also have a sufficient amount of
+memory to accommodate heuristic searches in large domains. An amount
+of 16 gigabytes or greater would be sufficient. For storage, any
+reasonable quantity will suffice. We believe that many of the
+configurations of the Sun SPARC T-series machines would suit our
+purposes well.
+
+
+Describe why you need the equipment in no more than 600 words:
+
+Over the past few decades we have seen major increases in the
+processing speeds of CPUs. We are coming to a point, however, where it
+is no longer feasible to create processors with higher clock
+speeds. It is widely accepted that the next generations of computers
+are going to rely on parallelism instead of processor cycles for
+increased performance. In order to make better use of this upcoming
+hardware, the artificial intelligence community will need to begin
+creating algorithms that make use of concurrency between multiple CPU
+cores.
+
+Heuristic search is one of the most fundamental tools used in the
+field of artificial intelligence. It is used to explore
+the space of possible action sequences that can be performed in order
+to achieve a desired goal and generalizes across many
+problem domains. This technique can be used for path planning, job scheduling,
+constraint satisfaction, combinatorial optimization, and even game
+strategies. Today, most heuristic search algorithms are sequential;
+they only make use of a single processor core. In order to adapt the
+field of artificial intelligence to the next generation of computers,
+we believe that it will be necessary to reformulate search algorithms
+so that they can take advantage of parallel computing on multi-core
+machines.
+
+Our goal for this project is to explore novel methods of performing
+heuristic search on machines with many CPU cores. We hope to examine
+algorithms that minimize memory contention while spreading the work
+out among cores as efficiently as possible. The algorithm we have
+designed and those we will examine are generalizable across many of
+the domains for which heuristic search is traditionally used and scale
+well with the number of concurrent threads. Our algorithm is unique in
+that it splits up the search space based on the quality of paths,
+instead of giving equal attention to less desirable sections of the
+state space.
+
+The use of this equipment is not, however, limited to the project
+described above. There is much more room for advancement in parallel
+search algorithms beyond the scope of our current work. We are also
+interested in researching the parallelization of other artificial
+intelligence algorithms for bioinformatics, reinforcement learning,
+and possibly more. Having the equipment on hand will encorage our
+group members to pursue these avenues further.
+
+In addition, the equipment would benefit the department and university
+as a whole by providing a resource for many researchers. Other
+researchers interested in parallel computing would be able to use the
+equipment to extend their work to another platform, because we
+currently do not have any equipment capable of handling such large
+numbers of threads.
+
+This equipment would aslo be useful as a part of demonstrations to
+attract new students and educate local high school students. Our
+outreach programs often involve showing students the types of
+technology we work with. We would be able to show the equipment to
+potential students, as well as the results of our work with it.
