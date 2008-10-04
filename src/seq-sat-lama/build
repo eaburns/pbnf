@@ -1,0 +1,8 @@
+#! /bin/sh
+
+cd lama/preprocess && \
+(make || exit 1)
+cd ../.. && \
+cd lama/search && \
+(make release || exit 1)
+cd ../..
