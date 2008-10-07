@@ -1,4 +1,11 @@
+* Find multi-core comupter
 * Create a Grid World... Again!
 * Create a projection function for Grid World
 * (Ethan) Come up with questions about LAMA planner
 * (Seth) Parallel KBFS
+* (Seth) Revise algorithm description from proposal
+* Implement Parallel Window Search
+* Find ``Standard'' Parallel Search
+* Compare with ``Standard'' Parallel Searchs
+* Code our algo
+* Write paper
