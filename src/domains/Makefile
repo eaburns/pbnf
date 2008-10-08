@@ -13,4 +13,5 @@ test: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) -o test $(OBJ) main.cc
 
 clean:
-	find . -name \*.o -exec rm '{}' \;
+	find . -name \*.o -exec rm -f '{}' \;
+	rm -f test
