@@ -5,6 +5,7 @@ slides.pdf: slides.dvi
 
 slides.dvi: slides.tex
 	latex slides
+	latex slides
 
 clean:
 	rm -f *.aux *.log *.dvi *.pdf *.bm *.toc
