@@ -28,7 +28,7 @@
   \begin{itemize}
   \item Based on IDA*
   \item Separate processors look at different cost bounds
-  \item Non-optimal unless you wait for previous cost bounds to complete
+  \item Suboptimal unless you wait for previous cost bounds to complete
   \end{itemize}
 \end{slide}
 
@@ -54,8 +54,8 @@
   Use PSDD with a best-first search.  Select buckets based on best
   f-value in the bucket.  Expand nodes from a bucket for a minimum
   amount of time to reduce contention, keep expanding until another
-  bucket's best f-value is better than the best f-value in the bucket we
-  are looking at.
+  bucket's best f-value is better than the best f-value in the bucket
+  currently being searched.
 \end{slide}
 
 \begin{slide}{The Algorithm}
