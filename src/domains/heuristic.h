@@ -15,7 +15,7 @@ class State;
 
 class Heuristic {
 public:
-	virtual float compute(const State *s) const;
+	virtual float compute(const State *s) const = 0;
 };
 
 #endif	/* !_HEURISTIC_H_ */

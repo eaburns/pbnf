@@ -24,12 +24,13 @@ using namespace std;
 GridWorld::GridWorld(const Heuristic *h, istream &s)
 	: SearchDomain(h)
 {
-	char *line;
+	char line[100];
+	char c;
 
-	s >> width;
 	s >> height;
+	s >> width;
 
-	line = new char[width];
+	cerr << height << " " << width << endl;
 
 	s >> line;
 	if(strcmp(line, "Board:") != 0) {
@@ -38,12 +39,17 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 	}
 
 	for (int h = 0; h < height; h += 1) {
-		s >> line;
 		for (int w = 0; w < width; w += 1) {
-			if (line[w] == '#') {
+			c = s.get();
+			if (c == '#') {
 				obstacle_x.push_back(w);
 				obstacle_y.push_back(h);
 			}
+		}
+		c = s.get();
+		if (c != '\n') {
+			cerr << "Parse error: [" << c << "], h=" << h << endl;
+			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -56,8 +62,6 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 	s >> start_y;
 	s >> goal_x;
 	s >> goal_y;
-
-	delete line;
 }
 
 /**
@@ -80,19 +84,19 @@ vector<const State*> *GridWorld::expand(const State *state) const
 	s = dynamic_cast<const GridState*>(state);
 	children = new vector<const State*>();
 
-	if (s->get_x() > 0) {
+	if (s->get_x() > 0 && !is_obstacle(s->get_x() + 1, s->get_y())) {
 		children->push_back(new GridState(this, state, s->get_g() + cost,
 						  s->get_x() + 1, s->get_y()));
 	}
-	if (s->get_x() < height - 1) {
+	if (s->get_x() < height - 1 && !is_obstacle(s->get_x() - 1, s->get_y())) {
 		children->push_back(new GridState(this, state, s->get_g() + cost,
 						  s->get_x() - 1, s->get_y()));
 	}
-	if (s->get_y() > 0) {
-		children->push_back(new GridState(this, state, s->get_g() + cost,
+	if (s->get_y() > 0 && !is_obstacle(s->get_x(), s->get_y() + 1)) {
+			children->push_back(new GridState(this, state, s->get_g() + cost,
 						  s->get_x(), s->get_y() + 1));
 	}
-	if (s->get_y() > width - 1) {
+	if (s->get_y() > width - 1 && !is_obstacle(s->get_x(), s->get_y() - 1)) {
 		children->push_back(new GridState(this, state, s->get_g() + cost,
 						  s->get_x(), s->get_y() - 1));
 	}
@@ -118,4 +122,41 @@ int GridWorld::get_width(void) const
 int GridWorld::get_height(void) const
 {
 	return height;
+}
+
+/**
+ * Test if there is an obstacle at the given location.
+ */
+bool GridWorld::is_obstacle(int x, int y) const
+{
+	for (int i = 0; i < obstacle_x.size(); i += 1) {
+		if (obstacle_x.at(i) == x
+		    && obstacle_y.at(i) == y)
+			return true;
+	}
+
+	return false;
+}
+
+/**
+ * Prints the grid world to the given stream.
+ */
+void GridWorld::print(ostream &o) const
+{
+	o << height << " " << width << endl;
+	o << "Board:" << endl;
+
+	for (int h = 0; h < height; h += 1) {
+		for (int w = 0; w < width; w += 1) {
+			if (is_obstacle(w, h))
+				o << "#";
+			else
+				o << " ";
+		}
+		o << endl;;
+	}
+
+	o << "Unit" << endl;
+	o << "Four-way" << endl;
+	o << start_x << " " << start_y << "\t" << goal_x << " " << goal_y << endl;
 }

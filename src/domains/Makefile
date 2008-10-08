@@ -1,0 +1,16 @@
+SRC= \
+	state.cc \
+	search_domain.cc \
+	grid/manhattan_dist.cc \
+	grid/grid_state.cc \
+	grid/grid_world.cc \
+
+OBJ=$(SRC:.cc=.o)
+
+all: test
+
+test: $(OBJ) main.cc
+	$(CXX) $(CXXFLAGS) -o test $(OBJ) main.cc
+
+clean:
+	find . -name \*.o -exec rm '{}' \;

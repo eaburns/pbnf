@@ -30,7 +30,11 @@ public:
 	virtual int get_goal_y(void) const;
 	virtual int get_width(void) const;
 	virtual int get_height(void) const;
+	virtual void print(ostream &o) const;
 private:
+
+	bool is_obstacle(int x, int y) const;
+
 	int width, height;
 	int start_x, start_y;
 	int goal_x, goal_y;

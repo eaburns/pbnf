@@ -21,7 +21,6 @@ public:
 	State(const State *parent, int g);
 
 	virtual bool is_goal(void) const = 0;
-	virtual int compare(const State *s) const = 0;
 	virtual int hash(void) const = 0;
 	virtual vector<const State*> *expand(const State *s) const = 0;
 

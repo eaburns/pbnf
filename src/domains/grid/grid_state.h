@@ -24,7 +24,6 @@ public:
 	GridState(const GridWorld *d, const State *parent, int g, int x, int y);
 
 	virtual bool is_goal(void) const;
-	virtual int compare(const State *s) const;
 	virtual int hash(void) const;
 	virtual vector<const State*> *expand(const State *s) const;
 
