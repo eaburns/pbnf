@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{algorithmic}
+
+\begin{document}
+\begin{itemize}
+  \item search($init$, $cores$)
+  \begin{algorithmic}[1]
+  \STATE create a thread for each core, and hash tables for $open$ and $closed$
+  \STATE insert $init$ into $open$ and $closed$
+  \STATE current $\leftarrow$ NULL
+  \STATE start threadsearch() on each thread
+  \WHILE {any thread is still running}
+    \STATE NOOP
+  \ENDWHILE
+  \STATE return $current$
+  \end{algorithmic}
+
+  \item threadsearch()
+  \begin{algorithmic}[1]
+  \WHILE {$open$ is not empty}
+    \STATE $b \leftarrow$ bucket in $open$ with minimum f valued node
+    \STATE increment $sigma$ for $b$ and each bucket in its duplicate detection scope
+    \STATE \COMMENT {possibly prune here to save memory}
+    \STATE \COMMENT {$m$ is the minumum number of expansions required to balance out locking overhead}
+    \STATE \COMMENT {$n$ is the number of nodes in b for which there are no other cheaper nodes in non-locked buckets}
+    \FOR {$i=0$ to min(max($m$, $n$), length($b$)$-1$))}
+      \STATE $node \leftarrow$ head of $b$
+      \IF{$node$ is a goal}
+        \STATE foundgoal($node$)
+      \ELSIF {$node$ is not a duplicate}
+        \STATE $children \leftarrow$ expand($node$)
+        \STATE remove duplicates from $children$
+        \STATE insert $children$ into $open$ and $closed$
+      \ENDIF
+    \ENDFOR
+    \STATE \COMMENT {possibly prune here to save memory}
+    \STATE decrement $sigma$ for $b$ and each bucket in its duplicate detection scope
+  \ENDWHILE
+  \end{algorithmic}
+
+  \item foundgoal($new$):
+  \begin{algorithmic}[1]
+      \IF{g($new$) $<$ g($current$)}
+        \STATE $current \leftarrow new$
+        \STATE prune all nodes from $b$ with g values higher than g($current$)
+      \ENDIF
+  \end{algorithmic}
+\end{itemize}
+\end{document}
