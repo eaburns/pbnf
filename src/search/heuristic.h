@@ -2,7 +2,7 @@
 /**
  * \file heuristic.h
  *
- *
+ * A heuristic function.
  *
  * \author Ethan Burns
  * \date 2008-10-08
@@ -13,6 +13,9 @@
 
 class State;
 
+/**
+ * An abstract heuristic function.
+ */
 class Heuristic {
 public:
 	virtual float compute(const State *s) const = 0;

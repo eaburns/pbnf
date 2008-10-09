@@ -2,7 +2,7 @@
 /**
  * \file a_star.h
  *
- *
+ * Contains the AStar class.
  *
  * \author Ethan Burns
  * \date 2008-10-09
@@ -14,6 +14,9 @@
 #include "state.h"
 #include "search.h"
 
+/**
+ * An A* search class.
+ */
 class AStar : public Search {
 public:
 	virtual vector<const State *> *search(const State *);

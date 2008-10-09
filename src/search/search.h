@@ -2,7 +2,7 @@
 /**
  * \file search.h
  *
- *
+ * Abstract search classe
  *
  * \author Ethan Burns
  * \date 2008-10-09
@@ -17,6 +17,9 @@
 
 using namespace std;
 
+/**
+ * An abstract search class that collects some statistics.
+ */
 class Search {
 public:
 	Search(void);

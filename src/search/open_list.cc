@@ -16,7 +16,7 @@
 using namespace std;
 
 /**
- * Compares states by their f values.
+ * Compares states by their f values.  Tie-breaking is based on g values.
  */
 bool OpenList::OpenListCompare::operator()(const State *a, const State *b) const
 {
@@ -29,11 +29,19 @@ bool OpenList::OpenListCompare::operator()(const State *a, const State *b) const
 	return fa > fb;
 }
 
+/**
+ * Add a state to the OpenList.
+ * \param s The state to add.
+ */
 void OpenList::push(const State *s)
 {
 	pq.push(s);
 }
 
+/**
+ * Remove and return the state with the lowest f-value.
+ * \return The front of the priority queue.
+ */
 const State *OpenList::pop(void)
 {
 	const State *s;
@@ -44,6 +52,10 @@ const State *OpenList::pop(void)
 	return s;
 }
 
+/**
+ * Test if the OpenList is empty.
+ * \return True if the open list is empty, false if not.
+ */
 bool OpenList::empty(void) const
 {
 	return pq.empty();

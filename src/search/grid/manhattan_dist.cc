@@ -16,6 +16,11 @@ ManhattanDist::ManhattanDist(int goal_x, int goal_y)
 	: goal_x(goal_x), goal_y(goal_y) {}
 
 
+/**
+ * Compute the Manhattan distance heuristic.
+ * \param state The state to comupte the heuristic for.
+ * \return The Manhattan distance from the given state to the goal.
+ */
 float ManhattanDist::compute(const State *state) const
 {
 	const GridState *s;

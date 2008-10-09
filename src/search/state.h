@@ -17,6 +17,9 @@
 
 using namespace std;
 
+/**
+ * An abstract search state class.
+ */
 class State {
 public:
 	State(const SearchDomain *d, const State *parent, int g);

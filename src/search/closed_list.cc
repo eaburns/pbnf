@@ -13,11 +13,20 @@
 #include "state.h"
 #include "closed_list.h"
 
+/**
+ * Add to the closed list.
+ * \param s The state to add.
+ */
 void ClosedList::add(const State *s)
 {
 	m[s->hash()] = s;
 }
 
+/**
+ * Lookup a state in the closed list.
+ * \param c The state to look up.
+ * \return The state if it was found, NULL on error.
+ */
 const State *ClosedList::lookup(const State *c) const
 {
 	map<int, const State *>::const_iterator iter;

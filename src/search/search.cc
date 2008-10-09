@@ -15,6 +15,13 @@
 
 Search::Search(void) : expanded(0), generated(0) {}
 
+/**
+ * Call the expand method of the given state and track stats on number
+ * of generated/expanded nodes.
+ * \param s The state to expand.
+ * \return A newly allocated vector of the children states.  This must
+ *         be deleted by the caller.
+ */
 vector<const State *> *Search::expand(const State *s)
 {
 	vector<const State *> *children;
@@ -26,16 +33,25 @@ vector<const State *> *Search::expand(const State *s)
 	return children;
 }
 
+/**
+ * Clear the expanded and generated counters.
+ */
 void Search::clear_counts(void)
 {
 	expanded = generated = 0;
 }
 
+/**
+ * Get the value of the expanded counter.
+ */
 unsigned long Search::get_expanded(void) const
 {
 	return expanded;
 }
 
+/**
+ * Get the value of the generated counter.
+ */
 unsigned long Search::get_generated(void) const
 {
 	return generated;

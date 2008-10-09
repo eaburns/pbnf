@@ -18,6 +18,11 @@ using namespace std;
 
 /**
  * Create a new grid state.
+ * \param d The search domain.
+ * \param parent The parent of this state.
+ * \param g The g-value of this state.
+ * \param x The x-coordinate of this state.
+ * \param y The y-coordinate of this state.
  */
 GridState::GridState(const GridWorld *d, const State *parent, int g, int x, int y)
 	: State(d, parent, g), x(x), y(y)
@@ -27,6 +32,7 @@ GridState::GridState(const GridWorld *d, const State *parent, int g, int x, int 
 
 /**
  * Test if this state is the goal.
+ * \return True if this is a goal, false if not.
  */
 bool GridState::is_goal(void) const
 {
@@ -39,6 +45,7 @@ bool GridState::is_goal(void) const
 
 /**
  * Get the hash value of this state.
+ * \return A unique hash value for this state.
  */
 int GridState::hash(void) const
 {
@@ -51,6 +58,7 @@ int GridState::hash(void) const
 
 /**
  * Create a copy of this state.
+ * \return A copy of this state.
  */
 State *GridState::clone(void) const
 {
@@ -59,17 +67,29 @@ State *GridState::clone(void) const
 	return new GridState(d, parent, g, x, y);
 }
 
+/**
+ * Print this state.
+ * \param o The ostream to print to.
+ */
 void GridState::print(ostream &o) const
 {
 	o << "x=" << x << ", y=" << y << ", g=" << g << ", h=" << h
 	  << ", f=" << g + h << endl;
 }
 
+/**
+ * Get the x-coordinate.
+ * \return The x-coordinate.
+ */
 int GridState::get_x(void) const
 {
 	return x;
 }
 
+/**
+ * Get the x-coordinate.
+ * \return The x-coordinate.
+ */
 int GridState::get_y(void) const
 {
 	return y;

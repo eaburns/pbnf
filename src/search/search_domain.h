@@ -2,7 +2,7 @@
 /**
  * \file search_domain.h
  *
- *
+ * A search domain.
  *
  * \author Ethan Burns
  * \date 2008-10-08
@@ -19,6 +19,9 @@ using namespace std;
 
 class state;
 
+/**
+ * An abstract search domain.
+ */
 class SearchDomain {
 public:
 	SearchDomain();

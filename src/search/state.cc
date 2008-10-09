@@ -13,11 +13,19 @@
 State::State(const SearchDomain *d, const State *parent, int g)
 	: parent(parent), domain(d), g(g), h(-1) {}
 
+/**
+ * Get the cost so far of the state.
+ * \return g
+ */
 int State::get_g(void) const
 {
 	return g;
 }
 
+/**
+ * Get the estimated cost to go.
+ * \return h
+ */
 int State::get_h(void) const
 {
 	return h;
@@ -25,6 +33,8 @@ int State::get_h(void) const
 
 /**
  * Expand the given state.
+ * \return A newly allocated vector of the children states.  This must
+ *         be deleted by the caller.
  */
 vector<const State*> *State::expand(void) const
 {
@@ -34,7 +44,11 @@ vector<const State*> *State::expand(void) const
 
 /**
  * Follow the parent links back up and create copies of each state.
- * \return A path from the initial state to the goal state.
+ * \return A path from the initial state to the goal state.  This
+ *         vector and the states within it must be deleted by the
+ *         caller.  All of the states on the returned path are clones
+ *         of the states from the search, so those states can be
+ *         deleted separately.
  */
 vector<const State *> *State::get_path(void) const
 {

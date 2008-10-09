@@ -2,7 +2,7 @@
 /**
  * \file open_list.h
  *
- *
+ * An open list class.
  *
  * \author Ethan Burns
  * \date 2008-10-09
@@ -17,6 +17,12 @@
 
 using namespace std;
 
+/**
+ * A priority queue for states based on their f(s) = g(s) + h(s)
+ * value.
+ *
+ * \todo make this a bit more general.
+ */
 class OpenList {
 public:
 	void push(const State *s);

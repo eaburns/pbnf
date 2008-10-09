@@ -19,6 +19,7 @@ SearchDomain::SearchDomain() : heuristic(NULL) {}
 
 /**
  * Set the heuristic that will be used in this domain.
+ * \param h The heuristic to add.
  */
 void SearchDomain::set_heuristic(const Heuristic *h)
 {
@@ -26,7 +27,7 @@ void SearchDomain::set_heuristic(const Heuristic *h)
 }
 
 /**
- * Compute the heuristic for the given state.
+ * Get the heuristic class.
  */
 const Heuristic *SearchDomain::get_heuristic(void) const
 {

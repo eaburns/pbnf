@@ -2,7 +2,7 @@
 /**
  * \file closed_list.h
  *
- *
+ * A simple closed list class.
  *
  * \author Ethan Burns
  * \date 2008-10-09
@@ -17,6 +17,10 @@
 
 using namespace std;
 
+/**
+ * A simple closed list class.  This class is just a wrapper for the
+ * C++ STL map class for states.
+ */
 class ClosedList {
 public:
 	void add(const State *);
