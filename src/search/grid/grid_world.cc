@@ -9,6 +9,8 @@
  */
 
 #include <iostream>
+#include <map>
+#include <vector>
 
 #include <stdlib.h>
 #include <string.h>
@@ -29,8 +31,6 @@ GridWorld::GridWorld(istream &s)
 	s >> height;
 	s >> width;
 
-	obstacles = new bool[width * height];
-
 	s >> line;
 	if(strcmp(line, "Board:") != 0) {
 		cerr << "Parse error: expected \"Board:\"" << endl;
@@ -46,8 +46,6 @@ GridWorld::GridWorld(istream &s)
 			c = s.get();
 			if (c == '#')
 				obstacles[width * h + w] = true;
-			else
-				obstacles[width * h + w] = false;
 		}
 		c = s.get();	// new-line
 		if (c != '\n') {
@@ -65,14 +63,6 @@ GridWorld::GridWorld(istream &s)
 	s >> start_y;
 	s >> goal_x;
 	s >> goal_y;
-}
-
-/**
- * Destructor.
- */
-GridWorld::~GridWorld()
-{
-	delete []obstacles;
 }
 
 /**
@@ -140,7 +130,11 @@ int GridWorld::get_height(void) const
  */
 bool GridWorld::is_obstacle(int x, int y) const
 {
-	return obstacles[width * y + x];
+	map<int, bool>::const_iterator iter;
+
+	iter = obstacles.find(width * y + x);
+
+	return iter != obstacles.end();
 }
 
 /**

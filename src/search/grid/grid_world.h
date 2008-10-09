@@ -12,6 +12,7 @@
 #define _GRID_WORLD_H_
 
 #include <iostream>
+#include <map>
 #include <vector>
 
 #include "../state.h"
@@ -22,7 +23,6 @@ using namespace std;
 class GridWorld : public SearchDomain {
 public:
 	GridWorld(istream &s);
-	~GridWorld();
 
 	virtual State *initial_state(void);
 	virtual vector<const State*> *expand(const State *s) const;
@@ -40,7 +40,7 @@ private:
 	int width, height;
 	int start_x, start_y;
 	int goal_x, goal_y;
-	bool *obstacles;
+	map<int, bool> obstacles;
 };
 
 #endif	/* !_GRID_WORLD_H_ */
