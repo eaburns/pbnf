@@ -20,7 +20,13 @@ using namespace std;
  */
 bool OpenList::OpenListCompare::operator()(const State *a, const State *b) const
 {
-	return (a->get_g() + a->get_h()) > (b->get_g() + b->get_h());
+	float fa = a->get_g() + a->get_h();
+	float fb = b->get_g() + b->get_h();
+
+	if (fa == fb)
+		return a->get_g() < b->get_g();
+
+	return fa > fb;
 }
 
 void OpenList::push(const State *s)
