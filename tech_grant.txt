@@ -1,92 +1,41 @@
+Sun equipment grant
+--------------------------
+
+http://www.acclinet.com/tech_grant_app.asp
+
+then I will edit and submit.  One question is how greedy we want to
+be.  A T5140, which supports 128 threads, has a list price of $40K.  A
+T1000 supporting 32 threads, is $5K.  I suggest we ask for a high-end
+machine but explain how even a T1 would be very helpful.
+
+
+
 Describe yourself or the organization you represent in 200 words or
 less:
 
-The Artificial Intelligence Group at the University of New Hampshire
-is a community of graduate students, undergraduate students, and
-faculty who are interested in learning about and expanding the field
-of artificial intelligence. Our research includes, among other things,
-heuristic search, machine learning, and applications of artificial
-intelligence to bioinformatics. Members of our group as well as other
-researchers at our university have explored parallel algorithms on
-several multi-core platforms, most recently the Cell microprocessor
-architecture. Our group is hoping to create, implement, and evaluate
-multi-threaded AI applications, such as new algorithms for parallel
-heuristic search. Our undergraduate program offers students many
-opportunities to use equipment in a hands on fashion, both for
-research and application development. In addition, our computer
-science department organizes community outreach programs to teach high
-school students about information technology.
-
+I am an assistant professor in the Department of Computer Science at the University of New Hampshire, the flagship public research university in the state.  I lead the artificial intelligence research group, which includes both undergraduate and graduate students who are interested in learning about and conducting research in the field of AI.  Our teaching and research focuses on developing and testing new algorithms to tackle the most computationally demanding tasks in AI, including planning, scheduling, bioinformatics, combinatorial optimization, and constraint satisfaction.  All of these tasks are highly compute-bound.  Our research approach centers on the use of techniques from machine learning to develop adaptive and robust algorithms for optimization and combinatorial search.  We would like to mount a new initiative in exploiting parallelism and massive multi-threading in combinatorial search.  UNH has a long history in parallel computing, continued today in work such as the use of the Cell microprocessor architecture.
 
 Describe the type of equipment you're seeking in 200 words or less:
 
-In order to better explore the area of parallel heuristic search, we
-are interested in acquiring a machine which supports a large number of
-concurrent threads, preferably upwards of 100. We feel that, for our
-research, the speed of individual processors in not as important as
-the number of supported threads. This is because we are exploring the
-speedup of parallelism as the number of threads increases. Additionally
-a system that suits our needs must also have a sufficient amount of
-memory to accommodate heuristic searches in large domains. An amount
-of 16 gigabytes or greater would be sufficient. For storage, any
-reasonable quantity will suffice. We believe that many of the
-configurations of the Sun SPARC T-series machines would suit our
-purposes well.
+We are approaching Acclinet because of our belief that the Sun Niagara architecture represents the best currently-available instantiation of the kind of machines that the multi-core revolution will bring to the desktops of tomorrow.  We aim to develop algorithms that will scale gracefully as the number of cores and the number of threads per core increase.  To do this, we need a highly parallel machine, such as the Sun T5140.  The clock speed, memory size, or disk size is not particularly important to us - we seek the largest number of parallel threads possible.  If a T5140 is outside the scope of the Acclinet Technology Grant program, we would still welcome a smaller Niagara machine - even a T1000 would allow us to surpass the dual quad-core Intel machines that we currently use, and would be a great help.
 
 
 Describe why you need the equipment in no more than 600 words:
 
-Over the past few decades we have seen major increases in the
-processing speeds of CPUs. We are coming to a point, however, where it
-is no longer feasible to create processors with higher clock
-speeds. It is widely accepted that the next generations of computers
-are going to rely on parallelism instead of processor cycles for
-increased performance. In order to make better use of this upcoming
-hardware, the artificial intelligence community will need to begin
-creating algorithms that make use of concurrency between multiple CPU
-cores.
+As is well known, processor clock speed has reached a plateau and subsequent generations of machines are going to rely on thread-level parallelism instead of processor cycles for increased performance. In order to make efficient use of this upcoming hardware, the artificial intelligence community must start now to create algorithms that can make use of concurrency between multiple CPU cores.
 
-Heuristic search is one of the most fundamental tools used in the
-field of artificial intelligence. It is used to explore
-the space of possible action sequences that can be performed in order
-to achieve a desired goal and generalizes across many
-problem domains. This technique can be used for path planning, job scheduling,
-constraint satisfaction, combinatorial optimization, and even game
-strategies. Today, most heuristic search algorithms are sequential;
-they only make use of a single processor core. In order to adapt the
-field of artificial intelligence to the next generation of computers,
-we believe that it will be necessary to reformulate search algorithms
-so that they can take advantage of parallel computing on multi-core
-machines.
+Heuristic search is one of the most fundamental tools used in the field of artificial intelligence.  It is used for path planning in robotics and video games, task planning and job scheduling, natural language parsing, constraint satisfaction and system configuration, sequence alignment in bioinformatics, and many other combinatorial optimization problems.  Today, the most prominent heuristic search algorithms are sequential; they only make use of a single processor core. In order to adapt the field of artificial intelligence to the next generation of computers, we must reformulate search algorithms so that they can take advantage of parallel computing on multi-core machines.
 
-Our goal for this project is to explore novel methods of performing
-heuristic search on machines with many CPU cores. We hope to examine
-algorithms that minimize memory contention while spreading the work
-out among cores as efficiently as possible. The algorithm we have
-designed and those we will examine are generalizable across many of
-the domains for which heuristic search is traditionally used and scale
-well with the number of concurrent threads. Our algorithm is unique in
-that it splits up the search space based on the quality of paths,
-instead of giving equal attention to less desirable sections of the
-state space.
+Our new initiative builds on AI work done in the 1980s on parallel algorithms for SIMD and distributed machines, but we are addressing the machines that are likely to appear in the near future, with hundreds of CPU cores on a single chip, all accessing the same memory space.  We are working on algorithms that minimize memory contention while spreading the work out among cores as efficiently as possible. Our current approach is unique in that it splits up the search space based on the quality of potential solutions, instead of giving equal attention to less desirable sections.  To bring this effort to fruition, we would like the implement the method and test it on real hardware, preferably massively multi-threaded hardware such as Sun's.  We are committed to open-source software and our empirical methodology, which involves tens of thousands of benchmarking experiments, takes full advantage of the capabilities of Unix-like operating systems to process and store large quantities of data.  In fact, it is our understanding that our filesystem has the most inodes of any on the UNH campus.
 
-The use of this equipment is not, however, limited to the project
-described above. There is much more room for advancement in parallel
-search algorithms beyond the scope of our current work. We are also
-interested in researching the parallelization of other artificial
-intelligence algorithms for bioinformatics, reinforcement learning,
-and possibly more. Having the equipment on hand will encorage our
-group members to pursue these avenues further.
+The use of this equipment would not limited to this single project, however.  We are also interested in researching the parallelization of other artificial intelligence algorithms for bioinformatics, reinforcement learning, and more.  Having the equipment on hand will encourage group members to pursue these avenues.  We would also provide access to the equipment for the programming language research group, which has been exploring issues in parallel Java run-times.
 
-In addition, the equipment would benefit the department and university
-as a whole by providing a resource for many researchers. Other
-researchers interested in parallel computing would be able to use the
-equipment to extend their work to another platform, because we
-currently do not have any equipment capable of handling such large
-numbers of threads.
+In addition, the equipment would benefit the department and university as a whole by providing a resource for the other researchers at UNH who are interested in parallel computing.  A massively multi-threaded machine would also be useful as a part of our many demonstration and outreach programs that attract new students and educate local high school students.  UNH Computer Science also runs an annual High Tech Camp during the summer.
 
-This equipment would aslo be useful as a part of demonstrations to
-attract new students and educate local high school students. Our
-outreach programs often involve showing students the types of
-technology we work with. We would be able to show the equipment to
-potential students, as well as the results of our work with it.
+
+How did you find out about the Acclinet Technology Grant Program?
+
+Email from Michael Kalil, forwarded by the CS department.
+
+
+# EOF
