@@ -25,7 +25,7 @@ vector<const State *> *AStar::search(const State *init) const
 	open.push(init);
 	closed.add(init);
 
-	while (!open.empty()) {
+	while (!open.empty() && !path) {
 		const State *s = open.pop();
 
 		vector<const State *> *children = s->expand();
@@ -43,7 +43,9 @@ vector<const State *> *AStar::search(const State *init) const
 					c = c->get_parent();
 					last = copy;
 				}
-				goto out;
+				for (; i < children->size(); i += 1)
+					delete children->at(i);
+				break;
 			}
 			if (closed.lookup(c) != NULL) {
 				delete c;
@@ -54,8 +56,6 @@ vector<const State *> *AStar::search(const State *init) const
 		}
 		delete children;
 	}
-
-out:
 
 	closed.delete_all_states();
 

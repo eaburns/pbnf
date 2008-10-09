@@ -35,6 +35,7 @@ int main(void)
 	if (path) {
 		for (unsigned int i = 0; i < path->size(); i += 1)
 			delete path->at(i);
+		delete path;
 	}
 
 	return EXIT_SUCCESS;
