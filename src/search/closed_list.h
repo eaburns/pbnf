@@ -21,6 +21,7 @@ class ClosedList {
 public:
 	void add(const State *);
 	const State *lookup(int hash) const;
+	void delete_all_states(void);
 
 private:
 	map<int, const State *> m;

@@ -146,7 +146,7 @@ bool GridWorld::is_obstacle(int x, int y) const
 /**
  * Prints the grid world to the given stream.
  */
-void GridWorld::print(ostream &o) const
+void GridWorld::print(ostream &o, const vector<const State *> *path = NULL) const
 {
 	o << height << " " << width << endl;
 	o << "Board:" << endl;
@@ -155,6 +155,8 @@ void GridWorld::print(ostream &o) const
 		for (int w = 0; w < width; w += 1) {
 			if (is_obstacle(w, h))
 				o << "#";
+			else if (path && on_path(path, w, h))
+				o << "o";
 			else
 				o << " ";
 		}
@@ -164,4 +166,21 @@ void GridWorld::print(ostream &o) const
 	o << "Unit" << endl;
 	o << "Four-way" << endl;
 	o << start_x << " " << start_y << "\t" << goal_x << " " << goal_y << endl;
+}
+
+/**
+ * Test whether or not a location is on the given path.
+ */
+bool GridWorld::on_path(const vector<const State *> *path, int x, int y) const
+{
+	if (!path)
+		return false;
+
+	for (int i = 0; i < path->size(); i += 1) {
+		const GridState *s = dynamic_cast<const GridState *>(path->at(i));
+		if (s->get_x() == x && s->get_y() == y)
+			return true;
+	}
+
+	return false;
 }

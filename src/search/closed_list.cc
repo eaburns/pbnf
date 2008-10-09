@@ -28,3 +28,14 @@ const State *ClosedList::lookup(int hash) const
 
 	return m.find(hash)->second;
 }
+
+/**
+ * Delete (free up the memory for) all states in the closed list.
+ */
+void ClosedList::delete_all_states(void)
+{
+	map<int, const State *>::iterator iter;
+
+	for (iter = m.begin(); iter != m.end(); iter++)
+		delete iter->second;
+}

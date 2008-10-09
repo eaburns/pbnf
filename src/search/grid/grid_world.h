@@ -31,8 +31,9 @@ public:
 	virtual int get_goal_y(void) const;
 	virtual int get_width(void) const;
 	virtual int get_height(void) const;
-	virtual void print(ostream &o) const;
+	virtual void print(ostream &o, const vector<const State *> *path) const;
 private:
+	bool on_path(const vector<const State *> *path, int x, int y) const;
 	int hash_position(int x, int y) const;
 	bool is_obstacle(int x, int y) const;
 
