@@ -20,7 +20,5 @@ int main(void)
 {
 	GridWorld g(NULL, cin);
 
-	g.print(cout);
-
 	return EXIT_SUCCESS;
 }
