@@ -16,7 +16,7 @@
 /**
  * Perform an A* search.
  */
-vector<const State *> *AStar::search(const State *init) const
+vector<const State *> *AStar::search(const State *init)
 {
 	vector<const State *> *path = NULL;
 	OpenList open;
@@ -28,7 +28,7 @@ vector<const State *> *AStar::search(const State *init) const
 	while (!open.empty() && !path) {
 		const State *s = open.pop();
 
-		vector<const State *> *children = s->expand();
+		vector<const State *> *children = expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			const State *c = children->at(i);
 

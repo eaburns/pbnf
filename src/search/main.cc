@@ -38,5 +38,8 @@ int main(void)
 		delete path;
 	}
 
+	cout << "generated: " << astar.get_generated() << endl;
+	cout << "expanded: " << astar.get_expanded() << endl;
+
 	return EXIT_SUCCESS;
 }

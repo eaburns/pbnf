@@ -6,6 +6,7 @@ SRC= \
 	search_domain.cc \
 	open_list.cc \
 	closed_list.cc \
+	search.cc \
 	a_star.cc \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
