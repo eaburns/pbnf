@@ -176,7 +176,7 @@ bool GridWorld::on_path(const vector<const State *> *path, int x, int y) const
 	if (!path)
 		return false;
 
-	for (int i = 0; i < path->size(); i += 1) {
+	for (unsigned int i = 0; i < path->size(); i += 1) {
 		const GridState *s = dynamic_cast<const GridState *>(path->at(i));
 		if (s->get_x() == x && s->get_y() == y)
 			return true;

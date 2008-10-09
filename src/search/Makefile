@@ -1,3 +1,6 @@
+CXX=g++
+CXXFLAGS=-g -Wall -Werror -pipe
+
 SRC= \
 	state.cc \
 	search_domain.cc \
