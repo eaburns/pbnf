@@ -18,15 +18,15 @@ void ClosedList::add(const State *s)
 	m[s->hash()] = s;
 }
 
-const State *ClosedList::lookup(int hash) const
+const State *ClosedList::lookup(const State *c) const
 {
 	// this is stupid: apparently you can't do an assignment with
 	// iterators, so instead we need to do two lookups.
 
-	if (m.find(hash) == m.end())
+	if (m.find(c->hash()) == m.end())
 		return NULL;
 
-	return m.find(hash)->second;
+	return m.find(c->hash())->second;
 }
 
 /**

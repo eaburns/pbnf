@@ -21,6 +21,7 @@ class OpenList {
 public:
 	void push(const State *s);
 	const State *pop(void);
+	bool empty(void) const;
 
 private:
 	class OpenListCompare {

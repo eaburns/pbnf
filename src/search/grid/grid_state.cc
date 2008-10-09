@@ -8,6 +8,7 @@
  * \date 2008-10-08
  */
 
+#include <iostream>
 #include <vector>
 
 #include "grid_world.h"
@@ -19,7 +20,10 @@ using namespace std;
  * Create a new grid state.
  */
 GridState::GridState(const GridWorld *d, const State *parent, int g, int x, int y)
-	: State(d, parent, g), x(x), y(y) {}
+	: State(d, parent, g), x(x), y(y)
+{
+	this->h = domain->get_heuristic()->compute(this);
+}
 
 /**
  * Test if this state is the goal.
@@ -43,6 +47,22 @@ int GridState::hash(void) const
 	d = dynamic_cast<const GridWorld *>(domain);
 
 	return x * d->get_height() + y;
+}
+
+/**
+ * Create a copy of this state.
+ */
+State *GridState::clone(void) const
+{
+	const GridWorld *d = dynamic_cast<const GridWorld *>(domain);
+
+	return new GridState(d, parent, g, x, y);
+}
+
+void GridState::print(ostream &o) const
+{
+	o << "x=" << x << ", y=" << y << ", g=" << g << ", h=" << h
+	  << ", f=" << g + h << endl;
 }
 
 int GridState::get_x(void) const

@@ -20,7 +20,7 @@ using namespace std;
 class ClosedList {
 public:
 	void add(const State *);
-	const State *lookup(int hash) const;
+	const State *lookup(const State *) const;
 	void delete_all_states(void);
 
 private:

@@ -25,6 +25,8 @@ public:
 
 	virtual bool is_goal(void) const;
 	virtual int hash(void) const;
+	virtual State *clone(void) const;
+	virtual void print(ostream &o) const;
 
 	virtual int get_x(void) const;
 	virtual int get_y(void) const;

@@ -20,7 +20,7 @@ using namespace std;
  */
 bool OpenList::OpenListCompare::operator()(const State *a, const State *b) const
 {
-	return (a->get_g() + a->get_h()) < (b->get_g() + b->get_h());
+	return (a->get_g() + a->get_h()) > (b->get_g() + b->get_h());
 }
 
 void OpenList::push(const State *s)
@@ -36,4 +36,9 @@ const State *OpenList::pop(void)
 	pq.pop();
 
 	return s;
+}
+
+bool OpenList::empty(void) const
+{
+	return pq.empty();
 }

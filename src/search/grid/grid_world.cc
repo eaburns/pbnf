@@ -95,21 +95,21 @@ vector<const State*> *GridWorld::expand(const State *state) const
 	s = dynamic_cast<const GridState*>(state);
 	children = new vector<const State*>();
 
-	if (s->get_x() > 0 && !is_obstacle(s->get_x() + 1, s->get_y())) {
-		children->push_back(new GridState(this, state, s->get_g() + cost,
-						  s->get_x() + 1, s->get_y()));
-	}
-	if (s->get_x() < height - 1 && !is_obstacle(s->get_x() - 1, s->get_y())) {
+	if (s->get_x() > 0 && !is_obstacle(s->get_x() - 1, s->get_y())) {
 		children->push_back(new GridState(this, state, s->get_g() + cost,
 						  s->get_x() - 1, s->get_y()));
 	}
-	if (s->get_y() > 0 && !is_obstacle(s->get_x(), s->get_y() + 1)) {
-			children->push_back(new GridState(this, state, s->get_g() + cost,
-						  s->get_x(), s->get_y() + 1));
-	}
-	if (s->get_y() > width - 1 && !is_obstacle(s->get_x(), s->get_y() - 1)) {
+	if (s->get_x() < width - 1 && !is_obstacle(s->get_x() + 1, s->get_y())) {
 		children->push_back(new GridState(this, state, s->get_g() + cost,
+						  s->get_x() + 1, s->get_y()));
+	}
+	if (s->get_y() > 0 && !is_obstacle(s->get_x(), s->get_y() - 1)) {
+			children->push_back(new GridState(this, state, s->get_g() + cost,
 						  s->get_x(), s->get_y() - 1));
+	}
+	if (s->get_y() < height - 1 && !is_obstacle(s->get_x(), s->get_y() + 1)) {
+		children->push_back(new GridState(this, state, s->get_g() + cost,
+						  s->get_x(), s->get_y() + 1));
 	}
 
 	return children;
