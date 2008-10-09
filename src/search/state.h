@@ -35,8 +35,8 @@ public:
 protected:
 	const State *parent;
 	const SearchDomain *domain;
-	int g;
-	int h;
+	float g;
+	float h;
 };
 
 #endif	/* !_STATE_H_ */
