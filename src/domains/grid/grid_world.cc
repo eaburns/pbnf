@@ -21,8 +21,7 @@ using namespace std;
 /**
  * Create a new GridWorld.
  */
-GridWorld::GridWorld(const Heuristic *h, istream &s)
-	: SearchDomain(h)
+GridWorld::GridWorld(istream &s)
 {
 	char line[100];
 	char c;
@@ -39,7 +38,7 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 	}
 	c = s.get();		// new-line
 	if (c != '\n') {
-		cerr << endl << "Parse error: [" << c << "], h=" << h << endl;
+		cerr << endl << "Parse error: [" << c << "]" << endl;
 		exit(EXIT_FAILURE);
 	}
 	for (int h = 0; h < height; h += 1) {
@@ -52,7 +51,7 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 		}
 		c = s.get();	// new-line
 		if (c != '\n') {
-			cerr << endl << "Parse error: [" << c << "], h=" << h << endl;
+			cerr << endl << "Parse error: [" << c << "]" << endl;
 			exit(EXIT_FAILURE);
 		}
 	}

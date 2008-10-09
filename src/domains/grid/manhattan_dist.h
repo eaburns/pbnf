@@ -16,10 +16,10 @@
 
 class ManhattanDist : public Heuristic {
 public:
-	ManhattanDist(const GridWorld *d);
+	ManhattanDist(int goal_x, int goal_y);
 	virtual float compute(const State *s) const;
 private:
-	const GridWorld *d;
+	int goal_x, goal_y;
 };
 
 #endif /* !_MANHATTAN_DIST_H_ */

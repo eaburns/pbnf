@@ -21,7 +21,7 @@ using namespace std;
 
 class GridWorld : public SearchDomain {
 public:
-	GridWorld(const Heuristic *h, istream &s);
+	GridWorld(istream &s);
 	~GridWorld();
 
 	virtual State *initial_state(void);

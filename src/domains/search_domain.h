@@ -21,8 +21,9 @@ class state;
 
 class SearchDomain {
 public:
-	SearchDomain(const Heuristic *h);
+	SearchDomain();
 
+	virtual void set_heuristic(const Heuristic *h);
 	virtual float h_val(const State *) const;
 
 	/* Abstract methods */
@@ -30,7 +31,7 @@ public:
 	virtual vector<const State*> *expand(const State *s) const = 0;
 
 private:
-	const Heuristic *h;
+	const Heuristic *heuristic;
 };
 
 #endif	/* !_SEARCH_DOMAIN_H_ */
