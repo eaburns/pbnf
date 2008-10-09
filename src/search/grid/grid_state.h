@@ -25,12 +25,10 @@ public:
 
 	virtual bool is_goal(void) const;
 	virtual int hash(void) const;
-	virtual vector<const State*> *expand(const State *s) const;
 
 	virtual int get_x(void) const;
 	virtual int get_y(void) const;
 private:
-	const GridWorld *d;
 	int x, y;
 };
 

@@ -19,25 +19,18 @@ using namespace std;
  * Create a new grid state.
  */
 GridState::GridState(const GridWorld *d, const State *parent, int g, int x, int y)
-	: State(parent, g), d(d), x(x), y(y)
-{
-	this->h = d->h_val(this);
-}
+	: State(d, parent, g), x(x), y(y) {}
 
 /**
  * Test if this state is the goal.
  */
 bool GridState::is_goal(void) const
 {
-	return d->get_goal_x() == x && d->get_goal_y() == y;
-}
+	const GridWorld *d;
 
-/**
- * Expand the given state.
- */
-vector<const State*> *GridState::expand(const State *s) const
-{
-	return d->expand(s);
+	d = dynamic_cast<const GridWorld *>(domain);
+
+	return d->get_goal_x() == x && d->get_goal_y() == y;
 }
 
 /**
@@ -45,6 +38,10 @@ vector<const State*> *GridState::expand(const State *s) const
  */
 int GridState::hash(void) const
 {
+	const GridWorld *d;
+
+	d = dynamic_cast<const GridWorld *>(domain);
+
 	return x * d->get_height() + y;
 }
 

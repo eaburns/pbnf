@@ -28,9 +28,7 @@ void SearchDomain::set_heuristic(const Heuristic *h)
 /**
  * Compute the heuristic for the given state.
  */
-float SearchDomain::h_val(const State *s) const
+const Heuristic *SearchDomain::get_heuristic(void) const
 {
-	assert(heuristic != NULL);
-
-	return heuristic->compute(s);
+	return heuristic;
 }

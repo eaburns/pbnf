@@ -18,16 +18,18 @@ using namespace std;
 
 class State {
 public:
-	State(const State *parent, int g);
+	State(const SearchDomain *d, const State *parent, int g);
 
-	virtual bool is_goal(void) const = 0;
 	virtual int hash(void) const = 0;
-	virtual vector<const State*> *expand(const State *s) const = 0;
+	virtual bool is_goal(void) const = 0;
+
+	virtual vector<const State*> *expand(const State *s) const;
 
 	virtual int get_g(void) const;
 	virtual int get_h(void) const;
 protected:
 	const State *parent;
+	const SearchDomain *domain;
 	int g;
 	int h;
 };

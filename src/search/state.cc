@@ -10,8 +10,11 @@
 
 #include "state.h"
 
-State::State(const State *parent, int g)
-	: parent(parent), g(g) {}
+State::State(const SearchDomain *d, const State *parent, int g)
+	: parent(parent), domain(d), g(g)
+{
+	this->h = d->get_heuristic()->compute(this);
+}
 
 int State::get_g(void) const
 {
@@ -23,3 +26,10 @@ int State::get_h(void) const
 	return h;
 }
 
+/**
+ * Expand the given state.
+ */
+vector<const State*> *State::expand(const State *s) const{
+
+	return domain->expand(s);
+}

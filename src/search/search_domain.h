@@ -24,7 +24,7 @@ public:
 	SearchDomain();
 
 	virtual void set_heuristic(const Heuristic *h);
-	virtual float h_val(const State *) const;
+	virtual const Heuristic* get_heuristic(void) const;
 
 	/* Abstract methods */
 	virtual State *initial_state(void) = 0;
