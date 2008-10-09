@@ -30,6 +30,8 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 	s >> height;
 	s >> width;
 
+	obstacles = new bool[width * height];
+
 	s >> line;
 	if(strcmp(line, "Board:") != 0) {
 		cerr << "Parse error: expected \"Board:\"" << endl;
@@ -43,10 +45,10 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 	for (int h = 0; h < height; h += 1) {
 		for (int w = 0; w < width; w += 1) {
 			c = s.get();
-			if (c == '#') {
-				obstacle_x.push_back(w);
-				obstacle_y.push_back(h);
-			}
+			if (c == '#')
+				obstacles[width * h + w] = true;
+			else
+				obstacles[width * h + w] = false;
 		}
 		c = s.get();	// new-line
 		if (c != '\n') {
@@ -64,6 +66,14 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 	s >> start_y;
 	s >> goal_x;
 	s >> goal_y;
+}
+
+/**
+ * Destructor.
+ */
+GridWorld::~GridWorld()
+{
+	delete obstacles;
 }
 
 /**
@@ -131,13 +141,7 @@ int GridWorld::get_height(void) const
  */
 bool GridWorld::is_obstacle(int x, int y) const
 {
-	for (int i = 0; i < obstacle_x.size(); i += 1) {
-		if (obstacle_x.at(i) == x
-		    && obstacle_y.at(i) == y)
-			return true;
-	}
-
-	return false;
+	return obstacles[width * y + x];
 }
 
 /**

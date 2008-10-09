@@ -22,6 +22,7 @@ using namespace std;
 class GridWorld : public SearchDomain {
 public:
 	GridWorld(const Heuristic *h, istream &s);
+	~GridWorld();
 
 	virtual State *initial_state(void);
 	virtual vector<const State*> *expand(const State *s) const;
@@ -32,14 +33,13 @@ public:
 	virtual int get_height(void) const;
 	virtual void print(ostream &o) const;
 private:
-
+	int hash_position(int x, int y) const;
 	bool is_obstacle(int x, int y) const;
 
 	int width, height;
 	int start_x, start_y;
 	int goal_x, goal_y;
-	vector<int> obstacle_x;
-	vector<int> obstacle_y;
+	bool *obstacles;
 };
 
 #endif	/* !_GRID_WORLD_H_ */
