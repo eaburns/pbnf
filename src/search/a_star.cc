@@ -31,18 +31,8 @@ vector<const State *> *AStar::search(const State *init)
 		vector<const State *> *children = expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			const State *c = children->at(i);
-
 			if (c->is_goal()) {
-				State *copy, *last = NULL;
-				path = new vector<const State *>;
-				while (c) {
-					copy = c->clone();
-					if (last)
-						last->set_parent(copy);
-					path->push_back(copy);
-					c = c->get_parent();
-					last = copy;
-				}
+				path = c->get_path();
 				for (; i < children->size(); i += 1)
 					delete children->at(i);
 				break;

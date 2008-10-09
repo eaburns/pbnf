@@ -32,12 +32,26 @@ vector<const State*> *State::expand(void) const
 	return domain->expand(this);
 }
 
-void State::set_parent(const State *p)
+/**
+ * Follow the parent links back up and create copies of each state.
+ * \return A path from the initial state to the goal state.
+ */
+vector<const State *> *State::get_path(void) const
 {
-	parent = p;
-}
+	vector<const State *> *path = new vector<const State *>;
+	const State *p;
+	State *copy, *last = NULL;
 
-const State *State::get_parent(void) const
-{
-	return parent;
+	for (p = this; p; p = p->parent) {
+		copy = p->clone();
+		copy->parent = NULL;
+
+		if (last)
+			last->parent = copy;
+
+		path->push_back(copy);
+		last = copy;
+	}
+
+	return path;
 }
