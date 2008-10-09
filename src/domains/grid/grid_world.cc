@@ -30,14 +30,16 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 	s >> height;
 	s >> width;
 
-	cerr << height << " " << width << endl;
-
 	s >> line;
 	if(strcmp(line, "Board:") != 0) {
-		cerr << "Parse error" << endl;
+		cerr << "Parse error: expected \"Board:\"" << endl;
 		exit(EXIT_FAILURE);
 	}
-
+	c = s.get();		// new-line
+	if (c != '\n') {
+		cerr << endl << "Parse error: [" << c << "], h=" << h << endl;
+		exit(EXIT_FAILURE);
+	}
 	for (int h = 0; h < height; h += 1) {
 		for (int w = 0; w < width; w += 1) {
 			c = s.get();
@@ -46,9 +48,9 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
 				obstacle_y.push_back(h);
 			}
 		}
-		c = s.get();
+		c = s.get();	// new-line
 		if (c != '\n') {
-			cerr << "Parse error: [" << c << "], h=" << h << endl;
+			cerr << endl << "Parse error: [" << c << "], h=" << h << endl;
 			exit(EXIT_FAILURE);
 		}
 	}
