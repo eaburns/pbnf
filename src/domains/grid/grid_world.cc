@@ -73,7 +73,7 @@ GridWorld::GridWorld(const Heuristic *h, istream &s)
  */
 GridWorld::~GridWorld()
 {
-	delete obstacles;
+	delete []obstacles;
 }
 
 /**
