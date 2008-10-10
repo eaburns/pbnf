@@ -78,3 +78,11 @@ vector<const State *> *State::get_path(void) const
 
 	return path;
 }
+
+/**
+ * Get the parent of this state.
+ */
+const State *State::get_parent(void) const
+{
+	return parent;
+}

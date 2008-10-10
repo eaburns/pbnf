@@ -29,6 +29,8 @@ public:
 
 	float get_min_pruned(void) const;
 private:
+	bool is_cycle(const State *) const;
+
 	float bound;
 	float min_pruned;
 };

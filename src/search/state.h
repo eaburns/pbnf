@@ -28,12 +28,14 @@ public:
 	virtual bool is_goal(void) const = 0;
 	virtual State *clone(void) const = 0;
 	virtual void print(ostream &o) const = 0;
+	virtual bool equals(const State *s) const = 0;
 
 	virtual vector<const State*> *expand(void) const;
 
 	virtual float get_f(void) const;
 	virtual float get_g(void) const;
 	virtual float get_h(void) const;
+	virtual const State *get_parent(void) const;
 	virtual vector<const State *> *get_path(void) const;
 protected:
 	const State *parent;

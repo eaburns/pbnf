@@ -78,6 +78,18 @@ void GridState::print(ostream &o) const
 }
 
 /**
+ * GridState equality.
+ */
+bool GridState::equals(const State *state) const
+{
+	const GridState *s;
+
+	s = dynamic_cast<const GridState *>(state);
+
+	return s->x == x && s->y == y;
+}
+
+/**
  * Get the x-coordinate.
  * \return The x-coordinate.
  */
