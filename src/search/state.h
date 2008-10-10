@@ -31,8 +31,9 @@ public:
 
 	virtual vector<const State*> *expand(void) const;
 
-	virtual int get_g(void) const;
-	virtual int get_h(void) const;
+	virtual float get_f(void) const;
+	virtual float get_g(void) const;
+	virtual float get_h(void) const;
 	virtual vector<const State *> *get_path(void) const;
 protected:
 	const State *parent;

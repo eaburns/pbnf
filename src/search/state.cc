@@ -14,10 +14,19 @@ State::State(const SearchDomain *d, const State *parent, int g)
 	: parent(parent), domain(d), g(g), h(-1) {}
 
 /**
+ * Get the estimated cost of a path that uses this node.
+ * \return g + h
+ */
+float State::get_f(void) const
+{
+	return g + h;
+}
+
+/**
  * Get the cost so far of the state.
  * \return g
  */
-int State::get_g(void) const
+float State::get_g(void) const
 {
 	return g;
 }
@@ -26,7 +35,7 @@ int State::get_g(void) const
  * Get the estimated cost to go.
  * \return h
  */
-int State::get_h(void) const
+float State::get_h(void) const
 {
 	return h;
 }
