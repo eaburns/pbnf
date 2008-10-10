@@ -28,7 +28,7 @@ class PQOpenList : public OpenList {
 public:
 	virtual void add(const State *s);
 	virtual const State *take(void);
-	virtual bool empty(void) const;
+	virtual bool empty(void);
 
 private:
 	class PQCompare {

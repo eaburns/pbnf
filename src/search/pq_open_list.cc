@@ -58,7 +58,7 @@ const State *PQOpenList::take(void)
  * Test if the OpenList is empty.
  * \return True if the open list is empty, false if not.
  */
-bool PQOpenList::empty(void) const
+bool PQOpenList::empty(void)
 {
 	return pq.empty();
 }
