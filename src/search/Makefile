@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-g -Wall -Werror -pipe
+CXXFLAGS=-g -Wall -Werror -pipe #-lpthread
 
 SRC= \
 	state.cc \
@@ -11,6 +11,7 @@ SRC= \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
+	#kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)
 
