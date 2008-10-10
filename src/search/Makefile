@@ -10,6 +10,7 @@ SRC= \
 	search.cc \
 	a_star.cc \
 	cost_bound_dfs.cc \
+	ida_star.cc \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \

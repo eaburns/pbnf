@@ -56,3 +56,21 @@ unsigned long Search::get_generated(void) const
 {
 	return generated;
 }
+
+/**
+ * Set the expanded count.
+ * \param e The value to set it to.
+ */
+void Search::set_expanded(unsigned long e)
+{
+	expanded = e;
+}
+
+/**
+ * Set the generated count.
+ * \param g The value to set it to.
+ */
+void Search::set_generated(unsigned long g)
+{
+	generated = g;
+}

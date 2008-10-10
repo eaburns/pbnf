@@ -16,6 +16,7 @@
 #include "state.h"
 #include "a_star.h"
 #include "cost_bound_dfs.h"
+#include "ida_star.h"
 #include "grid/manhattan_dist.h"
 #include "grid/grid_world.h"
 
@@ -27,7 +28,8 @@ int main(void)
 	GridWorld g(cin);
 	ManhattanDist h(g.get_goal_x(), g.get_goal_y());
 //	CostBoundDFS search(23);
-	AStar search;
+//	AStar search;
+	IDAStar search;
 
 	g.set_heuristic(&h);
 

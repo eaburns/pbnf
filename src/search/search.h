@@ -33,6 +33,9 @@ public:
 protected:
 	vector<const State *> *expand(const State *);
 
+	void set_expanded(unsigned long e);
+	void set_generated(unsigned long g);
+
 private:
 	unsigned long expanded;
 	unsigned long generated;
