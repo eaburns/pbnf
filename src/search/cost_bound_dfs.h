@@ -26,10 +26,11 @@ public:
 	CostBoundDFS(float bound);
 
 	virtual vector<const State *> *search(const State *);
-private:
-	
 
+	float get_min_pruned(void) const;
+private:
 	float bound;
+	float min_pruned;
 };
 
 #endif	/* !_COST_BOUND_DFS_H_ */
