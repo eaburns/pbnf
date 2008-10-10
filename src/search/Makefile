@@ -9,6 +9,7 @@ SRC= \
 	closed_list.cc \
 	search.cc \
 	a_star.cc \
+	cost_bound_dfs.cc \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
