@@ -1,6 +1,6 @@
 /* -*- mode:linux -*- */
 /**
- * \file open_list.h
+ * \file pq_open_list.h
  *
  * An open list class.
  *
@@ -8,12 +8,13 @@
  * \date 2008-10-09
  */
 
-#if !defined(_OPEN_LIST_H_)
-#define _OPEN_LIST_H_
+#if !defined(_PQ_OPEN_LIST_H_)
+#define _PQ_OPEN_LIST_H_
 
 #include <queue>
 
 #include "state.h"
+#include "open_list.h"
 
 using namespace std;
 
@@ -23,19 +24,19 @@ using namespace std;
  *
  * \todo make this a bit more general.
  */
-class OpenList {
+class PQOpenList : public OpenList {
 public:
-	void push(const State *s);
-	const State *pop(void);
-	bool empty(void) const;
+	virtual void add(const State *s);
+	virtual const State *take(void);
+	virtual bool empty(void) const;
 
 private:
-	class OpenListCompare {
+	class PQCompare {
 	public:
 		bool operator()(const State *a, const State *b) const;
 	};
 
-	priority_queue<const State *, vector<const State *>, OpenListCompare> pq;
+	priority_queue<const State *, vector<const State *>, PQCompare> pq;
 };
 
-#endif	/* !_OPEN_LIST_H_ */
+#endif	/* !_PQ_OPEN_LIST_H_ */

@@ -9,7 +9,7 @@
  */
 
 #include "state.h"
-#include "open_list.h"
+#include "pq_open_list.h"
 #include "closed_list.h"
 #include "a_star.h"
 
@@ -19,14 +19,14 @@
 vector<const State *> *AStar::search(const State *init)
 {
 	vector<const State *> *path = NULL;
-	OpenList open;
+	PQOpenList open;
 	ClosedList closed;
 
-	open.push(init);
+	open.add(init);
 	closed.add(init);
 
 	while (!open.empty() && !path) {
-		const State *s = open.pop();
+		const State *s = open.take();
 
 		vector<const State *> *children = expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
@@ -42,7 +42,7 @@ vector<const State *> *AStar::search(const State *init)
 				continue;
 			}
 			closed.add(c);
-			open.push(c);
+			open.add(c);
 		}
 		delete children;
 	}

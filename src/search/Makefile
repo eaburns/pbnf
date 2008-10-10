@@ -4,7 +4,7 @@ CXXFLAGS=-g -Wall -Werror -pipe #-lpthread
 SRC= \
 	state.cc \
 	search_domain.cc \
-	open_list.cc \
+	pq_open_list.cc \
 	closed_list.cc \
 	search.cc \
 	a_star.cc \
