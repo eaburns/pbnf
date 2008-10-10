@@ -29,6 +29,7 @@ public:
 	virtual void add(const State *s);
 	virtual const State *take(void);
 	virtual bool empty(void);
+	virtual void delete_all_states(void);
 
 private:
 	class PQCompare {

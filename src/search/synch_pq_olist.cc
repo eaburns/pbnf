@@ -44,3 +44,10 @@ bool SynchPQOList::empty(void)
 
 	return ret;
 }
+
+void SynchPQOList::delete_all_states(void)
+{
+	pthread_mutex_lock(&mutex);
+	PQOpenList::delete_all_states();
+	pthread_mutex_unlock(&mutex);
+}

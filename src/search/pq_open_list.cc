@@ -62,3 +62,15 @@ bool PQOpenList::empty(void)
 {
 	return pq.empty();
 }
+
+/**
+ * Delete all of the states on the open list.
+ */
+void PQOpenList::delete_all_states(void)
+{
+	while (!pq.empty()) {
+		const State *s = pq.top();
+		pq.pop();
+		delete s;
+	}
+}
