@@ -6,6 +6,7 @@ SRC= \
 	search_domain.cc \
 	pq_open_list.cc \
 	synch_pq_olist.cc \
+	stack_open_list.cc \
 	closed_list.cc \
 	search.cc \
 	a_star.cc \
