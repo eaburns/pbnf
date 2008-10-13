@@ -248,6 +248,7 @@ void GridWorld::expanded_state(const GridState *s)
 void GridWorld::export_eps(string file) const
 {
 	const int min_size = 500;
+	const int max_size = 1000;
 	int granularity = expanded < 500 ? 500 / expanded : expanded / 500;
 	string data;
 	EPS image(width, height);
@@ -255,6 +256,11 @@ void GridWorld::export_eps(string file) const
 	if (width < min_size && height < min_size) {
 		float min_side = width < height ? width : height;
 		image.set_scale(min_size / min_side);
+	}
+
+	if (width > max_size || height > max_size) {
+		float max_side = width > max_size ? width : height;
+		image.set_scale(max_size / max_side);
 	}
 
 	// Image red data

@@ -30,8 +30,8 @@ int main(void)
 	ManhattanDist manhattan(g.get_goal_x(), g.get_goal_y());
 	HZero hzero;
 //	CostBoundDFS search(23);
-	IDAStar search;
-//	AStar search;
+//	IDAStar search;
+	AStar search;
 
 
 	g.set_heuristic(&manhattan);

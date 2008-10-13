@@ -22,7 +22,7 @@ vector<const State *> *IDAStar::search(const State *init)
 
 	do {
 		CostBoundDFS dfs(bound);
-
+		cout << "bound=" << bound << endl;
 		path = dfs.search(init->clone());
 		set_expanded(get_expanded() + dfs.get_expanded());
 		set_generated(get_generated() + dfs.get_generated());
