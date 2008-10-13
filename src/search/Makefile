@@ -30,6 +30,13 @@ all: test
 test: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) -o test $(OBJ) main.cc
 
+depend:
+	touch .depend
+	(find . -name \*.cc; find . -name \*.h) | xargs makedepend -f.depend -Y
+	rm -f .depend.bak
+
 clean:
 	find . -name \*.o -exec rm -f '{}' \;
 	rm -f test
+
+-include .depend
