@@ -282,21 +282,21 @@ void GridWorld::export_eps(string file) const
 			char red, green, blue;
 			if (is_obstacle(x, y)) {
 				// black
-				red = green = blue = 0x00;
+				red = green = blue = 0;
 			} else if (states[i] == 0) {
 				// white
-				red = green = blue = 0xFF;
+				red = green = blue = (char) 255;
 			} else {
 				// A certain shade of orange
 				int number = states[i];
 				int x = expanded < 500 ? number * granularity
 					: number / granularity;
 				if (x < 125) {
-					red = 255;
-					green = 255;
+					red = (char) 255;
+					green = (char) 255;
 					blue = 125 - x;
 				} else if (x < 380) {
-					red = 255;
+					red = (char) 255;
 					green = 255 - (x - 125);
 					blue = 0;
 				} else {
