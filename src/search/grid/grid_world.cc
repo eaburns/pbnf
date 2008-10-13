@@ -76,8 +76,10 @@ GridWorld::GridWorld(istream &s)
 
 	s >> start_x;
 	s >> start_y;
+	start_y = height - 1 - start_y;
 	s >> goal_x;
 	s >> goal_y;
+	goal_y = height - 1 - goal_y;
 
 
 #if defined(ENABLE_IMAGES)
