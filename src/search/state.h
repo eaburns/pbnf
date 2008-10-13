@@ -24,6 +24,9 @@ class State {
 public:
 	State(SearchDomain *d, const State *parent, int g);
 
+	virtual ~State();
+
+
 	virtual int hash(void) const = 0;
 	virtual bool is_goal(void) const = 0;
 	virtual State *clone(void) const = 0;

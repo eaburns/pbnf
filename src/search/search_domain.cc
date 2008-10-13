@@ -17,6 +17,8 @@
  */
 SearchDomain::SearchDomain() : heuristic(NULL) {}
 
+SearchDomain::~SearchDomain() {}
+
 /**
  * Set the heuristic that will be used in this domain.
  * \param h The heuristic to add.

@@ -26,6 +26,8 @@ class SearchDomain {
 public:
 	SearchDomain();
 
+	virtual ~SearchDomain();
+
 	virtual void set_heuristic(const Heuristic *h);
 	virtual const Heuristic* get_heuristic(void) const;
 

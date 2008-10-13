@@ -4,11 +4,12 @@ CXX=g++
 IMAGES=-DENABLE_IMAGES
 #IMAGES=
 
-CXXFLAGS=-g -Wall -Werror -pipe $(IMAGES) #-lpthread
+CXXFLAGS=-g -Wall -Werror -Wnon-virtual-dtor -pedantic -pipe $(IMAGES) #-lpthread
 
 SRC= \
 	state.cc \
 	search_domain.cc \
+	open_list.cc \
 	pq_open_list.cc \
 	synch_pq_olist.cc \
 	closed_list.cc \
@@ -16,6 +17,7 @@ SRC= \
 	a_star.cc \
 	cost_bound_dfs.cc \
 	ida_star.cc \
+	heuristic.cc \
 	h_zero.cc \
 	util/eps.cc \
 	grid/manhattan_dist.cc \

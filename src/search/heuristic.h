@@ -18,6 +18,8 @@ class State;
  */
 class Heuristic {
 public:
+	virtual ~Heuristic();
+
 	virtual float compute(const State *s) const = 0;
 };
 

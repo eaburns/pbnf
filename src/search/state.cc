@@ -13,6 +13,8 @@
 State::State(SearchDomain *d, const State *parent, int g)
 	: parent(parent), domain(d), g(g), h(-1) {}
 
+State::~State() {}
+
 /**
  * Get the estimated cost of a path that uses this node.
  * \return g + h

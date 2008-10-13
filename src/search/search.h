@@ -23,6 +23,7 @@ using namespace std;
 class Search {
 public:
 	Search(void);
+	virtual ~Search() {}
 
 	virtual vector<const State *> *search(const State *) = 0;
 
