@@ -72,9 +72,11 @@ GridWorld::GridWorld(istream &s)
 	s >> goal_x;
 	s >> goal_y;
 
-	states.resize(width * height, 0UL);
 
+#if defined(ENABLE_IMAGES)
+	states.resize(width * height, 0UL);
 	expanded = 0;
+#endif	// ENABLE_IMAGES
 }
 
 /**

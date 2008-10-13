@@ -2,6 +2,7 @@ CXX=g++
 
 # Comment this out for faster, more memory efficient code.
 IMAGES=-DENABLE_IMAGES
+#IMAGES=
 
 CXXFLAGS=-g -Wall -Werror -pipe $(IMAGES) #-lpthread
 
