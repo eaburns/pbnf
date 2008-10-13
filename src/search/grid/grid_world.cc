@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../util/eps.h"
+
 #include "grid_state.h"
 #include "grid_world.h"
 
@@ -239,64 +241,6 @@ void GridWorld::expanded_state(const GridState *s)
 }
 
 /**
- * Convert a pixel location to a post script point.
- */
-static double point_of_pixel(int px)
-{
-	return ((double) px) * 0.72;
-}
-
-/**
- * Run-length encode the given string
- */
-static string run_length_encode(string in)
-{
-	string buffer, out;
-
-	for (unsigned int i = 0; i < in.size(); i += 1) {
-		buffer += in[i];
-
-		// Buffer Full
-		if (buffer.size() == 127) {
-			out += buffer.size() - 1;
-			out += buffer;
-			buffer.clear();
-		}
-
-		// Run found
-		if (buffer.size() >= 3
-		    && (buffer[buffer.size() - 3]
-			== buffer[buffer.size() - 2])
-		    && (buffer[buffer.size() - 3]
-			== buffer[buffer.size() - 1])) {
-			if (buffer.size() > 3) {
-				out += buffer.size() - 4;
-				out += buffer.substr(0, buffer.size() - 3);
-			}
-
-			buffer.clear();
-
-			int run = 3;
-			char c = in[i];
-			do {
-				run += 1;
-				i += 1;
-			} while(run != 129 && in[i] == c && i < in.size());
-			i -= 1;
-			out += 2 - run;
-			out += c;
-		}
-	}
-
-	if (buffer.size()) {
-		out += buffer.size() - 1;
-		out += buffer;
-	}
-
-	return out;
-}
-
-/**
  * Export an image of the order of state expansions to an encapsulated
  * post script file.
  * \param file The name of the file to export to.
@@ -304,39 +248,13 @@ static string run_length_encode(string in)
 void GridWorld::export_eps(string file) const
 {
 	const int min_size = 500;
-	float enlarge = 1.0;
 	string data;
-	ofstream o(file.c_str());
+	EPS image(width, height);
 
 	if (width < min_size && height < min_size) {
 		float min_side = width < height ? width : height;
-		enlarge = min_size / min_side;
+		image.set_scale(min_size / min_side);
 	}
-
-	// PS and EPS header comments
-	o << "%!PS-Adobe-3.0" << endl;
-	o << "%%Creator: GridWorld::export_eps" << endl;
-	o << "%%Title: " << file << endl;
-	o << "%%BoundingBox: 0 0 "
-	  << point_of_pixel(width) * enlarge << " "
-	  << point_of_pixel(height) * enlarge << endl;
-	o << "%%EndComments" << endl;
-
-	// scale the image properly
-	o << point_of_pixel(width) * enlarge << " "
-	  << point_of_pixel(height) * enlarge << " scale" << endl;
-
-	// The image
-	o << width << endl;	// width
-	o << height << endl;	// height
-	o << "8" << endl;	// color depth
-	o << "[" << width << " 0 0 " << height << " 0 0]" << endl;
-	o << "/datasource currentfile /RunLengthDecode filter def" << endl;
-	o << "/datastring " << width * 3 << " string def" << endl;
-	o << "{datasource datastring readstring pop}" << endl;
-	o << "false" << endl;
-	o << "3" << endl;
-	o << "colorimage" << endl;
 
 	// Image red data
 	for (int y = height - 1; y >= 0; y -= 1) {
@@ -362,10 +280,8 @@ void GridWorld::export_eps(string file) const
 		}
 	}
 
-	o << run_length_encode(data) << endl;
-
-	o << "showpage" << endl;
-	o.close();
+	image.set_data(data);
+	image.output(file);
 }
 
 #endif	// ENABLE_IMAGES
