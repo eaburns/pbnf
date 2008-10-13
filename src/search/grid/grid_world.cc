@@ -279,12 +279,12 @@ static string run_length_encode(string in)
 	count = 1;
 	do {
 		if (last != in[i]) {
-			out += 258 - count;
+			out += 2 - count;
 			out += last;
 			count = 1;
 			last = in[i];
 		} else if (count == 129) {
-			out += 258 - count;
+			out += 2 - count;
 			out += last;
 			count = 1;
 		}
@@ -292,7 +292,7 @@ static string run_length_encode(string in)
 		i += 1;
 	} while (i < in.size());
 
-	out += 258 - count;
+	out += 2 - count;
 	out += last;
 
 	return out;
