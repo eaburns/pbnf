@@ -17,6 +17,7 @@
 #include "a_star.h"
 #include "cost_bound_dfs.h"
 #include "ida_star.h"
+#include "h_zero.h"
 #include "grid/manhattan_dist.h"
 #include "grid/grid_world.h"
 
@@ -26,12 +27,15 @@ int main(void)
 {
 	vector<const State *> *path;
 	GridWorld g(cin);
-	ManhattanDist h(g.get_goal_x(), g.get_goal_y());
+	ManhattanDist manhattan(g.get_goal_x(), g.get_goal_y());
+	HZero hzero;
 //	CostBoundDFS search(23);
-	AStar search;
-//	IDAStar search;
+	IDAStar search;
+//	AStar search;
 
-	g.set_heuristic(&h);
+
+	g.set_heuristic(&manhattan);
+//	g.set_heuristic(&hzero);
 
 	path = search.search(g.initial_state());
 //	g.print(cout, path);

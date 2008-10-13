@@ -15,6 +15,7 @@ SRC= \
 	a_star.cc \
 	cost_bound_dfs.cc \
 	ida_star.cc \
+	h_zero.cc \
 	util/eps.cc \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
