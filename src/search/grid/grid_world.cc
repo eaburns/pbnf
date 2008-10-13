@@ -248,6 +248,7 @@ void GridWorld::expanded_state(const GridState *s)
 void GridWorld::export_eps(string file) const
 {
 	const int min_size = 500;
+	int granularity = expanded < 500 ? 500 / expanded : expanded / 500;
 	string data;
 	EPS image(width, height);
 
@@ -268,11 +269,23 @@ void GridWorld::export_eps(string file) const
 				// white
 				red = green = blue = 0xFF;
 			} else {
-				// A certain shade of red
-				double total = expanded * 1.2;
-				double time = states[i];
-				red = (1.0 - (time / total)) * 0xFF;
-				green = blue = 0x00;
+				// A certain shade of orange
+				int number = states[i];
+				int x = expanded < 500 ? number * granularity
+					: number / granularity;
+				if (x < 125) {
+					red = 255;
+					green = 255;
+					blue = 125 - x;
+				} else if (x < 380) {
+					red = 255;
+					green = 255 - (x - 125);
+					blue = 0;
+				} else {
+					red = 255 - (x - 380);
+					green = blue = 0;
+				}
+
 			}
 			data += red;
 			data += green;
