@@ -64,8 +64,15 @@ GridWorld::GridWorld(istream &s)
 
 	// Cost (Unit/Life)
 	s >> line;
+	if (strcmp(line, "Unit") == 0) {
+		cost = UNIT_COST;
+	} else {
+		cost = LIFE_COST;
+	}
+
 	// Movement (Four-way/Eight-way)
 	s >> line;
+
 
 	s >> start_x;
 	s >> start_y;
@@ -97,11 +104,10 @@ State *GridWorld::initial_state(void)
  */
 vector<const State*> *GridWorld::expand(const State *state)
 {
-	const int cost = 1;
-	const GridState *s;
+	const GridState *s = dynamic_cast<const GridState*>(state);
 	vector<const State*> *children;
+	int cost = this->cost == UNIT_COST ? 1 : s->get_y();
 
-	s = dynamic_cast<const GridState*>(state);
 	children = new vector<const State*>();
 
 #if defined(ENABLE_IMAGES)

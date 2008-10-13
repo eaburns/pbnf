@@ -43,6 +43,8 @@ private:
 	bool on_path(const vector<const State *> *path, int x, int y) const;
 	bool is_obstacle(int x, int y) const;
 
+	enum { UNIT_COST, LIFE_COST } cost;
+
 	int width, height;
 	int start_x, start_y;
 	int goal_x, goal_y;
