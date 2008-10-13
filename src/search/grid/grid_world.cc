@@ -259,7 +259,9 @@ void GridWorld::export_eps(string file) const
 {
 	const int min_size = 500;
 	const int max_size = 1000;
-	int granularity = expanded < 500 ? 500 / expanded : expanded / 500;
+	int granularity = expanded == 0	? 0 : (expanded < 500
+					       ? 500 / expanded
+					       : expanded / 500);
 	string data;
 	EPS image(width, height);
 
