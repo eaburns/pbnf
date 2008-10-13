@@ -11,6 +11,8 @@
 #if !defined(_H_ZERO_H_)
 #define _H_ZERO_H_
 
+#include "heuristic.h"
+
 class State;
 
 /**
