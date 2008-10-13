@@ -31,7 +31,7 @@ public:
 
 	/* Abstract methods */
 	virtual State *initial_state(void) = 0;
-	virtual vector<const State*> *expand(const State *s) const = 0;
+	virtual vector<const State*> *expand(const State *s) = 0;
 
 private:
 	const Heuristic *heuristic;

@@ -1,5 +1,9 @@
 CXX=g++
-CXXFLAGS=-g -Wall -Werror -pipe #-lpthread
+
+# Comment this out for faster, more memory efficient code.
+IMAGES=-DENABLE_IMAGES
+
+CXXFLAGS=-g -Wall -Werror -pipe $(IMAGES) #-lpthread
 
 SRC= \
 	state.cc \

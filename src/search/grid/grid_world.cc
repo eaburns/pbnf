@@ -9,9 +9,14 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <map>
+#include <string>
 #include <vector>
 
+#include <arpa/inet.h>
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -64,6 +69,10 @@ GridWorld::GridWorld(istream &s)
 	s >> start_y;
 	s >> goal_x;
 	s >> goal_y;
+
+	states.resize(width * height, 0UL);
+
+	expanded = 0;
 }
 
 /**
@@ -82,7 +91,7 @@ State *GridWorld::initial_state(void)
  * \return A newly allocated vector of newly allocated children
  *         states.  All of this must be deleted by the caller.
  */
-vector<const State*> *GridWorld::expand(const State *state) const
+vector<const State*> *GridWorld::expand(const State *state)
 {
 	const int cost = 1;
 	const GridState *s;
@@ -90,6 +99,11 @@ vector<const State*> *GridWorld::expand(const State *state) const
 
 	s = dynamic_cast<const GridState*>(state);
 	children = new vector<const State*>();
+
+#if defined(ENABLE_IMAGES)
+	expanded += 1;
+	expanded_state(s);
+#endif	// ENABLE_IMAGSE
 
 	if (s->get_x() > 0 && !is_obstacle(s->get_x() - 1, s->get_y())) {
 		children->push_back(new GridState(this, state, s->get_g() + cost,
@@ -206,3 +220,148 @@ bool GridWorld::on_path(const vector<const State *> *path, int x, int y) const
 
 	return false;
 }
+
+#if defined(ENABLE_IMAGES)
+
+/**
+ * Mark a state as expanded, if this was the first time that the state
+ * was expanded, it is marked in the states field so that we can make
+ * a display of when each state was expanded.
+ * \param s The state that was expanded.
+ */
+void GridWorld::expanded_state(const GridState *s)
+{
+	int index = s->get_y() * width + s->get_x();
+
+	// this should be made atomic
+	if (states[index] == 0)
+		states[index] = expanded;
+}
+
+/**
+ * Convert a pixel location to a post script point.
+ */
+static double point_of_pixel(int px)
+{
+	return ((double) px) * 0.72;
+}
+
+/**
+ * C++ sucks
+ *
+ * This is not thread safe.
+ */
+/*
+static char *hex_string(char c)
+{
+	char digits[] = "0123456789abcdef";
+	static char ret[3];
+
+	ret[0] = digits[(c >> 4) & 0xF];
+	ret[1] = digits[c & 0xF];
+	ret[2] = '\0';
+
+	return ret;
+}
+*/
+
+/**
+ * Run-length encode the given string
+ */
+static string run_length_encode(string in)
+{
+	unsigned int i = 0;
+	unsigned int count;
+	char last = '\0';
+	string out;
+
+	last = in[0];
+	count = 1;
+	do {
+		if (last != in[i]) {
+			out += 258 - count;
+			out += last;
+			count = 1;
+			last = in[i];
+		} else if (count == 129) {
+			out += 258 - count;
+			out += last;
+			count = 1;
+		}
+		count += 1;
+		i += 1;
+	} while (i < in.size());
+
+	out += 258 - count;
+	out += last;
+
+	return out;
+}
+
+/**
+ * Export an image of the order of state expansions to an encapsulated
+ * post script file.
+ * \param file The name of the file to export to.
+ */
+void GridWorld::export_eps(string file) const
+{
+	const float enlarge = 1.0;
+	string data;
+	ofstream o(file.c_str());
+
+	// PS and EPS header comments
+	o << "%!PS-Adobe-3.0" << endl;
+	o << "%%Creator: GridWorld::export_eps" << endl;
+	o << "%%Title: " << file << endl;
+	o << "%%BoundingBox: 0 0 "
+	  << point_of_pixel(width) * enlarge << " "
+	  << point_of_pixel(height) * enlarge << endl;
+	o << "%%EndComments" << endl;
+
+	// scale the image properly
+	o << point_of_pixel(width) * enlarge << " "
+	  << point_of_pixel(height) * enlarge << " scale" << endl;
+
+	// The image
+	o << width << endl;	// width
+	o << height << endl;	// height
+	o << "8" << endl;	// color depth
+	o << "[" << width << " 0 0 " << height << " 0 0]" << endl;
+	o << "/datasource currentfile /RunLengthDecode filter def" << endl;
+	o << "/datastring " << width * 3 << " string def" << endl;
+	o << "{datasource datastring readstring pop}" << endl;
+	o << "false" << endl;
+	o << "3" << endl;
+	o << "colorimage" << endl;
+
+	// Image red data
+	for (int y = height - 1; y >= 0; y -= 1) {
+		for (int x = 0; x < width; x += 1) {
+			int i = y * width + x;
+			char red, green, blue;
+			if (is_obstacle(x, y)) {
+				// black
+				red = green = blue = 0x00;
+			} else if (states[i] == 0) {
+				// white
+				red = green = blue = 0xFF;
+			} else {
+				// A certain shade of red
+				double total = expanded * 1.2;
+				double time = states[i];
+				red = (1.0 - (time / total)) * 0xFF;
+				green = blue = 0x00;
+			}
+			data += red;
+			data += green;
+			data += blue;
+		}
+	}
+
+	o << run_length_encode(data) << endl;
+
+	o << "showpage" << endl;
+	o.close();
+}
+
+#endif	// ENABLE_IMAGES

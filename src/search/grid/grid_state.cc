@@ -24,7 +24,7 @@ using namespace std;
  * \param x The x-coordinate of this state.
  * \param y The y-coordinate of this state.
  */
-GridState::GridState(const GridWorld *d, const State *parent, int g, int x, int y)
+GridState::GridState(GridWorld *d, const State *parent, int g, int x, int y)
 	: State(d, parent, g), x(x), y(y)
 {
 	this->h = domain->get_heuristic()->compute(this);
@@ -62,7 +62,7 @@ int GridState::hash(void) const
  */
 State *GridState::clone(void) const
 {
-	const GridWorld *d = dynamic_cast<const GridWorld *>(domain);
+	GridWorld *d = dynamic_cast<GridWorld *>(domain);
 
 	return new GridState(d, parent, g, x, y);
 }

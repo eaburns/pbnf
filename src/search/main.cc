@@ -28,24 +28,24 @@ int main(void)
 	GridWorld g(cin);
 	ManhattanDist h(g.get_goal_x(), g.get_goal_y());
 //	CostBoundDFS search(23);
-//	AStar search;
-	IDAStar search;
+	AStar search;
+//	IDAStar search;
 
 	g.set_heuristic(&h);
 
 	path = search.search(g.initial_state());
-	g.print(cout, path);
-
+//	g.print(cout, path);
 
 	cout << "generated: " << search.get_generated() << endl;
 	cout << "expanded: " << search.get_expanded() << endl;
-
 	if (path) {
 		cout << "cost: " << path->at(0)->get_g() << endl;
 		for (unsigned int i = 0; i < path->size(); i += 1)
 			delete path->at(i);
 		delete path;
 	}
+
+	g.export_eps("output.eps");
 
 	return EXIT_SUCCESS;
 }

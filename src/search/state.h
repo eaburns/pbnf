@@ -22,7 +22,7 @@ using namespace std;
  */
 class State {
 public:
-	State(const SearchDomain *d, const State *parent, int g);
+	State(SearchDomain *d, const State *parent, int g);
 
 	virtual int hash(void) const = 0;
 	virtual bool is_goal(void) const = 0;
@@ -39,7 +39,7 @@ public:
 	virtual vector<const State *> *get_path(void) const;
 protected:
 	const State *parent;
-	const SearchDomain *domain;
+	SearchDomain *domain;
 	float g;
 	float h;
 };

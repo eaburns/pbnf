@@ -21,7 +21,7 @@ using namespace std;
 
 class GridState : public State {
 public:
-	GridState(const GridWorld *d, const State *parent, int g, int x, int y);
+	GridState(GridWorld *d, const State *parent, int g, int x, int y);
 
 	virtual bool is_goal(void) const;
 	virtual int hash(void) const;
