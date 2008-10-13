@@ -247,53 +247,51 @@ static double point_of_pixel(int px)
 }
 
 /**
- * C++ sucks
- *
- * This is not thread safe.
- */
-/*
-static char *hex_string(char c)
-{
-	char digits[] = "0123456789abcdef";
-	static char ret[3];
-
-	ret[0] = digits[(c >> 4) & 0xF];
-	ret[1] = digits[c & 0xF];
-	ret[2] = '\0';
-
-	return ret;
-}
-*/
-
-/**
  * Run-length encode the given string
  */
 static string run_length_encode(string in)
 {
-	unsigned int i = 0;
-	unsigned int count;
-	char last = '\0';
-	string out;
+	string buffer, out;
 
-	last = in[0];
-	count = 1;
-	do {
-		if (last != in[i]) {
-			out += 2 - count;
-			out += last;
-			count = 1;
-			last = in[i];
-		} else if (count == 129) {
-			out += 2 - count;
-			out += last;
-			count = 1;
+	for (unsigned int i = 0; i < in.size(); i += 1) {
+		buffer += in[i];
+
+		// Buffer Full
+		if (buffer.size() == 127) {
+			out += buffer.size() - 1;
+			out += buffer;
+			buffer.clear();
 		}
-		count += 1;
-		i += 1;
-	} while (i < in.size());
 
-	out += 2 - count;
-	out += last;
+		// Run found
+		if (buffer.size() >= 3
+		    && (buffer[buffer.size() - 3]
+			== buffer[buffer.size() - 2])
+		    && (buffer[buffer.size() - 3]
+			== buffer[buffer.size() - 1])) {
+			if (buffer.size() > 3) {
+				out += buffer.size() - 4;
+				out += buffer.substr(0, buffer.size() - 3);
+			}
+
+			buffer.clear();
+
+			int run = 3;
+			char c = in[i];
+			do {
+				run += 1;
+				i += 1;
+			} while(run != 129 && in[i] == c && i < in.size());
+			i -= 1;
+			out += 2 - run;
+			out += c;
+		}
+	}
+
+	if (buffer.size()) {
+		out += buffer.size() - 1;
+		out += buffer;
+	}
 
 	return out;
 }
@@ -305,9 +303,15 @@ static string run_length_encode(string in)
  */
 void GridWorld::export_eps(string file) const
 {
-	const float enlarge = 1.0;
+	const int min_size = 500;
+	float enlarge = 1.0;
 	string data;
 	ofstream o(file.c_str());
+
+	if (width < min_size && height < min_size) {
+		float min_side = width < height ? width : height;
+		enlarge = min_size / min_side;
+	}
 
 	// PS and EPS header comments
 	o << "%!PS-Adobe-3.0" << endl;
