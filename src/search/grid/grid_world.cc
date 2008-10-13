@@ -108,7 +108,7 @@ vector<const State*> *GridWorld::expand(const State *state)
 {
 	const GridState *s = dynamic_cast<const GridState*>(state);
 	vector<const State*> *children;
-	int cost = this->cost == UNIT_COST ? 1 : s->get_y();
+	int cost = this->cost == UNIT_COST ? 1 : height - 1 - s->get_y();
 
 	children = new vector<const State*>();
 
