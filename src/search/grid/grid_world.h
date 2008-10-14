@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+#include "../util/atomic_int.h"
+
 #include "../state.h"
 #include "../search_domain.h"
 
@@ -54,7 +56,7 @@ private:
 	void expanded_state(const GridState *s);
 
 	unsigned long expanded;
-	vector<unsigned long> states;
+	vector<AtomicInt> states;
 #endif	/* ENABLE_IMAGES */
 
 };

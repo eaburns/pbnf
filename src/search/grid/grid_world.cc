@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../util/atomic_int.h"
 #include "../util/eps.h"
 
 #include "grid_state.h"
@@ -83,7 +84,7 @@ GridWorld::GridWorld(istream &s)
 
 
 #if defined(ENABLE_IMAGES)
-	states.resize(width * height, 0UL);
+	states.resize(width * height, AtomicInt(0));
 	expanded = 0;
 #endif	// ENABLE_IMAGES
 }
@@ -246,8 +247,7 @@ void GridWorld::expanded_state(const GridState *s)
 	int index = s->get_y() * width + s->get_x();
 
 	// this should be made atomic
-	if (states[index] == 0)
-		states[index] = expanded;
+	states[index].set(expanded);
 }
 
 /**
@@ -283,12 +283,12 @@ void GridWorld::export_eps(string file) const
 			if (is_obstacle(x, y)) {
 				// black
 				red = green = blue = 0;
-			} else if (states[i] == 0) {
+			} else if (states[i].read() == 0) {
 				// white
 				red = green = blue = (char) 255;
 			} else {
 				// A certain shade of orange
-				int number = states[i];
+				int number = states[i].read();
 				int x = expanded < 500 ? number * granularity
 					: number / granularity;
 				if (x < 125) {
