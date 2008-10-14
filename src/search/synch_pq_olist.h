@@ -1,6 +1,6 @@
 /* -*- mode:linux -*- */
 /**
- * \file safe_pq_olist.h
+ * \file synch_pq_olist.h
  *
  *
  *

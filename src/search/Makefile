@@ -2,7 +2,7 @@ CXX=g++
 
 # Comment this out for faster, more memory efficient code.
 IMAGES=-DENABLE_IMAGES
-#IMAGES=
+
 
 CXXFLAGS=-g -Wall -Werror -Wnon-virtual-dtor -pedantic -pipe $(IMAGES) #-lpthread
 
@@ -23,6 +23,7 @@ SRC= \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
+	synch_closed_list.cc \
 	#kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)
