@@ -25,9 +25,9 @@
  */
 class AtomicInt {
 public:
-	AtomicInt(int val);
+	AtomicInt(int val) { value = val; }
 
-	inline int read(void) { return value; }
+	inline int read(void) const { return value; }
 
 	inline void set(int i) { value = i; }
 
