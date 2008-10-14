@@ -1,0 +1,54 @@
+# DO NOT DELETE
+
+./a_star.o: state.h search_domain.h heuristic.h pq_open_list.h open_list.h
+./a_star.o: closed_list.h a_star.h search.h
+./closed_list.o: state.h search_domain.h heuristic.h closed_list.h
+./cost_bound_dfs.o: state.h search_domain.h heuristic.h cost_bound_dfs.h
+./cost_bound_dfs.o: search.h
+./grid/grid_state.o: ./grid/grid_world.h ./state.h search_domain.h
+./grid/grid_state.o: heuristic.h ./search_domain.h ./grid/grid_state.h
+./grid/grid_world.o: ./util/eps.h ./grid/grid_state.h ./grid/grid_world.h
+./grid/grid_world.o: ./state.h search_domain.h heuristic.h ./search_domain.h
+./grid/manhattan_dist.o: ./grid/manhattan_dist.h ./grid/grid_world.h
+./grid/manhattan_dist.o: ./state.h search_domain.h heuristic.h
+./grid/manhattan_dist.o: ./search_domain.h ./heuristic.h ./grid/grid_state.h
+./h_zero.o: h_zero.h heuristic.h
+./heuristic.o: heuristic.h
+./ida_star.o: ida_star.h state.h search_domain.h heuristic.h search.h
+./ida_star.o: cost_bound_dfs.h
+./kbfs.o: state.h search_domain.h heuristic.h open_list.h closed_list.h
+./kbfs.o: kbfs.h search.h
+./main.o: state.h search_domain.h heuristic.h a_star.h search.h
+./main.o: cost_bound_dfs.h ida_star.h h_zero.h grid/manhattan_dist.h
+./main.o: ./grid/grid_world.h ./state.h ./search_domain.h ./heuristic.h
+./main.o: grid/grid_world.h
+./open_list.o: open_list.h state.h search_domain.h heuristic.h
+./pq_open_list.o: state.h search_domain.h heuristic.h pq_open_list.h
+./pq_open_list.o: open_list.h
+./search.o: state.h search_domain.h heuristic.h search.h
+./search_domain.o: search_domain.h heuristic.h
+./state.o: state.h search_domain.h heuristic.h
+./synch_closed_list.o: synch_closed_list.h closed_list.h state.h
+./synch_closed_list.o: search_domain.h heuristic.h
+./synch_pq_olist.o: synch_pq_olist.h pq_open_list.h state.h search_domain.h
+./synch_pq_olist.o: heuristic.h open_list.h
+./util/eps.o: ./util/eps.h
+./a_star.o: state.h search_domain.h heuristic.h search.h
+./closed_list.o: state.h search_domain.h heuristic.h
+./cost_bound_dfs.o: state.h search_domain.h heuristic.h search.h
+./grid/grid_state.o: ./grid/grid_world.h ./state.h search_domain.h
+./grid/grid_state.o: heuristic.h ./search_domain.h
+./grid/grid_world.o: ./state.h search_domain.h heuristic.h ./search_domain.h
+./grid/manhattan_dist.o: ./grid/grid_world.h ./state.h search_domain.h
+./grid/manhattan_dist.o: heuristic.h ./search_domain.h ./heuristic.h
+./h_zero.o: heuristic.h
+./ida_star.o: state.h search_domain.h heuristic.h search.h
+./kbfs.o: state.h search_domain.h heuristic.h search.h
+./open_list.o: state.h search_domain.h heuristic.h
+./pq_open_list.o: state.h search_domain.h heuristic.h open_list.h
+./search.o: state.h search_domain.h heuristic.h
+./search_domain.o: heuristic.h
+./state.o: search_domain.h heuristic.h
+./synch_closed_list.o: closed_list.h state.h search_domain.h heuristic.h
+./synch_pq_olist.o: pq_open_list.h state.h search_domain.h heuristic.h
+./synch_pq_olist.o: open_list.h

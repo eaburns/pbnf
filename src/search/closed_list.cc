@@ -27,7 +27,7 @@ void ClosedList::add(const State *s)
  * \param c The state to look up.
  * \return The state if it was found, NULL on error.
  */
-const State *ClosedList::lookup(const State *c) const
+const State *ClosedList::lookup(const State *c)
 {
 	map<int, const State *>::const_iterator iter;
 

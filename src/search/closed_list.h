@@ -24,7 +24,7 @@ using namespace std;
 class ClosedList {
 public:
 	void add(const State *);
-	const State *lookup(const State *) const;
+	const State *lookup(const State *);
 	void delete_all_states(void);
 
 private:
