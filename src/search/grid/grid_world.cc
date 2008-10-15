@@ -66,9 +66,9 @@ GridWorld::GridWorld(istream &s)
 	// Cost (Unit/Life)
 	s >> line;
 	if (strcmp(line, "Unit") == 0) {
-		cost = UNIT_COST;
+		cost_type = UNIT_COST;
 	} else {
-		cost = LIFE_COST;
+		cost_type = LIFE_COST;
 	}
 
 	// Movement (Four-way/Eight-way)
@@ -109,7 +109,7 @@ vector<const State*> *GridWorld::expand(const State *state)
 {
 	const GridState *s = dynamic_cast<const GridState*>(state);
 	vector<const State*> *children;
-	int cost = this->cost == UNIT_COST ? 1 : s->get_y();
+	int cost = this->cost_type == UNIT_COST ? 1 : s->get_y();
 
 	children = new vector<const State*>();
 
@@ -172,6 +172,15 @@ int GridWorld::get_width(void) const
 int GridWorld::get_height(void) const
 {
 	return height;
+}
+
+/**
+ * Get the cost type for this world.
+ * \return UNIT_COST or LIFE_COST
+ */
+enum GridWorld::cost_type GridWorld::get_cost_type(void) const
+{
+	return cost_type;
 }
 
 /**

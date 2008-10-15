@@ -10,4 +10,6 @@
 
 #include "heuristic.h"
 
+Heuristic::Heuristic(const SearchDomain *d) : domain(d) {}
+
 Heuristic::~Heuristic() {}

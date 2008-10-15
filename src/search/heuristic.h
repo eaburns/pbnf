@@ -11,6 +11,7 @@
 #if !defined(_HEURISTIC_H_)
 #define _HEURISTIC_H_
 
+class SearchDomain;
 class State;
 
 /**
@@ -18,9 +19,12 @@ class State;
  */
 class Heuristic {
 public:
+	Heuristic(const SearchDomain *d);
 	virtual ~Heuristic();
 
 	virtual float compute(const State *s) const = 0;
+protected:
+	const SearchDomain *domain;
 };
 
 #endif	/* !_HEURISTIC_H_ */

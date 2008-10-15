@@ -25,8 +25,12 @@ class GridState;
 
 using namespace std;
 
+
+
 class GridWorld : public SearchDomain {
 public:
+	enum cost_type { UNIT_COST, LIFE_COST };
+
 	GridWorld(istream &s);
 
 	virtual State *initial_state(void);
@@ -36,6 +40,7 @@ public:
 	virtual int get_goal_y(void) const;
 	virtual int get_width(void) const;
 	virtual int get_height(void) const;
+	virtual enum cost_type get_cost_type(void) const;
 	virtual void print(ostream &o, const vector<const State *> *path) const;
 #if defined(ENABLE_IMAGES)
 	void export_eps(string file) const;
@@ -45,7 +50,7 @@ private:
 	bool on_path(const vector<const State *> *path, int x, int y) const;
 	bool is_obstacle(int x, int y) const;
 
-	enum { UNIT_COST, LIFE_COST } cost;
+	enum cost_type cost_type;
 
 	int width, height;
 	int start_x, start_y;

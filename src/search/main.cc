@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
 {
 	vector<const State *> *path;
 	GridWorld g(cin);
-	ManhattanDist manhattan(g.get_goal_x(), g.get_goal_y());
-	HZero hzero;
+	ManhattanDist manhattan(&g);
+	HZero hzero(&g);
 	Search *search = get_search(argc, argv);
 
 	g.set_heuristic(&manhattan);

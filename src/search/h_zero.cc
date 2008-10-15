@@ -10,6 +10,8 @@
 
 #include "h_zero.h"
 
+HZero::HZero(const SearchDomain *d) : Heuristic(d) {}
+
 float HZero::compute(const State *s) const
 {
 	return 0.0;
