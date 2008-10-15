@@ -24,6 +24,7 @@ SRC= \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
+	psdd/nblock.cc \
 	#kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)
