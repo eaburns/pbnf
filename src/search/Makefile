@@ -13,6 +13,7 @@ SRC= \
 	pq_open_list.cc \
 	synch_pq_olist.cc \
 	closed_list.cc \
+	synch_closed_list.cc \
 	search.cc \
 	a_star.cc \
 	cost_bound_dfs.cc \
@@ -23,7 +24,6 @@ SRC= \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
-	synch_closed_list.cc \
 	#kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)
@@ -34,6 +34,7 @@ test: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) -o test $(OBJ) main.cc
 
 depend:
+	rm -f .depend
 	touch .depend
 	(find . -name \*.cc; find . -name \*.h) | xargs makedepend -f.depend -Y
 	rm -f .depend.bak
