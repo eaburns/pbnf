@@ -1,5 +1,7 @@
 syntax: glob
 
+.depend
+.hgignore
 .DS_Store
 *.orig
 *.swp

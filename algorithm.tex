@@ -19,11 +19,10 @@
   \item threadsearch()
   \begin{algorithmic}[1]
   \WHILE {$open$ is not empty}
-    \STATE $b \leftarrow$ bucket in $open$ with minimum f valued node
-    \STATE increment $sigma$ for $b$ and each bucket in its duplicate detection scope
-    \STATE \COMMENT {possibly prune here to save memory}
+    \STATE $b \leftarrow$ $open$ of nblock with minimum f valued node
+    \STATE increment $sigma$ for $b$ and each nblock in its duplicate detection scope
     \STATE \COMMENT {$m$ is the minumum number of expansions required to balance out locking overhead}
-    \STATE \COMMENT {$n$ is the number of nodes in b for which there are no other cheaper nodes in non-locked buckets}
+    \STATE \COMMENT {$n$ is the number of nodes in b for which there are no other cheaper nodes in non-locked nblocks}
     \FOR {$i=0$ to min(max($m$, $n$), length($b$)$-1$))}
       \STATE $node \leftarrow$ head of $b$
       \IF{$node$ is a goal}
@@ -34,8 +33,7 @@
         \STATE insert $children$ into $open$ and $closed$
       \ENDIF
     \ENDFOR
-    \STATE \COMMENT {possibly prune here to save memory}
-    \STATE decrement $sigma$ for $b$ and each bucket in its duplicate detection scope
+    \STATE decrement $sigma$ for $b$ and each nblock in its duplicate detection scope
   \ENDWHILE
   \end{algorithmic}
 
