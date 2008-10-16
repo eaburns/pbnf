@@ -13,7 +13,6 @@
 
 #include <vector>
 
-#include "nblock.h"
 #include "../state.h"
 
 using namespace std;
@@ -25,9 +24,27 @@ class Projection {
 public:
 	virtual ~Projection();
 
-	virtual NBlock *project(const State *s) = 0;
-	virtual vector<NBlock *>get_successors(const NBlock *b) = 0;
-	virtual vector<NBlock *>get_predecessors(const NBlock *b) = 0;
+	/**
+	 * Project a state, returning an integer that represents the
+	 * NBlock that the state projects into.
+	 */
+	virtual unsigned int project(const State *s) = 0;
+
+	/**
+	 * Get the number of NBlocks that will be used in this
+	 * projection.  NBlocks will be numbered from 0..num_nblocks()
+	 */
+	virtual unsigned int get_num_nblocks(void) = 0;
+
+	/**
+	 * Get the list of successor NBlock numbers.
+	 */
+	virtual vector<unsigned int>get_successors(const NBlock *b) = 0;
+
+	/**
+	 * Get the list of predecessor NBlock numbers.
+	 */
+	virtual vector<unsigned int>get_predecessors(const NBlock *b) = 0;
 };
 
 #endif	/* !_PROJECTION_H_ */

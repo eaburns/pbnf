@@ -25,6 +25,7 @@ public:
 	unsigned int get_sigma(void) const;
 	void inc_sigma(void);
 	void dec_sigma(void);
+
 private:
 	unsigned int hash;
 	unsigned int sigma;
