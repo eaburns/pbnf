@@ -10,7 +10,7 @@
 
 #include "state.h"
 
-State::State(SearchDomain *d, const State *parent, int g)
+State::State(SearchDomain *d, const State *parent, float g)
 	: parent(parent), domain(d), g(g), h(-1) {}
 
 State::~State() {}
