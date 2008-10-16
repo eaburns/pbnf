@@ -22,7 +22,7 @@ using namespace std;
  */
 class State {
 public:
-	State(SearchDomain *d, const State *parent, int g);
+	State(SearchDomain *d, const State *parent, float g);
 
 	virtual ~State();
 
