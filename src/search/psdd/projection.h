@@ -39,12 +39,12 @@ public:
 	/**
 	 * Get the list of successor NBlock numbers.
 	 */
-	virtual vector<unsigned int>get_successors(const NBlock *b) = 0;
+	virtual vector<unsigned int>get_successors(unsigned int b) = 0;
 
 	/**
 	 * Get the list of predecessor NBlock numbers.
 	 */
-	virtual vector<unsigned int>get_predecessors(const NBlock *b) = 0;
+	virtual vector<unsigned int>get_predecessors(unsigned int b) = 0;
 };
 
 #endif	/* !_PROJECTION_H_ */
