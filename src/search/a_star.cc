@@ -28,15 +28,14 @@ vector<const State *> *AStar::search(const State *init)
 	while (!open.empty() && !path) {
 		const State *s = open.take();
 
+		if (s->is_goal()) {
+			path = s->get_path();
+			break;
+		}
+
 		vector<const State *> *children = expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			const State *c = children->at(i);
-			if (c->is_goal()) {
-				path = c->get_path();
-				for (; i < children->size(); i += 1)
-					delete children->at(i);
-				break;
-			}
 			if (closed.lookup(c) != NULL) {
 				delete c;
 				continue;
