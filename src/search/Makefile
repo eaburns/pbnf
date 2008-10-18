@@ -4,7 +4,7 @@ CXX=g++
 IMAGES=-DENABLE_IMAGES
 
 
-CXXFLAGS=-g -Wall -Werror -Wnon-virtual-dtor -pedantic -pipe $(IMAGES) #-lpthread
+CXXFLAGS=-g -Wall -Wnon-virtual-dtor -pedantic -pipe $(IMAGES) -lpthread
 
 SRC= \
 	state.cc \
@@ -26,7 +26,7 @@ SRC= \
 	grid/grid_world.cc \
 	psdd/nblock.cc \
 	psdd/projection.cc \
-	#kbfs.cc \
+	kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)
 

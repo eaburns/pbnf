@@ -13,6 +13,8 @@
 
 #include "state.h"
 #include "search.h"
+#include "synch_pq_olist.h"
+#include "synch_closed_list.h"
 
 /**
  * A KBFS search class.
@@ -20,6 +22,10 @@
 class KBFS : public Search {
 public:
 	virtual vector<const State *> *search(const State *);
+private:
+	SynchPQOList open;
+	SynchClosedList closed;
+        friend void *thread_expand(void *);
 };
 
 #endif	/* !_KBFS_H_ */

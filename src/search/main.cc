@@ -17,6 +17,7 @@
 #include "a_star.h"
 #include "cost_bound_dfs.h"
 #include "ida_star.h"
+#include "kbfs.h"
 #include "h_zero.h"
 #include "grid/manhattan_dist.h"
 #include "grid/grid_world.h"
@@ -31,9 +32,11 @@ Search *get_search(int argc, char *argv[])
 		return new IDAStar();
 	} else if (argc > 2 && strcmp(argv[1], "costbounddfs") == 0) {
 		return new CostBoundDFS(atoi(argv[2]));
+	} else if (argc > 1 && strcmp(argv[1], "kbfs") == 0) {
+		return new KBFS();
 	} else {
 		cout << "Must supply a search algorithm:" << endl;
-		cout << "\tastar, idastar" << endl;
+		cout << "\tastar, idastar, costbounddfs, kbfs" << endl;
 		exit(EXIT_FAILURE);
 	}
 }
@@ -48,7 +51,6 @@ int main(int argc, char *argv[])
 
 	g.set_heuristic(&manhattan);
 //	g.set_heuristic(&hzero);
-
 	path = search->search(g.initial_state());
 //	g.print(cout, path);
 
