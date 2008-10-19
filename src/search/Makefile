@@ -4,7 +4,9 @@ CXX=g++
 IMAGES=-DENABLE_IMAGES
 
 
-CXXFLAGS=-g -Wall -Wnon-virtual-dtor -pedantic -pipe $(IMAGES) -lpthread
+CXXFLAGS=-g -Wall -Wnon-virtual-dtor -pedantic -pipe $(IMAGES)
+
+LDFLAGS=-lpthread
 
 SRC= \
 	state.cc \
@@ -33,7 +35,7 @@ OBJ=$(SRC:.cc=.o)
 all: test
 
 test: $(OBJ) main.cc
-	$(CXX) $(CXXFLAGS) -o test $(OBJ) main.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o test $(OBJ) main.cc
 
 depend:
 	rm -f .depend
