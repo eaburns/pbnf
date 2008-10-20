@@ -20,26 +20,37 @@ struct input_struct{
 
 void *thread_expand(void *inf)
 {
-        input_struct *info = (input_struct *)inf;
-        const State *s = info->s;
-        KBFS *k = info->k;
-        SynchPQOList open = info->k->open;
-	SynchClosedList closed = info->k->closed;
-//        vector<const State *> *children = k->expand(s);
+        printf("starting expand\n");
+        fflush(stdout);
+        input_struct *info = new input_struct;
+        info = (input_struct *)inf;
+        vector<const State *> *children = info->k->expand(info->s);
 
         printf("test\n");
         fflush(stdout);
-//         for (unsigned int i = 0; i < children->size(); i += 1) {
-//           const State *c = children->at(i);
-//           if (closed.lookup(c) != NULL) {
-//             delete c;
-//             continue;
-//           }
-//           closed.add(c);
-//           open.add(c);
-//         }
-//         delete children;
+        for (unsigned int i = 0; i < children->size(); i += 1) {
+          printf("child %i\n", i);
+          fflush(stdout);
+          const State *c = children->at(i);
+          if (info->k->closed.lookup(c) != NULL) {
+            delete c;
+            continue;
+          }
+          info->k->closed.add(c);
+          info->k->open.add(c);
+        }
+        delete children;
+        printf("finishing expand\n");
+        fflush(stdout);
         return NULL;
+}
+
+vector<const State *> *KBFS::expand(const State *s)
+{
+  pthread_mutex_lock(&mutex);
+  vector<const State *> *children = Search::expand(s);
+  pthread_mutex_unlock(&mutex);
+  return children;
 }
 
 
@@ -48,6 +59,7 @@ void *thread_expand(void *inf)
  */
 vector<const State *> *KBFS::search(const State *init)
 {
+        pthread_mutex_init(&mutex, NULL);
  	vector<const State *> *path = NULL;
         int worker;
         pthread_t threads[NTHREADS];
@@ -65,23 +77,25 @@ vector<const State *> *KBFS::search(const State *init)
                       path = s->get_path();
                       break;
                     }
-                    input_struct *info;
+                    input_struct *info = new input_struct;
                     info->k = this;
                     info->s = s;
                     printf("creating %i\n", worker);
                     fflush(stdout);
-                    //pthread_create(&threads[worker], NULL, thread_expand, (void *) &info);
+                    pthread_create(&threads[worker], NULL, thread_expand, (void *) &info);
                     printf("created %i\n", worker);
                     fflush(stdout);
+                    delete info;
                 }
                 int i;
                 for (i=0; i<worker; i++) {
                     printf("joining %i\n", i);
                     fflush(stdout);
-                    //pthread_join(threads[worker], NULL);
+                    pthread_join(threads[worker], NULL);
                     printf("joined %i\n", i);
                     fflush(stdout);
                 }
+                sleep(10);
  	}
         
         printf("finishing search\n");

@@ -22,9 +22,12 @@
 class KBFS : public Search {
 public:
 	virtual vector<const State *> *search(const State *);
+protected:
+	vector<const State *> *expand(const State *);
 private:
 	SynchPQOList open;
 	SynchClosedList closed;
+	pthread_mutex_t mutex;
         friend void *thread_expand(void *);
 };
 
