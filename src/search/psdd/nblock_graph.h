@@ -21,28 +21,10 @@
 #include "../closed_list.h"
 #include "../queue_open_list.h"
 #include "../open_list.h"
+#include "nblock.h"
 #include "projection.h"
 
 using namespace std;
-
-struct NBlock {
-	NBlock(unsigned int id,
-	       vector<unsigned int> preds,
-	       vector<unsigned int> succs);
-
-	void next_iteration(void);
-
-	unsigned int id;
-	unsigned int sigma;
-	ClosedList closed;
-	QueueOpenList open_a;
-	QueueOpenList open_b;
-	OpenList *cur_open;
-	OpenList *next_open;
-	vector<unsigned int> preds;
-	vector<unsigned int> succs;
-};
-
 
 class NBlockGraph {
 public:

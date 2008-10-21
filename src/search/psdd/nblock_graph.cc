@@ -19,38 +19,10 @@
 #include "../queue_open_list.h"
 #include "../open_list.h"
 #include "projection.h"
+#include "nblock.h"
 #include "nblock_graph.h"
 
 using namespace std;
-
-/**
- * Create a new NBlock structure.
- */
-NBlock::NBlock(unsigned int id, vector<unsigned int> preds,
-	       vector<unsigned int> succs)
-	: id(id),
-	  sigma(0),
-	  cur_open(&open_a),
-	  next_open(&open_b),
-	  preds(preds),
-	  succs(succs) {}
-
-
-/**
- * Swap the current and next open lists in this NBlock.
- */
-void NBlock::next_iteration(void)
-{
-	OpenList *tmp;
-
-	assert(cur_open->empty());
-	assert(sigma == 0);
-
-	tmp = cur_open;
-	cur_open = next_open;
-	next_open = tmp;
-}
-
 
 /**
  * Create a new NBlock graph.

@@ -29,6 +29,7 @@ SRC= \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	psdd/projection.cc \
+	psdd/nblock.cc \
 	psdd/nblock_graph.cc \
 	kbfs.cc \
 
