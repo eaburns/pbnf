@@ -32,7 +32,8 @@ public:
 
 	/**
 	 * Get the number of NBlocks that will be used in this
-	 * projection.  NBlocks will be numbered from 0..num_nblocks()
+	 * projection.  NBlocks will be numbered from
+	 * 0..num_nblocks() - 1
 	 */
 	virtual unsigned int get_num_nblocks(void) = 0;
 

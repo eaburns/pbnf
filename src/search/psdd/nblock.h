@@ -11,6 +11,7 @@
 #if !defined(_NBLOCK_H_)
 #define _NBLOCK_H_
 
+#include <iostream>
 #include <vector>
 
 #include "../open_list.h"
@@ -28,6 +29,8 @@ struct NBlock {
 	       vector<unsigned int> succs);
 
 	void next_iteration(void);
+
+	void print(ostream &s) const;
 
 	unsigned int id;
 	unsigned int sigma;
