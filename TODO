@@ -1,7 +1,5 @@
-* Find multi-core comupter
-* (Seth) Parallel KBFS
 * (Seth) Implement Parallel Window Search -- back burner
-* (Ethan) Implement Paraller Distributed Duplicate Detection
+* (Ethan) Implement Parallel Structured Duplicate Detection
 * (Ethan) Look into possible contention on LAMA globals
 * (Ethan) Sliding tiles -- back burner
 * Look at tfogal's lock-free hashtable
