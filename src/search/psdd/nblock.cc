@@ -52,7 +52,7 @@ void NBlock::next_iteration(void)
  */
 void NBlock::print(ostream &o) const
 {
-	vector<unsigned int>::iterator iter;
+	vector<unsigned int>::const_iterator iter;
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;

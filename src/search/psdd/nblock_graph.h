@@ -13,6 +13,7 @@
 
 #include <pthread.h>
 
+#include <iostream>
 #include <map>
 #include <list>
 #include <vector>
@@ -33,6 +34,8 @@ public:
 	~NBlockGraph();
 
 	NBlock *next_nblock(NBlock *finished);
+
+	void print(ostream &o) const;
 
 private:
 	void update_scope_sigmas(unsigned int y, int delta);

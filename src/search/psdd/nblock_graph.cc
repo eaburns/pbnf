@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <pthread.h>
 
+#include <iostream>
 #include <list>
 #include <map>
 #include <vector>
@@ -116,6 +117,33 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 	return n;
 }
 
+/**
+ * Print an NBlockGraph to the given stream.
+ */
+void NBlockGraph::print(ostream &o) const
+{
+	map<unsigned int, NBlock *>::const_iterator biter;
+	list<NBlock *>::const_iterator fiter;
+
+	o << "Number of NBlocks: " << num_nblocks << endl;
+	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
+	o << "--------------------" << endl;
+	o << "Current Free Blocks:" << endl;
+	for (fiter = cur_free_list->begin();
+	     fiter != cur_free_list->end();
+	     fiter++)
+		(*fiter)->print(o);
+	o << "--------------------" << endl;
+	o << "Next Free Blocks:" << endl;
+	for (fiter = next_free_list->begin();
+	     fiter != next_free_list->end();
+	     fiter++)
+		(*fiter)->print(o);
+	o << "--------------------" << endl;
+	o << "All Blocks:" << endl;
+	for (biter = blocks.begin(); biter != blocks.end(); biter++)
+		biter->second->print(o);
+}
 
 /**
  * Update the sigma value of a block, add it to the freelist if need
