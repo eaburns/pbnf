@@ -120,10 +120,12 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 /**
  * Print an NBlockGraph to the given stream.
  */
-void NBlockGraph::print(ostream &o) const
+void NBlockGraph::print(ostream &o)
 {
-	map<unsigned int, NBlock *>::const_iterator biter;
-	list<NBlock *>::const_iterator fiter;
+	map<unsigned int, NBlock *>::iterator biter;
+	list<NBlock *>::iterator fiter;
+
+	pthread_mutex_lock(&mutex);
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
@@ -143,6 +145,8 @@ void NBlockGraph::print(ostream &o) const
 	o << "All Blocks:" << endl;
 	for (biter = blocks.begin(); biter != blocks.end(); biter++)
 		biter->second->print(o);
+
+	pthread_mutex_unlock(&mutex);
 }
 
 /**

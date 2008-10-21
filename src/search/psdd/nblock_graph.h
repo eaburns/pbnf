@@ -35,7 +35,7 @@ public:
 
 	NBlock *next_nblock(NBlock *finished);
 
-	void print(ostream &o) const;
+	void print(ostream &o);
 
 private:
 	void update_scope_sigmas(unsigned int y, int delta);
