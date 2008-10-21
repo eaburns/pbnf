@@ -28,11 +28,7 @@ SRC= \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	psdd/projection.cc \
-	psdd/breadth_first_nblock.cc \
-	psdd/nblock.cc \
-	psdd/nblock_free_list.cc \
 	psdd/nblock_graph.cc \
-	psdd/nblock_factory.cc \
 	kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)

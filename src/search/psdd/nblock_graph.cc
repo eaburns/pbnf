@@ -13,40 +13,45 @@
 
 #include <assert.h>
 
-#include "nblock.h"
-#include "nblock_free_list.h"
 #include "nblock_graph.h"
 
 using namespace std;
 
 /**
- * Create a new NBlock graph.
+ * Create a new NBlock structure.
  */
-NBlockGraph::NBlockGraph(NBlockFactory *fact, NBlockFreeList *f, Projection *p)
-	: free_list(f)
+NBlockGraph::NBlock::NBlock(void)
+{
+	sigma = 0;
+	cur_open = &open_a;
+	next_open = &open_b;
+}
+
+/**
+ * Create a new NBlock graph.
+ * \param p The projection function.
+ */
+NBlockGraph::NBlockGraph(Projection *p)
 {
 	for (unsigned int i = 0; i < p->get_num_nblocks(); i += 1) {
-		blocks.push_back(fact->new_nblock(i));
-		sigmas.push_back(0);
-		preds[i] = p->get_predecessors(i);
-		succs[i] = p->get_successors(i);
+		NBlock *n = new NBlock;
+		blocks[i] = n;
+		free_list.push(i);
 	}
 }
 
-NBlockGraph::~NBlockGraph() {}
-
 /**
- * Get a pointer to the next free nblock.
+ * Destroy an NBlock graph.
  */
-NBlock *NBlockGraph::next_free_nblock(void)
+NBlockGraph::~NBlockGraph()
 {
-	NBlock *b = free_list->next();
+	map<unsigned int, NBlock *>::iterator iter;
 
-	free_list->remove(b);
-
-	return b;
+	for (iter = blocks.begin(); iter != blocks.end(); iter++)
+		delete iter->second;
 }
 
+#if 0
 void NBlockGraph::update_sigma(unsigned int y, int delta)
 {
 	if (sigmas[y] == 0) {	// block is no longer free
@@ -98,19 +103,4 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		}
 	}
 }
-
-/**
- * A processor acquires an NBlock.
- */
-void NBlockGraph::acquire_nblock(unsigned int y)
-{
-	update_scope_sigmas(y, 1);
-}
-
-/**
- * A processor releases an NBlock.
- */
-void NBlockGraph::release_nblock(unsigned int y)
-{
-	update_scope_sigmas(y, -1);
-}
+#endif	// 0
