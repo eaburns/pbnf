@@ -46,3 +46,24 @@ void NBlock::next_iteration(void)
 	cur_open = next_open;
 	next_open = tmp;
 }
+
+/**
+ * Print an NBlock to the given stream.
+ */
+void NBlock::print(ostream &o) const
+{
+	vector<unsigned int>::iterator iter;
+
+	o << "nblock " << id << endl;
+	o << "\tsigma: " << sigma << endl;
+	o << "\tpreds: ";
+	for (iter = preds.begin(); iter != preds.end(); iter++)
+		o << *iter << " ";
+	o << endl;
+
+	o << "\tsuccs: ";
+	for (iter = succs.begin(); iter != succs.end(); iter++)
+		o << *iter << " ";
+	o << endl;
+
+}
