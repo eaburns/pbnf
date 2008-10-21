@@ -25,7 +25,6 @@ SRC= \
 	h_zero.cc \
 	util/eps.cc \
 	util/thread.cc \
-	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	psdd/projection.cc \

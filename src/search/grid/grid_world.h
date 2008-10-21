@@ -46,6 +46,12 @@ public:
 	void export_eps(string file) const;
 #endif	/* ENABLE_IMAGES */
 
+	class ManhattanDist : public Heuristic {
+	public:
+		ManhattanDist(const SearchDomain *d);
+		virtual float compute(const State *s) const;
+	};
+
 private:
 	bool on_path(const vector<const State *> *path, int x, int y) const;
 	bool is_obstacle(int x, int y) const;

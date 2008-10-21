@@ -19,7 +19,6 @@
 #include "ida_star.h"
 #include "kbfs.h"
 #include "h_zero.h"
-#include "grid/manhattan_dist.h"
 #include "grid/grid_world.h"
 
 using namespace std;
@@ -45,7 +44,7 @@ int main(int argc, char *argv[])
 {
 	vector<const State *> *path;
 	GridWorld g(cin);
-	ManhattanDist manhattan(&g);
+	GridWorld::ManhattanDist manhattan(&g);
 	HZero hzero(&g);
 	Search *search = get_search(argc, argv);
 
