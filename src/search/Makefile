@@ -24,6 +24,7 @@ SRC= \
 	heuristic.cc \
 	h_zero.cc \
 	util/eps.cc \
+	util/thread.cc \
 	grid/manhattan_dist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
@@ -33,10 +34,13 @@ SRC= \
 
 OBJ=$(SRC:.cc=.o)
 
-all: test
+all: test thread_test
 
 test: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o test $(OBJ) main.cc
+
+thread_test: $(OBJ) thread_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o thread_test $(OBJ) thread_test.cc
 
 depend:
 	rm -f .depend
@@ -47,5 +51,6 @@ depend:
 clean:
 	find . -name \*.o -exec rm -f '{}' \;
 	rm -f test
+	rm -f thread_test
 
 -include .depend
