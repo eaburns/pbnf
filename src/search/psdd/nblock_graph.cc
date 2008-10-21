@@ -8,11 +8,17 @@
  * \date 2008-10-20
  */
 
-#include <vector>
-#include <map>
-
 #include <assert.h>
+#include <pthread.h>
 
+#include <list>
+#include <map>
+#include <vector>
+
+#include "../closed_list.h"
+#include "../queue_open_list.h"
+#include "../open_list.h"
+#include "projection.h"
 #include "nblock_graph.h"
 
 using namespace std;
@@ -20,24 +26,58 @@ using namespace std;
 /**
  * Create a new NBlock structure.
  */
-NBlockGraph::NBlock::NBlock(void)
+NBlock::NBlock(unsigned int id, vector<unsigned int> preds,
+	       vector<unsigned int> succs)
+	: id(id),
+	  sigma(0),
+	  cur_open(&open_a),
+	  next_open(&open_b),
+	  preds(preds),
+	  succs(succs) {}
+
+
+/**
+ * Swap the current and next open lists in this NBlock.
+ */
+void NBlock::next_iteration(void)
 {
-	sigma = 0;
-	cur_open = &open_a;
-	next_open = &open_b;
+	OpenList *tmp;
+
+	assert(cur_open->empty());
+	assert(sigma == 0);
+
+	tmp = cur_open;
+	cur_open = next_open;
+	next_open = tmp;
 }
+
 
 /**
  * Create a new NBlock graph.
  * \param p The projection function.
  */
-NBlockGraph::NBlockGraph(Projection *p)
+NBlockGraph::NBlockGraph(Projection *p, const State *initial)
 {
-	for (unsigned int i = 0; i < p->get_num_nblocks(); i += 1) {
-		NBlock *n = new NBlock;
+	unsigned int init_nblock = p->project(initial);
+	cur_free_list = &free_list_a;
+	next_free_list = &free_list_b;
+
+	num_sigma_zero = num_nblocks = p->get_num_nblocks();
+	assert(init_nblock < num_nblocks);
+
+	for (unsigned int i = 0; i < num_nblocks; i += 1) {
+		NBlock *n = new NBlock(i, p->get_predecessors(i),
+				       p->get_successors(i));
+		if (i == init_nblock) {
+			n->cur_open->add(initial);
+			cur_free_list->push_back(n);
+		}
+
 		blocks[i] = n;
-		free_list.push(i);
 	}
+
+	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&cond, NULL);
 }
 
 /**
@@ -51,18 +91,85 @@ NBlockGraph::~NBlockGraph()
 		delete iter->second;
 }
 
-#if 0
-void NBlockGraph::update_sigma(unsigned int y, int delta)
+/**
+ * Get the next nblock for expansion, possibly release a finished
+ * nblock.
+ * \note This call will block if there are currently no free nblocks.
+ * \param finished If non-NULL, the finished nblock will be released
+ *        into the next level's free_list.
+ * \return The next NBlock to expand or NULL if there is nothing left
+ *         to do.
+ */
+NBlock *NBlockGraph::next_nblock(NBlock *finished)
 {
-	if (sigmas[y] == 0) {	// block is no longer free
-		assert(delta > 0);
-		free_list->remove(blocks[y]);
+	NBlock *n;
+
+	pthread_mutex_lock(&mutex);
+
+	if (finished) {		// Release an NBlock
+		assert(finished->sigma == 0);
+		update_scope_sigmas(finished->id, -1);
+		next_free_list->push_back(finished);
+
+		if (cur_free_list->size() == 0 && num_sigma_zero == num_nblocks) {
+			// If there are no NBlocks that are currently
+			// free with nodes on them, and all of the
+			// NBlocks have sigma values of zero:
+			// Switch to the next iteration
+			list<NBlock *> *tmp;
+			map<unsigned int, NBlock *>::iterator iter;
+
+			// Swap the NBlock free_lists.
+			tmp = cur_free_list;
+			cur_free_list = next_free_list;
+			next_free_list = tmp;
+
+			// Switch the open lists on all of the NBlocks.
+			for (iter = blocks.begin(); iter != blocks.end(); iter++)
+				iter->second->next_iteration();
+
+			// Wake up everyone...
+			pthread_cond_broadcast(&cond);
+		}
 	}
 
-	sigmas[y] += delta;
+	while (cur_free_list->empty())
+		pthread_cond_wait(&cond, &mutex);
 
-	if (sigmas[y] == 0)	// block is now free
-		free_list->add(blocks[y]);
+	n = cur_free_list->front();
+	cur_free_list->pop_front();
+
+	pthread_mutex_unlock(&mutex);
+
+	return n;
+}
+
+
+/**
+ * Update the sigma value of a block, add it to the freelist if need
+ * be, or remove it from the freelist.
+ */
+void NBlockGraph::update_sigma(unsigned int y, int delta)
+{
+	NBlock *yblk = blocks[y];
+
+	if (yblk->sigma == 0) {
+		assert(delta > 0);
+		if (!yblk->cur_open->empty())
+			cur_free_list->remove(yblk);
+		num_sigma_zero -= 1;
+	}
+
+	yblk->sigma += delta;
+
+	if (yblk->sigma == 0) {
+		if (!yblk->cur_open->empty()) {
+			cur_free_list->push_back(yblk);
+			pthread_cond_signal(&cond);
+		}
+
+		num_sigma_zero += 1;
+	}
 }
 
 /**
@@ -71,16 +178,18 @@ void NBlockGraph::update_sigma(unsigned int y, int delta)
  */
 void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 {
+	NBlock *b;
 	vector<unsigned int>::iterator iter;
 	vector<unsigned int>::iterator iter1;
 
-	assert(sigmas.at(y) == 0);
+	assert(blocks[y]->sigma == 0);
 
 	/*
 	  \A y' \in predecessors(y) /\ y' /= y,
 	  \sigma(y') <- \sigma(y') +- 1
 	*/
-	for (iter = preds[y].begin(); iter != preds[y].end(); iter++) {
+	b = blocks[y];
+	for (iter = b->preds.begin(); iter != b->preds.end(); iter++) {
 		unsigned int yp = *iter;
 		if (yp != y)
 			update_sigma(yp, delta);
@@ -92,10 +201,11 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	  \A y'' \in predecessors(y'), /\ y'' /= y,
 	  \sigma(y'') <- \sigma(y'') +- 1
 	 */
-	for (iter = succs[y].begin(); iter != succs[y].end(); iter++) {
+	for (iter = b->succs.begin(); iter != b->succs.end(); iter++) {
 		unsigned int yp = *iter;
-		for (iter1 = preds[yp].begin();
-		     iter1 != preds[yp].end();
+		NBlock *yblk = blocks[yp];
+		for (iter1 = yblk->preds.begin();
+		     iter1 != yblk->preds.end();
 		     iter1++) {
 			unsigned int ypp = *iter1;
 			if (ypp != y)
@@ -103,4 +213,3 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		}
 	}
 }
-#endif	// 0
