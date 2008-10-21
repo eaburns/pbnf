@@ -1,6 +1,5 @@
 * Find multi-core comupter
 * (Seth) Parallel KBFS
-* (Seth) Revise algorithm description from proposal
 * (Seth) Implement Parallel Window Search -- back burner
 * (Ethan) Implement Paraller Distributed Duplicate Detection
 * (Ethan) Look into possible contention on LAMA globals

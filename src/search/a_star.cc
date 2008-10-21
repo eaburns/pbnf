@@ -25,6 +25,7 @@ vector<const State *> *AStar::search(const State *init)
 	open.add(init);
 	closed.add(init);
 
+
 	while (!open.empty() && !path) {
 		const State *s = open.take();
 

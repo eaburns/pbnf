@@ -8,50 +8,40 @@
  * \date 2008-10-09
  */
 
+#include "util/thread.h"
 #include "state.h"
 #include "kbfs.h"
 
 #define NTHREADS 2
 
-struct input_struct{
+class KBFSThread : public Thread {
+public:
+	KBFSThread(){}
+	KBFSThread(KBFS *k) : k(k) {}
+	KBFSThread(const State *s, KBFS *k) : s(s), k(k) {}
+
+	~KBFSThread() {}
+
+	virtual void run(void){
+                vector<const State *> *children = k->expand(s);
+
+                for (unsigned int i = 0; i < children->size(); i += 1) {
+                        const State *c = children->at(i);
+                        if (k->closed.lookup(c) != NULL) {
+                        	delete c;
+                                continue;
+                        }
+                  k->closed.add(c);
+                  k->open.add(c);
+                }
+                delete children;
+        }
+
+private:
 	const State *s;
 	KBFS *k;
+        friend class KBFS;
 };
-
-void *thread_expand(void *inf)
-{
-        printf("starting expand\n");
-        fflush(stdout);
-        input_struct *info = new input_struct;
-        info = (input_struct *)inf;
-        vector<const State *> *children = info->k->expand(info->s);
-
-        printf("test\n");
-        fflush(stdout);
-        for (unsigned int i = 0; i < children->size(); i += 1) {
-          printf("child %i\n", i);
-          fflush(stdout);
-          const State *c = children->at(i);
-          if (info->k->closed.lookup(c) != NULL) {
-            delete c;
-            continue;
-          }
-          info->k->closed.add(c);
-          info->k->open.add(c);
-        }
-        delete children;
-        printf("finishing expand\n");
-        fflush(stdout);
-        return NULL;
-}
-
-vector<const State *> *KBFS::expand(const State *s)
-{
-  pthread_mutex_lock(&mutex);
-  vector<const State *> *children = Search::expand(s);
-  pthread_mutex_unlock(&mutex);
-  return children;
-}
 
 
 /**
@@ -59,12 +49,12 @@ vector<const State *> *KBFS::expand(const State *s)
  */
 vector<const State *> *KBFS::search(const State *init)
 {
-        pthread_mutex_init(&mutex, NULL);
  	vector<const State *> *path = NULL;
         int worker;
-        pthread_t threads[NTHREADS];
-        printf("starting search\n");
-        fflush(stdout);
+        KBFSThread threads[NTHREADS];
+        for (worker=0; worker<NTHREADS; worker++) {
+          threads[worker] = KBFSThread(this);
+        }
 
  	open.add(init);
  	closed.add(init);
@@ -77,28 +67,14 @@ vector<const State *> *KBFS::search(const State *init)
                       path = s->get_path();
                       break;
                     }
-                    input_struct *info = new input_struct;
-                    info->k = this;
-                    info->s = s;
-                    printf("creating %i\n", worker);
-                    fflush(stdout);
-                    pthread_create(&threads[worker], NULL, thread_expand, (void *) &info);
-                    printf("created %i\n", worker);
-                    fflush(stdout);
-                    delete info;
+                    threads[worker].s = s;
+                    threads[worker].start();
                 }
                 int i;
                 for (i=0; i<worker; i++) {
-                    printf("joining %i\n", i);
-                    fflush(stdout);
-                    pthread_join(threads[worker], NULL);
-                    printf("joined %i\n", i);
-                    fflush(stdout);
+                    threads[i].join();
                 }
-                sleep(10);
  	}
-        
-        printf("finishing search\n");
 
  	closed.delete_all_states();
 
