@@ -13,6 +13,7 @@
 
 #include <vector>
 
+#include "util/atomic_int.h"
 #include "state.h"
 
 using namespace std;
@@ -38,8 +39,8 @@ protected:
 	void set_generated(unsigned long g);
 
 private:
-	unsigned long expanded;
-	unsigned long generated;
+	AtomicInt expanded;
+	AtomicInt generated;
 };
 
 #endif	/* !_SEARCH_H_ */

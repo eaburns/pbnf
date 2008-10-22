@@ -10,6 +10,7 @@
 
 #include <vector>
 
+#include "util/atomic_int.h"
 #include "state.h"
 #include "search.h"
 
@@ -27,8 +28,8 @@ vector<const State *> *Search::expand(const State *s)
 	vector<const State *> *children;
 
 	children = s->expand();
-	expanded += 1;
-	generated += children->size();
+	expanded.inc();
+	generated.add(children->size());
 
 	return children;
 }
@@ -38,7 +39,8 @@ vector<const State *> *Search::expand(const State *s)
  */
 void Search::clear_counts(void)
 {
-	expanded = generated = 0;
+	expanded.set(0);
+	generated.set(0);
 }
 
 /**
@@ -46,7 +48,7 @@ void Search::clear_counts(void)
  */
 unsigned long Search::get_expanded(void) const
 {
-	return expanded;
+	return expanded.read();
 }
 
 /**
@@ -54,7 +56,7 @@ unsigned long Search::get_expanded(void) const
  */
 unsigned long Search::get_generated(void) const
 {
-	return generated;
+	return generated.read();
 }
 
 /**
@@ -63,7 +65,7 @@ unsigned long Search::get_generated(void) const
  */
 void Search::set_expanded(unsigned long e)
 {
-	expanded = e;
+	expanded.set(e);
 }
 
 /**
@@ -72,5 +74,5 @@ void Search::set_expanded(unsigned long e)
  */
 void Search::set_generated(unsigned long g)
 {
-	generated = g;
+	generated.set(g);
 }
