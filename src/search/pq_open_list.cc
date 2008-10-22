@@ -22,8 +22,8 @@ using namespace std;
 bool PQOpenList::PQCompare::operator()(const State *a,
 				       const State *b) const
 {
-	float fa = a->get_g() + a->get_h();
-	float fb = b->get_g() + b->get_h();
+	float fa = a->get_f();
+	float fb = b->get_f();
 
 	if (fa == fb)
 		return a->get_g() < b->get_g();

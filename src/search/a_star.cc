@@ -8,6 +8,8 @@
  * \date 2008-10-09
  */
 
+#include <assert.h>
+
 #include "state.h"
 #include "pq_open_list.h"
 #include "closed_list.h"
@@ -23,11 +25,18 @@ vector<const State *> *AStar::search(const State *init)
 	ClosedList closed;
 
 	open.add(init);
-	closed.add(init);
-
 
 	while (!open.empty() && !path) {
 		const State *s = open.take();
+		const State *dup = closed.lookup(s);
+
+		if (dup) {
+			assert(dup->get_g() <= s->get_g());
+			delete s;
+			continue;
+		}
+
+		closed.add(s);
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -36,18 +45,13 @@ vector<const State *> *AStar::search(const State *init)
 
 		vector<const State *> *children = expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
-			const State *c = children->at(i);
-			if (closed.lookup(c) != NULL) {
-				delete c;
-				continue;
-			}
-			closed.add(c);
-			open.add(c);
+			open.add(children->at(i));
 		}
 		delete children;
 	}
 
 	closed.delete_all_states();
+	open.delete_all_states();
 
 	return path;
 }
