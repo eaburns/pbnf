@@ -12,7 +12,7 @@
 #include "state.h"
 #include "kbfs.h"
 
-#define NTHREADS 2
+#define NTHREADS 4
 
 class KBFSThread : public Thread {
 public:
@@ -68,8 +68,11 @@ vector<const State *> *KBFS::search(const State *init)
                       break;
                     }
                     threads[worker].s = s;
-                    threads[worker].start();
                 }
+
+		for (int i=0; i <worker; i++)
+                    threads[i].start();
+
                 int i;
                 for (i=0; i<worker; i++) {
                     threads[i].join();
