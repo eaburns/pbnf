@@ -1,12 +1,12 @@
 CXX=g++
 
+MARCH=$(shell uname -m)
+
+# C/C++ basic compilation flags
+FLAGS=-g -Wall -pedantic -pipe
+
 # Comment this out for faster, more memory efficient code.
-IMAGES=-DENABLE_IMAGES
-
-
-CXXFLAGS=-g -Wall -Wnon-virtual-dtor -pedantic -pipe $(IMAGES)
-
-LDFLAGS=-lpthread
+FLAGS+=-DENABLE_IMAGES
 
 SRC= \
 	state.cc \
@@ -25,6 +25,7 @@ SRC= \
 	h_zero.cc \
 	util/eps.cc \
 	util/thread.cc \
+	util/$(MARCH)_atomic_int.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	psdd/projection.cc \
@@ -34,13 +35,28 @@ SRC= \
 
 OBJ=$(SRC:.cc=.o)
 
-all: test thread_test
+ifeq ($(MARCH), sparc64)
+FLAGS+=-mcpu=v9
+
+# Sparc64 atomic helper routines
+OBJ+=util/sparc64_atomic_asm.o
+endif
+
+CFLAGS+=$(FLAGS)
+ASFLAGS+=$(FLAGS)
+CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
+LDFLAGS=-lpthread
+
+all: test thread_test atomic_int_test
 
 test: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o test $(OBJ) main.cc
 
-thread_test: $(OBJ) thread_test.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o thread_test $(OBJ) thread_test.cc
+thread_test: $(OBJ) util/thread_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o thread_test $(OBJ) util/thread_test.cc
+
+atomic_int_test: $(OBJ) util/atomic_int_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o atomic_int_test $(OBJ) util/atomic_int_test.cc
 
 depend:
 	rm -f .depend
@@ -52,5 +68,6 @@ clean:
 	find . -name \*.o -exec rm -f '{}' \;
 	rm -f test
 	rm -f thread_test
+	rm -f atomic_int_test
 
 -include .depend

@@ -66,7 +66,7 @@ private:
 #if defined(ENABLE_IMAGES)
 	void expanded_state(const GridState *s);
 
-	unsigned long expanded;
+	AtomicInt expanded;
 	vector<AtomicInt> states;
 #endif	/* ENABLE_IMAGES */
 

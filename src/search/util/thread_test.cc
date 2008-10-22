@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#include "util/thread.h"
+#include "thread.h"
 
 using namespace std;
 

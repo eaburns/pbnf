@@ -33,6 +33,9 @@ using namespace std;
  * \param s The istream to read the world file from.
  */
 GridWorld::GridWorld(istream &s)
+#if defined(ENABLE_IMAGES)
+	: expanded(0)
+#endif	// ENABLE_IMAGES
 {
 	char line[100];
 	char c;
@@ -85,7 +88,6 @@ GridWorld::GridWorld(istream &s)
 
 #if defined(ENABLE_IMAGES)
 	states.resize(width * height, AtomicInt(0));
-	expanded = 0;
 #endif	// ENABLE_IMAGES
 }
 
@@ -114,7 +116,7 @@ vector<const State*> *GridWorld::expand(const State *state)
 	children = new vector<const State*>();
 
 #if defined(ENABLE_IMAGES)
-	expanded += 1;
+	expanded.inc();
 	expanded_state(s);
 #endif	// ENABLE_IMAGSE
 
@@ -256,7 +258,7 @@ void GridWorld::expanded_state(const GridState *s)
 	int index = s->get_y() * width + s->get_x();
 
 	// this should be made atomic
-	states[index].set(expanded);
+	states[index].set(expanded.read());
 }
 
 /**
@@ -268,9 +270,10 @@ void GridWorld::export_eps(string file) const
 {
 	const int min_size = 500;
 	const int max_size = 1000;
-	int granularity = expanded == 0	? 0 : (expanded < 500
-					       ? 500 / expanded
-					       : expanded / 500);
+	int granularity =
+	        expanded.read() == 0     ? 0
+		: (expanded.read() < 500 ? 500 / expanded.read()
+	                                 : expanded.read() / 500);
 	string data;
 	EPS image(width, height);
 
@@ -298,7 +301,8 @@ void GridWorld::export_eps(string file) const
 			} else {
 				// A certain shade of orange
 				int number = states[i].read();
-				int x = expanded < 500 ? number * granularity
+				int x = expanded.read() < 500
+				        ? number * granularity
 					: number / granularity;
 				if (x < 125) {
 					red = (char) 255;
