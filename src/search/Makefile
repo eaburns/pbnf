@@ -47,10 +47,10 @@ ASFLAGS+=$(FLAGS)
 CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
 LDFLAGS=-lpthread
 
-all: test thread_test atomic_int_test
+all: search thread_test atomic_int_test
 
-test: $(OBJ) main.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o test $(OBJ) main.cc
+search: $(OBJ) main.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o search $(OBJ) main.cc
 
 thread_test: $(OBJ) util/thread_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o thread_test $(OBJ) util/thread_test.cc
@@ -66,7 +66,7 @@ depend:
 
 clean:
 	find . -name \*.o -exec rm -f '{}' \;
-	rm -f test
+	rm -f search
 	rm -f thread_test
 	rm -f atomic_int_test
 
