@@ -43,10 +43,10 @@ Search *get_search(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
 	vector<const State *> *path;
+	Search *search = get_search(argc, argv);
 	GridWorld g(cin);
 	GridWorld::ManhattanDist manhattan(&g);
 	HZero hzero(&g);
-	Search *search = get_search(argc, argv);
 
 	g.set_heuristic(&manhattan);
 //	g.set_heuristic(&hzero);

@@ -61,7 +61,7 @@ vector<const State *> *KBFS::search(const State *init)
         
 
  	while (!open.empty() && !path) {
-                for (worker=0; worker<NTHREADS & !open.empty(); worker++) {
+         	for (worker=0; (worker<NTHREADS) && !open.empty(); worker++) {
                     const State *s = open.take();
                     if (s->is_goal()) {
                       path = s->get_path();
