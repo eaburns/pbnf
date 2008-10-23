@@ -25,7 +25,6 @@ SRC= \
 	h_zero.cc \
 	util/eps.cc \
 	util/thread.cc \
-	util/$(MARCH)_atomic_int.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	psdd/projection.cc \
@@ -37,9 +36,14 @@ OBJ=$(SRC:.cc=.o)
 
 ifeq ($(MARCH), sparc64)
 FLAGS+=-mcpu=v9
-
-# Sparc64 atomic helper routines
 OBJ+=util/sparc64_atomic_asm.o
+OBJ+=util/sparc64_atomic_int.o
+else ifeq ($(MARCH), i386)
+OBJ+=util/x86_atomic_int.o
+else ifeq ($(MARCH), x86_64)
+OBJ+=util/x86_atomic_int.o
+else
+$(error Unknown machine type)
 endif
 
 CFLAGS+=$(FLAGS)
