@@ -49,6 +49,10 @@ NBlockGraph::NBlockGraph(Projection *p, const State *initial)
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
+	path_found = false;
+
+	nblocks_assigned = 0;
+	nblocks_assigned_max = 0;
 }
 
 /**
@@ -61,6 +65,7 @@ NBlockGraph::~NBlockGraph()
 	for (iter = blocks.begin(); iter != blocks.end(); iter++)
 		delete iter->second;
 }
+
 
 /**
  * Get the next nblock for expansion, possibly release a finished
@@ -85,6 +90,8 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			__print(cerr);
 		}
 		assert(finished->sigma == 0);
+
+		nblocks_assigned -= 1;
 		update_scope_sigmas(finished->id, -1);
 
 		if (free_list.size() == 0 && num_sigma_zero == num_nblocks) {
@@ -117,6 +124,9 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 
 	n = free_list.front();
 	free_list.pop_front();
+	nblocks_assigned += 1;
+	if (nblocks_assigned > nblocks_assigned_max)
+		nblocks_assigned_max = nblocks_assigned;
 	update_scope_sigmas(n->id, 1);
 out:
 	pthread_mutex_unlock(&mutex);
@@ -146,6 +156,16 @@ void NBlockGraph::set_path_found(void)
 	path_found = true;
 	pthread_cond_broadcast(&cond);
 	pthread_mutex_unlock(&mutex);
+}
+
+
+/**
+ * Get the statistics on the maximum number of NBlocks assigned at one time.
+ */
+unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
+{
+
+	return nblocks_assigned_max;
 }
 
 

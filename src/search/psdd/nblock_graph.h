@@ -38,6 +38,7 @@ public:
 	void set_path_found(void);
 
 	void print(ostream &o);
+	unsigned int get_max_assigned_nblocks(void) const;
 
 private:
 	void __print(ostream &o);
@@ -62,6 +63,13 @@ private:
 	/* This flag is set when a thread finds a path so that other
 	 * threads do not continue to wait for a new NBlock. */
 	bool path_found;
+
+
+	/*
+	 * Statistics
+	 */
+	unsigned int nblocks_assigned;
+	unsigned int nblocks_assigned_max;
 };
 
 #endif	/* !_NBLOCK_GRAPH_H_ */
