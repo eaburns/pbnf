@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
 	GridWorld::RowModProject project(&g, g.get_height());
 	HZero hzero(&g);
 
-//	g.set_heuristic(&manhattan);
-	g.set_heuristic(&hzero);
+	g.set_heuristic(&manhattan);
+//	g.set_heuristic(&hzero);
 	g.set_projection(&project);
 	path = search->search(g.initial_state());
 //	g.print(cout, path);
