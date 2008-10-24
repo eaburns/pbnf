@@ -73,11 +73,17 @@ NBlockGraph::~NBlockGraph()
  */
 NBlock *NBlockGraph::next_nblock(NBlock *finished)
 {
-	NBlock *n;
+	NBlock *n = NULL;
 
 	pthread_mutex_lock(&mutex);
 
 	if (finished) {		// Release an NBlock
+		if (finished->sigma != 0) {
+			cerr << "A proc had an NBlock with sigma != 0" << endl;
+			finished->print(cerr);
+			cerr << endl << endl << endl;
+			__print(cerr);
+		}
 		assert(finished->sigma == 0);
 		update_scope_sigmas(finished->id, -1);
 
@@ -96,34 +102,60 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			}
 
 			if (free_list.empty())
-				return NULL;
+				goto out;
 
 			// Wake up everyone...
 			pthread_cond_broadcast(&cond);
 		}
 	}
 
-	while (free_list.empty())
+	while (free_list.empty() && !path_found)
 		pthread_cond_wait(&cond, &mutex);
+
+	if (path_found)
+		goto out;
 
 	n = free_list.front();
 	free_list.pop_front();
 	update_scope_sigmas(n->id, 1);
-
+out:
 	pthread_mutex_unlock(&mutex);
 
 	return n;
 }
 
+
 /**
- * Print an NBlockGraph to the given stream.
+ * Get the NBlock given by the hash value.
+ * This shouldn't be called unless the calling thread has this block
+ * assigned to it.
  */
-void NBlockGraph::print(ostream &o)
+NBlock *NBlockGraph::get_nblock(unsigned int hash)
+{
+	return blocks[hash];
+}
+
+
+/**
+ * Signal anyone else that is waiting that a path has been found and
+ * there is no need to get a new NBlock.
+ */
+void NBlockGraph::set_path_found(void)
+{
+	pthread_mutex_lock(&mutex);
+	path_found = true;
+	pthread_cond_broadcast(&cond);
+	pthread_mutex_unlock(&mutex);
+}
+
+
+/**
+ * Print an NBlock, but don't take the lock.
+ */
+void NBlockGraph::__print(ostream &o)
 {
 	map<unsigned int, NBlock *>::iterator biter;
 	list<NBlock *>::iterator fiter;
-
-	pthread_mutex_lock(&mutex);
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
@@ -138,7 +170,15 @@ void NBlockGraph::print(ostream &o)
 	o << "All Blocks:" << endl;
 	for (biter = blocks.begin(); biter != blocks.end(); biter++)
 		biter->second->print(o);
+}
 
+/**
+ * Print an NBlockGraph to the given stream.
+ */
+void NBlockGraph::print(ostream &o)
+{
+	pthread_mutex_lock(&mutex);
+	__print(o);
 	pthread_mutex_unlock(&mutex);
 }
 

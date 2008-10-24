@@ -34,10 +34,13 @@ public:
 	~NBlockGraph();
 
 	NBlock *next_nblock(NBlock *finished);
+	NBlock *get_nblock(unsigned int hash);
+	void set_path_found(void);
 
 	void print(ostream &o);
 
 private:
+	void __print(ostream &o);
 	void update_scope_sigmas(unsigned int y, int delta);
 	void update_sigma(unsigned int y, int delta);
 
@@ -55,6 +58,10 @@ private:
 
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
+
+	/* This flag is set when a thread finds a path so that other
+	 * threads do not continue to wait for a new NBlock. */
+	bool path_found;
 };
 
 #endif	/* !_NBLOCK_GRAPH_H_ */

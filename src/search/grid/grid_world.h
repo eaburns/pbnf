@@ -36,6 +36,8 @@ public:
 
 	virtual State *initial_state(void);
 	virtual vector<const State*> *expand(const State *s);
+	virtual void set_projection(Projection *p);
+	virtual Projection *get_projection(void) const;
 
 	virtual int get_goal_x(void) const;
 	virtual int get_goal_y(void) const;
@@ -47,6 +49,7 @@ public:
 	void export_eps(string file) const;
 #endif	/* ENABLE_IMAGES */
 
+	/* The Manhattan Distance heuristic. */
 	class ManhattanDist : public Heuristic {
 	public:
 		ManhattanDist(const SearchDomain *d);
@@ -70,6 +73,9 @@ public:
 private:
 	bool on_path(const vector<const State *> *path, int x, int y) const;
 	bool is_obstacle(int x, int y) const;
+
+	/* A SearchDomain may have a projection. */
+	Projection *project;
 
 	enum cost_type cost_type;
 

@@ -26,6 +26,7 @@ public:
 
 	virtual ~State();
 
+	virtual SearchDomain *get_domain(void) const;
 
 	virtual int hash(void) const = 0;
 	virtual bool is_goal(void) const = 0;

@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include "../state.h"
+class State;
 
 using namespace std;
 

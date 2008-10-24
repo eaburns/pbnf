@@ -28,6 +28,8 @@ struct NBlock {
 	       vector<unsigned int> preds,
 	       vector<unsigned int> succs);
 
+	~NBlock(void);
+
 	void next_iteration(void);
 
 	void print(ostream &s) const;

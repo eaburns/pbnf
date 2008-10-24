@@ -16,6 +16,14 @@ State::State(SearchDomain *d, const State *parent, float g)
 State::~State() {}
 
 /**
+ * Get the search domain for this state.
+ */
+SearchDomain *State::get_domain(void) const
+{
+	return domain;
+}
+
+/**
  * Get the estimated cost of a path that uses this node.
  * \return g + h
  */

@@ -40,6 +40,8 @@ GridWorld::GridWorld(istream &s)
 	char line[100];
 	char c;
 
+	project = NULL;
+
 	s >> height;
 	s >> width;
 
@@ -139,6 +141,23 @@ vector<const State*> *GridWorld::expand(const State *state)
 
 	return children;
 }
+
+/**
+ * Set the projection function.
+ */
+void GridWorld::set_projection(Projection *p)
+{
+	project = p;
+}
+
+/**
+ * Get the current projection function.
+ */
+Projection *GridWorld::get_projection(void) const
+{
+	return project;
+}
+
 
 /**
  * Get the x-coordinate of the goal.
@@ -415,8 +434,10 @@ vector<unsigned int> GridWorld::RowModProject::get_successors(unsigned int b)
 {
 	vector<unsigned int> s;
 
-	s.push_back((b - 1) % mod_val);
-	s.push_back((b + 1) % mod_val);
+	if (b > 0)
+		s.push_back((b - 1) % mod_val);
+	if (b < max_row - 1)
+		s.push_back((b + 1) % mod_val);
 
 	return s;
 }
@@ -430,8 +451,10 @@ vector<unsigned int> GridWorld::RowModProject::get_predecessors(unsigned int b)
 {
 	vector<unsigned int> p;
 
-	p.push_back((b - 1) % mod_val);
-	p.push_back((b + 1) % mod_val);
+	if (b > 0)
+		p.push_back((b - 1) % mod_val);
+	if (b < max_row - 1)
+		p.push_back((b + 1) % mod_val);
 
 	return p;
 }

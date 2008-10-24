@@ -33,6 +33,16 @@ NBlock::NBlock(unsigned int id, vector<unsigned int> preds,
 
 
 /**
+ * Destroy an NBlock and all of its states.
+ */
+NBlock::~NBlock(void)
+{
+	open_a.delete_all_states();
+	open_b.delete_all_states();
+	closed.delete_all_states();
+}
+
+/**
  * Swap the current and next open lists in this NBlock.
  */
 void NBlock::next_iteration(void)

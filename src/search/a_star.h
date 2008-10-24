@@ -19,6 +19,7 @@
  */
 class AStar : public Search {
 public:
+	virtual ~AStar(void);
 	virtual vector<const State *> *search(const State *);
 };
 

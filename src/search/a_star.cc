@@ -15,6 +15,8 @@
 #include "closed_list.h"
 #include "a_star.h"
 
+AStar::~AStar(void) {}
+
 /**
  * Perform an A* search.
  */

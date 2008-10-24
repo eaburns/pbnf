@@ -13,6 +13,7 @@
 #include <vector>
 #include <iostream>
 
+#include "psdd/projection.h"
 #include "heuristic.h"
 
 using namespace std;
@@ -34,7 +35,8 @@ public:
 	/* Abstract methods */
 	virtual State *initial_state(void) = 0;
 	virtual vector<const State*> *expand(const State *s) = 0;
-
+	virtual void set_projection(Projection *p) = 0;
+	virtual Projection *get_projection(void) const = 0;
 private:
 	const Heuristic *heuristic;
 };

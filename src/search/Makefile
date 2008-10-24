@@ -30,6 +30,7 @@ SRC= \
 	psdd/projection.cc \
 	psdd/nblock.cc \
 	psdd/nblock_graph.cc \
+	psdd/psdd.cc \
 	kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)
