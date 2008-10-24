@@ -32,8 +32,6 @@ using namespace std;
 NBlockGraph::NBlockGraph(Projection *p, const State *initial)
 {
 	unsigned int init_nblock = p->project(initial);
-	cur_free_list = &free_list_a;
-	next_free_list = &free_list_b;
 
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
@@ -43,7 +41,7 @@ NBlockGraph::NBlockGraph(Projection *p, const State *initial)
 				       p->get_successors(i));
 		if (i == init_nblock) {
 			n->cur_open->add(initial);
-			cur_free_list->push_back(n);
+			free_list.push_back(n);
 		}
 
 		blocks[i] = n;
@@ -82,35 +80,35 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 	if (finished) {		// Release an NBlock
 		assert(finished->sigma == 0);
 		update_scope_sigmas(finished->id, -1);
-		next_free_list->push_back(finished);
 
-		if (cur_free_list->size() == 0 && num_sigma_zero == num_nblocks) {
+		if (free_list.size() == 0 && num_sigma_zero == num_nblocks) {
 			// If there are no NBlocks that are currently
 			// free with nodes on them, and all of the
 			// NBlocks have sigma values of zero:
 			// Switch to the next iteration
-			list<NBlock *> *tmp;
 			map<unsigned int, NBlock *>::iterator iter;
 
-			// Swap the NBlock free_lists.
-			tmp = cur_free_list;
-			cur_free_list = next_free_list;
-			next_free_list = tmp;
-
 			// Switch the open lists on all of the NBlocks.
-			for (iter = blocks.begin(); iter != blocks.end(); iter++)
+			for (iter = blocks.begin(); iter != blocks.end(); iter++) {
 				iter->second->next_iteration();
+				if (!iter->second->cur_open->empty())
+					free_list.push_back(iter->second);
+			}
+
+			if (free_list.empty())
+				return NULL;
 
 			// Wake up everyone...
 			pthread_cond_broadcast(&cond);
 		}
 	}
 
-	while (cur_free_list->empty())
+	while (free_list.empty())
 		pthread_cond_wait(&cond, &mutex);
 
-	n = cur_free_list->front();
-	cur_free_list->pop_front();
+	n = free_list.front();
+	free_list.pop_front();
+	update_scope_sigmas(n->id, 1);
 
 	pthread_mutex_unlock(&mutex);
 
@@ -131,17 +129,12 @@ void NBlockGraph::print(ostream &o)
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
 	o << "--------------------" << endl;
 	o << "Current Free Blocks:" << endl;
-	for (fiter = cur_free_list->begin();
-	     fiter != cur_free_list->end();
+	for (fiter = free_list.begin();
+	     fiter != free_list.end();
 	     fiter++)
 		(*fiter)->print(o);
 	o << "--------------------" << endl;
-	o << "Next Free Blocks:" << endl;
-	for (fiter = next_free_list->begin();
-	     fiter != next_free_list->end();
-	     fiter++)
-		(*fiter)->print(o);
-	o << "--------------------" << endl;
+
 	o << "All Blocks:" << endl;
 	for (biter = blocks.begin(); biter != blocks.end(); biter++)
 		biter->second->print(o);
@@ -160,7 +153,7 @@ void NBlockGraph::update_sigma(unsigned int y, int delta)
 	if (yblk->sigma == 0) {
 		assert(delta > 0);
 		if (!yblk->cur_open->empty())
-			cur_free_list->remove(yblk);
+			free_list.remove(yblk);
 		num_sigma_zero -= 1;
 	}
 
@@ -168,7 +161,7 @@ void NBlockGraph::update_sigma(unsigned int y, int delta)
 
 	if (yblk->sigma == 0) {
 		if (!yblk->cur_open->empty()) {
-			cur_free_list->push_back(yblk);
+			free_list.push_back(yblk);
 			pthread_cond_signal(&cond);
 		}
 

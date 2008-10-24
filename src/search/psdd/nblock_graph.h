@@ -51,11 +51,7 @@ private:
 	unsigned int num_sigma_zero;
 
 	/* list of free nblock numbers */
-	list<NBlock *> free_list_a;
-	list<NBlock *> free_list_b;
-
-	list<NBlock *> *cur_free_list;
-	list<NBlock *> *next_free_list;
+	list<NBlock *> free_list;
 
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;

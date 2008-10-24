@@ -51,7 +51,7 @@ ASFLAGS+=$(FLAGS)
 CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
 LDFLAGS=-lpthread
 
-all: search thread_test atomic_int_test
+all: search thread_test atomic_int_test nblock_graph_test
 
 search: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o search $(OBJ) main.cc
@@ -61,6 +61,10 @@ thread_test: $(OBJ) util/thread_test.cc
 
 atomic_int_test: $(OBJ) util/atomic_int_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o atomic_int_test $(OBJ) util/atomic_int_test.cc
+
+nblock_graph_test: $(OBJ) psdd/nblock_graph_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o nblock_graph_test \
+	$(OBJ) psdd/nblock_graph_test.cc
 
 depend:
 	rm -f .depend
@@ -73,5 +77,6 @@ clean:
 	rm -f search
 	rm -f thread_test
 	rm -f atomic_int_test
+	rm -f nblock_graph_test
 
 -include .depend

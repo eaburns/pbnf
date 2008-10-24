@@ -377,7 +377,7 @@ GridWorld::RowModProject::RowModProject(const SearchDomain *d,
 {
 	const GridWorld *g;
 
-	g = dynamic_cast<const GridWorld *>(g);
+	g = dynamic_cast<const GridWorld *>(d);
 
 	max_row = g->get_height();
 }
