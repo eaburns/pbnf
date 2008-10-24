@@ -14,5 +14,5 @@ build
 *.pbxuser
 *.perspective
 *.perspectivev3
-*.eps
+output.eps
 *.o
