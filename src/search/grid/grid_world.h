@@ -20,6 +20,7 @@
 
 #include "../state.h"
 #include "../search_domain.h"
+#include "../psdd/projection.h"
 
 class GridState;
 
@@ -50,6 +51,20 @@ public:
 	public:
 		ManhattanDist(const SearchDomain *d);
 		virtual float compute(const State *s) const;
+	};
+
+	/* Projection function that uses the row number mod a value. */
+	class RowModProject : public Projection {
+	public:
+		RowModProject(const SearchDomain *d, unsigned int mod_val);
+		virtual ~RowModProject();
+		virtual unsigned int project(const State *s);
+		virtual unsigned int get_num_nblocks(void);
+		virtual vector<unsigned int> get_successors(unsigned int b);
+		virtual vector<unsigned int> get_predecessors(unsigned int b);
+	private:
+		unsigned int mod_val;
+		unsigned int max_row;
 	};
 
 private:

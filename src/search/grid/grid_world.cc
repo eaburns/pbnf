@@ -365,3 +365,73 @@ float GridWorld::ManhattanDist::compute(const State *state) const
 		return x_cost + y_cost;
 	}
 }
+
+/**
+ * Create a new row modulos projection function.
+ * \param d The search domain (a GridWorld)
+ * \param mod_val The mod value to use (this will be the number of NBlocks).
+ */
+GridWorld::RowModProject::RowModProject(const SearchDomain *d,
+					unsigned int mod_val)
+	: mod_val(mod_val)
+{
+	const GridWorld *g;
+
+	g = dynamic_cast<const GridWorld *>(g);
+
+	max_row = g->get_height();
+}
+
+
+/**
+ * Destructor (because we have virtual functions).
+ */
+GridWorld::RowModProject::~RowModProject() {}
+
+unsigned int GridWorld::RowModProject::project(const State *s)
+{
+	const GridState *g;
+
+	g = dynamic_cast<const GridState *>(s);
+
+	return g->get_y() % mod_val;
+}
+
+/**
+ * Get the number of nblocks.
+ * \return The number of NBlocks.
+ */
+unsigned int GridWorld::RowModProject::get_num_nblocks(void)
+{
+	return mod_val;
+}
+
+/**
+ * Get the successors of an NBlock with the given hash value.
+ * \param b The hash value of the NBlock.
+ * \return The successor NBlocks of the given NBlock.
+ */
+vector<unsigned int> GridWorld::RowModProject::get_successors(unsigned int b)
+{
+	vector<unsigned int> s;
+
+	s.push_back((b - 1) % mod_val);
+	s.push_back((b + 1) % mod_val);
+
+	return s;
+}
+
+/**
+ * Get the predecessors of an NBlock with the givev hash value.
+ * \param b The hash value of the NBlock.
+ * \return The predecessor NBlocks of the given NBlock.
+ */
+vector<unsigned int> GridWorld::RowModProject::get_predecessors(unsigned int b)
+{
+	vector<unsigned int> p;
+
+	p.push_back((b - 1) % mod_val);
+	p.push_back((b + 1) % mod_val);
+
+	return p;
+}
