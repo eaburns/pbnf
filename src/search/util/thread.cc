@@ -26,6 +26,17 @@ using namespace std;
 #endif	// _POSIX2_LINE_MAX
 #endif	// LINE_MAX
 
+unsigned int Thread::next_id = 0;
+
+/**
+ * Create a new thread.
+ */
+Thread::Thread(void)
+{
+	id = next_id;
+	next_id += 1;
+}
+
 /**
  * Pthreads can't call methods of a class directly.  This function
  * just calls the run method of the class that is passed in as the
@@ -51,15 +62,23 @@ Thread::~Thread(void) {}
  */
 int Thread::join(void) const
 {
-	return pthread_join(thread_id, NULL);
+	return pthread_join(pthread_id, NULL);
+}
+
+/**
+ * Get the ID that the system uses to identfy the thread.
+ */
+pthread_t Thread::get_sys_id(void) const
+{
+	return pthread_id;
 }
 
 /**
  * Get the ID of this thread.
  */
-pthread_t Thread::get_id(void) const
+unsigned int Thread::get_id(void) const
 {
-	return thread_id;
+	return id;
 }
 
 /**
@@ -70,7 +89,7 @@ int Thread::start(void)
 	int ret;
 	char buf[LINE_MAX];
 
-	ret = pthread_create(&thread_id, NULL, pthread_call_run, this);
+	ret = pthread_create(&pthread_id, NULL, pthread_call_run, this);
 	if (ret < 0) {
 		strerror_r(ret, buf, LINE_MAX);
 		cerr << "Error starting thread: " << buf << endl;
