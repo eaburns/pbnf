@@ -38,3 +38,13 @@ void CompletionCounter::wait(void)
 		pthread_cond_wait(&cond, &mutex);
 	pthread_mutex_unlock(&mutex);
 }
+
+/**
+ * Reset the counter to zero.
+ */
+void CompletionCounter::reset(void)
+{
+	pthread_mutex_lock(&mutex);
+	counter = 0;
+	pthread_mutex_unlock(&mutex);
+}

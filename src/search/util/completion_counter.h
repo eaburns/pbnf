@@ -20,6 +20,7 @@ public:
 
 	void complete(void);
 	void wait(void);
+	void reset(void);
 
 private:
 	pthread_mutex_t mutex;
