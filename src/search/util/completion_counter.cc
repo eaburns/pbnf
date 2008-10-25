@@ -11,7 +11,7 @@
 #include <pthread.h>
 
 #include "completion_counter.h"
-#include <iostream>;
+#include <iostream>
 
 CompletionCounter::CompletionCounter(unsigned int max)
 	: counter(0), max(max)
