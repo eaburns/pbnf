@@ -35,6 +35,9 @@ Thread::Thread(void)
 {
 	id = next_id;
 	next_id += 1;
+        pthread_mutex_init(&mutex, NULL);
+        pthread_cond_init(&cond, NULL);
+        exit = false;
 }
 
 /**
@@ -60,9 +63,31 @@ Thread::~Thread(void) {}
  * Joins the thread.  This means that it waits for the thread to exit.
  * \return 0 on success, a negative error value on error.
  */
-int Thread::join(void) const
+int Thread::join(void)
 {
+	exit = true;
+        signal();
 	return pthread_join(pthread_id, NULL);
+}
+
+/**
+ * Signal thread to start working again.
+ */
+void Thread::signal(void)
+{
+	pthread_mutex_lock(&mutex);
+	pthread_cond_signal(&cond);
+	pthread_mutex_unlock(&mutex);
+}
+
+/**
+ * Signal thread to start working again.
+ */
+void Thread::wait(void)
+{
+	pthread_mutex_lock(&mutex);
+	pthread_cond_wait(&cond, &mutex);
+	pthread_mutex_unlock(&mutex);
 }
 
 /**

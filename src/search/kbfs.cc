@@ -23,18 +23,25 @@ public:
 	~KBFSThread() {}
 
 	virtual void run(void){
-                vector<const State *> *children = k->expand(s);
-
-                for (unsigned int i = 0; i < children->size(); i += 1) {
-                        const State *c = children->at(i);
-                        if (k->closed.lookup(c) != NULL) {
-                        	delete c;
-                                continue;
-                        }
-                  k->closed.add(c);
-                  k->open.add(c);
-                }
-                delete children;
+          k->cc.complete();
+          wait();
+          vector<const State *> *children;
+                
+          while(!exit){
+            children = k->expand(s);
+            for (unsigned int i = 0; i < children->size(); i += 1) {
+              const State *c = children->at(i);
+              if (k->closed.lookup(c) != NULL) {
+                delete c;
+                continue;
+              }
+              k->closed.add(c);
+              k->open.add(c);
+            }
+            k->cc.complete();
+            wait();
+          }
+          delete children;
         }
 
 private:
@@ -54,11 +61,13 @@ vector<const State *> *KBFS::search(const State *init)
         KBFSThread threads[NTHREADS];
         for (worker=0; worker<NTHREADS; worker++) {
           threads[worker] = KBFSThread(this);
+          threads[worker].start();
         }
+        cc = CompletionCounter(worker);
+        cc.wait();
 
  	open.add(init);
  	closed.add(init);
-        
 
  	while (!open.empty() && !path) {
          	for (worker=0; (worker<NTHREADS) && !open.empty(); worker++) {
@@ -70,14 +79,17 @@ vector<const State *> *KBFS::search(const State *init)
                     threads[worker].s = s;
                 }
 
-		for (int i=0; i <worker; i++)
-                    threads[i].start();
+                cc = CompletionCounter(worker);
 
-                int i;
-                for (i=0; i<worker; i++) {
-                    threads[i].join();
+                for(int i=0; i<worker; i++){
+                    threads[i].signal();
                 }
+
+                cc.wait();
  	}
+        for (worker=0; worker<NTHREADS; worker++) {
+          threads[worker].join();
+        }
 
  	closed.delete_all_states();
 

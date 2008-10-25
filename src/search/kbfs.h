@@ -15,6 +15,7 @@
 #include "search.h"
 #include "synch_pq_olist.h"
 #include "synch_closed_list.h"
+#include "util/completion_counter.h"
 
 /**
  * A KBFS search class.
@@ -26,6 +27,7 @@ private:
 	SynchPQOList open;
 	SynchClosedList closed;
         friend class KBFSThread;
+        CompletionCounter cc;
 };
 
 #endif	/* !_KBFS_H_ */

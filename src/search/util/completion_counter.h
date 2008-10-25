@@ -15,6 +15,7 @@
 
 class CompletionCounter {
 public:
+        CompletionCounter(): counter(0), max(max) {};
 	CompletionCounter(unsigned int max);
 
 	void complete(void);
