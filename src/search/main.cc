@@ -34,18 +34,18 @@ Search *get_search(int argc, char *argv[])
 		return new AStar();
 	} else if (argc > 1 && strcmp(argv[1], "idastar") == 0) {
 		return new IDAStar();
+	} else if (argc > 1 && sscanf(argv[1], "kbfs-%u", &threads) == 1) {
+		return new KBFS(threads);
 	} else if (argc > 1 && strcmp(argv[1], "bfs") == 0) {
 		return new BreadthFirstSearch();
 	} else if (argc > 1 && sscanf(argv[1], "costbounddfs-%f", &cost) == 1) {
 		return new CostBoundDFS(cost);
-	} else if (argc > 1 && strcmp(argv[1], "kbfs") == 0) {
-		return new KBFS();
 	} else if (argc > 1 && sscanf(argv[1], "psdd-%u", &threads) == 1) {
 		return new PSDD(threads);
 	} else {
 		cout << "Must supply a search algorithm:" << endl;
 		cout << "\tastar, bfs, idastar, costbounddfs-<cost>, "
-		     << "kbfs, psdd-<threads>"
+		     << "kbfs-<threads>, psdd-<threads>"
 		     << endl;
 		exit(EXIT_FAILURE);
 	}

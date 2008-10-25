@@ -12,8 +12,6 @@
 #include "state.h"
 #include "kbfs.h"
 
-#define NTHREADS 4
-
 class KBFSThread : public Thread {
 public:
 	KBFSThread(){}
@@ -50,6 +48,12 @@ private:
         friend class KBFS;
 };
 
+KBFS::KBFS(unsigned int n_threads)
+	: n_threads(n_threads)
+{
+	cc = CompletionCounter(n_threads);
+}
+
 
 /**
  * Perform a KBFS search.
@@ -57,39 +61,39 @@ private:
 vector<const State *> *KBFS::search(const State *init)
 {
  	vector<const State *> *path = NULL;
-        int worker;
-        KBFSThread threads[NTHREADS];
-        for (worker=0; worker<NTHREADS; worker++) {
-          threads[worker] = KBFSThread(this);
-          threads[worker].start();
+        unsigned int worker;
+        vector<KBFSThread *> threads;
+        for (worker=0; worker<n_threads; worker++) {
+        	KBFSThread *t = new KBFSThread(this);
+		threads.push_back(t);
+		t->start();
         }
-        cc = CompletionCounter(worker);
         cc.wait();
 
  	open.add(init);
  	closed.add(init);
 
  	while (!open.empty() && !path) {
-         	for (worker=0; (worker<NTHREADS) && !open.empty(); worker++) {
+         	for (worker=0; (worker<n_threads) && !open.empty(); worker++) {
                     const State *s = open.take();
                     if (s->is_goal()) {
                       path = s->get_path();
                       break;
                     }
-                    threads[worker].s = s;
+                    threads[worker]->s = s;
                 }
 
                 cc.set_max(worker);
                 cc.reset();
 
-                for(int i=0; i<worker; i++){
-                    threads[i].signal();
+                for(unsigned int i=0; i<worker; i++){
+                    threads[i]->signal();
                 }
 
                 cc.wait();
  	}
-        for (worker=0; worker<NTHREADS; worker++) {
-          threads[worker].join();
+        for (worker=0; worker<n_threads; worker++) {
+          threads[worker]->join();
         }
 
  	closed.delete_all_states();

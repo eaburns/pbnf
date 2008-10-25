@@ -22,12 +22,14 @@
  */
 class KBFS : public Search {
 public:
+	KBFS(unsigned int);
 	virtual vector<const State *> *search(const State *);
 private:
 	SynchPQOList open;
 	SynchClosedList closed;
         friend class KBFSThread;
         CompletionCounter cc;
+        const unsigned int n_threads;
 };
 
 #endif	/* !_KBFS_H_ */
