@@ -79,7 +79,8 @@ vector<const State *> *KBFS::search(const State *init)
                     threads[worker].s = s;
                 }
 
-                cc = CompletionCounter(worker);
+                cc.set_max(worker);
+                cc.reset();
 
                 for(int i=0; i<worker; i++){
                     threads[i].signal();
