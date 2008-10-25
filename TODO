@@ -1,11 +1,23 @@
-* (Seth) Implement Parallel Window Search -- back burner
-* (Ethan) Implement Parallel Structured Duplicate Detection
-   + Fix the projection function preds and succs when the number of
-     NBlocks is less than the height of the gridworld.
-* (Ethan) Look into possible contention on LAMA globals
+* Find a name for our new search
+
+* (Ethan) Find good parameters for PSDD
+
+* Implement 8-way movement in gridworld (need real value costs,
+   sqrt(2) diagonals)   
+
 * (Ethan) Sliding tiles -- back burner
+   
+* (Seth) Implement Parallel Window Search -- back burner
+
+* (Ethan) Look into possible contention on LAMA globals
+
 * Look at tfogal's lock-free hashtable
+   
 * Look at Kumar's lock-free Prio-queue
    * A* with lock-free datastructures -- maybe this will be great
-* Compare with ``Standard'' Parallel Searchs
+   
+* Get data for parallel searches (PSDD, KBFS, etc.)
+
+* Get data for our new search
+   
 * Write paper
