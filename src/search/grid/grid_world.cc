@@ -432,14 +432,7 @@ unsigned int GridWorld::RowModProject::get_num_nblocks(void)
  */
 vector<unsigned int> GridWorld::RowModProject::get_successors(unsigned int b)
 {
-	vector<unsigned int> s;
-
-	if (b > 0)
-		s.push_back((b - 1) % mod_val);
-	if (b < max_row - 1)
-		s.push_back((b + 1) % mod_val);
-
-	return s;
+	return get_neighbors(b);
 }
 
 /**
@@ -449,12 +442,22 @@ vector<unsigned int> GridWorld::RowModProject::get_successors(unsigned int b)
  */
 vector<unsigned int> GridWorld::RowModProject::get_predecessors(unsigned int b)
 {
+	return get_neighbors(b);
+}
+
+/**
+ * Get the neighboring NBlock numbers.
+ */
+vector<unsigned int> GridWorld::RowModProject::get_neighbors(unsigned int b)
+{
 	vector<unsigned int> p;
 
 	if (b > 0)
 		p.push_back((b - 1) % mod_val);
-	if (b < max_row - 1)
-		p.push_back((b + 1) % mod_val);
+	else
+		p.push_back(mod_val - 1);
+
+	p.push_back((b + 1) % mod_val);
 
 	return p;
 }

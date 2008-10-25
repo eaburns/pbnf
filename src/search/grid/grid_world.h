@@ -66,6 +66,7 @@ public:
 		virtual vector<unsigned int> get_successors(unsigned int b);
 		virtual vector<unsigned int> get_predecessors(unsigned int b);
 	private:
+		vector<unsigned int> get_neighbors(unsigned int b);
 		unsigned int mod_val;
 		unsigned int max_row;
 	};
