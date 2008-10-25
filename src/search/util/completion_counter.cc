@@ -20,6 +20,19 @@ CompletionCounter::CompletionCounter(unsigned int max)
 	pthread_cond_init(&cond, NULL);
 }
 
+CompletionCounter::CompletionCounter(void)
+	: counter(0), max(0) {}
+
+/**
+ * Set the maximum value.
+ */
+void CompletionCounter::set_max(unsigned int max)
+{
+	pthread_mutex_lock(&mutex);
+	max = max;
+	pthread_mutex_unlock(&mutex);
+}
+
 void CompletionCounter::complete(void)
 {
 	pthread_mutex_lock(&mutex);

@@ -15,8 +15,10 @@
 
 class CompletionCounter {
 public:
-        CompletionCounter(): counter(0), max(max) {};
+	CompletionCounter(void);
 	CompletionCounter(unsigned int max);
+
+	void set_max(unsigned int max);
 
 	void complete(void);
 	void wait(void);
