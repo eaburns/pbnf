@@ -15,6 +15,7 @@
 
 #include "state.h"
 #include "a_star.h"
+#include "breadth_first_search.h"
 #include "cost_bound_dfs.h"
 #include "ida_star.h"
 #include "kbfs.h"
@@ -27,20 +28,24 @@ using namespace std;
 Search *get_search(int argc, char *argv[])
 {
 	unsigned int threads;
+	float cost;
 
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
 	} else if (argc > 1 && strcmp(argv[1], "idastar") == 0) {
 		return new IDAStar();
-	} else if (argc > 2 && strcmp(argv[1], "costbounddfs") == 0) {
-		return new CostBoundDFS(atoi(argv[2]));
+	} else if (argc > 1 && strcmp(argv[1], "bfs") == 0) {
+		return new BreadthFirstSearch();
+	} else if (argc > 1 && sscanf(argv[1], "costbounddfs-%f", &cost) == 1) {
+		return new CostBoundDFS(cost);
 	} else if (argc > 1 && strcmp(argv[1], "kbfs") == 0) {
 		return new KBFS();
 	} else if (argc > 1 && sscanf(argv[1], "psdd-%u", &threads) == 1) {
 		return new PSDD(threads);
 	} else {
 		cout << "Must supply a search algorithm:" << endl;
-		cout << "\tastar, idastar, costbounddfs, kbfs, psdd-<threads>"
+		cout << "\tastar, bfs, idastar, costbounddfs-<cost>, "
+		     << "kbfs, psdd-<threads>"
 		     << endl;
 		exit(EXIT_FAILURE);
 	}
@@ -51,14 +56,18 @@ int main(int argc, char *argv[])
 	vector<const State *> *path;
 	Search *search = get_search(argc, argv);
 	GridWorld g(cin);
-	GridWorld::ManhattanDist manhattan(&g);
-	GridWorld::RowModProject project(&g, g.get_height());
-	HZero hzero(&g);
 
-	g.set_heuristic(&manhattan);
-//	g.set_heuristic(&hzero);
+	GridWorld::RowModProject project(&g, g.get_height() / 50);
 	g.set_projection(&project);
+
+//	HZero hzero(&g);
+//	g.set_heuristic(&hzero);
+	GridWorld::ManhattanDist manhattan(&g);
+	g.set_heuristic(&manhattan);
+
 	path = search->search(g.initial_state());
+
+	/* Print the graph to the terminal */
 //	g.print(cout, path);
 
 	cout << "generated: " << search->get_generated() << endl;
