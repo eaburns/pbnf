@@ -29,7 +29,7 @@ CompletionCounter::CompletionCounter(void)
 void CompletionCounter::set_max(unsigned int max)
 {
 	pthread_mutex_lock(&mutex);
-	max = max;
+	this->max = max;
 	pthread_mutex_unlock(&mutex);
 }
 
