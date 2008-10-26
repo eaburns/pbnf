@@ -48,6 +48,7 @@ private:
         friend class KBFS;
 };
 
+
 KBFS::KBFS(unsigned int n_threads)
 	: n_threads(n_threads)
 {
@@ -61,7 +62,7 @@ KBFS::KBFS(unsigned int n_threads)
 vector<const State *> *KBFS::search(const State *init)
 {
  	vector<const State *> *path = NULL;
-        unsigned int worker;
+        unsigned int worker, i;
         vector<KBFSThread *> threads;
         for (worker=0; worker<n_threads; worker++) {
         	KBFSThread *t = new KBFSThread(this);
@@ -73,6 +74,7 @@ vector<const State *> *KBFS::search(const State *init)
  	open.add(init);
  	closed.add(init);
 
+
  	while (!open.empty() && !path) {
          	for (worker=0; (worker<n_threads) && !open.empty(); worker++) {
                     const State *s = open.take();
@@ -83,13 +85,12 @@ vector<const State *> *KBFS::search(const State *init)
                     threads[worker]->s = s;
                 }
 
-                cc.set_max(worker);
                 cc.reset();
+                cc.set_max(worker);
 
-                for(unsigned int i=0; i<worker; i++){
+                for(i=0; i<worker; i++){
                     threads[i]->signal();
                 }
-
                 cc.wait();
  	}
         for (worker=0; worker<n_threads; worker++) {

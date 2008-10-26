@@ -38,6 +38,7 @@ Thread::Thread(void)
         pthread_mutex_init(&mutex, NULL);
         pthread_cond_init(&cond, NULL);
         exit = false;
+        signalled=0;
 }
 
 /**
@@ -65,7 +66,9 @@ Thread::~Thread(void) {}
  */
 int Thread::join(void)
 {
+        pthread_mutex_unlock(&mutex);
 	exit = true;
+        pthread_mutex_unlock(&mutex);
         signal();
 	return pthread_join(pthread_id, NULL);
 }
@@ -77,16 +80,20 @@ void Thread::signal(void)
 {
 	pthread_mutex_lock(&mutex);
 	pthread_cond_signal(&cond);
+        signalled++;
 	pthread_mutex_unlock(&mutex);
 }
 
 /**
- * Signal thread to start working again.
+ * Signal thread to wait on a condition.
  */
 void Thread::wait(void)
 {
 	pthread_mutex_lock(&mutex);
-	pthread_cond_wait(&cond, &mutex);
+        if(!signalled){
+          pthread_cond_wait(&cond, &mutex);
+        }
+        signalled--;
 	pthread_mutex_unlock(&mutex);
 }
 

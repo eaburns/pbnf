@@ -39,6 +39,7 @@ private:
 	unsigned int id;
 
 	static unsigned int next_id;
+        unsigned int signalled;
 };
 
 #endif	/* !_THREAD_H_ */
