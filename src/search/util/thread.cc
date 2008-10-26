@@ -68,9 +68,10 @@ int Thread::join(void)
 {
         pthread_mutex_unlock(&mutex);
 	exit = true;
-        pthread_mutex_unlock(&mutex);
-        signal();
+	pthread_cond_signal(&cond);
+        signalled++;
 	return pthread_join(pthread_id, NULL);
+        pthread_mutex_unlock(&mutex);
 }
 
 /**
