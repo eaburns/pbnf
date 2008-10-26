@@ -64,6 +64,7 @@ vector<const State *> *KBFS::search(const State *init)
  	vector<const State *> *path = NULL;
         unsigned int worker, i;
         vector<KBFSThread *> threads;
+	vector<KBFSThread *>::iterator iter;
         for (worker=0; worker<n_threads; worker++) {
         	KBFSThread *t = new KBFSThread(this);
 		threads.push_back(t);
@@ -93,9 +94,10 @@ vector<const State *> *KBFS::search(const State *init)
                 }
                 cc.wait();
  	}
-        for (worker=0; worker<n_threads; worker++) {
-          threads[worker]->join();
-        }
+	for (iter = threads.begin(); iter != threads.end(); iter++) {
+		(*iter)->join();
+		delete *iter;
+	}
 
  	closed.delete_all_states();
 
