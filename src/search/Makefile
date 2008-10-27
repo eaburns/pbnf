@@ -6,7 +6,7 @@ MARCH=$(shell uname -m)
 FLAGS=-g -Wall -pedantic -pipe
 
 # Comment this out for faster, more memory efficient code.
-FLAGS+=-DENABLE_IMAGES
+#FLAGS+=-DENABLE_IMAGES
 
 SRC= \
 	state.cc \
