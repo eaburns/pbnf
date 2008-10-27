@@ -1,17 +1,19 @@
 #!/bin/bash
 
 threads=$1
-board="grid/jordan_unit_four-way_500x500_2"
+board="grid/jordan_unit_four-way_1200x2000_2"
 
 echo -e "# PSDD With $threads threads"
 echo -e "# Board: $board"
-echo -e "# weight\tnblocks/thread\t\ttime (seconds)"
-for ((j=1; j < 6; j++))
+printf "# %-20s %-20s %-20s\n" "time (sec)" "weight" "nblocks/thread"
+
+for ((w=1; w < 6; w++))
 do
-    for ((i=1; i < 10; i++))
+    for ((r=1; r < 10; r++))
     do
-	printf "  1.%d\t\t%2d\t\t\t" $j $i
-	(/usr/bin/time -f%ereal ./search dynpsdd-$threads-$i-1.$j \
-	    < $board) 2>&1 | grep "real" | awk -Fr '{ print $1 }'
+	t=`(/usr/bin/time -f%ereal ./search dynpsdd-$threads-$r-1.$w \
+	    < $board) 2>&1 | grep "real" | awk -Fr '{ print $1 }'`
+	printf "  %-20.4f %-20.1f %-20d\n" $t "1.$w" $r
+
     done
 done
