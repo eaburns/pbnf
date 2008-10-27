@@ -24,6 +24,7 @@ SRC= \
 	ida_star.cc \
 	heuristic.cc \
 	h_zero.cc \
+	weighted_heuristic.cc \
 	util/eps.cc \
 	util/thread.cc \
 	util/completion_counter.cc \
