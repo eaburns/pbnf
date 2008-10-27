@@ -94,6 +94,8 @@ vector<const State *> *PSDD::PSDDThread::search_nblock(NBlock *n)
 
 			if ((*iter)->get_f() < search->bound)
 				next_open->add(*iter);
+			else
+				delete *iter;
 		}
 		delete children;
 
