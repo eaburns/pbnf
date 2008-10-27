@@ -8,10 +8,12 @@
  * \date 2008-10-08
  */
 
-#include <iostream>
-#include <vector>
+#include <math.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <iostream>
+#include <vector>
 
 #include "state.h"
 #include "a_star.h"
@@ -25,11 +27,13 @@
 
 using namespace std;
 
+// Globals -- ick.
+unsigned int threads = 1;
+float cost_bound = INFINITY;
+float ratio = 1.0;
+
 Search *get_search(int argc, char *argv[])
 {
-	unsigned int threads;
-	float cost;
-
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
 	} else if (argc > 1 && strcmp(argv[1], "idastar") == 0) {
@@ -38,14 +42,25 @@ Search *get_search(int argc, char *argv[])
 		return new KBFS(threads);
 	} else if (argc > 1 && strcmp(argv[1], "bfs") == 0) {
 		return new BreadthFirstSearch();
-	} else if (argc > 1 && sscanf(argv[1], "costbounddfs-%f", &cost) == 1) {
-		return new CostBoundDFS(cost);
+	} else if (argc > 1
+		   && sscanf(argv[1], "costbounddfs-%f", &cost_bound) == 1) {
+		return new CostBoundDFS(cost_bound);
+	} else if (argc > 1
+		   && sscanf(argv[1], "psdd-%u-%f", &threads, &ratio) == 1) {
+		// order matters here... this has to be before the
+		// less specific psdd-%u parsing which comes next.
+		return new PSDD(threads);
 	} else if (argc > 1 && sscanf(argv[1], "psdd-%u", &threads) == 1) {
 		return new PSDD(threads);
 	} else {
 		cout << "Must supply a search algorithm:" << endl;
-		cout << "\tastar, bfs, idastar, costbounddfs-<cost>, "
-		     << "kbfs-<threads>, psdd-<threads>"
+		cout << "\tastar" << endl
+		     << "\tbfs" << endl
+		     << "\tidastar" << endl
+		     << "\tcostbounddfs-<cost>" << endl
+		     << "\tkbfs-<threads>" << endl
+		     << "\tpsdd-<threads>" << endl
+		     << "\tpsdd-<threads>-<nblocks-per-thread>" << endl
 		     << endl;
 		exit(EXIT_FAILURE);
 	}
@@ -57,7 +72,11 @@ int main(int argc, char *argv[])
 	Search *search = get_search(argc, argv);
 	GridWorld g(cin);
 
-	GridWorld::RowModProject project(&g, g.get_height() / 50);
+	if (ratio == 0)
+		ratio = 1.0;
+	unsigned int denom = g.get_height() / (ratio * threads);
+	unsigned int nblocks = g.get_height() / denom;
+	GridWorld::RowModProject project(&g, nblocks);
 	g.set_projection(&project);
 
 //	HZero hzero(&g);
