@@ -34,6 +34,7 @@ SRC= \
 	psdd/nblock.cc \
 	psdd/nblock_graph.cc \
 	psdd/psdd.cc \
+	psdd/dynamic_bounded_psdd.cc \
 	kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)

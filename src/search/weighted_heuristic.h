@@ -16,13 +16,13 @@
 
 class WeightedHeuristic : public Heuristic {
 public:
-	WeightedHeuristic(const SearchDomain *d, Heuristic *h, float w);
+	WeightedHeuristic(const SearchDomain *d, const Heuristic *h, float w);
 	virtual ~WeightedHeuristic(void);
 
 	virtual float compute(const State *s) const;
 private:
 	float weight;
-	Heuristic *heuristic;
+	const Heuristic *heuristic;
 };
 
 #endif	/* !_WEIGHTED_HEURISTIC_H_ */

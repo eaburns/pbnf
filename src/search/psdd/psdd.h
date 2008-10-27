@@ -27,9 +27,12 @@ using namespace std;
 class PSDD : public Search {
 public:
 	PSDD(unsigned int n_threads);
+	PSDD(unsigned int n_threads, float bound);
 	virtual ~PSDD(void);
 
 	virtual vector<const State *> *search(const State *s);
+
+	void set_bound(float bound);
 private:
 
 	void set_path(vector<const State *> *path);
@@ -46,6 +49,7 @@ private:
 		PSDD *search;
 	};
 
+	float bound;
 	unsigned int n_threads;
 	Projection *project;
 	vector<const State *> *path;

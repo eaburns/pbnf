@@ -9,6 +9,7 @@
  */
 
 #include <pthread.h>
+#include <math.h>
 
 #include <iostream>
 #include <vector>
@@ -50,8 +51,6 @@ void PSDD::PSDDThread::run(void)
 		path = search_nblock(n);
 
 		if (path) {
-			cerr << "Thread " << get_id()
-			     << " found a path" << endl;
 			search->set_path(path);
 			graph->set_path_found();
 		}
@@ -92,7 +91,9 @@ vector<const State *> *PSDD::PSDDThread::search_nblock(NBlock *n)
 		for (iter = children->begin(); iter != children->end(); iter++) {
 			unsigned int block = search->project->project(*iter);
 			OpenList *next_open = graph->get_nblock(block)->next_open;
-			next_open->add(*iter);
+
+			if ((*iter)->get_f() < search->bound)
+				next_open->add(*iter);
 		}
 		delete children;
 
@@ -106,7 +107,21 @@ vector<const State *> *PSDD::PSDDThread::search_nblock(NBlock *n)
  * Create a new Parallel Structured Duplicate Detection search.
  */
 PSDD::PSDD(unsigned int n_threads)
-	: n_threads(n_threads),
+	: bound(INFINITY),
+	  n_threads(n_threads),
+	  project(NULL),
+	  path(NULL)
+{
+	pthread_mutex_init(&path_mutex, NULL);
+}
+
+/**
+ * Create a new Parallel Structured Duplicate Detection search with a
+ * given bound.
+ */
+PSDD::PSDD(unsigned int n_threads, float bound)
+	: bound(bound),
+	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL)
 {
@@ -176,4 +191,12 @@ vector<const State *> *PSDD::search(const State *initial)
 	delete graph;
 
 	return path;
+}
+
+/**
+ * Set the bound.
+ */
+void PSDD::set_bound(float bound)
+{
+	this->bound = bound;
 }

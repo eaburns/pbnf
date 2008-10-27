@@ -33,7 +33,6 @@ vector<const State *> *AStar::search(const State *init)
 		const State *dup = closed.lookup(s);
 
 		if (dup) {
-			assert(dup->get_g() <= s->get_g());
 			delete s;
 			continue;
 		}

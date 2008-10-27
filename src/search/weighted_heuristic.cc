@@ -11,7 +11,9 @@
 #include "weighted_heuristic.h"
 #include "state.h"
 
-WeightedHeuristic::WeightedHeuristic(const SearchDomain *d, Heuristic *h, float w)
+WeightedHeuristic::WeightedHeuristic(const SearchDomain *d,
+				     const Heuristic *h,
+				     float w)
 	: Heuristic(d), weight(w), heuristic(h) {}
 
 
