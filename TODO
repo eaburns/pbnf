@@ -6,6 +6,8 @@
 
 - (Ethan) Sliding tiles -- back burner
    
+- (Seth) Create scripts to run all of our searches
+   
 - (Seth) Implement Parallel Window Search -- back burner
 
 - (Ethan) Look into possible contention on LAMA globals
@@ -32,5 +34,7 @@
 - (Ethan) Create a projection function for GridWorld
 
 - (Ethan) Implement Parallel Structured Duplicate Detection
+   
+- (Ethan) Create a Breadth First Search
 
 - (Seth) Parallel KBFS
