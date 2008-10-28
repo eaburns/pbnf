@@ -1,11 +1,12 @@
 #!/bin/bash
 
 board="$1"
-runs=25
+runs=5
 
 echo -e "# $(date)"
 echo -e "# $(uname -n -o -m -r)"
 echo -e "# Board: $board"
+echo -e "# Average over $runs runs"
 printf "# %-15s %-15s %-15s %-15s\n" \
     "time (sec)" "threads" "weight" "nblocks/thread"
 
