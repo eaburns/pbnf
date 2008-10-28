@@ -1,27 +1,30 @@
 - Find a name for our new search
 
+- Get graphs for Wheeler
+   
+- Figure out if we want PSDD to use uniform-cost search or just BFS
+
+- Another domain (hanoi, pancake [yum], etc.)
+
+- (Seth) Straight parallel A*, locks and all
+
 - (Ethan) Find good parameters for PSDD
 
-- Implement 8-way movement in gridworld (need real value costs, sqrt(2) diagonals)   
-
-- (Ethan) Sliding tiles -- back burner
+- (Ethan) Sliding tiles
    
 - (Seth) Create scripts to run all of our searches
+   - Look into using Wheeler's database code
    
-- (Seth) Implement Parallel Window Search -- back burner
-
-- (Ethan) Look into possible contention on LAMA globals
+- (Seth) Implement Parallel Window Search
 
 - Look at tfogal's lock-free hashtable
    
 - Look at Kumar's lock-free Prio-queue
    - A* with lock-free datastructures -- maybe this will be great
    
-- Get data for parallel searches (PSDD, KBFS, etc.)
+- Implement 8-way movement in gridworld (need real value costs, sqrt(2) diagonals)   
 
-- Get data for our new search
-   
-- Write paper
+- (Ethan) Look into possible contention on LAMA globals
 
 ------------------------------------------------------------
 
