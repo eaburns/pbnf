@@ -22,8 +22,8 @@ do
 		    < $board) 2>&1 | grep "real" | awk -Fr '{ print $1 }'`
 		sum=$(echo "scale=5; $sum + $t" | bc)
 	    done
+	    t=$(echo "scale=5; $sum / $runs" | bc)
+	    printf "  %-15.4f %-15d %-15.2f %-15d\n" $t $h "1.$w" $r
 	done
-	t=$(echo "scale=5; $sum / $runs" | bc)
-	printf "  %-15.4f %-15d %-15.2f %-15d\n" $t $h "1.$w" $r
     done
 done
