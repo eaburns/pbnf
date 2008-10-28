@@ -1,7 +1,10 @@
 #!/bin/bash
 
 board="$1"
+runs=25
 
+echo -e "# $(date)"
+echo -e "# $(uname -n -o -m -r)"
 echo -e "# Board: $board"
 printf "# %-15s %-15s %-15s %-15s\n" \
     "time (sec)" "threads" "weight" "nblocks/thread"
@@ -12,10 +15,15 @@ do
     do
 	for ((r=1; r < 10; r++))
 	do
-	    t=`(/usr/bin/time -f%ereal ./search dynpsdd-$h-$r-1.$w \
-		< $board) 2>&1 | grep "real" | awk -Fr '{ print $1 }'`
-	    printf "  %-15.4f %-15d %-15.2f %-15d\n" $t $h "1.$w" $r
-
+	    sum=0
+	    for ((i=0; i < $runs; i++))
+	    do
+		t=`(/usr/bin/time -f%ereal ./search dynpsdd-$h-$r-1.$w \
+		    < $board) 2>&1 | grep "real" | awk -Fr '{ print $1 }'`
+		sum=$(echo "scale=5; $sum + $t" | bc)
+	    done
 	done
+	t=$(echo "scale=5; $sum / $runs" | bc)
+	printf "  %-15.4f %-15d %-15.2f %-15d\n" $t $h "1.$w" $r
     done
 done
