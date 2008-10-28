@@ -1,23 +1,36 @@
-* Find a name for our new search
+- Find a name for our new search
 
-* (Ethan) Find good parameters for PSDD
+- (Ethan) Find good parameters for PSDD
 
-* Implement 8-way movement in gridworld (need real value costs,
-   sqrt(2) diagonals)   
+- Implement 8-way movement in gridworld (need real value costs, sqrt(2) diagonals)   
 
-* (Ethan) Sliding tiles -- back burner
+- (Ethan) Sliding tiles -- back burner
    
-* (Seth) Implement Parallel Window Search -- back burner
+- (Seth) Implement Parallel Window Search -- back burner
 
-* (Ethan) Look into possible contention on LAMA globals
+- (Ethan) Look into possible contention on LAMA globals
 
-* Look at tfogal's lock-free hashtable
+- Look at tfogal's lock-free hashtable
    
-* Look at Kumar's lock-free Prio-queue
-   * A* with lock-free datastructures -- maybe this will be great
+- Look at Kumar's lock-free Prio-queue
+   - A* with lock-free datastructures -- maybe this will be great
    
-* Get data for parallel searches (PSDD, KBFS, etc.)
+- Get data for parallel searches (PSDD, KBFS, etc.)
 
-* Get data for our new search
+- Get data for our new search
    
-* Write paper
+- Write paper
+
+------------------------------------------------------------
+
+- Find multi-core comupter
+
+- Give Wheeler the Grant Proposal
+   
+- (Ethan) Create GridWorld
+   
+- (Ethan) Create a projection function for GridWorld
+
+- (Ethan) Implement Parallel Structured Duplicate Detection
+
+- (Seth) Parallel KBFS
