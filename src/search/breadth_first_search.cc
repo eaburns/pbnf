@@ -43,7 +43,6 @@ vector<const State *> *BreadthFirstSearch::search(const State *init)
 		}
 
 		if (dup) {
-			assert(dup->get_g() <= s->get_g());
 			delete s;
 			continue;
 		}
