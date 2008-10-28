@@ -53,6 +53,10 @@ public:
 	class ManhattanDist : public Heuristic {
 	public:
 		ManhattanDist(const SearchDomain *d);
+		float compute_up_over(int x, int y,
+				      int gx, int gy) const;
+		float compute_up_over_down(int x, int y,
+					   int gx, int gy) const;
 		virtual float compute(const State *s) const;
 	};
 

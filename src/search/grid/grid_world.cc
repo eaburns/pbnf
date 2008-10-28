@@ -16,6 +16,8 @@
 
 #include <arpa/inet.h>
 
+#include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,13 +82,15 @@ GridWorld::GridWorld(istream &s)
 	s >> line;
 
 
+	// NOTE: *our* y-coordinates are the opposite of the ones
+	// stored in the map file.  The map file uses the bottom of
+	// the grid as y=0, we use the top.
 	s >> start_x;
 	s >> start_y;
 	start_y = height - 1 - start_y;
 	s >> goal_x;
 	s >> goal_y;
 	goal_y = height - 1 - goal_y;
-
 
 #if defined(ENABLE_IMAGES)
 	states.resize(width * height, AtomicInt(0));
@@ -113,7 +117,7 @@ vector<const State*> *GridWorld::expand(const State *state)
 {
 	const GridState *s = dynamic_cast<const GridState*>(state);
 	vector<const State*> *children;
-	int cost = this->cost_type == UNIT_COST ? 1 : s->get_y();
+	float cost = this->cost_type == UNIT_COST ? 1 : s->get_y();
 
 	children = new vector<const State*>();
 
@@ -352,6 +356,39 @@ void GridWorld::export_eps(string file) const
 GridWorld::ManhattanDist::ManhattanDist(const SearchDomain *d)
 	: Heuristic(d) {}
 
+
+/**
+ * Compute the up-and-over path cost.
+ *
+ * Move up to the y-value of the goal then across to the goal, *or*
+ * move across to the goal then down to the y-value of the goal.
+ */
+float GridWorld::ManhattanDist::compute_up_over(int x, int y,
+						int gx, int gy) const
+{
+	float min_y = y < gy ? y : gy;
+	float max_y = y > gy ? y : gy;
+	float dx = abs(gx - x);
+	float dy = max_y - min_y;
+
+	return (dx * min_y) + (((min_y + max_y) * dy) / 2.0);
+}
+
+/**
+ * Compute the up-over-and-down path cost
+ *
+ * This moves up to y=0, moves across for free to the correct x-value
+ * then down to the goal.
+ *
+ * cost from state to y=0: (y^2 + y) / 2
+ * cost from y=0 to goal:  (gy^2 - gy) / 2
+ */
+float GridWorld::ManhattanDist::compute_up_over_down(int x, int y,
+						     int gx, int gy) const
+{
+	return ((y * y) + y + (gy * gy) - gy) / 2.0;
+}
+
 /**
  * Compute the Manhattan distance heuristic.
  * \param state The state to comupte the heuristic for.
@@ -364,24 +401,24 @@ float GridWorld::ManhattanDist::compute(const State *state) const
 
 	s = dynamic_cast<const GridState *>(state);
 	w = dynamic_cast<const GridWorld *>(domain);
+
+	float x = s->get_x();
+	float y = s->get_y();
+	float gx = w->get_goal_x();
+	float gy = w->get_goal_y();
+
+	float dx = fabs(gx - x);
+
 	if (w->get_cost_type() == GridWorld::UNIT_COST) {
-		return abs(s->get_x() - w->get_goal_x())
-			+ abs(s->get_y() - w->get_goal_y());
+		return dx + fabs(gy - y);
+
 	} else {		// Life-cost
-		float x_cost = abs(s->get_x() - w->get_goal_x())
-			* s->get_y();
-		float y_cost = 0.0;
+		float cost_up_over_down = compute_up_over_down(x, y, gx, gy);
+		float cost_up_over = compute_up_over(x, y, gx, gy);
 
-		unsigned int min_y = s->get_y() < w->get_goal_y()
-			? s->get_y()
-			: w->get_goal_y();
-		unsigned int max_y = s->get_y() > w->get_goal_y()
-			? s->get_y()
-			: w->get_goal_y();
-		for (unsigned int i = min_y; i < max_y; i += 1)
-			y_cost += i;
-
-		return x_cost + y_cost;
+		return cost_up_over_down < cost_up_over
+			? cost_up_over_down
+			: cost_up_over;
 	}
 }
 

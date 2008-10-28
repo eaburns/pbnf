@@ -94,7 +94,8 @@ int main(int argc, char *argv[])
 	cout << "generated: " << search->get_generated() << endl;
 	cout << "expanded: " << search->get_expanded() << endl;
 	if (path) {
-		cout << "cost: " << path->at(0)->get_g() << endl;
+		cout << "cost: " << (int) path->at(0)->get_g() << endl;
+		cout << "length: " << path->size() << endl;
 		for (unsigned int i = 0; i < path->size(); i += 1)
 			delete path->at(i);
 		delete path;
