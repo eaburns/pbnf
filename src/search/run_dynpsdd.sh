@@ -18,7 +18,7 @@ do
 	    sum=0
 	    for ((i=0; i < $runs; i++))
 	    do
-		t=`(/usr/bin/time -f%ereal ./search dynpsdd-$h-$r-1.$w \
+		t=`(/usr/bin/time -f%ereal ./search.bin dynpsdd-$h-$r-1.$w \
 		    < $board) 2>&1 | grep "real" | awk -Fr '{ print $1 }'`
 		sum=$(echo "scale=5; $sum + $t" | bc)
 	    done
