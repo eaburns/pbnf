@@ -93,6 +93,15 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		}
 		assert(finished->sigma == 0);
 
+		if (!free_list.empty()) {
+			// if there is a free NBlock, test if it is
+			// indeed better than ours.
+			float cur_f = finished->open.peek()->get_f();
+			float new_f = free_list->best_f();
+			if (cur_f <= new_f)
+				goto out;
+		}
+
 		nblocks_assigned -= 1;
 		free_list.add(finished);
 		update_scope_sigmas(finished->id, -1);
