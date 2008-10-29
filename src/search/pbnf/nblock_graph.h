@@ -37,7 +37,6 @@ namespace PBNF {
 		NBlock *next_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
 		float next_nblock_f_value(void);
-		void set_path_found(void);
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 
@@ -60,11 +59,6 @@ namespace PBNF {
 
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
-
-		/* This flag is set when a thread finds a path so that other
-		 * threads do not continue to wait for a new NBlock. */
-		bool path_found;
-
 
 		/*
 		 * Statistics

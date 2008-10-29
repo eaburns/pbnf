@@ -50,7 +50,6 @@ NBlockGraph::NBlockGraph(Projection *p, const State *initial)
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
-	path_found = false;
 
 	nblocks_assigned = 0;
 	nblocks_assigned_max = 0;
@@ -97,7 +96,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			// if there is a free NBlock, test if it is
 			// indeed better than ours.
 			float cur_f = finished->open.peek()->get_f();
-			float new_f = free_list->best_f();
+			float new_f = free_list.best_f();
 			if (cur_f <= new_f)
 				goto out;
 		}
@@ -107,11 +106,8 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		update_scope_sigmas(finished->id, -1);
 	}
 
-	while (free_list.empty() && !path_found)
+	while (free_list.empty())
 		pthread_cond_wait(&cond, &mutex);
-
-	if (path_found)
-		goto out;
 
 	n = free_list.take();
 	nblocks_assigned += 1;
@@ -133,19 +129,6 @@ out:
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
 	return blocks[hash];
-}
-
-
-/**
- * Signal anyone else that is waiting that a path has been found and
- * there is no need to get a new NBlock.
- */
-void NBlockGraph::set_path_found(void)
-{
-	pthread_mutex_lock(&mutex);
-	path_found = true;
-	pthread_cond_broadcast(&cond);
-	pthread_mutex_unlock(&mutex);
 }
 
 
