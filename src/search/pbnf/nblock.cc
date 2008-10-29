@@ -9,6 +9,7 @@
  */
 
 #include <assert.h>
+#include <math.h>
 
 #include <vector>
 
@@ -40,13 +41,13 @@ NBlock::~NBlock(void)
 	closed.delete_all_states();
 }
 
-bool NBlock::operator<(NBlock *b)
+bool NBlock::NBlockCompare::operator()(NBlock *a, NBlock *b)
 {
-	float fa = open.peek()->get_f();
+	float fa = a->open.peek()->get_f();
 	float fb = b->open.peek()->get_f();
 
 	if (fa == fb)
-		return open.peek()->get_g() < b->open.peek()->get_g();
+		return a->open.peek()->get_g() < b->open.peek()->get_g();
 
 	return fa > fb;
 }
@@ -55,12 +56,16 @@ bool NBlock::operator<(NBlock *b)
 /**
  * Print an NBlock to the given stream.
  */
-void NBlock::print(ostream &o) const
+void NBlock::print(ostream &o)
 {
+	float best_f;
 	vector<unsigned int>::const_iterator iter;
+
+	best_f = open.empty() ? INFINITY : open.peek()->get_f();
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;
+	o << "\tbest f(n): " << best_f << endl;
 	o << "\tpreds: ";
 	for (iter = preds.begin(); iter != preds.end(); iter++)
 		o << *iter << " ";

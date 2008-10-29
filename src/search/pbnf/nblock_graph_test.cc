@@ -13,13 +13,14 @@
 
 #include "nblock_graph.h"
 #include "nblock.h"
-#include "projection.h"
 
+#include "../projection.h"
 #include "../open_list.h"
 #include "../closed_list.h"
 #include "../grid/grid_world.h"
 
 using namespace std;
+using namespace PBNF;
 
 int main(void)
 {
@@ -29,21 +30,40 @@ int main(void)
 	GridWorld::RowModProject p(&w, w.get_height());
 	NBlockGraph g(&p, w.initial_state());
 	NBlock *n;
+	const State *s;
+	vector<const State *> *children;
+	vector<const State *>::iterator iter;
 
 	g.print(cout);
 
+	cout << "------------------------------------------------------------" << endl;
 	cout << endl << endl << endl << endl;
 	n = g.next_nblock(NULL);
 	cout << "Got NBlock:" << endl;
 	n->print(cout);
+	cout << endl << endl << endl << endl;
+	cout << "------------------------------------------------------------" << endl;
 	cout << endl;
 	g.print(cout);
-	n->next_open->add(n->cur_open->take());
 
+	s = n->open.take();
+	children = s->expand();
+	cout << endl << endl << endl << endl;
+	cout << "------------------------------------------------------------" << endl;
+	cout << "Children:" << endl;
+	for (iter = children->begin(); iter != children->end(); iter++) {
+		NBlock *blk = g.get_nblock(p.project(*iter));
+
+		(*iter)->print(cout);
+		blk->open.add(*iter);
+	}
+	cout << "------------------------------------------------------------" << endl;
 	cout << endl << endl << endl << endl;
 	n = g.next_nblock(n);
 	cout << "Got NBlock:" << endl;
 	n->print(cout);
+	cout << endl << endl << endl << endl;
+	cout << "------------------------------------------------------------" << endl;
 	cout << endl;
 	g.print(cout);
 

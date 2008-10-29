@@ -33,7 +33,14 @@ namespace PBNF {
 
 		void next_iteration(void);
 		bool operator<(NBlock *a);
-		void print(ostream &s) const;
+		void print(ostream &s);
+
+		class NBlockCompare {
+		public:
+			bool operator()(NBlock *a, NBlock *b);
+		};
+
+		static NBlockCompare compare;
 
 		unsigned int id;
 		unsigned int sigma;

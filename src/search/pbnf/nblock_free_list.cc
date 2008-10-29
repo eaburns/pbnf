@@ -11,6 +11,7 @@
 #include <assert.h>
 
 #include <algorithm>
+#include <iostream>
 #include <vector>
 
 #include "nblock.h"
@@ -19,13 +20,17 @@
 using namespace std;
 using namespace PBNF;
 
+NBlockFreeList::NBlockFreeList(void)
+{
+	make_heap(heap.begin(), heap.end(), NBlock::compare);
+}
 
 void NBlockFreeList::add(NBlock *b)
 {
 	assert(b->sigma == 0);
 
 	heap.push_back(b);
-	push_heap(heap.begin(), heap.end());
+	push_heap(heap.begin(), heap.end(), NBlock::compare);
 }
 
 
@@ -34,7 +39,8 @@ NBlock *NBlockFreeList::take(void)
 	NBlock *b;
 
 	b = heap.front();
-	pop_heap(heap.begin(), heap.end());
+	pop_heap(heap.begin(), heap.end(), NBlock::compare);
+	heap.pop_back();
 
 	return b;
 }
@@ -53,13 +59,23 @@ void NBlockFreeList::remove(NBlock *b)
 	for (iter = heap.begin(); iter != heap.end(); iter++) {
 		if (*iter == b) {
 			heap.erase(iter);
-			make_heap(heap.begin(), heap.end());
+			make_heap(heap.begin(), heap.end(), NBlock::compare);
 			return;
 		}
 	}
+	assert("false");
 }
 
 float NBlockFreeList::best_f(void)
 {
 	return heap.front()->open.peek()->get_f();
+}
+
+
+void NBlockFreeList::print(ostream &o)
+{
+	vector<NBlock *>::iterator iter;
+
+	for (iter = heap.begin(); iter != heap.end(); iter++)
+		(*iter)->print(o);
 }

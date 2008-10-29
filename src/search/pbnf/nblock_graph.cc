@@ -70,7 +70,8 @@ NBlockGraph::~NBlockGraph()
 
 /**
  * Get the next nblock for expansion, possibly release a finished
- * nblock.
+ * nblock.  The next nblock is the one with the minimum f-value.
+ *
  * \note This call will block if there are currently no free nblocks.
  * \param finished If non-NULL, the finished nblock will be released
  *        into the next level's free_list.
@@ -93,6 +94,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		assert(finished->sigma == 0);
 
 		nblocks_assigned -= 1;
+		free_list.add(finished);
 		update_scope_sigmas(finished->id, -1);
 	}
 
@@ -158,6 +160,9 @@ void NBlockGraph::__print(ostream &o)
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
+	o << "--------------------" << endl;
+	o << "Free Blocks:" << endl;
+	free_list.print(o);
 	o << "--------------------" << endl;
 	o << "All Blocks:" << endl;
 	for (biter = blocks.begin(); biter != blocks.end(); biter++)
