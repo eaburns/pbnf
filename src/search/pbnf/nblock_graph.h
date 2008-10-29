@@ -15,20 +15,19 @@
 
 #include <iostream>
 #include <map>
-#include <list>
 #include <vector>
 
+#include "nblock_free_list.h"
+#include "nblock.h"
 #include "../state.h"
 #include "../closed_list.h"
 #include "../queue_open_list.h"
 #include "../open_list.h"
-#include "nblock.h"
-#include "projection.h"
+#include "../psdd/projection.h"
 
 using namespace std;
 
-namespace PSDD {
-
+namespace PBNF {
 	class NBlockGraph {
 	public:
 		NBlockGraph(Projection *p, const State *init);
@@ -37,8 +36,8 @@ namespace PSDD {
 
 		NBlock *next_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
+		float next_nblock_f_value(void);
 		void set_path_found(void);
-
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 
@@ -57,7 +56,7 @@ namespace PSDD {
 		unsigned int num_sigma_zero;
 
 		/* list of free nblock numbers */
-		list<NBlock *> free_list;
+		NBlockFreeList free_list;
 
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
@@ -73,7 +72,6 @@ namespace PSDD {
 		unsigned int nblocks_assigned;
 		unsigned int nblocks_assigned_max;
 	};
-
-} /* PSDD */
+} /* PBNF */
 
 #endif	/* !_NBLOCK_GRAPH_H_ */

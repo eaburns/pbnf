@@ -6,7 +6,7 @@ MARCH=$(shell uname -m)
 FLAGS=-g -Wall -pedantic -pipe
 
 # Comment this out for faster, more memory efficient code.
-#FLAGS+=-DENABLE_IMAGES
+FLAGS+=-DENABLE_IMAGES
 
 SRC= \
 	state.cc \
@@ -33,8 +33,11 @@ SRC= \
 	psdd/projection.cc \
 	psdd/nblock.cc \
 	psdd/nblock_graph.cc \
-	psdd/psdd.cc \
-	psdd/dynamic_bounded_psdd.cc \
+	psdd_search.cc \
+	dynamic_bounded_psdd.cc \
+	pbnf/nblock.cc \
+	pbnf/nblock_graph.cc \
+	pbnf/nblock_free_list.cc \
 	kbfs.cc \
 
 OBJ=$(SRC:.cc=.o)

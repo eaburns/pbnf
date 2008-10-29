@@ -21,8 +21,8 @@
 #include "cost_bound_dfs.h"
 #include "ida_star.h"
 #include "kbfs.h"
-#include "psdd/psdd.h"
-#include "psdd/dynamic_bounded_psdd.h"
+#include "psdd_search.h"
+#include "dynamic_bounded_psdd.h"
 #include "h_zero.h"
 #include "grid/grid_world.h"
 
@@ -49,7 +49,7 @@ Search *get_search(int argc, char *argv[])
 		return new KBFS(threads);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%f", &threads, &ratio) == 2) {
-		return new PSDD(threads);
+		return new PSDDSearch(threads);
 	} else if (argc > 1
 		   && sscanf(argv[1], "dynpsdd-%u-%f-%f",
 			     &threads, &ratio, &weight) == 3) {

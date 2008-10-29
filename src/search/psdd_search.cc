@@ -14,31 +14,31 @@
 #include <iostream>
 #include <vector>
 
-#include "psdd.h"
-#include "nblock_graph.h"
-#include "nblock.h"
-#include "projection.h"
-
-#include "../util/thread.h"
-#include "../open_list.h"
-#include "../closed_list.h"
+#include "psdd_search.h"
+#include "psdd/nblock_graph.h"
+#include "psdd/nblock.h"
+#include "psdd/projection.h"
+#include "util/thread.h"
+#include "open_list.h"
+#include "closed_list.h"
 
 using namespace std;
+using namespace PSDD;
 
 /**
  * Create a new PSDD Search thread.
  */
-PSDD::PSDDThread::PSDDThread(NBlockGraph *graph, PSDD *search)
+PSDDSearch::PSDDThread::PSDDThread(NBlockGraph *graph, PSDDSearch *search)
 	: graph(graph), search(search) {}
 
 
-PSDD::PSDDThread::~PSDDThread() {}
+PSDDSearch::PSDDThread::~PSDDThread() {}
 
 
 /**
  * The thread work method for a PSDD search.
  */
-void PSDD::PSDDThread::run(void)
+void PSDDSearch::PSDDThread::run(void)
 {
 	vector<const State *> *path;
 	NBlock *n = NULL;
@@ -64,7 +64,7 @@ void PSDD::PSDDThread::run(void)
  * \param n The NBlock.
  * \return NULL, or a path to a goal.
  */
-vector<const State *> *PSDD::PSDDThread::search_nblock(NBlock *n)
+vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 {
 	vector<const State *> *path = NULL;
 	OpenList *cur_open = n->cur_open;
@@ -108,7 +108,7 @@ vector<const State *> *PSDD::PSDDThread::search_nblock(NBlock *n)
 /**
  * Create a new Parallel Structured Duplicate Detection search.
  */
-PSDD::PSDD(unsigned int n_threads)
+PSDDSearch::PSDDSearch(unsigned int n_threads)
 	: bound(INFINITY),
 	  n_threads(n_threads),
 	  project(NULL),
@@ -121,7 +121,7 @@ PSDD::PSDD(unsigned int n_threads)
  * Create a new Parallel Structured Duplicate Detection search with a
  * given bound.
  */
-PSDD::PSDD(unsigned int n_threads, float bound)
+PSDDSearch::PSDDSearch(unsigned int n_threads, float bound)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
@@ -134,13 +134,13 @@ PSDD::PSDD(unsigned int n_threads, float bound)
 /**
  * Destructor.
  */
-PSDD::~PSDD(void) {}
+PSDDSearch::~PSDDSearch(void) {}
 
 
 /**
  * Set the path to the goal.
  */
-void PSDD::set_path(vector<const State *> *p)
+void PSDDSearch::set_path(vector<const State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
 	if (path) {
@@ -160,7 +160,7 @@ void PSDD::set_path(vector<const State *> *p)
 /**
  * Test if there has been a path to the goal found yet.
  */
-bool PSDD::path_found(void) const
+bool PSDDSearch::path_found(void) const
 {
 	return path != NULL;
 }
@@ -168,7 +168,7 @@ bool PSDD::path_found(void) const
 /**
  * Perform the search.
  */
-vector<const State *> *PSDD::search(const State *initial)
+vector<const State *> *PSDDSearch::search(const State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
@@ -198,7 +198,7 @@ vector<const State *> *PSDD::search(const State *initial)
 /**
  * Set the bound.
  */
-void PSDD::set_bound(float bound)
+void PSDDSearch::set_bound(float bound)
 {
 	this->bound = bound;
 }

@@ -20,7 +20,6 @@
 #include "../grid/grid_world.h"
 
 using namespace std;
-using namespace PSDD;
 
 int main(void)
 {

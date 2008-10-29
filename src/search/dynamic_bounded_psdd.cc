@@ -10,15 +10,16 @@
 
 #include <vector>
 
-#include "../search_domain.h"
-#include "../state.h"
-#include "../heuristic.h"
-#include "../a_star.h"
-#include "../weighted_heuristic.h"
-#include "psdd.h"
+#include "search_domain.h"
+#include "state.h"
+#include "heuristic.h"
+#include "a_star.h"
+#include "weighted_heuristic.h"
+#include "psdd_search.h"
 #include "dynamic_bounded_psdd.h"
 
 using namespace std;
+using namespace PSDD;
 
 DynamicBoundedPSDD::DynamicBoundedPSDD(unsigned int n_threads, float weight)
 	: n_threads(n_threads), weight(weight) {}
@@ -37,7 +38,7 @@ vector<const State *> *DynamicBoundedPSDD::search(const State *init)
 	const Heuristic *h = d->get_heuristic();
 	WeightedHeuristic wh(d, h, weight);
 	AStar astar;
-	PSDD psdd(n_threads);
+	PSDDSearch psdd(n_threads);
 	vector<const State *> *path;
 
 	d->set_heuristic(&wh);

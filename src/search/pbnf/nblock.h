@@ -15,13 +15,12 @@
 #include <vector>
 
 #include "../open_list.h"
-#include "../queue_open_list.h"
+#include "../pq_open_list.h"
 #include "../closed_list.h"
 
 using namespace std;
 
-namespace PSDD {
-
+namespace PBNF {
 /**
  * An NBlock
  */
@@ -33,20 +32,15 @@ namespace PSDD {
 		~NBlock(void);
 
 		void next_iteration(void);
-
+		bool operator<(NBlock *a);
 		void print(ostream &s) const;
 
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		QueueOpenList open_a;
-		QueueOpenList open_b;
-		OpenList *cur_open;
-		OpenList *next_open;
+		PQOpenList open;
 		vector<unsigned int> preds;
 		vector<unsigned int> succs;
 	};
-
-} /* PSDD */
-
+}	/* PBNF */
 #endif	/* !_NBLOCK_H_ */

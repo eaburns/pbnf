@@ -18,7 +18,7 @@
 #include "../closed_list.h"
 
 using namespace std;
-using namespace PSDD;
+using namespace PBNF;
 
 /**
  * Create a new NBlock structure.
@@ -27,8 +27,6 @@ NBlock::NBlock(unsigned int id, vector<unsigned int> preds,
 	       vector<unsigned int> succs)
 	: id(id),
 	  sigma(0),
-	  cur_open(&open_a),
-	  next_open(&open_b),
 	  preds(preds),
 	  succs(succs) {}
 
@@ -38,25 +36,21 @@ NBlock::NBlock(unsigned int id, vector<unsigned int> preds,
  */
 NBlock::~NBlock(void)
 {
-	open_a.delete_all_states();
-	open_b.delete_all_states();
+	open.delete_all_states();
 	closed.delete_all_states();
 }
 
-/**
- * Swap the current and next open lists in this NBlock.
- */
-void NBlock::next_iteration(void)
+bool NBlock::operator<(NBlock *b)
 {
-	OpenList *tmp;
+	float fa = open.peek()->get_f();
+	float fb = b->open.peek()->get_f();
 
-	assert(cur_open->empty());
-	assert(sigma == 0);
+	if (fa == fb)
+		return open.peek()->get_g() < b->open.peek()->get_g();
 
-	tmp = cur_open;
-	cur_open = next_open;
-	next_open = tmp;
+	return fa > fb;
 }
+
 
 /**
  * Print an NBlock to the given stream.

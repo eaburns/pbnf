@@ -19,12 +19,12 @@
 #include "../closed_list.h"
 #include "../queue_open_list.h"
 #include "../open_list.h"
-#include "projection.h"
+#include "../psdd/projection.h"
 #include "nblock.h"
 #include "nblock_graph.h"
 
 using namespace std;
-using namespace PSDD;
+using namespace PBNF;
 
 /**
  * Create a new NBlock graph.
@@ -41,8 +41,8 @@ NBlockGraph::NBlockGraph(Projection *p, const State *initial)
 		NBlock *n = new NBlock(i, p->get_predecessors(i),
 				       p->get_successors(i));
 		if (i == init_nblock) {
-			n->cur_open->add(initial);
-			free_list.push_back(n);
+			n->open.add(initial);
+			free_list.add(n);
 		}
 
 		blocks[i] = n;
@@ -94,27 +94,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 
 		nblocks_assigned -= 1;
 		update_scope_sigmas(finished->id, -1);
-
-		if (free_list.size() == 0 && num_sigma_zero == num_nblocks) {
-			// If there are no NBlocks that are currently
-			// free with nodes on them, and all of the
-			// NBlocks have sigma values of zero:
-			// Switch to the next iteration
-			map<unsigned int, NBlock *>::iterator iter;
-
-			// Switch the open lists on all of the NBlocks.
-			for (iter = blocks.begin(); iter != blocks.end(); iter++) {
-				iter->second->next_iteration();
-				if (!iter->second->cur_open->empty())
-					free_list.push_back(iter->second);
-			}
-
-			if (free_list.empty())
-				goto out;
-
-			// Wake up everyone...
-			pthread_cond_broadcast(&cond);
-		}
 	}
 
 	while (free_list.empty() && !path_found)
@@ -123,8 +102,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 	if (path_found)
 		goto out;
 
-	n = free_list.front();
-	free_list.pop_front();
+	n = free_list.take();
 	nblocks_assigned += 1;
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
@@ -176,18 +154,11 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
 void NBlockGraph::__print(ostream &o)
 {
 	map<unsigned int, NBlock *>::iterator biter;
-	list<NBlock *>::iterator fiter;
+
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
 	o << "--------------------" << endl;
-	o << "Current Free Blocks:" << endl;
-	for (fiter = free_list.begin();
-	     fiter != free_list.end();
-	     fiter++)
-		(*fiter)->print(o);
-	o << "--------------------" << endl;
-
 	o << "All Blocks:" << endl;
 	for (biter = blocks.begin(); biter != blocks.end(); biter++)
 		biter->second->print(o);
@@ -213,7 +184,7 @@ void NBlockGraph::update_sigma(unsigned int y, int delta)
 
 	if (yblk->sigma == 0) {
 		assert(delta > 0);
-		if (!yblk->cur_open->empty())
+		if (!yblk->open.empty())
 			free_list.remove(yblk);
 		num_sigma_zero -= 1;
 	}
@@ -221,8 +192,8 @@ void NBlockGraph::update_sigma(unsigned int y, int delta)
 	yblk->sigma += delta;
 
 	if (yblk->sigma == 0) {
-		if (!yblk->cur_open->empty()) {
-			free_list.push_back(yblk);
+		if (!yblk->open.empty()) {
+			free_list.add(yblk);
 			pthread_cond_signal(&cond);
 		}
 
@@ -270,4 +241,18 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 				update_sigma(ypp, delta);
 		}
 	}
+}
+
+/**
+ * Get the f-value of the next best NBlock.
+ */
+float NBlockGraph::next_nblock_f_value(void)
+{
+	float val;
+
+	pthread_mutex_lock(&mutex);
+	val = free_list.best_f();
+	pthread_mutex_unlock(&mutex);
+
+	return val;
 }

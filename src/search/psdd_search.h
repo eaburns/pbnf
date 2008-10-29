@@ -15,20 +15,21 @@
 
 #include <vector>
 
-#include "projection.h"
-#include "nblock.h"
-#include "nblock_graph.h"
-#include "../util/thread.h"
-#include "../search.h"
-#include "../state.h"
+#include "psdd/projection.h"
+#include "psdd/nblock.h"
+#include "psdd/nblock_graph.h"
+#include "util/thread.h"
+#include "search.h"
+#include "state.h"
 
 using namespace std;
+using namespace PSDD;
 
-class PSDD : public Search {
+class PSDDSearch : public Search {
 public:
-	PSDD(unsigned int n_threads);
-	PSDD(unsigned int n_threads, float bound);
-	virtual ~PSDD(void);
+	PSDDSearch(unsigned int n_threads);
+	PSDDSearch(unsigned int n_threads, float bound);
+	virtual ~PSDDSearch(void);
 
 	virtual vector<const State *> *search(const State *s);
 
@@ -40,13 +41,13 @@ private:
 
 	class PSDDThread : public Thread {
 	public:
-		PSDDThread(NBlockGraph *graph, PSDD *search);
+		PSDDThread(NBlockGraph *graph, PSDDSearch *search);
 		virtual ~PSDDThread();
 		virtual void run(void);
 	private:
 		vector<const State *> *search_nblock(NBlock *n);
 		NBlockGraph *graph;
-		PSDD *search;
+		PSDDSearch *search;
 	};
 
 	float bound;
