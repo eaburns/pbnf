@@ -1,5 +1,3 @@
-- Find a name for our new search
-
 - Get graphs for Wheeler
    
 - Figure out if we want PSDD to use uniform-cost search or just BFS
@@ -27,6 +25,8 @@
 - (Ethan) Look into possible contention on LAMA globals
 
 ------------------------------------------------------------
+
+- Find a name for our new search: PBNF (Parallel Best Nblock First)
 
 - Find multi-core comupter
 
