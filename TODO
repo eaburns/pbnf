@@ -9,16 +9,22 @@
 - (Ethan) Find good parameters for PSDD
 
 - (Ethan) Sliding tiles
-   
-- (Seth) Create scripts to run all of our searches
-   - Look into using Wheeler's database code
+
+- (Seth) Write testing scripts
+
+- (Seth) Look into MSA as test domain
+  
+- Look into using Wheeler's database code
    
 - (Seth) Implement Parallel Window Search
+
+- (Seth) Implement parallel A*
 
 - Look at tfogal's lock-free hashtable
    
 - Look at Kumar's lock-free Prio-queue
-   - A* with lock-free datastructures -- maybe this will be great
+
+- A* with lock-free datastructures -- maybe this will be great
    
 - Implement 8-way movement in gridworld (need real value costs, sqrt(2) diagonals)   
 
