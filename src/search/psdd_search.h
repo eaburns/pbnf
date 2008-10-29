@@ -15,10 +15,10 @@
 
 #include <vector>
 
-#include "psdd/projection.h"
 #include "psdd/nblock.h"
 #include "psdd/nblock_graph.h"
 #include "util/thread.h"
+#include "projection.h"
 #include "search.h"
 #include "state.h"
 

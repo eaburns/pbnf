@@ -20,7 +20,7 @@
 
 #include "../state.h"
 #include "../search_domain.h"
-#include "../psdd/projection.h"
+#include "../projection.h"
 
 class GridState;
 

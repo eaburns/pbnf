@@ -13,8 +13,8 @@
 
 #include "nblock_graph.h"
 #include "nblock.h"
-#include "projection.h"
 
+#include "../projection.h"
 #include "../open_list.h"
 #include "../closed_list.h"
 #include "../grid/grid_world.h"

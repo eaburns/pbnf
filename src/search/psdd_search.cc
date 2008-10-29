@@ -17,8 +17,8 @@
 #include "psdd_search.h"
 #include "psdd/nblock_graph.h"
 #include "psdd/nblock.h"
-#include "psdd/projection.h"
 #include "util/thread.h"
+#include "projection.h"
 #include "open_list.h"
 #include "closed_list.h"
 

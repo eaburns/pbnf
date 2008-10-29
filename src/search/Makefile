@@ -25,12 +25,12 @@ SRC= \
 	heuristic.cc \
 	h_zero.cc \
 	weighted_heuristic.cc \
+	projection.cc \
 	util/eps.cc \
 	util/thread.cc \
 	util/completion_counter.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
-	psdd/projection.cc \
 	psdd/nblock.cc \
 	psdd/nblock_graph.cc \
 	psdd_search.cc \

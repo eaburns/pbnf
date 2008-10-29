@@ -13,7 +13,7 @@
 #include <vector>
 #include <iostream>
 
-#include "psdd/projection.h"
+#include "projection.h"
 #include "heuristic.h"
 
 using namespace std;

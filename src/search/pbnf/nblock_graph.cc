@@ -19,7 +19,7 @@
 #include "../closed_list.h"
 #include "../queue_open_list.h"
 #include "../open_list.h"
-#include "../psdd/projection.h"
+#include "../projection.h"
 #include "nblock.h"
 #include "nblock_graph.h"
 
