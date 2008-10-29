@@ -402,10 +402,10 @@ float GridWorld::ManhattanDist::compute(const State *state) const
 	s = dynamic_cast<const GridState *>(state);
 	w = dynamic_cast<const GridWorld *>(domain);
 
-	float x = s->get_x();
-	float y = s->get_y();
-	float gx = w->get_goal_x();
-	float gy = w->get_goal_y();
+	int x = s->get_x();
+	int y = s->get_y();
+	int gx = w->get_goal_x();
+	int gy = w->get_goal_y();
 
 	float dx = fabs(gx - x);
 
