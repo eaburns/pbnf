@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
 	if (ratio == 0)
 		ratio = 1.0;
-	unsigned int denom = g.get_height() / (ratio * threads);
+	int denom = g.get_height() / ((int) ratio * threads);
 	unsigned int nblocks = g.get_height() / denom;
 	GridWorld::RowModProject project(&g, nblocks);
 	g.set_projection(&project);
