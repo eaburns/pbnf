@@ -29,6 +29,11 @@ const State *QueueOpenList::take(void)
 	return s;
 }
 
+const State *QueueOpenList::peek(void)
+{
+	return q.front();
+}
+
 bool QueueOpenList::empty(void)
 {
 	return q.empty();

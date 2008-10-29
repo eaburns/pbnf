@@ -34,6 +34,17 @@ const State *SynchPQOList::take(void)
 	return ret;
 }
 
+const State *SynchPQOList::peek(void)
+{
+	const State *ret;
+
+	pthread_mutex_lock(&mutex);
+	ret = PQOpenList::peek();
+	pthread_mutex_unlock(&mutex);
+
+	return ret;
+}
+
 bool SynchPQOList::empty(void)
 {
 	bool ret;

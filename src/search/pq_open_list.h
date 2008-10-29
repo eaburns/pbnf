@@ -28,6 +28,7 @@ class PQOpenList : public OpenList {
 public:
 	virtual void add(const State *s);
 	virtual const State *take(void);
+	virtual const State *peek(void);
 	virtual bool empty(void);
 	virtual void delete_all_states(void);
 

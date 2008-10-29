@@ -22,6 +22,7 @@ public:
 
 	virtual void add(const State *s) = 0;
 	virtual const State *take(void) = 0;
+	virtual const State *peek(void) = 0;
 	virtual bool empty(void) = 0;
 	virtual void delete_all_states(void) = 0;
 };

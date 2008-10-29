@@ -55,6 +55,14 @@ const State *PQOpenList::take(void)
 }
 
 /**
+ * Peek at the top element.
+ */
+const State *PQOpenList::peek(void)
+{
+	return pq.top();
+}
+
+/**
  * Test if the OpenList is empty.
  * \return True if the open list is empty, false if not.
  */
