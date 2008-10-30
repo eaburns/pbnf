@@ -39,8 +39,10 @@ namespace PBNF {
 		float next_nblock_f_value(void);
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
+		void set_done(void);
 
 	private:
+		void __set_done(void);
 		void __print(ostream &o);
 		void update_scope_sigmas(unsigned int y, int delta);
 		void update_sigma(unsigned int y, int delta);
@@ -56,6 +58,12 @@ namespace PBNF {
 
 		/* list of free nblock numbers */
 		NBlockFreeList free_list;
+
+
+		/* This flag is set when the search is completed to
+		 * signal to all waiting processess that the search
+		 * has completed. */
+		bool done;
 
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;

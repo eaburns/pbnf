@@ -9,6 +9,7 @@
  */
 
 #include <assert.h>
+#include <math.h>
 
 #include <algorithm>
 #include <iostream>
@@ -68,6 +69,9 @@ void NBlockFreeList::remove(NBlock *b)
 
 float NBlockFreeList::best_f(void)
 {
+	if (heap.empty())
+		return INFINITY;
+
 	return heap.front()->open.peek()->get_f();
 }
 

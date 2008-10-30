@@ -43,6 +43,9 @@ NBlock::~NBlock(void)
 
 bool NBlock::NBlockCompare::operator()(NBlock *a, NBlock *b)
 {
+	assert(!a->open.empty());
+	assert(!b->open.empty());
+
 	float fa = a->open.peek()->get_f();
 	float fb = b->open.peek()->get_f();
 

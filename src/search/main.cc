@@ -23,6 +23,7 @@
 #include "kbfs.h"
 #include "psdd_search.h"
 #include "dynamic_bounded_psdd.h"
+#include "pbnf_search.h"
 #include "h_zero.h"
 #include "grid/grid_world.h"
 
@@ -54,6 +55,9 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "dynpsdd-%u-%f-%f",
 			     &threads, &ratio, &weight) == 3) {
 		return new DynamicBoundedPSDD(threads, weight);
+	} else if (argc > 1
+		   && sscanf(argv[1], "pbnf-%u-%f", &threads, &ratio) == 2) {
+		return new PBNFSearch(threads);
 	} else {
 		cout << "Must supply a search algorithm:" << endl;
 		cout << "\tastar" << endl

@@ -105,6 +105,9 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 }
 
 
+/**********************************************************************/
+
+
 /**
  * Create a new Parallel Structured Duplicate Detection search.
  */

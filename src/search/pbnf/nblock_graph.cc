@@ -48,6 +48,8 @@ NBlockGraph::NBlockGraph(Projection *p, const State *initial)
 		blocks[i] = n;
 	}
 
+	done = false;
+
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
 
@@ -92,22 +94,38 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		}
 		assert(finished->sigma == 0);
 
-		if (!free_list.empty()) {
+		if (!free_list.empty() && !finished->open.empty()) {
 			// if there is a free NBlock, test if it is
 			// indeed better than ours.
 			float cur_f = finished->open.peek()->get_f();
 			float new_f = free_list.best_f();
-			if (cur_f <= new_f)
+			if (cur_f <= new_f) {
+				n = finished;
 				goto out;
+			}
 		}
 
 		nblocks_assigned -= 1;
-		free_list.add(finished);
+
+		if (!finished->open.empty()) {
+			free_list.add(finished);
+			pthread_cond_signal(&cond);
+		}
+
 		update_scope_sigmas(finished->id, -1);
+
+		if (free_list.empty() && num_sigma_zero == num_nblocks) {
+			__set_done();
+			goto out;
+		}
+
 	}
 
-	while (free_list.empty())
+	while (free_list.empty() && !done)
 		pthread_cond_wait(&cond, &mutex);
+
+	if (done)
+		goto out;
 
 	n = free_list.take();
 	nblocks_assigned += 1;
@@ -252,4 +270,23 @@ float NBlockGraph::next_nblock_f_value(void)
 	pthread_mutex_unlock(&mutex);
 
 	return val;
+}
+
+/**
+ * Sets the done flag with out taking the lock.
+ */
+void NBlockGraph::__set_done(void)
+{
+	done = true;
+	pthread_cond_broadcast(&cond);
+}
+
+/**
+ * Sets the done flag.
+ */
+void NBlockGraph::set_done(void)
+{
+	pthread_mutex_lock(&mutex);
+	__set_done();
+	pthread_mutex_unlock(&mutex);
 }
