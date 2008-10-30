@@ -1,3 +1,7 @@
+- Get a benchmark for speedup by running multiple A* searches in
+   seperate threads.  This should show the max speed up of the
+   comupter without communication overhead.
+
 - Get graphs for Wheeler
    
 - Figure out if we want PSDD to use uniform-cost search or just BFS
