@@ -8,13 +8,9 @@
 
 - Another domain (hanoi, pancake [yum], etc.)
 
-- (Seth) Straight parallel A*, locks and all
-
 - (Ethan) Find good parameters for PSDD
 
 - (Ethan) Sliding tiles
-
-- (Seth) Write testing scripts
 
 - (Seth) Look into MSA as test domain
   
@@ -53,3 +49,5 @@
 - (Seth) Parallel KBFS
 
 - (Ethan) Implement PBNF
+
+- (Seth) Write testing script
