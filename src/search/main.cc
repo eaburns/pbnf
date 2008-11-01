@@ -67,6 +67,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tkbfs-<threads>" << endl
 		     << "\tpsdd-<threads>-<nblocks/thread>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks/thread>-<weight>" << endl
+		     << "\pbnf-<threads>-<nblocks/thread>" << endl
 		     << endl;
 		exit(EXIT_FAILURE);
 	}
