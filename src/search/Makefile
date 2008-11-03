@@ -65,7 +65,7 @@ CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
 LDFLAGS=-lpthread
 
 all: search thread_test atomic_int_test psdd_nblock_graph_test \
-     pbnf_nblock_graph_test baseline tiles_hash_test
+     pbnf_nblock_graph_test baseline tiles_hash_test tiles_read_test
 
 search: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o search $(OBJ) main.cc
@@ -91,6 +91,10 @@ tiles_hash_test: $(OBJ) tiles/tiles_hash_test.o
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o tiles_hash_test \
 	$(OBJ) tiles/tiles_hash_test.o
 
+tiles_read_test: $(OBJ) tiles/tiles_read_test.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o tiles_read_test \
+	$(OBJ) tiles/tiles_read_test.o
+
 depend:
 	rm -f .depend
 	touch .depend
@@ -106,5 +110,6 @@ clean:
 	rm -f pbnf_nblock_graph_test
 	rm -f baseline
 	rm -f tiles_hash_test
+	rm -f tiles_read_test
 
 -include .depend

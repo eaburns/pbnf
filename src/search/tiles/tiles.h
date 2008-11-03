@@ -15,6 +15,7 @@
 #include "../state.h"
 #include "../projection.h"
 #include "../heuristic.h"
+#include "tiles_state.h"
 
 class Tiles : public SearchDomain {
 public:
@@ -22,7 +23,7 @@ public:
 	Tiles(unsigned int width, unsigned int height);
 	virtual ~Tiles(void);
 
-	virtual State *initial_state(void);
+	virtual const State *initial_state(void);
 	virtual vector<const State *> *expand(const State *s);
 
 /*

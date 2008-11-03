@@ -9,6 +9,7 @@
  */
 
 #include <assert.h>
+#include <math.h>
 
 #include <vector>
 #include <iostream>
@@ -20,9 +21,29 @@
 
 using namespace std;
 
-Tiles::Tiles(istream &i)
+/**
+ * Read in a puzzle from the given input stream... this just blindly
+ * assumes that it was given a perfect square.
+ */
+Tiles::Tiles(istream &in)
 {
-	assert("unimplemented");
+	unsigned int vl;
+	unsigned int blank = 0;
+	vector<unsigned int> tiles;
+
+	do {
+		in >> vl;
+		if (vl == 0)
+			blank = tiles.size();
+		tiles.push_back(vl);
+	} while (!in.eof());
+
+	width = height = sqrt(tiles.size());
+
+	initial = new TilesState(this, NULL, 0, tiles, blank);
+
+	cerr << "width = " << width << " height = " << height << endl;
+	initial->print(cerr);
 }
 
 
@@ -34,7 +55,14 @@ Tiles::Tiles(unsigned int width, unsigned int height)
 	: width(width), height(height), initial(NULL) {}
 
 
-Tiles::~Tiles(void) {}
+/**
+ * Destructor.
+ */
+Tiles::~Tiles(void)
+{
+	if (initial)
+		delete initial;
+}
 
 
 /**
@@ -43,7 +71,7 @@ Tiles::~Tiles(void) {}
  * This will be NULL if the puzzle was constructed with the 2-argument
  * width-by-height constructor.
  */
-State *Tiles::initial_state(void)
+const State *Tiles::initial_state(void)
 {
 	return initial;
 }

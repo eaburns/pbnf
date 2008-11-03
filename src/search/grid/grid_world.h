@@ -34,7 +34,7 @@ public:
 
 	GridWorld(istream &s);
 
-	virtual State *initial_state(void);
+	virtual const State *initial_state(void);
 	virtual vector<const State*> *expand(const State *s);
 
 	virtual int get_goal_x(void) const;
