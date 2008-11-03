@@ -29,6 +29,7 @@
 #include "heuristic.h"
 #include "a_star.h"
 #include "util/thread.h"
+#include "util/timer.h"
 #include "grid/grid_world.h"
 
 using namespace std;
@@ -98,22 +99,16 @@ void do_one_search(string map, unsigned int max_thread)
  */
 void do_searches(string map, unsigned int max_threads, unsigned int step)
 {
-	struct timeval time0, time1;
-	double ftime0, ftime1;
+	double diff;
+	Timer t;
 
 	cout << "Threads, Real Time (sec) per Thread" << endl;
 	for (unsigned int i = 1; i <= max_threads; i += step) {
-		gettimeofday(&time0, NULL);
+		t.start();
 		do_one_search(map, i);
-		gettimeofday(&time1, NULL);
+		diff = t.stop();
 
-		ftime0 = time0.tv_usec;
-		ftime0 /= 1000000;
-		ftime0 += time0.tv_sec;
-		ftime1 = time1.tv_usec;
-		ftime1 /= 1000000;
-		ftime1 += time1.tv_sec;
-		cout << i << ", " << (ftime1 - ftime0)/i << endl;
+		cout << i << ", " << diff/i << endl;
 	}
 }
 

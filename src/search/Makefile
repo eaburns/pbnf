@@ -29,6 +29,7 @@ SRC= \
 	util/eps.cc \
 	util/thread.cc \
 	util/completion_counter.cc \
+	util/timer.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	psdd/nblock.cc \
