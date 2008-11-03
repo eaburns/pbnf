@@ -10,6 +10,7 @@ import timeit, sys
 
 if len(sys.argv) > 1 and sys.argv[1] == "--help":
     print "buildtest.py [nthreads] [nbperthread] [weight] [costbound]"
+    exit(0)
 
 if len(sys.argv) > 1:
     nthreads = str(sys.argv[1])
