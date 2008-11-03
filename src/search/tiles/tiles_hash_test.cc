@@ -26,16 +26,19 @@ int main(void)
 	map<unsigned int, const State *> seen; // check for duplicate hashes
 	QueueOpenList open;
 	ClosedList closed;
-	Tiles dom(2, 3);
+	Tiles dom(3, 3);
 	const State *s;
 
-	vector<unsigned int> vec(6);
+	vector<unsigned int> vec(9);
 	vec[0] = 0;
 	vec[1] = 1;
 	vec[2] = 2;
 	vec[3] = 3;
 	vec[4] = 4;
 	vec[5] = 5;
+	vec[6] = 6;
+	vec[7] = 7;
+	vec[8] = 8;
 
 	open.add(new TilesState(&dom, NULL, 1.0, vec, 0));
 
