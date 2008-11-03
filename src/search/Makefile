@@ -32,6 +32,8 @@ SRC= \
 	util/timer.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
+	tiles/tiles_state.cc \
+	tiles/tiles.cc \
 	psdd/nblock.cc \
 	psdd/nblock_graph.cc \
 	psdd_search.cc \
@@ -63,7 +65,7 @@ CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
 LDFLAGS=-lpthread
 
 all: search thread_test atomic_int_test psdd_nblock_graph_test \
-     pbnf_nblock_graph_test baseline
+     pbnf_nblock_graph_test baseline tiles_hash_test
 
 search: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o search $(OBJ) main.cc
@@ -85,6 +87,10 @@ pbnf_nblock_graph_test: $(OBJ) pbnf/nblock_graph_test.cc
 baseline: $(OBJ) baseline.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o baseline $(OBJ) baseline.cc
 
+tiles_hash_test: $(OBJ) tiles/tiles_hash_test.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o tiles_hash_test \
+	$(OBJ) tiles/tiles_hash_test.o
+
 depend:
 	rm -f .depend
 	touch .depend
@@ -99,5 +105,6 @@ clean:
 	rm -f psdd_nblock_graph_test
 	rm -f pbnf_nblock_graph_test
 	rm -f baseline
+	rm -f tiles_hash_test
 
 -include .depend
