@@ -26,6 +26,7 @@
 #include "pbnf_search.h"
 #include "h_zero.h"
 #include "grid/grid_world.h"
+#include "pastar.h"
 
 using namespace std;
 
@@ -48,6 +49,8 @@ Search *get_search(int argc, char *argv[])
 		return new CostBoundDFS(cost_bound);
 	} else if (argc > 1 && sscanf(argv[1], "kbfs-%u", &threads) == 1) {
 		return new KBFS(threads);
+	} else if (argc > 1 && sscanf(argv[1], "pastar-%u", &threads) == 1) {
+		return new PAStar(threads);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%f", &threads, &ratio) == 2) {
 		return new PSDDSearch(threads);
@@ -65,6 +68,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tbfs" << endl
 		     << "\tcostbounddfs-<cost>" << endl
 		     << "\tkbfs-<threads>" << endl
+		     << "\tpastar-<threads>" << endl
 		     << "\tpsdd-<threads>-<nblocks/thread>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks/thread>-<weight>" << endl
 		     << "\pbnf-<threads>-<nblocks/thread>" << endl

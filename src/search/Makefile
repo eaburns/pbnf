@@ -40,6 +40,7 @@ SRC= \
 	pbnf/nblock_free_list.cc \
 	pbnf_search.cc \
 	kbfs.cc \
+	pastar.cc \
 
 OBJ=$(SRC:.cc=.o)
 
