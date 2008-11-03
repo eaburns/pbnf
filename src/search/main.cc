@@ -71,7 +71,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tpastar-<threads>" << endl
 		     << "\tpsdd-<threads>-<nblocks/thread>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks/thread>-<weight>" << endl
-		     << "\pbnf-<threads>-<nblocks/thread>" << endl
+		     << "\tpbnf-<threads>-<nblocks/thread>" << endl
 		     << endl;
 		exit(EXIT_FAILURE);
 	}
