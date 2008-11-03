@@ -18,8 +18,6 @@
    
 - (Seth) Implement Parallel Window Search
 
-- (Seth) Implement parallel A*
-
 - Look at tfogal's lock-free hashtable
    
 - Look at Kumar's lock-free Prio-queue
@@ -51,3 +49,5 @@
 - (Ethan) Implement PBNF
 
 - (Seth) Write testing script
+
+- (Seth) Implement parallel A*

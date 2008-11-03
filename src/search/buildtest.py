@@ -6,18 +6,34 @@
 # Seth Lemons
 # October 31, 2008
 
-import timeit
+import timeit, sys
 
-nthreads = "2"
-nbperthread = "5"
-weight = "1.1"
-costbound = "100"
+if len(sys.argv) > 1 and sys.argv[1] == "--help":
+    print "buildtest.py [nthreads] [nbperthread] [weight] [costbound]"
+
+if len(sys.argv) > 1:
+    nthreads = str(sys.argv[1])
+else:
+    nthreads = "2"
+if len(sys.argv) > 2:
+    nbperthread = str(sys.argv[2])
+else:
+    nbperthread = "5"
+if len(sys.argv) > 3:
+    weight = str(sys.argv[3])
+else:
+    weight = "1.1"
+if len(sys.argv) > 4:
+    costbound = str(sys.argv[4])
+else:
+    costbound = "100"
 
 algs = ["astar",
         #"idastar",
         #"bfs",
         #"costbounddfs-"+costbound,
         "kbfs-"+nthreads,
+        "pastar-"+nthreads,
         #"psdd-"+nthreads+"-"+nbperthread,
         "dynpsdd-"+nthreads+"-"+nbperthread+"-"+weight,
         "pbnf-"+nthreads+"-"+nbperthread]
