@@ -30,7 +30,7 @@ using namespace PBNF;
  * Create a new NBlock graph.
  * \param p The projection function.
  */
-NBlockGraph::NBlockGraph(Projection *p, const State *initial)
+NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
 {
 	unsigned int init_nblock = p->project(initial);
 

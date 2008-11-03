@@ -36,8 +36,6 @@ public:
 
 	virtual State *initial_state(void);
 	virtual vector<const State*> *expand(const State *s);
-	virtual void set_projection(Projection *p);
-	virtual Projection *get_projection(void) const;
 
 	virtual int get_goal_x(void) const;
 	virtual int get_goal_y(void) const;
@@ -65,12 +63,12 @@ public:
 	public:
 		RowModProject(const SearchDomain *d, unsigned int mod_val);
 		virtual ~RowModProject();
-		virtual unsigned int project(const State *s);
-		virtual unsigned int get_num_nblocks(void);
-		virtual vector<unsigned int> get_successors(unsigned int b);
-		virtual vector<unsigned int> get_predecessors(unsigned int b);
+		virtual unsigned int project(const State *s) const ;
+		virtual unsigned int get_num_nblocks(void) const ;
+		virtual vector<unsigned int> get_successors(unsigned int b) const;
+		virtual vector<unsigned int> get_predecessors(unsigned int b) const;
 	private:
-		vector<unsigned int> get_neighbors(unsigned int b);
+		vector<unsigned int> get_neighbors(unsigned int b) const;
 		unsigned int mod_val;
 		unsigned int max_row;
 	};
@@ -78,9 +76,6 @@ public:
 private:
 	bool on_path(const vector<const State *> *path, int x, int y) const;
 	bool is_obstacle(int x, int y) const;
-
-	/* A SearchDomain may have a projection. */
-	Projection *project;
 
 	enum cost_type cost_type;
 

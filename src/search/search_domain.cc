@@ -15,7 +15,9 @@
 /**
  * Create a new search domain.
  */
-SearchDomain::SearchDomain() : heuristic(NULL) {}
+SearchDomain::SearchDomain()
+	: heuristic(NULL),
+	  project(NULL) {}
 
 SearchDomain::~SearchDomain() {}
 
@@ -35,3 +37,20 @@ const Heuristic *SearchDomain::get_heuristic(void) const
 {
 	return heuristic;
 }
+
+/**
+ * Set the projection function.
+ */
+void SearchDomain::set_projection(const Projection *p)
+{
+	project = p;
+}
+
+/**
+ * Get the current projection function.
+ */
+const Projection *SearchDomain::get_projection(void) const
+{
+	return project;
+}
+

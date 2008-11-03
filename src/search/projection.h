@@ -28,24 +28,24 @@ public:
 	 * Project a state, returning an integer that represents the
 	 * NBlock that the state projects into.
 	 */
-	virtual unsigned int project(const State *s) = 0;
+	virtual unsigned int project(const State *s) const = 0;
 
 	/**
 	 * Get the number of NBlocks that will be used in this
 	 * projection.  NBlocks will be numbered from
 	 * 0..num_nblocks() - 1
 	 */
-	virtual unsigned int get_num_nblocks(void) = 0;
+	virtual unsigned int get_num_nblocks(void) const = 0;
 
 	/**
 	 * Get the list of successor NBlock numbers.
 	 */
-	virtual vector<unsigned int>get_successors(unsigned int b) = 0;
+	virtual vector<unsigned int>get_successors(unsigned int b) const = 0;
 
 	/**
 	 * Get the list of predecessor NBlock numbers.
 	 */
-	virtual vector<unsigned int>get_predecessors(unsigned int b) = 0;
+	virtual vector<unsigned int>get_predecessors(unsigned int b) const = 0;
 };
 
 #endif	/* !_PROJECTION_H_ */

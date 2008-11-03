@@ -42,8 +42,6 @@ GridWorld::GridWorld(istream &s)
 	char line[100];
 	char c;
 
-	project = NULL;
-
 	s >> height;
 	s >> width;
 
@@ -145,23 +143,6 @@ vector<const State*> *GridWorld::expand(const State *state)
 
 	return children;
 }
-
-/**
- * Set the projection function.
- */
-void GridWorld::set_projection(Projection *p)
-{
-	project = p;
-}
-
-/**
- * Get the current projection function.
- */
-Projection *GridWorld::get_projection(void) const
-{
-	return project;
-}
-
 
 /**
  * Get the x-coordinate of the goal.
@@ -444,7 +425,7 @@ GridWorld::RowModProject::RowModProject(const SearchDomain *d,
  */
 GridWorld::RowModProject::~RowModProject() {}
 
-unsigned int GridWorld::RowModProject::project(const State *s)
+unsigned int GridWorld::RowModProject::project(const State *s) const
 {
 	const GridState *g;
 
@@ -457,7 +438,7 @@ unsigned int GridWorld::RowModProject::project(const State *s)
  * Get the number of nblocks.
  * \return The number of NBlocks.
  */
-unsigned int GridWorld::RowModProject::get_num_nblocks(void)
+unsigned int GridWorld::RowModProject::get_num_nblocks(void) const
 {
 	return mod_val;
 }
@@ -467,7 +448,7 @@ unsigned int GridWorld::RowModProject::get_num_nblocks(void)
  * \param b The hash value of the NBlock.
  * \return The successor NBlocks of the given NBlock.
  */
-vector<unsigned int> GridWorld::RowModProject::get_successors(unsigned int b)
+vector<unsigned int> GridWorld::RowModProject::get_successors(unsigned int b) const
 {
 	return get_neighbors(b);
 }
@@ -477,7 +458,7 @@ vector<unsigned int> GridWorld::RowModProject::get_successors(unsigned int b)
  * \param b The hash value of the NBlock.
  * \return The predecessor NBlocks of the given NBlock.
  */
-vector<unsigned int> GridWorld::RowModProject::get_predecessors(unsigned int b)
+vector<unsigned int> GridWorld::RowModProject::get_predecessors(unsigned int b) const
 {
 	return get_neighbors(b);
 }
@@ -485,7 +466,7 @@ vector<unsigned int> GridWorld::RowModProject::get_predecessors(unsigned int b)
 /**
  * Get the neighboring NBlock numbers.
  */
-vector<unsigned int> GridWorld::RowModProject::get_neighbors(unsigned int b)
+vector<unsigned int> GridWorld::RowModProject::get_neighbors(unsigned int b) const
 {
 	vector<unsigned int> p;
 

@@ -31,14 +31,15 @@ public:
 
 	virtual void set_heuristic(const Heuristic *h);
 	virtual const Heuristic* get_heuristic(void) const;
+	virtual void set_projection(const Projection *p);
+	virtual const Projection *get_projection(void) const;
 
 	/* Abstract methods */
 	virtual State *initial_state(void) = 0;
 	virtual vector<const State*> *expand(const State *s) = 0;
-	virtual void set_projection(Projection *p) = 0;
-	virtual Projection *get_projection(void) const = 0;
 private:
 	const Heuristic *heuristic;
+	const Projection *project;
 };
 
 #endif	/* !_SEARCH_DOMAIN_H_ */

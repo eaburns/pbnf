@@ -52,7 +52,7 @@ private:
 
 	float bound;
 	unsigned int n_threads;
-	Projection *project;
+	const Projection *project;
 	vector<const State *> *path;
 	pthread_mutex_t path_mutex;
 };

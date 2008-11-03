@@ -31,7 +31,7 @@ namespace PSDD {
 
 	class NBlockGraph {
 	public:
-		NBlockGraph(Projection *p, const State *init);
+		NBlockGraph(const Projection *p, const State *init);
 
 		~NBlockGraph();
 
