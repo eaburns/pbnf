@@ -49,6 +49,7 @@ private:
 				   unsigned int o, unsigned int n);
 	unsigned int width;
 	unsigned int height;
+	const TilesState *initial;
 };
 
 #endif	/* !_TILES_H_ */

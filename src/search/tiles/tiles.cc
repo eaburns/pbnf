@@ -25,16 +25,27 @@ Tiles::Tiles(istream &i)
 	assert("unimplemented");
 }
 
+
+/**
+ * Create an arbitrary puzzle.  You can't use the starting state of
+ * this, it is just really for testing purposes.
+ */
 Tiles::Tiles(unsigned int width, unsigned int height)
-	: width(width), height(height) {}
+	: width(width), height(height), initial(NULL) {}
+
 
 Tiles::~Tiles(void) {}
 
 
+/**
+ * Get the initial state.
+ *
+ * This will be NULL if the puzzle was constructed with the 2-argument
+ * width-by-height constructor.
+ */
 State *Tiles::initial_state(void)
 {
-	assert("unimplemented");
-	return NULL;
+	return initial;
 }
 
 
@@ -52,6 +63,9 @@ vector<unsigned int> Tiles::child(vector<unsigned int> tiles,
 }
 
 
+/**
+ * Expand a state, giving its children.
+ */
 vector<const State *> *Tiles::expand(const State *s)
 {
 	const unsigned int cost = 1;
