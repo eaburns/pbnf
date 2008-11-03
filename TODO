@@ -2,6 +2,8 @@
    seperate threads.  This should show the max speed up of the
    comupter without communication overhead.
 
+- Look into using Wheeler's database code
+
 - Get graphs for Wheeler
    
 - Figure out if we want PSDD to use uniform-cost search or just BFS
@@ -13,8 +15,6 @@
 - (Ethan) Sliding tiles
 
 - (Seth) Look into MSA as test domain
-  
-- Look into using Wheeler's database code
    
 - (Seth) Implement Parallel Window Search
 
