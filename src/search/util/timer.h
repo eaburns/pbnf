@@ -13,10 +13,16 @@
 
 class Timer {
 public:
+	Timer(void);
 	void start(void);
 	double stop(void);
+	double get_elapsed(void);
 private:
+	double compute_elapsed(void);
+
 	double start_time;
+	float elapsed;
+	bool running;
 };
 
 #endif	/* !_TIMER_H_ */
