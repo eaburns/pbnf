@@ -23,14 +23,12 @@ using namespace PSDD;
 /**
  * Create a new NBlock structure.
  */
-NBlock::NBlock(unsigned int id, vector<unsigned int> preds,
-	       vector<unsigned int> succs)
+NBlock::NBlock(unsigned int id)
 	: id(id),
 	  sigma(0),
 	  cur_open(&open_a),
-	  next_open(&open_b),
-	  preds(preds),
-	  succs(succs) {}
+	  next_open(&open_b) {}
+
 
 
 /**
@@ -63,18 +61,24 @@ void NBlock::next_iteration(void)
  */
 void NBlock::print(ostream &o) const
 {
-	vector<unsigned int>::const_iterator iter;
+	set<NBlock *>::const_iterator iter;
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;
+
+	o << "\tinterferes with: ";
+	for (iter = interferes.begin(); iter != interferes.end(); iter++)
+		o << (*iter)->id << " ";
+	o << endl;
+
 	o << "\tpreds: ";
 	for (iter = preds.begin(); iter != preds.end(); iter++)
-		o << *iter << " ";
+		o << (*iter)->id << " ";
 	o << endl;
 
 	o << "\tsuccs: ";
 	for (iter = succs.begin(); iter != succs.end(); iter++)
-		o << *iter << " ";
+		o << (*iter)->id << " ";
 	o << endl;
 
 }

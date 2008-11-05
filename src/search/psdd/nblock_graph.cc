@@ -32,14 +32,14 @@ using namespace PSDD;
  */
 NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
 {
+	map<unsigned int, NBlock *>::iterator iter;
 	unsigned int init_nblock = p->project(initial);
 
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
 	for (unsigned int i = 0; i < num_nblocks; i += 1) {
-		NBlock *n = new NBlock(i, p->get_predecessors(i),
-				       p->get_successors(i));
+		NBlock *n = new NBlock(i);
 		if (i == init_nblock) {
 			n->cur_open->add(initial);
 			free_list.push_back(n);
@@ -47,6 +47,38 @@ NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
 
 		blocks[i] = n;
 	}
+
+	// Now connect the graph.
+	for (iter = blocks.begin(); iter != blocks.end(); iter++) {
+		NBlock *n = iter->second;
+		vector<unsigned int>::iterator i, j;
+		vector<unsigned int> preds = p->get_predecessors(n->id);
+		vector<unsigned int> succs = p->get_successors(n->id);
+
+		// predecessors, successors and the predecessors of the successors.
+		vector<unsigned int> interferes = preds;
+		for (i = succs.begin(); i != succs.end(); i++) {
+			interferes.push_back(*i);
+			vector<unsigned int> spreds = p->get_predecessors(*i);
+			for (j = spreds.begin(); j != spreds.end(); j++) {
+				interferes.push_back(*j);
+			}
+		}
+
+		for (i = preds.begin(); i != preds.end(); i++)
+			if (*i != n->id)
+				n->preds.insert(blocks[*i]);
+
+		for (i = succs.begin(); i != succs.end(); i++)
+			if (*i != n->id)
+				n->succs.insert(blocks[*i]);
+
+		for (i = interferes.begin(); i != interferes.end(); i++)
+			if (*i != n->id)
+				n->interferes.insert(blocks[*i]);
+	}
+
+
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
@@ -207,10 +239,8 @@ void NBlockGraph::print(ostream &o)
  * Update the sigma value of a block, add it to the freelist if need
  * be, or remove it from the freelist.
  */
-void NBlockGraph::update_sigma(unsigned int y, int delta)
+void NBlockGraph::update_sigma(NBlock *yblk, int delta)
 {
-	NBlock *yblk = blocks[y];
-
 	if (yblk->sigma == 0) {
 		assert(delta > 0);
 		if (!yblk->cur_open->empty())
@@ -236,38 +266,22 @@ void NBlockGraph::update_sigma(unsigned int y, int delta)
  */
 void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 {
-	NBlock *b;
-	vector<unsigned int>::iterator iter;
-	vector<unsigned int>::iterator iter1;
+	set<NBlock *>::iterator iter;
 
 	assert(blocks[y]->sigma == 0);
 
 	/*
 	  \A y' \in predecessors(y) /\ y' /= y,
 	  \sigma(y') <- \sigma(y') +- 1
-	*/
-	b = blocks[y];
-	for (iter = b->preds.begin(); iter != b->preds.end(); iter++) {
-		unsigned int yp = *iter;
-		if (yp != y)
-			update_sigma(yp, delta);
 
-	}
-
-	/*
 	  \A y' \in successors(y),
 	  \A y'' \in predecessors(y'), /\ y'' /= y,
 	  \sigma(y'') <- \sigma(y'') +- 1
-	 */
-	for (iter = b->succs.begin(); iter != b->succs.end(); iter++) {
-		unsigned int yp = *iter;
-		NBlock *yblk = blocks[yp];
-		for (iter1 = yblk->preds.begin();
-		     iter1 != yblk->preds.end();
-		     iter1++) {
-			unsigned int ypp = *iter1;
-			if (ypp != y)
-				update_sigma(ypp, delta);
-		}
+	*/
+
+	for (iter = blocks[y]->interferes.begin();
+	     iter != blocks[y]->interferes.end();
+	     iter++) {
+		update_sigma(*iter, delta);
 	}
 }
