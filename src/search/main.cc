@@ -27,6 +27,7 @@
 #include "h_zero.h"
 #include "grid/grid_world.h"
 #include "pastar.h"
+#include "util/timer.h"
 
 using namespace std;
 
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
 	vector<const State *> *path;
 	Search *search = get_search(argc, argv);
 	GridWorld g(cin);
+	Timer timer;
 
 	if (ratio == 0)
 		ratio = 1.0;
@@ -95,13 +97,13 @@ int main(int argc, char *argv[])
 	GridWorld::ManhattanDist manhattan(&g);
 	g.set_heuristic(&manhattan);
 
+	timer.start();
 	path = search->search(g.initial_state());
+	timer.stop();
 
 	/* Print the graph to the terminal */
 //	g.print(cout, path);
 
-	cout << "generated: " << search->get_generated() << endl;
-	cout << "expanded: " << search->get_expanded() << endl;
 	if (path) {
 		cout << "cost: " << (int) path->at(0)->get_g() << endl;
 		cout << "length: " << path->size() << endl;
@@ -111,6 +113,10 @@ int main(int argc, char *argv[])
 	} else {
 		cout << "No Solution" << endl;
 	}
+	cout << "wall_time: " << timer.get_wall_time() << endl;
+	cout << "CPU_time: " << timer.get_processor_time() << endl;
+	cout << "generated: " << search->get_generated() << endl;
+	cout << "expanded: " << search->get_expanded() << endl;
 
 	delete search;
 

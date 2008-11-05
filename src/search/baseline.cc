@@ -106,7 +106,8 @@ void do_searches(string map, unsigned int max_threads, unsigned int step)
 	for (unsigned int i = 1; i <= max_threads; i += step) {
 		t.start();
 		do_one_search(map, i);
-		diff = t.stop();
+		t.stop();
+		diff = t.get_wall_time();
 
 		cout << i << ", " << diff/i << endl;
 	}
