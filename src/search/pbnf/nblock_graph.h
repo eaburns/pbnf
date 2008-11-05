@@ -45,7 +45,7 @@ namespace PBNF {
 		void __set_done(void);
 		void __print(ostream &o);
 		void update_scope_sigmas(unsigned int y, int delta);
-		void update_sigma(unsigned int y, int delta);
+		void update_sigma(NBlock *yblk, int delta);
 
 		/* NBlocks. */
 		map<unsigned int, NBlock *> blocks;

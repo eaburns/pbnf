@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include <vector>
+#include <set>
 
 #include "nblock.h"
 #include "../open_list.h"
@@ -24,12 +24,9 @@ using namespace PBNF;
 /**
  * Create a new NBlock structure.
  */
-NBlock::NBlock(unsigned int id, vector<unsigned int> preds,
-	       vector<unsigned int> succs)
+NBlock::NBlock(unsigned int id)
 	: id(id),
-	  sigma(0),
-	  preds(preds),
-	  succs(succs) {}
+	  sigma(0) {}
 
 
 /**
@@ -62,21 +59,27 @@ bool NBlock::NBlockCompare::operator()(NBlock *a, NBlock *b)
 void NBlock::print(ostream &o)
 {
 	float best_f;
-	vector<unsigned int>::const_iterator iter;
+	set<NBlock *>::const_iterator iter;
 
 	best_f = open.empty() ? INFINITY : open.peek()->get_f();
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;
 	o << "\tbest f(n): " << best_f << endl;
+
+	o << "\tinterferes with: ";
+	for (iter = interferes.begin(); iter != interferes.end(); iter++)
+		o << (*iter)->id << " ";
+	o << endl;
+
 	o << "\tpreds: ";
 	for (iter = preds.begin(); iter != preds.end(); iter++)
-		o << *iter << " ";
+		o << (*iter)->id << " ";
 	o << endl;
 
 	o << "\tsuccs: ";
 	for (iter = succs.begin(); iter != succs.end(); iter++)
-		o << *iter << " ";
+		o << (*iter)->id << " ";
 	o << endl;
 
 }

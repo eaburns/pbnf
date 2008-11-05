@@ -12,7 +12,7 @@
 #define _NBLOCK_H_
 
 #include <iostream>
-#include <vector>
+#include <set>
 
 #include "../open_list.h"
 #include "../pq_open_list.h"
@@ -25,9 +25,7 @@ namespace PBNF {
  * An NBlock
  */
 	struct NBlock {
-		NBlock(unsigned int id,
-		       vector<unsigned int> preds,
-		       vector<unsigned int> succs);
+		NBlock(unsigned int id);
 
 		~NBlock(void);
 
@@ -46,8 +44,10 @@ namespace PBNF {
 		unsigned int sigma;
 		ClosedList closed;
 		PQOpenList open;
-		vector<unsigned int> preds;
-		vector<unsigned int> succs;
+
+		set<NBlock *> interferes;
+		set<NBlock *> preds;
+		set<NBlock *> succs;
 	};
 }	/* PBNF */
 #endif	/* !_NBLOCK_H_ */
