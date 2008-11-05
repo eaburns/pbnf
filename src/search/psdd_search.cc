@@ -191,8 +191,6 @@ vector<const State *> *PSDDSearch::search(const State *initial)
 		delete *iter;
 	}
 
-	cout << "Max NBlocks assigned at once: "
-	     << graph->get_max_assigned_nblocks() << endl;
 	delete graph;
 
 	return path;

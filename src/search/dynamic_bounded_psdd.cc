@@ -49,7 +49,6 @@ vector<const State *> *DynamicBoundedPSDD::search(const State *init)
 		return NULL;
 
 	psdd.set_bound(path->at(0)->get_g());
-	cout << "Got a path with a cost of " << path->at(0)->get_g() << endl;
 
 	for (unsigned int i = 0; i < path->size(); i += 1)
 		delete path->at(i);
