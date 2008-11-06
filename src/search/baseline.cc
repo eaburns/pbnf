@@ -99,7 +99,7 @@ void do_one_search(string map, unsigned int max_thread)
  */
 void do_searches(string map, unsigned int max_threads, unsigned int step)
 {
-	double diff;
+	double time_for_one, diff;
 	Timer t;
 
 	cout << "Threads, Real Time (sec) per Thread" << endl;
@@ -108,8 +108,10 @@ void do_searches(string map, unsigned int max_threads, unsigned int step)
 		do_one_search(map, i);
 		t.stop();
 		diff = t.get_wall_time();
+		if (i == 1)
+			time_for_one = diff;
 
-		cout << i << ", " << diff/i << endl;
+		cout << i << ", " << diff / time_for_one << endl;
 	}
 }
 
