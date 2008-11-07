@@ -1,3 +1,5 @@
+- (Ethan) gprof
+
 - Get a benchmark for speedup by running multiple A* searches in
    seperate threads.  This should show the max speed up of the
    comupter without communication overhead.
