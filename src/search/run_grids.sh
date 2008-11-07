@@ -11,9 +11,9 @@ ALGORITHM=""
 
 # constants
 RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
-GRID_SEARCH="./search"
+GRID_SEARCH="./search.bin"
 DATA_ROOT="/home/rai/group/data/grid_instances"
-RUNS_ROOT="runs"
+RUNS_ROOT="data"
 OBSTACLES="uniform"
 COSTS="Unit"
 MOVES="Four-way"
@@ -105,6 +105,7 @@ function paths ()
 function run_file ()
 {
     ARGS=""
+    ARGS+="type=run "
     ARGS+="alg=$ALGORITHM "
 
     if alg_on_list $USES_THREADS
@@ -175,42 +176,43 @@ do
     OUT=$(run_file $NUM)
     FULL_NAME=$(full_algo_name $ALGORITHM)
 
-    echo $FULL_NAME
-    echo $INSTANCE
-    echo $OUT
+    echo "Algorithm: $FULL_NAME"
+    echo "Instance: $INSTANCE"
+    echo "Output: $OUT"
+    echo
 
     #
     # Header
     #
     (echo -e "#start data file format 4"
-    echo -e "#pair  \"wall start date\"\t\"$(date)\""
-    echo -e "#pair  \"wall start time\"\t\"NULL\""
-    echo -e "#pair  \"machine id\"\t\"$(hostname -f)-$(uname -m)-$(uname -s)-$(uname -r)\""
-    echo -e "#pair  \"alg\"\t\"$ALGORITHM\""
+	echo -e "#pair  \"wall start date\"\t\"$(date)\""
+	echo -e "#pair  \"wall start time\"\t\"NULL\""
+	echo -e "#pair  \"machine id\"\t\"$(hostname -f)-$(uname -m)-$(uname -s)-$(uname -r)\""
+	echo -e "#pair  \"alg\"\t\"$ALGORITHM\""
 
-    if alg_on_list $USES_THREADS
-    then
-	echo -e "#pair  \"threads\"\t\"$THREADS\""
-    fi
+	if alg_on_list $USES_THREADS
+	then
+	    echo -e "#pair  \"threads\"\t\"$THREADS\""
+	fi
 
-    if alg_on_list $USES_NBLOCKS
-    then
-	echo -e "#pair  \"nblocks-per-thread\"\t\"$NBLOCKS\""
-    fi
+	if alg_on_list $USES_NBLOCKS
+	then
+	    echo -e "#pair  \"nblocks-per-thread\"\t\"$NBLOCKS\""
+	fi
 
-    if alg_on_list $USES_WEIGHT
-    then 
-	echo -e "#pair  \"wt\"\t\"$WEIGHT\""
-    fi
+	if alg_on_list $USES_WEIGHT
+	then 
+	    echo -e "#pair  \"wt\"\t\"$WEIGHT\""
+	fi
 
 #    echo -e "#pair  \"type\"\t\"instances\""
-    echo -e "#pair  \"obstacles\"\t\"$OBSTACLES\""
-    echo -e "#pair  \"costs\"\t\"$COSTS\""
-    echo -e "#pair  \"moves\"\t\"$MOVES\""
-    echo -e "#pair  \"prob\"\t\"$PROB\""
-    echo -e "#pair  \"width\"\t\"$WIDTH\""
-    echo -e "#pair  \"height\"\t\"$HEIGHT\""
-    echo -e "#pair  \"num\"\t\"$NUM\"") > $OUT
+	echo -e "#pair  \"obstacles\"\t\"$OBSTACLES\""
+	echo -e "#pair  \"costs\"\t\"$COSTS\""
+	echo -e "#pair  \"moves\"\t\"$MOVES\""
+	echo -e "#pair  \"prob\"\t\"$PROB\""
+	echo -e "#pair  \"width\"\t\"$WIDTH\""
+	echo -e "#pair  \"height\"\t\"$HEIGHT\""
+	echo -e "#pair  \"num\"\t\"$NUM\"") > $OUT
 
 
     #
@@ -227,22 +229,21 @@ do
     #
     # The data column
     #
-    echo -e "\"#cols  \"sol cost\"\t\"sol length\"\t\"nodes expanded\"\t\"nodes generated\"\t\"wall time\"" >> $OUT
+    echo -e "#cols  \"sol cost\"\t\"sol length\"\t\"nodes expanded\"\t\"nodes generated\"\t\"wall time\"" >> $OUT
     echo -e "$SOL_COST\t$SOL_LENGTH\t$EXPANDED\t$GENERATED\t$WALL_TIME" >> $OUT
 
     #
     # The footer
     #
     (echo -e "#pair  \"final sol cost\"\t\"$SOL_COST\""
-    echo -e "#pair  \"final sol length\"\t\"$SOL_LENGTH\""
-    echo -e "#pair  \"total raw cpu time\"\t\"$CPU_TIME\""
-    echo -e "#pair  \"total wall time\"\t\"$WALL_TIME\""
-    echo -e "#pair  \"total nodes expanded\"\t\"$EXPANDED\""
-    echo -e "#pair  \"total nodes generated\"\t\"$GENERATED\""
-    echo -e "#pair  \"wall finish time\"\t\"NULL\""
-    echo -e "#pair  \"wall finish date\"\t\"$(date)\"") >> $OUT
+	echo -e "#pair  \"final sol length\"\t\"$SOL_LENGTH\""
+	echo -e "#pair  \"total raw cpu time\"\t\"$CPU_TIME\""
+	echo -e "#pair  \"total wall time\"\t\"$WALL_TIME\""
+	echo -e "#pair  \"total nodes expanded\"\t\"$EXPANDED\""
+	echo -e "#pair  \"total nodes generated\"\t\"$GENERATED\""
+	echo -e "#pair  \"wall finish time\"\t\"NULL\""
+	echo -e "#pair  \"wall finish date\"\t\"$(date)\"") >> $OUT
 
 done
-
 
 exit 0

@@ -22,7 +22,7 @@ MultiAStar::~MultiAStar(void) {}
 class MultiAStarThread : public Thread {
 public:
 	MultiAStarThread(const State *init)
-		: init(init) {}
+		: init(init), path(NULL) {}
 
 	vector<const State *> *get_path(void) {
 		return path;
@@ -60,13 +60,13 @@ vector<const State *> *MultiAStar::search(const State *init)
 
 	for(vector<MultiAStarThread *>::iterator i = threads.begin();
 	    i != threads.end(); i++) {
+		(*i)->join();
 		if (!path)
 			path = (*i)->get_path();
 		else
 			delete (*i)->get_path();
 		set_expanded(get_expanded() + (*i)->get_expanded());
 		set_generated(get_generated() + (*i)->get_generated());
-		(*i)->join();
 	}
 
 	return path;
