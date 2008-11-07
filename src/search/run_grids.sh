@@ -242,7 +242,8 @@ do
 	echo -e "#pair  \"total nodes expanded\"\t\"$EXPANDED\""
 	echo -e "#pair  \"total nodes generated\"\t\"$GENERATED\""
 	echo -e "#pair  \"wall finish time\"\t\"NULL\""
-	echo -e "#pair  \"wall finish date\"\t\"$(date)\"") >> $OUT
+	echo -e "#pair  \"wall finish date\"\t\"$(date)\""
+	echo -e "#end data file format 4") >> $OUT
 
 done
 
