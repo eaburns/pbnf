@@ -1,32 +1,31 @@
+- (Ethan) Get a benchmark for speedup by running multiple A* searches
+   in seperate threads.  This should show the max speed up of the
+   comupter without communication. (will help figure out why 4threads
+   is our limit).
+
 - (Ethan) gprof
 
-- Get a benchmark for speedup by running multiple A* searches in
-   seperate threads.  This should show the max speed up of the
-   comupter without communication overhead.
-
-- Look into using Wheeler's database code
-
-- Get graphs for Wheeler
+- (Ethan/Seth) Get graphs for Wheeler
    
-- Figure out if we want PSDD to use uniform-cost search or just BFS
+- (Ethan) Find good parameters for PSDD/PBNF
 
-- Another domain (hanoi, pancake [yum], etc.)
+- (Ethan) Finish Sliding tiles
+   - implement manhattan distance
+   - implement projection
 
-- (Ethan) Find good parameters for PSDD
-
-- (Ethan) Sliding tiles
-
-- (Seth) Look into MSA as test domain
+- (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
    
+- (Seth) A* with lock-free datastructures -- maybe this will be great
+   - Look at tfogal's lock-free hashtable
+   - Look at Kumar's lock-free Prio-queue
+
 - (Seth) Implement Parallel Window Search
 
-- Look at tfogal's lock-free hashtable
-   
-- Look at Kumar's lock-free Prio-queue
+- Implement 8-way movement in gridworld (need real value costs,
+   sqrt(2) diagonals)
 
-- A* with lock-free datastructures -- maybe this will be great
-   
-- Implement 8-way movement in gridworld (need real value costs, sqrt(2) diagonals)   
+- Figure out if we want PSDD to use uniform-cost search or just BFS
+   -- we only care about unit costs for now
 
 - (Ethan) Look into possible contention on LAMA globals
 
@@ -53,3 +52,5 @@
 - (Seth) Write testing script
 
 - (Seth) Implement parallel A*
+
+- (Ethan) Look into using Wheeler's database code
