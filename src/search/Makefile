@@ -19,6 +19,7 @@ SRC= \
 	synch_closed_list.cc \
 	search.cc \
 	a_star.cc \
+	multi_a_star.cc \
 	breadth_first_search.cc \
 	cost_bound_dfs.cc \
 	ida_star.cc \

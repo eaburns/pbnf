@@ -17,6 +17,7 @@
 
 #include "state.h"
 #include "a_star.h"
+#include "multi_a_star.h"
 #include "breadth_first_search.h"
 #include "cost_bound_dfs.h"
 #include "ida_star.h"
@@ -62,6 +63,8 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1
 		   && sscanf(argv[1], "pbnf-%u-%f", &threads, &ratio) == 2) {
 		return new PBNFSearch(threads);
+	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
+		return new MultiAStar(threads);
 	} else {
 		cout << "Must supply a search algorithm:" << endl;
 		cout << "\tastar" << endl
@@ -73,6 +76,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tpsdd-<threads>-<nblocks/thread>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks/thread>-<weight>" << endl
 		     << "\tpbnf-<threads>-<nblocks/thread>" << endl
+		     << "\tmultiastar-<threads>" << endl
 		     << endl;
 		exit(EXIT_FAILURE);
 	}
