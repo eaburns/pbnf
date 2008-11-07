@@ -3,6 +3,8 @@
    comupter without communication. (will help figure out why 4threads
    is our limit).
 
+- (Seth) Checkout PRA*
+
 - (Ethan) gprof
 
 - (Ethan/Seth) Get graphs for Wheeler
