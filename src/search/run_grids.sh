@@ -94,7 +94,7 @@ function paths ()
     ARGS+="width=$WIDTH "
     ARGS+="height=$HEIGHT "
 
-    ARGS+="num=1"
+    ARGS+="num=*"
     $RDB_GET_PATH $DATA_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
 }
 
@@ -106,19 +106,20 @@ function run_file ()
 {
     ARGS=""
     ARGS+="alg=$ALGORITHM "
+
     if alg_on_list $USES_THREADS
     then
-	echo -e "threads-$THREADS"
+	ARGS+="threads=$THREADS "
     fi
 
     if alg_on_list $USES_NBLOCKS
     then
-	echo -e "nblocks-per-thread=$NBLOCKS"
+	ARGS+="nblocks-per-thread=$NBLOCKS "
     fi
 
     if alg_on_list $USES_WEIGHT
     then 
-	echo -e "wt=$WEIGHT"
+	ARGS+="wt=$WEIGHT "
     fi
 
     ARGS+="obstacles=$OBSTACLES "
@@ -173,6 +174,10 @@ do
 
     OUT=$(run_file $NUM)
     FULL_NAME=$(full_algo_name $ALGORITHM)
+
+    echo $FULL_NAME
+    echo $INSTANCE
+    echo $OUT
 
     #
     # Header
