@@ -49,7 +49,7 @@ int TilesState::hash(void) const
 
 	// sum the place values
 	for (unsigned int i = 0; i < max_size; i += 1)
-		hash += pow(max_size, i) * tiles[i];
+		hash += (int) pow(max_size, i) * tiles[i];
 
 	return hash;
 }

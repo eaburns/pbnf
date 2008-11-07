@@ -38,7 +38,7 @@ Tiles::Tiles(istream &in)
 		tiles.push_back(vl);
 	} while (!in.eof());
 
-	width = height = sqrt(tiles.size());
+	width = height = (unsigned int) sqrt(tiles.size());
 
 	initial = new TilesState(this, NULL, 0, tiles, blank);
 
