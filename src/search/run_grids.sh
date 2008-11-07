@@ -18,7 +18,7 @@ OBSTACLES="uniform"
 COSTS="Unit"
 MOVES="Four-way"
 
-USES_THREADS="kbfs pastar psdd dynpsdd pbnf"
+USES_THREADS="kbfs pastar psdd dynpsdd pbnf multiastar"
 USES_WEIGHT="dynpsdd"
 USES_NBLOCKS="psdd dynpsdd pbnf"
 
@@ -106,6 +106,21 @@ function run_file ()
 {
     ARGS=""
     ARGS+="alg=$ALGORITHM "
+    if alg_on_list $USES_THREADS
+    then
+	echo -e "threads-$THREADS"
+    fi
+
+    if alg_on_list $USES_NBLOCKS
+    then
+	echo -e "nblocks-per-thread=$NBLOCKS"
+    fi
+
+    if alg_on_list $USES_WEIGHT
+    then 
+	echo -e "wt=$WEIGHT"
+    fi
+
     ARGS+="obstacles=$OBSTACLES "
     ARGS+="costs=$COSTS "
     ARGS+="moves=$MOVES "
@@ -175,7 +190,7 @@ do
 
     if alg_on_list $USES_NBLOCKS
     then
-	echo -e "#pair  \"nblocks per thread\"\t\"$NBLOCKS\""
+	echo -e "#pair  \"nblocks-per-thread\"\t\"$NBLOCKS\""
     fi
 
     if alg_on_list $USES_WEIGHT
