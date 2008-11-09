@@ -22,6 +22,8 @@
    - Look at Kumar's lock-free Prio-queue
 
 - (Seth) Implement Parallel Window Search
+   
+- (Seth) Write scripts for DB input/output
 
 - Implement 8-way movement in gridworld (need real value costs,
    sqrt(2) diagonals)

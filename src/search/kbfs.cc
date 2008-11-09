@@ -94,6 +94,7 @@ vector<const State *> *KBFS::search(const State *init)
                 }
                 cc.wait();
  	}
+
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 		delete *iter;

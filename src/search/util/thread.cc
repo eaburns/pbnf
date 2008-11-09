@@ -66,12 +66,14 @@ Thread::~Thread(void) {}
  */
 int Thread::join(void)
 {
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_lock(&mutex);
+        int ret;
 	exit = true;
 	pthread_cond_signal(&cond);
         signalled++;
-	return pthread_join(pthread_id, NULL);
         pthread_mutex_unlock(&mutex);
+	ret = pthread_join(pthread_id, NULL);
+        return ret;
 }
 
 /**
@@ -91,7 +93,7 @@ void Thread::signal(void)
 void Thread::wait(void)
 {
 	pthread_mutex_lock(&mutex);
-        if(!signalled){
+        while(!signalled){
           pthread_cond_wait(&cond, &mutex);
         }
         signalled--;

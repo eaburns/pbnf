@@ -14,45 +14,95 @@
 
 class PAStarThread : public Thread {
 public:
-	PAStarThread(){}
-	PAStarThread(PAStar *k) : k(k) {}
-	PAStarThread(const State *s, PAStar *k) : s(s), k(k) {}
+  PAStarThread() {}
+  PAStarThread(PAStar *p) : p(p) {}
+  PAStarThread(PAStar *p, pthread_cond_t* con, pthread_mutex_t* mut, CompletionCounter* cc) : p(p), con(con), mut(mut), cc(cc) {}
 
-	~PAStarThread() {}
-
-	virtual void run(void){
-          k->cc.complete();
-          wait();
-          vector<const State *> *children;
-                
-          while(!exit){
-            children = k->expand(s);
-            for (unsigned int i = 0; i < children->size(); i += 1) {
-              const State *c = children->at(i);
-              if (k->closed.lookup(c) != NULL) {
-                delete c;
-                continue;
-              }
-              k->closed.add(c);
-              k->open.add(c);
-            }
-            k->cc.complete();
-            wait();
-          }
-          delete children;
+  virtual void run(void){
+    vector<const State *> *children;
+    
+    while(!p->has_path()){
+      pthread_mutex_lock(mut);
+      while (p->open.empty()){
+        cc->complete();
+        if (cc->is_complete()){
+          p->done = true;
+          pthread_cond_broadcast(con);
+          return;
         }
+        else{
+          pthread_cond_wait(con, mut);
+        }
+        if (p->done==true){
+          pthread_mutex_unlock(mut);
+          return;
+        }
+        cc->uncomplete();
+      }
+      const State *s = p->open.take();
+      pthread_mutex_unlock(mut);
 
+      if (s->is_goal()) {
+        p->set_path(s->get_path());
+        pthread_mutex_lock(mut);
+        p->done = true;
+        pthread_cond_broadcast(con);
+        pthread_mutex_unlock(mut);
+        break;
+      }
+
+      children = p->expand(s);
+      bool added = false;
+      for (unsigned int i = 0; i < children->size(); i += 1) {
+        const State *c = children->at(i);
+        if (p->closed.lookup(c) != NULL) {
+          delete c;
+          continue;
+        }
+        added = true;
+        p->closed.add(c);
+        p->open.add(c);
+      }
+      if (added){
+        pthread_mutex_lock(mut);
+        pthread_cond_broadcast(con);
+        pthread_mutex_unlock(mut);
+      }
+    }
+    
+    delete children;
+  }
+  
 private:
-	const State *s;
-	PAStar *k;
-        friend class PAStar;
+  const State *s;
+  PAStar *p;
+  pthread_cond_t* con;
+  pthread_mutex_t* mut;
+  friend class PAStar;
+  CompletionCounter *cc;
 };
 
 
-PAStar::PAStar(unsigned int n_threads)
-	: n_threads(n_threads)
+PAStar::PAStar(unsigned int n_threads) : n_threads(n_threads), path(NULL){
+  done = false;
+}
+
+void PAStar::set_path(vector<const State *> *path)
 {
-	cc = CompletionCounter(n_threads);
+        pthread_mutex_lock(&mutex);
+        if (this->path == NULL){
+          this->path = path;
+        }
+        pthread_mutex_unlock(&mutex);
+}
+
+bool PAStar::has_path()
+{
+        bool ret;
+        pthread_mutex_lock(&mutex);
+ 	ret = (path != NULL);
+        pthread_mutex_unlock(&mutex);
+        return ret;
 }
 
 
@@ -61,37 +111,26 @@ PAStar::PAStar(unsigned int n_threads)
  */
 vector<const State *> *PAStar::search(const State *init)
 {
- 	vector<const State *> *path = NULL;
+ 	open.add(init);
+ 	closed.add(init);
+        pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&cond, NULL);
+
+        CompletionCounter cc = CompletionCounter(n_threads);
+	pthread_cond_t c;
+	pthread_mutex_t m;
+        pthread_mutex_init(&m, NULL);
+	pthread_cond_init(&c, NULL);
+
         unsigned int worker;
         vector<PAStarThread *> threads;
 	vector<PAStarThread *>::iterator iter;
         for (worker=0; worker<n_threads; worker++) {
-        	PAStarThread *t = new PAStarThread(this);
+		PAStarThread *t = new PAStarThread(this, &c, &m, &cc);
 		threads.push_back(t);
 		t->start();
         }
-        cc.wait();
 
- 	open.add(init);
- 	closed.add(init);
-
-
- 	while (!open.empty() && !path) {
-                cc.reset();
-
-         	for (worker=0; (worker<n_threads) && !open.empty(); worker++) {
-                    const State *s = open.take();
-                    if (s->is_goal()) {
-                      path = s->get_path();
-                      break;
-                    }
-                    threads[worker]->s = s;
-                    threads[worker]->signal();
-                }
-
-                cc.set_max(worker);
-                cc.wait();
- 	}
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 		delete *iter;

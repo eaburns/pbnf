@@ -13,6 +13,8 @@
 #include "completion_counter.h"
 #include <iostream>
 
+using namespace std;
+
 CompletionCounter::CompletionCounter(unsigned int max)
 	: counter(0), max(max)
 {
@@ -21,7 +23,11 @@ CompletionCounter::CompletionCounter(unsigned int max)
 }
 
 CompletionCounter::CompletionCounter(void)
-	: counter(0), max(0) {}
+	: counter(0), max(0)
+{
+	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&cond, NULL);
+}
 
 /**
  * Set the maximum value.
@@ -33,11 +39,27 @@ void CompletionCounter::set_max(unsigned int max)
 	pthread_mutex_unlock(&mutex);
 }
 
+bool CompletionCounter::is_complete()
+{
+	bool ret;
+	pthread_mutex_lock(&mutex);
+	ret = counter >= max;
+	pthread_mutex_unlock(&mutex);
+        return ret;
+}
+
 void CompletionCounter::complete(void)
 {
 	pthread_mutex_lock(&mutex);
 	counter += 1;
 	pthread_cond_signal(&cond);
+	pthread_mutex_unlock(&mutex);
+}
+
+void CompletionCounter::uncomplete(void)
+{
+	pthread_mutex_lock(&mutex);
+	counter -= 1;
 	pthread_mutex_unlock(&mutex);
 }
 

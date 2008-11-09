@@ -21,8 +21,10 @@ public:
 	void set_max(unsigned int max);
 
 	void complete(void);
+	void uncomplete(void);
 	void wait(void);
 	void reset(void);
+        bool is_complete(void);
 
 private:
 	pthread_mutex_t mutex;
