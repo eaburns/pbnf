@@ -34,7 +34,7 @@ public:
 	public:
 		ManhattanDist(const SearchDomain *d);
 		virtual ~ManhattanDist(void);
-		virtual float comupte(const State *s) const;
+		virtual float compute(const State *s) const;
 	private:
 		unsigned int get_goal_dist(const Tiles *d,
 					   int col,
@@ -65,7 +65,8 @@ private:
 				   unsigned int o, unsigned int n);
 	unsigned int width;
 	unsigned int height;
-	const TilesState *initial;
+	vector<unsigned int> initial;
+	unsigned int initial_blank;
 	const TilesState *goal;
 };
 

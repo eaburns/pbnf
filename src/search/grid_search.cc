@@ -1,6 +1,6 @@
 /* -*- mode:linux -*- */
 /**
- * \file main.cc
+ * \file grid_search.cc
  *
  *
  *

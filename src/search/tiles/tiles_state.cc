@@ -20,12 +20,24 @@
 using namespace std;
 
 TilesState::TilesState(SearchDomain *d, const State *parent, float g,
+		       float h, vector<unsigned int> tiles,
+		       unsigned int blank)
+	: State(d, parent, g),
+	  tiles(tiles),
+	  blank(blank)
+{
+	this->h = h;
+}
+
+
+TilesState::TilesState(SearchDomain *d, const State *parent, float g,
 		       vector<unsigned int> tiles, unsigned int blank)
 	: State(d, parent, g),
 	  tiles(tiles),
 	  blank(blank)
 {
 	assert(tiles[blank] == 0);
+	this->h = domain->get_heuristic()->compute(this);
 }
 
 

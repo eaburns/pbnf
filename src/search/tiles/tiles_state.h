@@ -23,6 +23,10 @@ public:
 	TilesState(SearchDomain *d, const State *parent, float g,
 		   vector<unsigned int> tiles, unsigned int blank);
 
+	TilesState(SearchDomain *d, const State *parent, float g,
+		   float h, vector<unsigned int> tiles,
+		   unsigned int blank);
+
 	virtual bool is_goal(void) const;
 	virtual int hash(void) const;
 	virtual State *clone(void) const;

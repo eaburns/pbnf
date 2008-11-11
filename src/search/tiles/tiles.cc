@@ -29,9 +29,8 @@ using namespace std;
 Tiles::Tiles(istream &in)
 {
 	unsigned int vl;
-	unsigned int t_blank = 0, g_blank = 0;
+	unsigned int g_blank = 0;
 	char buff[1024];
-	vector<unsigned int> t;
 	vector<unsigned int> g;
 
 	in >> width;
@@ -51,8 +50,8 @@ Tiles::Tiles(istream &in)
 	for (unsigned int i = 0; i < width * height; i += 1) {
 		in >> vl;
 		if (vl == 0)
-			t_blank = t.size();
-		t.push_back(vl);
+			initial_blank = initial.size();
+		initial.push_back(vl);
 	}
 
 	in >> buff;
@@ -67,8 +66,7 @@ Tiles::Tiles(istream &in)
 		g.push_back(vl);
 	}
 
-	initial = new TilesState(this, NULL, 0, t, t_blank);
-	goal = new TilesState(this, NULL, 0, g, g_blank);
+	goal = new TilesState(this, NULL, 0, 0, g, g_blank);
 }
 
 
@@ -85,8 +83,8 @@ Tiles::Tiles(unsigned int width, unsigned int height)
  */
 Tiles::~Tiles(void)
 {
-	if (initial)
-		delete initial;
+	if (goal)
+		delete goal;
 }
 
 
@@ -98,8 +96,8 @@ Tiles::~Tiles(void)
  */
 const State *Tiles::initial_state(void)
 {
-	return initial;
-}
+	return new TilesState(this, NULL, 0, initial, initial_blank);}
+
 
 
 /**
@@ -172,7 +170,18 @@ bool Tiles::is_goal(const State *s) const
 void Tiles::print(ostream &o) const
 {
 	cout << "Initial state:" << endl;
-	initial->print(o);
+	unsigned int i = 0;
+
+	for (unsigned int y = 0; y < height; y += 1) {
+		for (unsigned int x = 0; x < width; x += 1) {
+			o << initial[i];
+			if (x < width - 1)
+				o << "\t";
+			i += 1;
+		}
+		o << endl;
+	}
+
 	cout << endl << "Goal state:" << endl;
 	goal->print(o);
 }
@@ -195,7 +204,7 @@ Tiles::ManhattanDist::~ManhattanDist(void) {}
 /**
  * Comupte the incremental Manhattan distance of a state.
  */
-float Tiles::ManhattanDist::comupte(const State *state) const
+float Tiles::ManhattanDist::compute(const State *state) const
 {
 	const TilesState *s = dynamic_cast<const TilesState *>(state);
 
@@ -214,11 +223,10 @@ unsigned int Tiles::ManhattanDist::get_goal_dist(const Tiles *d,
 {
 	int ind, g_row, g_col;
 	vector<unsigned int>::const_iterator i;
+	vector<unsigned int> tiles = d->goal->get_tiles();
 
 	ind = 0;
-	for (i = d->goal->get_tiles().begin();
-	     i != d->goal->get_tiles().end();
-	     i++) {
+	for (i = tiles.begin();  i != tiles.end(); i++) {
 		if ((*i) == num)
 			break;
 		ind += 1;
@@ -240,9 +248,9 @@ float Tiles::ManhattanDist::comupte_full(const TilesState *s) const
 	const Tiles *d = dynamic_cast<const Tiles *>(domain);
 	vector<unsigned int>::const_iterator i;
 	unsigned int dist = 0, ind = 0;
+	vector<unsigned int> tiles = s->get_tiles();
 
-	for (i = s->get_tiles().begin();
-	     i != s->get_tiles().end(); i++) {
+	for (i = tiles.begin(); i != tiles.end(); i++) {
 		int row = ind / d->get_width();
 		int col = ind % d->get_width();
 		dist += get_goal_dist(d, row, col, *i);
