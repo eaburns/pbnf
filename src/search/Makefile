@@ -7,7 +7,7 @@ MARCH=$(shell uname -m)
 PROF_FLAGS=
 
 # C/C++ basic compilation flags
-FLAGS=-g -Wall -pedantic -pipe -O0 $(PROF_FLAGS)
+FLAGS=-g -Wall -pipe -O0 $(PROF_FLAGS)
 
 # Comment this out for faster, more memory efficient code.
 #FLAGS+=-DENABLE_IMAGES
