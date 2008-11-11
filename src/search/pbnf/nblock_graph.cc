@@ -10,6 +10,7 @@
 
 #include <assert.h>
 #include <pthread.h>
+#include <math.h>
 
 #include <iostream>
 #include <list>
@@ -112,10 +113,16 @@ NBlockGraph::~NBlockGraph()
 NBlock *NBlockGraph::next_nblock(NBlock *finished)
 {
 	NBlock *n = NULL;
+	NBlock *best_scope = NULL;
 
 	pthread_mutex_lock(&mutex);
 
 	if (finished) {		// Release an NBlock
+		best_scope = best_in_scope(finished);
+		double scope_f = INFINITY;
+		if (best_scope)
+			scope_f = best_scope->open.peek()->get_f();
+
 		if (finished->sigma != 0) {
 			cerr << "A proc had an NBlock with sigma != 0" << endl;
 			finished->print(cerr);
@@ -125,11 +132,13 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		assert(finished->sigma == 0);
 
 		if (!free_list.empty() && !finished->open.empty()) {
-			// if there is a free NBlock, test if it is
-			// indeed better than ours.
-			float cur_f = finished->open.peek()->get_f();
-			float new_f = free_list.best_f();
-			if (cur_f <= new_f) {
+			// If there is not a free NBlock or an NBlock
+			// in the interference scope that is better
+			// than the one being freed, just search the
+			// previous one more.
+			double cur_f = finished->open.peek()->get_f();
+			double new_f = free_list.best_f();
+			if (cur_f <= new_f && cur_f < scope_f) {
 				n = finished;
 				goto out;
 			}
@@ -139,8 +148,11 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 
 		if (!finished->open.empty()) {
 			free_list.add(finished);
-			pthread_cond_signal(&cond);
+			pthread_cond_broadcast(&cond);
 		}
+
+		if (scope_f < free_list.best_f())
+			best_scope->waitingfor.insert(pthread_self());
 
 		update_scope_sigmas(finished->id, -1);
 
@@ -151,7 +163,10 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 
 	}
 
-	while (free_list.empty() && !done)
+	while ((free_list.empty()
+		|| (best_scope && (best_scope->waitingfor.find(pthread_self())
+				   != best_scope->waitingfor.end())))
+	       && !done)
 		pthread_cond_wait(&cond, &mutex);
 
 	if (done)
@@ -166,6 +181,28 @@ out:
 	pthread_mutex_unlock(&mutex);
 
 	return n;
+}
+
+/**
+ * Get the best NBlock that is interfered with.
+ */
+NBlock *NBlockGraph::best_in_scope(NBlock *b)
+{
+	NBlock *best_b = NULL;
+	double best_f = INFINITY;
+	map<unsigned int, NBlock*>::iterator i;
+
+	for (i = blocks.begin(); i != blocks.end(); i++) {
+		NBlock *b = i->second;
+		if (b->open.empty())
+			continue;
+		if (!best_b || b->open.peek()->get_f() < best_f) {
+			best_f = b->open.peek()->get_f();
+			best_b = b;
+		}
+	}
+
+	return best_b;
 }
 
 
@@ -237,7 +274,8 @@ void NBlockGraph::update_sigma(NBlock *yblk, int delta)
 	if (yblk->sigma == 0) {
 		if (!yblk->open.empty()) {
 			free_list.add(yblk);
-			pthread_cond_signal(&cond);
+			yblk->waitingfor.clear();
+			pthread_cond_broadcast(&cond);
 		}
 
 		num_sigma_zero += 1;

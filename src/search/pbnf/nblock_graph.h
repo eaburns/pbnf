@@ -47,6 +47,8 @@ namespace PBNF {
 		void update_scope_sigmas(unsigned int y, int delta);
 		void update_sigma(NBlock *yblk, int delta);
 
+		NBlock *best_in_scope(NBlock *b);
+
 		/* NBlocks. */
 		map<unsigned int, NBlock *> blocks;
 

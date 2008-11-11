@@ -11,6 +11,7 @@
 #if !defined(_NBLOCK_H_)
 #define _NBLOCK_H_
 
+#include <pthread.h>
 #include <iostream>
 #include <set>
 
@@ -45,6 +46,7 @@ namespace PBNF {
 		ClosedList closed;
 		PQOpenList open;
 
+		set<pthread_t> waitingfor;
 		set<NBlock *> interferes;
 		set<NBlock *> preds;
 		set<NBlock *> succs;

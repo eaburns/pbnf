@@ -3,7 +3,7 @@ CXX=g++
 MARCH=$(shell uname -m)
 
 # C/C++ basic compilation flags
-FLAGS=-g -Wall -pedantic -pipe
+FLAGS=-g -Wall -pedantic -pipe -O0
 
 # Comment this out for faster, more memory efficient code.
 #FLAGS+=-DENABLE_IMAGES
