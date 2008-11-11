@@ -118,10 +118,10 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 	pthread_mutex_lock(&mutex);
 
 	if (finished) {		// Release an NBlock
-		best_scope = best_in_scope(finished);
+		best_scope = __best_in_scope(finished);
 		double scope_f = INFINITY;
 		if (best_scope)
-			scope_f = best_scope->open.peek()->get_f();
+			scope_f = best_scope->open.get_best_f();
 
 		if (finished->sigma != 0) {
 			cerr << "A proc had an NBlock with sigma != 0" << endl;
@@ -136,7 +136,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			// in the interference scope that is better
 			// than the one being freed, just search the
 			// previous one more.
-			double cur_f = finished->open.peek()->get_f();
+			double cur_f = finished->open.get_best_f();
 			double new_f = free_list.best_f();
 			if (cur_f <= new_f && cur_f < scope_f) {
 				n = finished;
@@ -155,6 +155,13 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			best_scope->waitingfor.insert(pthread_self());
 
 		update_scope_sigmas(finished->id, -1);
+
+		// short-cut: if the best block in our scope was freed
+		// when we released our block, NULL-out the best_scope
+		// variable so we don't need to check the waitingfor
+		// set later.
+		if (best_scope && best_scope->waitingfor.empty())
+			best_scope = NULL;
 
 		if (free_list.empty() && num_sigma_zero == num_nblocks) {
 			__set_done();
@@ -184,9 +191,26 @@ out:
 }
 
 /**
- * Get the best NBlock that is interfered with.
+ * Get the cost of the best NBlock that is interfered with, if there
+ * is one.
  */
-NBlock *NBlockGraph::best_in_scope(NBlock *b)
+double NBlockGraph::best_in_scope(NBlock *b)
+{
+	double ret = INFINITY;
+
+	pthread_mutex_lock(&mutex);
+	NBlock *s = __best_in_scope(b);
+	if (s && s->sigma > 1)
+		ret = s->open.get_best_f();
+	pthread_mutex_unlock(&mutex);
+
+	return ret;
+}
+
+/**
+ * Get the best NBlock that is interfered with, if there is one.
+ */
+NBlock *NBlockGraph::__best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
 	double best_f = INFINITY;
@@ -196,8 +220,8 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 		NBlock *b = i->second;
 		if (b->open.empty())
 			continue;
-		if (!best_b || b->open.peek()->get_f() < best_f) {
-			best_f = b->open.peek()->get_f();
+		if (!best_b || b->open.get_best_f() < best_f) {
+			best_f = b->open.get_best_f();
 			best_b = b;
 		}
 	}
@@ -205,6 +229,29 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 	return best_b;
 }
 
+/**
+ * We won't release block b, so if there are processess waiting on it,
+ * the wake them all up.
+ */
+void NBlockGraph::wont_release(NBlock *b)
+{
+	set<NBlock *>::iterator iter;
+	bool wake = false;
+
+	pthread_mutex_lock(&mutex);
+
+	for (iter = b->interferes.begin();
+	     iter != b->interferes.end();
+	     iter++) {
+		if (!(*iter)->waitingfor.empty()) {
+			(*iter)->waitingfor.clear();
+			wake = true;
+		}
+	}
+
+	pthread_cond_broadcast(&cond);
+	pthread_mutex_unlock(&mutex);
+}
 
 /**
  * Get the NBlock given by the hash value.

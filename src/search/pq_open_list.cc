@@ -8,6 +8,8 @@
  * \date 2008-10-09
  */
 
+#include <math.h>
+
 #include <queue>
 
 #include "state.h"
@@ -38,6 +40,7 @@ bool PQOpenList::PQCompare::operator()(const State *a,
 void PQOpenList::add(const State *s)
 {
 	pq.push(s);
+	set_best_f(pq.top()->get_f());
 }
 
 /**
@@ -50,6 +53,11 @@ const State *PQOpenList::take(void)
 
 	s = pq.top();
 	pq.pop();
+
+	if (pq.empty())
+		set_best_f(INFINITY);
+	else
+		set_best_f(pq.top()->get_f());
 
 	return s;
 }

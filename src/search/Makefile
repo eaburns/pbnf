@@ -2,8 +2,12 @@ CXX=g++
 
 MARCH=$(shell uname -m)
 
+# profiler flags
+#PROF_FLAGS=-pg
+PROF_FLAGS=
+
 # C/C++ basic compilation flags
-FLAGS=-g -Wall -pedantic -pipe -O0
+FLAGS=-g -Wall -pedantic -pipe -O0 $(PROF_FLAGS)
 
 # Comment this out for faster, more memory efficient code.
 #FLAGS+=-DENABLE_IMAGES
@@ -31,6 +35,7 @@ SRC= \
 	util/thread.cc \
 	util/completion_counter.cc \
 	util/timer.cc \
+	util/atomic_float.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	tiles/tiles_state.cc \
@@ -53,9 +58,9 @@ FLAGS+=-mcpu=v9
 OBJ+=util/sparc64_atomic_asm.o
 OBJ+=util/sparc64_atomic_int.o
 else ifeq ($(MARCH), i386)
-OBJ+=util/x86_atomic_int.o
+OBJ+=util/i386_atomic_int.o
 else ifeq ($(MARCH), x86_64)
-OBJ+=util/x86_atomic_int.o
+OBJ+=util/x86_64_atomic_int.o
 else
 $(error Unknown machine type)
 endif
@@ -63,10 +68,11 @@ endif
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
 CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
-LDFLAGS=-lpthread
+LDFLAGS=-lpthread $(PROF_FLAGS)
 
 all: search thread_test atomic_int_test psdd_nblock_graph_test \
-     pbnf_nblock_graph_test tiles_hash_test tiles_read_test
+     pbnf_nblock_graph_test tiles_hash_test tiles_read_test \
+     atomic_float_test
 
 search: $(OBJ) main.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o search $(OBJ) main.cc
@@ -93,6 +99,10 @@ tiles_read_test: $(OBJ) tiles/tiles_read_test.o
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o tiles_read_test \
 	$(OBJ) tiles/tiles_read_test.o
 
+atomic_float_test: $(OBJ) util/atomic_float_test.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o atomic_float_test \
+	$(OBJ) util/atomic_float_test.o
+
 depend:
 	rm -f .depend
 	touch .depend
@@ -108,5 +118,6 @@ clean:
 	rm -f pbnf_nblock_graph_test
 	rm -f tiles_hash_test
 	rm -f tiles_read_test
+	rm -f atomic_float_test
 
 -include .depend

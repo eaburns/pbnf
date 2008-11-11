@@ -10,62 +10,70 @@
 #include "atomic_int.h"
 
 extern "C" {
-  extern int compare_and_swap(volatile uint32_t *addr, uint32_t *o, uint32_t n);
+	extern int compare_and_swap(volatile unsigned long *addr, unsigned long *o, unsigned long n);
 }
 
-AtomicInt::AtomicInt(unsigned int val)
-  : value(val) {}
-
-unsigned int AtomicInt::read(void) const
+AtomicInt::AtomicInt(void)
+	: value(0)
 {
-  return value;
 }
 
-void AtomicInt::set(unsigned int i)
+AtomicInt::AtomicInt(unsigned long val)
+	: value(val)
 {
-  value = i;
+	assert(sizeof(uint32_t) == sizeof(unsigned long));
 }
 
-void AtomicInt::add(unsigned int i)
+unsigned long AtomicInt::read(void) const
 {
-  uint32_t old = value;
-
-  while (!compare_and_swap(&value, &old, old + i))
-    ;
+	return value;
 }
 
-void AtomicInt::sub(unsigned int i)
+void AtomicInt::set(unsigned long i)
 {
-  uint32_t old = value;
+	value = i;
+}
 
-  while (!compare_and_swap(&value, &old, old - i))
-    ;
+void AtomicInt::add(unsigned long i)
+{
+	unsigned long old = value;
+
+	while (!compare_and_swap(&value, &old, old + i))
+		;
+}
+
+void AtomicInt::sub(unsigned long i)
+{
+	unsigned long old = value;
+
+	while (!compare_and_swap(&value, &old, old - i))
+		;
 }
 
 void AtomicInt::inc(void)
 {
-  add(1);
+	add(1);
 }
 
 void AtomicInt::dec(void)
 {
-  sub(1);
+	sub(1);
 }
 
-unsigned int AtomicInt::swap(unsigned int n)
+unsigned long AtomicInt::swap(unsigned long n)
 {
-  uint32_t old = value;
+	unsigned long old = value;
 
-  while(!compare_and_swap(&value, &old, n))
-    ;
+	while(!compare_and_swap(&value, &old, n))
+		;
 
-  return old;
+	return old;
 }
 
-unsigned int AtomicInt::cmp_and_swap(unsigned int o, unsigned int n)
+unsigned long AtomicInt::cmp_and_swap(unsigned long o, unsigned long n)
 {
-  compare_and_swap(&value, &o, n);
+	compare_and_swap(&value, &o, n);
 
-  return o;
+	return o;
 }
 

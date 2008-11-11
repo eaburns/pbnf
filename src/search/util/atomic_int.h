@@ -23,39 +23,41 @@
  *       will need to add pre-processor macros to make them portable.
  */
 class AtomicInt {
- public:
-  AtomicInt(unsigned int val);
+public:
+	AtomicInt(void);
 
-  unsigned int read(void) const;
+	AtomicInt(unsigned long val);
 
-  void set(unsigned int i);
+	unsigned long read(void) const;
 
-  void add(unsigned int i);
+	void set(unsigned long i);
 
-  void sub(unsigned int i);
+	void add(unsigned long i);
 
-  void inc(void);
+	void sub(unsigned long i);
 
-  void dec(void);
+	void inc(void);
 
-  unsigned int swap(unsigned int n);
+	void dec(void);
 
-  /**
-   * Atomic compare and swap.  This operation takes an old value
-   * and a new value.  If the AtomicInt currently contains the
-   * old value passed as a parameter here, the new value is
-   * atomically swapped in.  If the AtomicInt contains a value
-   * that is not the old value given as a parameter, the new
-   * value is *not* swapped in.
-   * \param o The expected old value.
-   * \param n The new value to swap if the current value is 'o'.
-   * \return The value before this operation.  If the return
-   *         value is equivilant to 'o', then the operation was
-   *         a success, otherwise it was not.
-   */
-  unsigned int cmp_and_swap(unsigned int o, unsigned int n);
- private:
-  volatile uint32_t value;
+	unsigned long swap(unsigned long n);
+
+	/**
+	 * Atomic compare and swap.  This operation takes an old value
+	 * and a new value.  If the AtomicInt currently contains the
+	 * old value passed as a parameter here, the new value is
+	 * atomically swapped in.  If the AtomicInt contains a value
+	 * that is not the old value given as a parameter, the new
+	 * value is *not* swapped in.
+	 * \param o The expected old value.
+	 * \param n The new value to swap if the current value is 'o'.
+	 * \return The value before this operation.  If the return
+	 *         value is equivilant to 'o', then the operation was
+	 *         a success, otherwise it was not.
+	 */
+	unsigned long cmp_and_swap(unsigned long o, unsigned long n);
+private:
+	volatile unsigned long value;
 };
 
 #endif	/* !_ATOMIC_INT_H_ */

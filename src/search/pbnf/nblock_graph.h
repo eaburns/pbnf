@@ -40,14 +40,15 @@ namespace PBNF {
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 		void set_done(void);
+		double best_in_scope(NBlock *b);
+		void wont_release(NBlock *b);
 
 	private:
 		void __set_done(void);
 		void __print(ostream &o);
+		NBlock *__best_in_scope(NBlock *b);
 		void update_scope_sigmas(unsigned int y, int delta);
 		void update_sigma(NBlock *yblk, int delta);
-
-		NBlock *best_in_scope(NBlock *b);
 
 		/* NBlocks. */
 		map<unsigned int, NBlock *> blocks;

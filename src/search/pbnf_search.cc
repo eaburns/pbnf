@@ -64,7 +64,7 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		const State *dup = closed->lookup(s);
 
 		if (s->get_f() >= search->bound
-		    || dup && dup->get_f() <= s->get_f()) {
+		    || (dup && dup->get_f() <= s->get_f())) {
 			delete s;
 			continue;
 		}
@@ -106,12 +106,22 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
  */
 bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
-	const unsigned int MIN_EXPANSIONS = 10;
+	const unsigned int MIN_EXPANSIONS = 20;
+	bool ret;
+	double cur, scope, free;
 
 	if (expansions < MIN_EXPANSIONS)
 		return false;
 
-	return n->open.peek()->get_f () > graph->next_nblock_f_value();
+	scope = graph->best_in_scope(n);
+	free = graph->next_nblock_f_value();
+	cur = n->open.peek()->get_f();
+
+	ret = cur < free || cur < scope;
+
+	if (!ret)
+		graph->wont_release(n);
+	return ret;
 }
 
 

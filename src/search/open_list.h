@@ -11,6 +11,8 @@
 #if !defined(_OPEN_LIST_H_)
 #define _OPEN_LIST_H_
 
+#include "util/atomic_float.h"
+
 #include "state.h"
 
 /**
@@ -25,6 +27,12 @@ public:
 	virtual const State *peek(void) = 0;
 	virtual bool empty(void) = 0;
 	virtual void delete_all_states(void) = 0;
+
+	double get_best_f(void);
+protected:
+	void set_best_f(double f);
+private:
+	AtomicFloat best;
 };
 
 #endif	/* !_OPEN_LIST_H_ */

@@ -8,6 +8,8 @@
  * \date 2008-10-20
  */
 
+#include <math.h>
+
 #include <queue>
 
 #include "queue_open_list.h"
@@ -18,6 +20,7 @@ using namespace std;
 void QueueOpenList::add(const State *s)
 {
 	q.push(s);
+	set_best_f(q.front()->get_f());
 }
 
 const State *QueueOpenList::take(void)
@@ -25,6 +28,11 @@ const State *QueueOpenList::take(void)
 	const State *s = q.front();
 
 	q.pop();
+	if (q.empty())
+		set_best_f(INFINITY);
+	else
+		set_best_f(q.front()->get_f());
+
 
 	return s;
 }
