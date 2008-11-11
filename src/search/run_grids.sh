@@ -176,6 +176,11 @@ do
     OUT=$(run_file $NUM)
     FULL_NAME=$(full_algo_name $ALGORITHM)
 
+    test -e $OUT && {
+	echo "Skipping $OUT"
+	continue
+    }
+
     echo "Algorithm: $FULL_NAME"
     echo "Instance: $INSTANCE"
     echo "Output: $OUT"

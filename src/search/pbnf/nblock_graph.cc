@@ -200,7 +200,7 @@ double NBlockGraph::best_in_scope(NBlock *b)
 
 	pthread_mutex_lock(&mutex);
 	NBlock *s = __best_in_scope(b);
-	if (s && s->sigma > 1)
+	if (s)
 		ret = s->open.get_best_f();
 	pthread_mutex_unlock(&mutex);
 

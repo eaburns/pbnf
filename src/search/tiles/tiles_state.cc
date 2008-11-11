@@ -14,6 +14,7 @@
 #include <vector>
 #include <iostream>
 
+#include "tiles.h"
 #include "tiles_state.h"
 
 using namespace std;
@@ -33,12 +34,9 @@ TilesState::TilesState(SearchDomain *d, const State *parent, float g,
  */
 bool TilesState::is_goal(void) const
 {
-	for (unsigned int i = 0; i < tiles.size(); i += 1) {
-		if (tiles[i] != i)
-			return false;
-	}
+	Tiles * t= dynamic_cast<Tiles*>(domain);
 
-	return true;
+	return t->is_goal(this);
 }
 
 
@@ -63,12 +61,18 @@ State *TilesState::clone(void) const
 
 void TilesState::print(ostream &o) const
 {
-	vector<unsigned int>::const_iterator iter;
+	Tiles *t = dynamic_cast<Tiles*>(domain);
+	unsigned int i = 0;
 
-	for (iter = tiles.begin(); iter != tiles.end(); iter++)
-		o << *iter << " ";
-
-	o << endl;
+	for (unsigned int y = 0; y < t->get_height(); y += 1) {
+		for (unsigned int x = 0; x < t->get_width(); x += 1) {
+			o << tiles[i];
+			if (x < t->get_width() - 1)
+				o << "\t";
+			i += 1;
+		}
+		o << endl;
+	}
 }
 
 

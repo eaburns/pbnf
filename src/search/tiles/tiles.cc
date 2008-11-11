@@ -28,22 +28,46 @@ using namespace std;
 Tiles::Tiles(istream &in)
 {
 	unsigned int vl;
-	unsigned int blank = 0;
-	vector<unsigned int> tiles;
+	unsigned int t_blank = 0, g_blank = 0;
+	char buff[1024];
+	vector<unsigned int> t;
+	vector<unsigned int> g;
 
-	do {
+	in >> width;
+	in >> height;
+
+	in >> buff;
+	assert(strcmp(buff, "starting") == 0);
+	in >> buff;
+	assert(strcmp(buff, "positions") == 0);
+	in >> buff;
+	assert(strcmp(buff, "for") == 0);
+	in >> buff;
+	assert(strcmp(buff, "each") == 0);
+	in >> buff;
+	assert(strcmp(buff, "tile:") == 0);
+
+	for (unsigned int i = 0; i < width * height; i += 1) {
 		in >> vl;
 		if (vl == 0)
-			blank = tiles.size();
-		tiles.push_back(vl);
-	} while (!in.eof());
+			t_blank = t.size();
+		t.push_back(vl);
+	}
 
-	width = height = (unsigned int) sqrt(tiles.size());
+	in >> buff;
+	assert(strcmp(buff, "goal") == 0);
+	in >> buff;
+	assert(strcmp(buff, "positions:") == 0);
 
-	initial = new TilesState(this, NULL, 0, tiles, blank);
+	for (unsigned int i = 0; i < width * height; i += 1) {
+		in >> vl;
+		if (vl == 0)
+			g_blank = g.size();
+		g.push_back(vl);
+	}
 
-	cerr << "width = " << width << " height = " << height << endl;
-	initial->print(cerr);
+	initial = new TilesState(this, NULL, 0, t, t_blank);
+	goal = new TilesState(this, NULL, 0, g, g_blank);
 }
 
 
@@ -131,4 +155,33 @@ vector<const State *> *Tiles::expand(const State *s)
 	}
 
 	return children;
+}
+
+/**
+ * Test if the given state is the goal state.
+ */
+bool Tiles::is_goal(const State *s) const
+{
+	return s->equals(goal);
+}
+
+/**
+ * Print the initial state and goal state.
+ */
+void Tiles::print(ostream &o) const
+{
+	cout << "Initial state:" << endl;
+	initial->print(o);
+	cout << endl << "Goal state:" << endl;
+	goal->print(o);
+}
+
+unsigned int Tiles::get_width(void) const
+{
+	return width;
+}
+
+unsigned int Tiles::get_height(void) const
+{
+	return height;
 }

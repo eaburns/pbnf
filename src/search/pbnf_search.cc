@@ -106,7 +106,7 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
  */
 bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
-	const unsigned int MIN_EXPANSIONS = 20;
+	const unsigned int MIN_EXPANSIONS = 10;
 	bool ret;
 	double cur, scope, free;
 

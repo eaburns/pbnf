@@ -26,6 +26,10 @@ public:
 	virtual const State *initial_state(void);
 	virtual vector<const State *> *expand(const State *s);
 
+	void print(ostream &o) const;
+	unsigned int get_width(void) const;
+ 	unsigned int get_height(void) const;
+
 /*
 	class ManhattanDist : public Heuristic {
 	public:
@@ -45,12 +49,15 @@ public:
 	};
 */
 
+	bool is_goal(const State *s) const;
+
 private:
 	vector<unsigned int> child(vector<unsigned int> tiles,
 				   unsigned int o, unsigned int n);
 	unsigned int width;
 	unsigned int height;
 	const TilesState *initial;
+	const TilesState *goal;
 };
 
 #endif	/* !_TILES_H_ */

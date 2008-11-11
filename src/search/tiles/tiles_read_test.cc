@@ -20,5 +20,7 @@ int main(void)
 {
 	Tiles t(cin);
 
+	t.print(cout);
+
 	return EXIT_SUCCESS;
 }
