@@ -30,14 +30,23 @@ public:
 	unsigned int get_width(void) const;
  	unsigned int get_height(void) const;
 
-/*
 	class ManhattanDist : public Heuristic {
 	public:
 		ManhattanDist(const SearchDomain *d);
 		virtual ~ManhattanDist(void);
 		virtual float comupte(const State *s) const;
+	private:
+		unsigned int get_goal_dist(const Tiles *d,
+					   int col,
+					   int row,
+					   unsigned int num) const;
+
+		float comupte_full(const TilesState *s) const;
+		float comupte_incr(const TilesState *s,
+				   const TilesState *p) const;
 	};
 
+/*
 	class BlankTilesProject : public Projection {
 	public:
 		BlankTilesProject(const SearchDomain *d, unsigned int blanks);

@@ -10,6 +10,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include <vector>
 #include <iostream>
@@ -184,4 +185,80 @@ unsigned int Tiles::get_width(void) const
 unsigned int Tiles::get_height(void) const
 {
 	return height;
+}
+
+Tiles::ManhattanDist::ManhattanDist(const SearchDomain *d)
+	: Heuristic(d) {}
+
+Tiles::ManhattanDist::~ManhattanDist(void) {}
+
+/**
+ * Comupte the incremental Manhattan distance of a state.
+ */
+float Tiles::ManhattanDist::comupte(const State *state) const
+{
+	const TilesState *s = dynamic_cast<const TilesState *>(state);
+
+/*
+	if (s->parent)
+		return comupte_incr(s, s->parent);
+*/
+
+	return comupte_full(s);
+}
+
+unsigned int Tiles::ManhattanDist::get_goal_dist(const Tiles *d,
+						 int col,
+						 int row,
+						 unsigned int num) const
+{
+	int ind, g_row, g_col;
+	vector<unsigned int>::const_iterator i;
+
+	ind = 0;
+	for (i = d->goal->get_tiles().begin();
+	     i != d->goal->get_tiles().end();
+	     i++) {
+		if ((*i) == num)
+			break;
+		ind += 1;
+	}
+
+	assert((*i) == num);
+
+	g_col = ind % d->get_width();
+	g_row = ind / d->get_width();
+	return abs(g_col - col) + abs(g_row - row);
+}
+
+
+/**
+ * Comupte the full manhattan distance of the given state.
+ */
+float Tiles::ManhattanDist::comupte_full(const TilesState *s) const
+{
+	const Tiles *d = dynamic_cast<const Tiles *>(domain);
+	vector<unsigned int>::const_iterator i;
+	unsigned int dist = 0, ind = 0;
+
+	for (i = s->get_tiles().begin();
+	     i != s->get_tiles().end(); i++) {
+		int row = ind / d->get_width();
+		int col = ind % d->get_width();
+		dist += get_goal_dist(d, row, col, *i);
+		ind += 1;
+	}
+
+	return dist;
+}
+
+/**
+ * Comupte the incremental manhattan distance of the given state using
+ * the heuristic value of the parent's state.
+ */
+float Tiles::ManhattanDist::comupte_incr(const TilesState *s,
+					 const TilesState *p) const
+{
+	assert("Unimplemented");
+	return -1.0;
 }
