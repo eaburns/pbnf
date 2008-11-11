@@ -70,12 +70,12 @@ ASFLAGS+=$(FLAGS)
 CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
 LDFLAGS=-lpthread $(PROF_FLAGS)
 
-all: search thread_test atomic_int_test psdd_nblock_graph_test \
+all: grid_search thread_test atomic_int_test psdd_nblock_graph_test \
      pbnf_nblock_graph_test tiles_hash_test tiles_read_test \
      atomic_float_test
 
-search: $(OBJ) main.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o search $(OBJ) main.cc
+grid_search: $(OBJ) grid_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o grid_search $(OBJ) grid_search.cc
 
 thread_test: $(OBJ) util/thread_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o thread_test $(OBJ) util/thread_test.cc
@@ -111,7 +111,7 @@ depend:
 
 clean:
 	find . -name \*.o -exec rm -f '{}' \;
-	rm -f search
+	rm -f grid_search
 	rm -f thread_test
 	rm -f atomic_int_test
 	rm -f psdd_nblock_graph_test
