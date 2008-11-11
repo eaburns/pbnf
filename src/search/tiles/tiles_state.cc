@@ -75,7 +75,9 @@ void TilesState::print(ostream &o) const
 	}
 }
 
-
+/**
+ * Test if two states are the same configuration.
+ */
 bool TilesState::equals(const State *s) const
 {
 	const TilesState *other = dynamic_cast<const TilesState *>(s);
@@ -87,7 +89,6 @@ bool TilesState::equals(const State *s) const
 	return true;
 }
 
-
 /**
  * Get the tile vector.
  */
@@ -96,6 +97,9 @@ vector<unsigned int> TilesState::get_tiles(void) const
 	return tiles;
 }
 
+/**
+ * Get the blank position.
+ */
 unsigned int TilesState::get_blank(void) const
 {
 	return blank;
