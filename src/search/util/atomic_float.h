@@ -14,14 +14,14 @@
 #include "atomic_int.h"
 
 /**
- * Assumes that an unsigned long is the size of a double.
+ * Assumes that an unsigned long is the size of a float.
  */
 class AtomicFloat {
 public:
 	AtomicFloat(void);
-	AtomicFloat(double v);
-	double read(void);
-	void set(double);
+	AtomicFloat(float v);
+	float read(void);
+	void set(float);
 private:
 	AtomicInt value;
 };
