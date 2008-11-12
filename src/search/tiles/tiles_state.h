@@ -33,7 +33,7 @@ public:
 	virtual void print(ostream &o) const;
 	virtual bool equals(const State *s) const;
 
-	vector<unsigned int> get_tiles(void) const;
+	const vector<unsigned int> *get_tiles(void) const;
 	unsigned int get_blank(void) const;
 private:
 	vector<unsigned int> tiles;

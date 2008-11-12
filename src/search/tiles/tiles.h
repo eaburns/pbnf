@@ -36,14 +36,15 @@ public:
 		virtual ~ManhattanDist(void);
 		virtual float compute(const State *s) const;
 	private:
-		unsigned int get_goal_dist(const Tiles *d,
-					   int col,
-					   int row,
-					   unsigned int num) const;
-
+		void init(const SearchDomain *d);
 		float comupte_full(const TilesState *s) const;
 		float comupte_incr(const TilesState *s,
 				   const TilesState *p) const;
+		int lookup_dist(unsigned int num, unsigned int pos) const;
+
+		unsigned int width;
+		unsigned int height;
+		vector<unsigned int> table;
 	};
 
 /*
@@ -61,7 +62,7 @@ public:
 	bool is_goal(const State *s) const;
 
 private:
-	vector<unsigned int> child(vector<unsigned int> tiles,
+	vector<unsigned int> child(const vector<unsigned int> *tiles,
 				   unsigned int o, unsigned int n);
 	unsigned int width;
 	unsigned int height;

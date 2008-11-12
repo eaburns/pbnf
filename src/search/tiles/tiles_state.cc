@@ -104,9 +104,9 @@ bool TilesState::equals(const State *s) const
 /**
  * Get the tile vector.
  */
-vector<unsigned int> TilesState::get_tiles(void) const
+const vector<unsigned int> *TilesState::get_tiles(void) const
 {
-	return tiles;
+	return &tiles;
 }
 
 /**

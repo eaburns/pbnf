@@ -7,7 +7,7 @@ MARCH=$(shell uname -m)
 PROF_FLAGS=
 
 # C/C++ basic compilation flags
-FLAGS=-g -Wall -pipe -O0 $(PROF_FLAGS)
+FLAGS=-g -Wall -pipe $(PROF_FLAGS)
 
 # Comment this out for faster, more memory efficient code.
 #FLAGS+=-DENABLE_IMAGES
@@ -118,7 +118,7 @@ depend:
 	rm -f .depend.bak
 
 clean:
-	find . -name \*.o -exec rm -f '{}' \;
+	find . -name \*.o -maxdepth 2 -exec rm -f '{}' \;
 	rm -f grid_search
 	rm -f tiles_search
 	rm -f thread_test
@@ -127,6 +127,6 @@ clean:
 	rm -f pbnf_nblock_graph_test
 	rm -f tiles_hash_test
 	rm -f tiles_read_test
-	rm -f atomic_float_
+	rm -f atomic_float_test
 
 -include .depend

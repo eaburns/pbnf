@@ -67,6 +67,9 @@ Tiles::Tiles(istream &in)
 	}
 
 	goal = new TilesState(this, NULL, 0, 0, g, g_blank);
+	cout << "Goal:" << endl;
+	goal->print(cout);
+	cout << endl;
 }
 
 
@@ -96,7 +99,8 @@ Tiles::~Tiles(void)
  */
 const State *Tiles::initial_state(void)
 {
-	return new TilesState(this, NULL, 0, initial, initial_blank);}
+	return new TilesState(this, NULL, 0, initial, initial_blank);
+}
 
 
 
@@ -104,13 +108,14 @@ const State *Tiles::initial_state(void)
  * Get the array for a child with a blank at index 'n' when the
  * parent's blank was at index 'o'.
  */
-vector<unsigned int> Tiles::child(vector<unsigned int> tiles,
+vector<unsigned int> Tiles::child(const vector<unsigned int> *tiles,
 				  unsigned int o,
 				  unsigned int n)
 {
-	tiles[o] = tiles[n];
-	tiles[n] = 0;
-	return tiles;
+	vector<unsigned int> t = *tiles;
+	t[o] = t[n];
+	t[n] = 0;
+	return t;
 }
 
 
@@ -122,31 +127,33 @@ vector<const State *> *Tiles::expand(const State *s)
 	const unsigned int cost = 1;
 	const TilesState *t = dynamic_cast<const TilesState *>(s);
 	vector<const State *> *children = new vector<const State *>;
-	vector<unsigned int> tiles = t->get_tiles();
+	const vector<unsigned int> *tiles = t->get_tiles();
 	unsigned int blank = t->get_blank();
 	unsigned int col = blank % width;
 	unsigned int row = blank / width;
 
+	const TilesState *gp =
+		dynamic_cast<const TilesState *>(s->get_parent());
 
-	if (col > 0) {
+	if (col > 0 && (!gp || gp->get_blank() != blank -1)) {
 		children->push_back(new TilesState(this, s, s->get_g() + cost,
 						   child(tiles, blank,
 							 blank - 1),
 						   blank - 1));
 	}
-	if (col < width - 1) {
+	if (col < width - 1 && (!gp || gp->get_blank() != blank + 1)) {
 		children->push_back(new TilesState(this, s, s->get_g() + cost,
 						   child(tiles, blank,
 							 blank + 1),
 						   blank + 1));
 	}
-	if (row > 0) {
+	if (row > 0 && (!gp || gp->get_blank() != blank - width)) {
 		children->push_back(new TilesState(this, s, s->get_g() + cost,
 						   child(tiles, blank,
 							 blank - width),
 						   blank - width));
 	}
-	if (row < height - 1) {
+	if (row < height - 1 && (!gp || gp->get_blank() != blank + width)) {
 		children->push_back(new TilesState(this, s, s->get_g() + cost,
 						   child(tiles, blank,
 							 blank + width),
@@ -196,10 +203,54 @@ unsigned int Tiles::get_height(void) const
 	return height;
 }
 
-Tiles::ManhattanDist::ManhattanDist(const SearchDomain *d)
-	: Heuristic(d) {}
+void Tiles::ManhattanDist::init(const SearchDomain *d)
+{
+	const Tiles *t = dynamic_cast<const Tiles*>(d);
+	const vector<unsigned int> *goal = t->goal->get_tiles();
 
-Tiles::ManhattanDist::~ManhattanDist(void) {}
+	width = t->width;
+	height = t->height;
+
+	// build the manhattan distance table.
+	table.resize(width * height * width * height);
+	for (unsigned int tile = 0; tile < width * height; tile += 1) {
+		unsigned int goal_pos;
+		for (goal_pos = 0; goal_pos < width * height; goal_pos += 1) {
+			if (goal->at(goal_pos) == tile)
+				break;
+		}
+		assert(goal_pos < width * height);
+		assert(goal->at(goal_pos) == tile);
+		int goal_col = goal_pos % width;
+		int goal_row = goal_pos / width;
+		for (unsigned int pos = 0; pos < width * height; pos += 1) {
+			int col = pos % width;
+			int row = pos / width;
+
+			table[(tile * (width * height)) + pos]= abs(goal_col - col)
+				+ abs(goal_row - row);
+		}
+	}
+}
+
+Tiles::ManhattanDist::ManhattanDist(const SearchDomain *d)
+	: Heuristic(d)
+{
+	init(d);
+}
+
+/**
+ * Look up the Manhattan distance of the tile to its goal position in
+ * the table.
+ */
+int Tiles::ManhattanDist::lookup_dist(unsigned int num, unsigned int pos) const
+{
+	return table[(num * (width * height)) + pos];
+}
+
+Tiles::ManhattanDist::~ManhattanDist(void)
+{
+}
 
 /**
  * Comupte the incremental Manhattan distance of a state.
@@ -207,55 +258,27 @@ Tiles::ManhattanDist::~ManhattanDist(void) {}
 float Tiles::ManhattanDist::compute(const State *state) const
 {
 	const TilesState *s = dynamic_cast<const TilesState *>(state);
+	const State *p = s->get_parent();
 
-/*
-	if (s->parent)
-		return comupte_incr(s, s->parent);
-*/
+	if (p) {
+		const TilesState *ptile =
+			dynamic_cast<const TilesState *>(p);
+		return comupte_incr(s, ptile);
+	}
 
 	return comupte_full(s);
 }
-
-unsigned int Tiles::ManhattanDist::get_goal_dist(const Tiles *d,
-						 int col,
-						 int row,
-						 unsigned int num) const
-{
-	int ind, g_row, g_col;
-	vector<unsigned int>::const_iterator i;
-	vector<unsigned int> tiles = d->goal->get_tiles();
-
-	ind = 0;
-	for (i = tiles.begin();  i != tiles.end(); i++) {
-		if ((*i) == num)
-			break;
-		ind += 1;
-	}
-
-	assert((*i) == num);
-
-	g_col = ind % d->get_width();
-	g_row = ind / d->get_width();
-	return abs(g_col - col) + abs(g_row - row);
-}
-
 
 /**
  * Comupte the full manhattan distance of the given state.
  */
 float Tiles::ManhattanDist::comupte_full(const TilesState *s) const
 {
-	const Tiles *d = dynamic_cast<const Tiles *>(domain);
-	vector<unsigned int>::const_iterator i;
-	unsigned int dist = 0, ind = 0;
-	vector<unsigned int> tiles = s->get_tiles();
+	unsigned int dist = 0;
+	const vector<unsigned int> *tiles = s->get_tiles();
 
-	for (i = tiles.begin(); i != tiles.end(); i++) {
-		int row = ind / d->get_width();
-		int col = ind % d->get_width();
-		dist += get_goal_dist(d, row, col, *i);
-		ind += 1;
-	}
+	for (unsigned int i = 0; i < tiles->size(); i += 1)
+		dist += lookup_dist(tiles->at(i), i);
 
 	return dist;
 }
@@ -267,6 +290,10 @@ float Tiles::ManhattanDist::comupte_full(const TilesState *s) const
 float Tiles::ManhattanDist::comupte_incr(const TilesState *s,
 					 const TilesState *p) const
 {
-	assert("Unimplemented");
-	return -1.0;
+	unsigned int new_b = s->get_blank();
+	unsigned int par_b = p->get_blank();
+	unsigned int tile = p->get_tiles()->at(new_b);
+
+	return p->get_h() +  2 * (lookup_dist(tile, par_b)
+				  - lookup_dist(tile, new_b));
 }

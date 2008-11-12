@@ -41,7 +41,7 @@ public:
 	virtual float get_h(void) const;
 	virtual const State *get_parent(void) const;
 	virtual vector<const State *> *get_path(void) const;
-protected:
+//protected:
 	const State *parent;
 	SearchDomain *domain;
 	float g;
