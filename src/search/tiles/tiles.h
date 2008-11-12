@@ -37,8 +37,8 @@ public:
 		virtual float compute(const State *s) const;
 	private:
 		void init(const SearchDomain *d);
-		float comupte_full(const TilesState *s) const;
-		float comupte_incr(const TilesState *s,
+		float compute_full(const TilesState *s) const;
+		float compute_incr(const TilesState *s,
 				   const TilesState *p) const;
 		int lookup_dist(unsigned int num, unsigned int pos) const;
 

@@ -8,6 +8,8 @@
  * \date 2008-10-08
  */
 
+#include <assert.h>
+
 #include "state.h"
 
 State::State(SearchDomain *d, const State *parent, float g)
@@ -47,6 +49,7 @@ float State::get_g(void) const
  */
 float State::get_h(void) const
 {
+	assert(h >= 0.0);
 	return h;
 }
 

@@ -36,6 +36,11 @@ const State *ClosedList::lookup(const State *c)
 	if (iter == m.end())
 		return NULL;
 
+	if (!iter->second->equals(c)) {
+		cerr << "Warning, ClosedList lookup of state "
+		     << "resulted in a different state." << endl;
+	}
+
 	return iter->second;
 }
 

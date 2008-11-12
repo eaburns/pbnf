@@ -25,10 +25,15 @@ using namespace std;
 /**
  * Read in a puzzle from the given input stream... this just blindly
  * assumes that it was given a perfect square.
+ *
+ * The datafiles list the position for each corresponding tile.  This
+ * means that the first number read is the initial state's position of
+ * the 0th tile (the blank).  The next number read is the position of
+ * the 1 tile, etc.
  */
 Tiles::Tiles(istream &in)
 {
-	unsigned int vl;
+	unsigned int pos;
 	unsigned int g_blank = 0;
 	char buff[1024];
 	vector<unsigned int> g;
@@ -36,7 +41,7 @@ Tiles::Tiles(istream &in)
 	in >> width;
 	in >> height;
 
-	// Comupte crazy Korf table.
+	// Compute crazy Korf table.
 	ones.resize(pow(2, width * height - 1) + 1);
 	for (unsigned int i = 1; i <= pow(2, width * height - 1); i += 1) {
 		unsigned int bits = 0;
@@ -60,11 +65,12 @@ Tiles::Tiles(istream &in)
 	in >> buff;
 	assert(strcmp(buff, "tile:") == 0);
 
+	initial.resize(width * height);
 	for (unsigned int i = 0; i < width * height; i += 1) {
-		in >> vl;
-		if (vl == 0)
-			initial_blank = initial.size();
-		initial.push_back(vl);
+		in >> pos;
+		if (i == 0)
+			initial_blank = pos;
+		initial[pos] = i;
 	}
 
 	in >> buff;
@@ -72,17 +78,15 @@ Tiles::Tiles(istream &in)
 	in >> buff;
 	assert(strcmp(buff, "positions:") == 0);
 
+	g.resize(width * height);
 	for (unsigned int i = 0; i < width * height; i += 1) {
-		in >> vl;
-		if (vl == 0)
-			g_blank = g.size();
-		g.push_back(vl);
+		in >> pos;
+		if (i == 0)
+			g_blank = pos;
+		g[pos] = i;
 	}
 
 	goal = new TilesState(this, NULL, 0, 0, g, g_blank);
-	cout << "Goal:" << endl;
-	goal->print(cout);
-	cout << endl;
 }
 
 const vector<unsigned int> *Tiles::get_ones() const
@@ -270,47 +274,54 @@ Tiles::ManhattanDist::~ManhattanDist(void)
 }
 
 /**
- * Comupte the incremental Manhattan distance of a state.
+ * Compute the incremental Manhattan distance of a state.
  */
 float Tiles::ManhattanDist::compute(const State *state) const
 {
+	float ret = 0.0;
 	const TilesState *s = dynamic_cast<const TilesState *>(state);
 	const State *p = s->get_parent();
 
 	if (p) {
 		const TilesState *ptile =
 			dynamic_cast<const TilesState *>(p);
-		return comupte_incr(s, ptile);
-	}
+		ret = compute_incr(s, ptile);
+	} else
+		ret = compute_full(s);
 
-	return comupte_full(s);
+	assert(ret >= 0.0);
+
+	return ret;
 }
 
 /**
- * Comupte the full manhattan distance of the given state.
+ * Compute the full manhattan distance of the given state.
  */
-float Tiles::ManhattanDist::comupte_full(const TilesState *s) const
+float Tiles::ManhattanDist::compute_full(const TilesState *s) const
 {
 	unsigned int dist = 0;
 	const vector<unsigned int> *tiles = s->get_tiles();
 
-	for (unsigned int i = 0; i < tiles->size(); i += 1)
+	for (unsigned int i = 1; i < tiles->size(); i += 1)
 		dist += lookup_dist(tiles->at(i), i);
 
 	return dist;
 }
 
 /**
- * Comupte the incremental manhattan distance of the given state using
+ * Compute the incremental manhattan distance of the given state using
  * the heuristic value of the parent's state.
  */
-float Tiles::ManhattanDist::comupte_incr(const TilesState *s,
+float Tiles::ManhattanDist::compute_incr(const TilesState *s,
 					 const TilesState *p) const
 {
 	unsigned int new_b = s->get_blank();
 	unsigned int par_b = p->get_blank();
 	unsigned int tile = p->get_tiles()->at(new_b);
+	float ret = 0.0;
 
-	return p->get_h() +  2 * (lookup_dist(tile, par_b)
-				  - lookup_dist(tile, new_b));
+	ret = p->get_h() + (lookup_dist(tile, par_b)
+			    - lookup_dist(tile, new_b));
+	assert(ret >= 0.0);
+	return ret;
 }
