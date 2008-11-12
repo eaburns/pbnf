@@ -36,8 +36,10 @@ public:
 	const vector<unsigned int> *get_tiles(void) const;
 	unsigned int get_blank(void) const;
 private:
+	void compute_hash(void);
 	vector<unsigned int> tiles;
 	unsigned int blank;
+	unsigned int hash_val;
 };
 
 #endif	/* !_TILES_STATE_H_ */

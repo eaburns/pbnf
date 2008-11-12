@@ -19,6 +19,22 @@
 
 using namespace std;
 
+void TilesState::compute_hash(void)
+{
+	unsigned int bits = 0;
+	unsigned int n = tiles.size();
+	const Tiles *t = dynamic_cast<const Tiles *>(domain);
+	const vector<unsigned int> *ones = t->get_ones();
+
+	hash_val = 0;
+	for (int i = tiles.size() - 1; i >= 0; i -= 1) {
+		unsigned int k = tiles[i];
+		hash_val += (ones->at(bits >> (n - k)) * (n - 1 - i));
+		bits |= 1 << (n - k - 1);
+	}
+}
+
+
 TilesState::TilesState(SearchDomain *d, const State *parent, float g,
 		       float h, vector<unsigned int> tiles,
 		       unsigned int blank)
@@ -27,6 +43,7 @@ TilesState::TilesState(SearchDomain *d, const State *parent, float g,
 	  blank(blank)
 {
 	this->h = h;
+	compute_hash();
 }
 
 
@@ -38,6 +55,7 @@ TilesState::TilesState(SearchDomain *d, const State *parent, float g,
 {
 	assert(tiles[blank] == 0);
 	this->h = domain->get_heuristic()->compute(this);
+	compute_hash();
 }
 
 
@@ -54,14 +72,7 @@ bool TilesState::is_goal(void) const
 
 int TilesState::hash(void) const
 {
-	int hash = 0;
-	unsigned int max_size = tiles.size();
-
-	// sum the place values
-	for (unsigned int i = 0; i < max_size; i += 1)
-		hash += (int) pow(max_size, i) * tiles[i];
-
-	return hash;
+	return hash_val;
 }
 
 
@@ -76,6 +87,7 @@ void TilesState::print(ostream &o) const
 	Tiles *t = dynamic_cast<Tiles*>(domain);
 	unsigned int i = 0;
 
+	o << "Hash: " << hash_val << endl;
 	for (unsigned int y = 0; y < t->get_height(); y += 1) {
 		for (unsigned int x = 0; x < t->get_width(); x += 1) {
 			o << tiles[i];

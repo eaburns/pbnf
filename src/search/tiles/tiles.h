@@ -61,6 +61,8 @@ public:
 
 	bool is_goal(const State *s) const;
 
+	const vector<unsigned int> *get_ones(void) const;
+
 private:
 	vector<unsigned int> child(const vector<unsigned int> *tiles,
 				   unsigned int o, unsigned int n);
@@ -69,6 +71,10 @@ private:
 	vector<unsigned int> initial;
 	unsigned int initial_blank;
 	const TilesState *goal;
+
+	/* Korf's crazy table of the number of ones in the binary
+	 * representation on an integer. */
+	vector<unsigned int> ones;
 };
 
 #endif	/* !_TILES_H_ */

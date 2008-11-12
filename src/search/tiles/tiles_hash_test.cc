@@ -26,8 +26,10 @@ int main(void)
 	map<unsigned int, const State *> seen; // check for duplicate hashes
 	QueueOpenList open;
 	ClosedList closed;
-	Tiles dom(3, 3);
+	Tiles dom(cin);
+	Tiles::ManhattanDist m(&dom);
 	const State *s;
+	dom.set_heuristic(&m);
 
 	vector<unsigned int> vec(9);
 	vec[0] = 0;
@@ -40,8 +42,9 @@ int main(void)
 	vec[7] = 7;
 	vec[8] = 8;
 
-	open.add(new TilesState(&dom, NULL, 1.0, vec, 0));
+	open.add(dom.initial_state());
 
+	unsigned int expanded = 0;
 	while (!open.empty()) {
 		s = open.take();
 
@@ -50,7 +53,11 @@ int main(void)
 			continue;
 		}
 
+		expanded += 1;
 		closed.add(s);
+		cout << "--------------------" << endl;
+		cout << "Expanding: " << endl;
+		s->print(cout);
 
 		if (seen.find(s->hash()) != seen.end()) {
 			cerr << "Duplicate hash: " << endl;
@@ -64,12 +71,19 @@ int main(void)
 		vector<const State *> *children = s->expand();
 		vector<const State *>::iterator iter;
 
-		for (iter = children->begin(); iter != children->end(); iter++)
+		for (iter = children->begin();
+		     iter != children->end();
+		     iter++) {
 			open.add(*iter);
+			cout << endl;
+			(*iter)->print(cout);
+		}
 		delete children;
 	}
 
 	closed.delete_all_states();
+
+	cout << "Expanded " << expanded << endl;
 
 	return EXIT_SUCCESS;
 }

@@ -37,16 +37,25 @@ vector<const State *> *AStar::search(const State *init)
 			continue;
 		}
 
+		cout << "Expanding:" << endl;
+		s->print(cout);
+		cout << endl;
+
 		closed.add(s);
 
 		if (s->is_goal()) {
 			path = s->get_path();
+			cout << "PATH" << endl;
 			break;
 		}
 
 		vector<const State *> *children = expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			open.add(children->at(i));
+			cout << "Generating:" << endl;
+			children->at(i)->print(cout);
+			cout << endl;
+
 		}
 		delete children;
 	}

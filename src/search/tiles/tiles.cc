@@ -36,6 +36,19 @@ Tiles::Tiles(istream &in)
 	in >> width;
 	in >> height;
 
+	// Comupte crazy Korf table.
+	ones.resize(pow(2, width * height - 1) + 1);
+	for (unsigned int i = 1; i <= pow(2, width * height - 1); i += 1) {
+		unsigned int bits = 0;
+		unsigned int j = i;
+
+		while (j) {
+			bits += j & 0x1;
+			j >>= 1;
+		}
+		ones[i] = bits;
+	}
+
 	in >> buff;
 	assert(strcmp(buff, "starting") == 0);
 	in >> buff;
@@ -72,6 +85,10 @@ Tiles::Tiles(istream &in)
 	cout << endl;
 }
 
+const vector<unsigned int> *Tiles::get_ones() const
+{
+	return &ones;
+}
 
 /**
  * Create an arbitrary puzzle.  You can't use the starting state of
