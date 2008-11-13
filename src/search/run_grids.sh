@@ -21,7 +21,7 @@ MOVES="Four-way"
 USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar"
 USES_WEIGHT="dynpsdd"
 USES_NBLOCKS="psdd dynpsdd pbnf safepbnf"
-USES_MIN_EXPANSIONS="safepbnf"
+USES_MIN_EXPANSIONS="safepbnf pbnf"
 
 if [ "$#" -eq 0 ]
 then   # Script needs at least one command-line argument.
