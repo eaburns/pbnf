@@ -11,16 +11,17 @@ ALGORITHM=""
 
 # constants
 RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
-GRID_SEARCH="./search.bin"
+GRID_SEARCH="./grid_search.bin"
 DATA_ROOT="/home/rai/group/data/grid_instances"
 RUNS_ROOT="data"
 OBSTACLES="uniform"
 COSTS="Unit"
 MOVES="Four-way"
 
-USES_THREADS="kbfs pastar psdd dynpsdd pbnf multiastar"
+USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf"
+USES_MIN_EXPANSIONS="safepbnf"
 
 if [ "$#" -eq 0 ]
 then   # Script needs at least one command-line argument.
@@ -32,6 +33,7 @@ then   # Script needs at least one command-line argument.
 [-p <prob>] \n        \
 [-t <threads>] \
 [-w <weight>] \
+[-m <min_expansions>] \
 <algorithm>"
     exit 1
 fi  
@@ -39,13 +41,14 @@ fi
 #
 # Parse arugments
 #
-set -- `getopt "d:n:p:t:w:" "$@"`
+set -- `getopt "d:m:n:p:t:w:" "$@"`
 while [ ! -z "$1" ]
 do
     case "$1" in
 	-a) ALGORITHM=$2 ; shift ;;
 	-d) WIDTH=$(echo $2 | cut -dx -f1) ;
 	    HEIGHT=$(echo $2 | cut -dx -f2) ;;
+	-m) MIN_EXPANSIONS=$2 ; shift ;;
 	-n) NBLOCKS=$2 ; shift ;;
 	-p) PROB=$2 ; shift ;;
 	-t) THREADS=$2 ; shift ;;
@@ -108,6 +111,11 @@ function run_file ()
     ARGS+="type=run "
     ARGS+="alg=$ALGORITHM "
 
+    if alg_on_list $USES_MIN_EXPANSIONS
+    then
+	ARGS+="min-expansions=$MIN_EXPANSIONS "
+    fi
+
     if alg_on_list $USES_THREADS
     then
 	ARGS+="threads=$THREADS "
@@ -143,6 +151,11 @@ function full_algo_name ()
 {
     FULL_NAME="$1"
 
+    if alg_on_list $USES_MIN_EXPANSIONS
+    then
+	FULL_NAME+="-$MIN_EXPANSIONS"
+    fi
+	
     if alg_on_list $USES_THREADS
     then
 	FULL_NAME+="-$THREADS"
@@ -219,6 +232,11 @@ do
 	echo -e "#pair  \"wall start time\"\t\"NULL\""
 	echo -e "#pair  \"machine id\"\t\"$(hostname -f)-$(uname -m)-$(uname -s)-$(uname -r)\""
 	echo -e "#pair  \"alg\"\t\"$ALGORITHM\""
+
+	if alg_on_list $USES_MIN_EXPANSIONS
+	then
+	    echo -e "#.pair  \"min-expansions\"\t\"$MIN_EXPANSIONS\""
+	fi
 
 	if alg_on_list $USES_THREADS
 	then
