@@ -6,6 +6,7 @@
 
 BASE=$1
 
+CHECKED=0
 for FILE in `ls $1`
 do
     test -d $BASE/$FILE && {
@@ -13,6 +14,7 @@ do
     } || {
 	if ! (echo $FILE | grep KEY >& /dev/null)
 	then
+	    let CHECKED=$CHECKED+1
 	    if ! (cat $BASE/$FILE | grep "#end" >& /dev/null)
 	    then
 		echo "Incomplete: $BASE/$FILE"
@@ -20,3 +22,5 @@ do
 	fi
     }
 done
+
+echo "Checked $CHECKED files."
