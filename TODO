@@ -12,7 +12,6 @@
 - (Ethan) Find good parameters for PSDD/PBNF
 
 - (Ethan) Finish Sliding tiles
-   - implement manhattan distance
    - implement projection
 
 - (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
