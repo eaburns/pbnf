@@ -27,7 +27,8 @@ using namespace PBNF;
 
 class PBNFSearch : public Search {
 public:
-	PBNFSearch(unsigned int n_threads);
+	PBNFSearch(unsigned int n_threads, unsigned int min_expansions,
+		   bool detect_livelocks);
 
 	virtual ~PBNFSearch(void);
 
@@ -55,6 +56,8 @@ private:
 	pthread_mutex_t path_mutex;
 	vector<const State *> *path;
 	float bound;
+	bool detect_livelocks;
+	unsigned int min_expansions;
 };
 
 #endif	/* !_PBNF_SEARCH_H_ */

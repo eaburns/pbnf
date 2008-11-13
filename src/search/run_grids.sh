@@ -161,6 +161,29 @@ function full_algo_name ()
     echo $FULL_NAME
 }
 
+#
+# Sleep if there are users on the machine.
+#
+function wait_for_free_machine ()
+{
+    PRINTED=0
+    USERS=$(w -h | grep -v ${USER} | wc -l)
+    while [[ $USERS -gt 0 ]]
+    do
+	if [[ $PRINTED -eq 0 ]]
+	then
+	    PRINTED=1
+	    echo "Sleeping because the machine is in use"
+	fi
+	sleep 1
+	USERS=$(w -h | grep -v ${USER} | wc -l)
+    done
+
+    if [[ $PRINTED -eq 1 ]]
+    then
+	echo "Resuming"
+    fi
+}
 
 #
 # Run all of the given instances
@@ -185,6 +208,8 @@ do
     echo "Instance: $INSTANCE"
     echo "Output: $OUT"
     echo
+
+    wait_for_free_machine
 
     #
     # Header

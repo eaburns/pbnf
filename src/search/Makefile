@@ -13,6 +13,7 @@ FLAGS=-g -Wall -pipe $(PROF_FLAGS)
 #FLAGS+=-DENABLE_IMAGES
 
 SRC= \
+	get_search.cc \
 	state.cc \
 	search_domain.cc \
 	open_list.cc \

@@ -34,7 +34,7 @@ namespace PBNF {
 
 		~NBlockGraph();
 
-		NBlock *next_nblock(NBlock *finished);
+		NBlock *next_nblock(NBlock *finished, bool check_scope = true);
 		NBlock *get_nblock(unsigned int hash);
 		float next_nblock_f_value(void);
 		void print(ostream &o);

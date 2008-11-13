@@ -36,7 +36,7 @@ void PBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		n = graph->next_nblock(n);
+		n = graph->next_nblock(n, search->detect_livelocks);
 		if (n) {
 			expansions = 0;
 			path = search_nblock(n);
@@ -106,20 +106,22 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
  */
 bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
-	const unsigned int MIN_EXPANSIONS = 10;
 	bool ret;
 	double cur, scope, free;
 
-	if (expansions < MIN_EXPANSIONS)
+	if (expansions < search->min_expansions)
 		return false;
 
-	scope = graph->best_in_scope(n);
+	if (search->detect_livelocks)
+		scope = graph->best_in_scope(n);
+	else
+		scope = INFINITY;
 	free = graph->next_nblock_f_value();
 	cur = n->open.peek()->get_f();
 
-	ret = cur < free || cur < scope;
+	ret = free < cur || scope < cur;
 
-	if (!ret)
+	if (!ret && search->detect_livelocks)
 		graph->wont_release(n);
 	return ret;
 }
@@ -128,11 +130,15 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 /************************************************************/
 
 
-PBNFSearch::PBNFSearch(unsigned int n_threads)
+PBNFSearch::PBNFSearch(unsigned int n_threads,
+		       unsigned int min_expansions,
+		       bool detect_livelocks)
 	: n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
-	  bound(INFINITY)
+	  bound(INFINITY),
+	  detect_livelocks(detect_livelocks),
+	  min_expansions(min_expansions)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
