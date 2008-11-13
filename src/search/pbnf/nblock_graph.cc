@@ -112,7 +112,7 @@ NBlockGraph::~NBlockGraph()
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope = true)
+NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 {
 	NBlock *n = NULL;
 	NBlock *best_scope = NULL;
