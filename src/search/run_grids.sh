@@ -238,7 +238,7 @@ do
 
 	if alg_on_list $USES_MIN_EXPANSIONS
 	then
-	    echo -e "#.pair  \"min-expansions\"\t\"$MIN_EXPANSIONS\""
+	    echo -e "#pair  \"min-expansions\"\t\"$MIN_EXPANSIONS\""
 	fi
 
 	if alg_on_list $USES_THREADS
