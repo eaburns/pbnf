@@ -287,6 +287,7 @@ float Tiles::ManhattanDist::compute(const State *state) const
 		const TilesState *ptile =
 			dynamic_cast<const TilesState *>(p);
 		ret = compute_incr(s, ptile);
+		assert(ret == compute_full(s));
 	} else
 		ret = compute_full(s);
 
@@ -303,8 +304,9 @@ float Tiles::ManhattanDist::compute_full(const TilesState *s) const
 	unsigned int dist = 0;
 	const vector<unsigned int> *tiles = s->get_tiles();
 
-	for (unsigned int i = 1; i < tiles->size(); i += 1)
-		dist += lookup_dist(tiles->at(i), i);
+	for (unsigned int i = 0; i < tiles->size(); i += 1)
+		if (tiles->at(i) != 0)
+			dist += lookup_dist(tiles->at(i), i);
 
 	return dist;
 }
