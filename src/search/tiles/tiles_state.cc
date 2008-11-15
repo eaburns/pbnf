@@ -53,9 +53,6 @@ TilesState::TilesState(SearchDomain *d, const State *parent, float g,
 	  tiles(tiles),
 	  blank(blank)
 {
-	const Tiles::ManhattanDist *mh =
-		dynamic_cast<const Tiles::ManhattanDist *>(domain->get_heuristic());
-	mh == mh;
 	assert(tiles[blank] == 0);
 	this->h = domain->get_heuristic()->compute(this);
 	assert(this->h == 0 ? is_goal() : 1);
