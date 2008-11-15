@@ -7,7 +7,7 @@ do
     do
 	for (( threads=1; threads <= 15; threads++ ))
 	do
-	    ./run_grids.sh pbnf \
+	    ./run_grids.sh safepbnf \
 		-m $min \
 		-t $threads \
 		-n $nblocks
