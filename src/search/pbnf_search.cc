@@ -61,10 +61,15 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 
 	while (!open->empty() && !should_switch(n)) {
 		const State *s = open->take();
-		const State *dup = closed->lookup(s);
 
-		if (s->get_f() >= search->bound
-		    || (dup && dup->get_f() <= s->get_f())) {
+		if (s->get_f() >= search->bound) {
+			delete s;
+			open->delete_all_states();
+			break;
+		}
+
+		const State *dup = closed->lookup(s);
+		if (dup && dup->get_f() <= s->get_f()) {
 			delete s;
 			continue;
 		}
