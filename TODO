@@ -32,6 +32,8 @@
 
 - trylock
 
+- colored grid per-thread colors
+
 ------------------------------------------------------------
 
 - (Ethan) Get a benchmark for speedup by running multiple A* searches
