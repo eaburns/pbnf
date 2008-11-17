@@ -1,8 +1,3 @@
-- (Ethan) Get a benchmark for speedup by running multiple A* searches
-   in seperate threads.  This should show the max speed up of the
-   comupter without communication. (will help figure out why 4threads
-   is our limit).
-
 - (Seth) Checkout PRA*
 
 - (Ethan) gprof
@@ -57,3 +52,8 @@
 - (Seth) Implement parallel A*
 
 - (Ethan) Look into using Wheeler's database code
+
+- (Ethan) Get a benchmark for speedup by running multiple A* searches
+   in seperate threads.  This should show the max speed up of the
+   comupter without communication. (will help figure out why 4threads
+   is our limit).
