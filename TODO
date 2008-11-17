@@ -1,9 +1,4 @@
-- (Ethan) Get a benchmark for speedup by running multiple A* searches
-   in seperate threads.  This should show the max speed up of the
-   comupter without communication. (will help figure out why 4threads
-   is our limit).
-
-- (Seth) Checkout PRA*
+- (Seth) Check out PRA*
 
 - (Ethan) gprof
 
@@ -21,8 +16,6 @@
    - Look at Kumar's lock-free Prio-queue
 
 - (Seth) Implement Parallel Window Search
-   
-- (Seth) Write scripts for DB input/output
 
 - Implement 8-way movement in gridworld (need real value costs,
    sqrt(2) diagonals)
@@ -32,7 +25,23 @@
 
 - (Ethan) Look into possible contention on LAMA globals
 
+- plot vs. A*
+
+- only first thread sleeps on better non-free nblock
+    - or maybe no one sleeps?
+
+- trylock
+
 ------------------------------------------------------------
+
+- (Ethan) Get a benchmark for speedup by running multiple A* searches
+   in seperate threads.  This should show the max speed up of the
+   comupter without communication. (will help figure out why 4threads
+   is our limit).
+   
+- (Seth/Ethan) Write scripts for DB input/output
+
+- (Seth) update algorithm description to reflect livelock fix
 
 - Find a name for our new search: PBNF (Parallel Best Nblock First)
 
