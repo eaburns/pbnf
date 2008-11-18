@@ -179,8 +179,16 @@ function full_algo_name ()
 #
 function wait_for_free_machine ()
 {
+    while `which true`
+    do
+
     PRINTED=0
     USERS=$(w -h | grep -v ${USER} | wc -l)
+    if [[ $USERS -eq 0 ]]
+    then
+        return
+    fi
+
     while [[ $USERS -gt 0 ]]
     do
 	if [[ $PRINTED -eq 0 ]]
@@ -188,13 +196,31 @@ function wait_for_free_machine ()
 	    PRINTED=1
 	    echo "Sleeping because the machine is in use"
 	fi
-	sleep 1
+	sleep 5
 	USERS=$(w -h | grep -v ${USER} | wc -l)
     done
 
+    PRINTED_LOAD=0
+    INT_LOAD=$(w | head -n 1 | sed -n "s/.* load average: \([0-9.]*\),.*/\1 * 100/p" | bc | cut -d. -f 1)
+    LOAD=$(w | head -n 1 | sed -n "s/.* load average: \([0-9.]*\),.*/\1/p")
+    echo $LOAD
+    while [[ $INT_LOAD -gt 5 ]]
+    do
+	if [[ $PRINTED_LOAD -eq 0 ]]
+	then
+	    PRINTED_LOAD=1
+	    echo "Sleeping because the machine load is $LOAD"
+	fi
+        sleep 30
+        INT_LOAD=$(w | head -n 1 | sed -n "s/.* load average: \([0-9.]*\),.*/\1 * 100/p" | bc | cut -d. -f 1)
+    done
+
+    done
+
+    LOAD=$(w | head -n 1 | sed -n "s/.* load average: \([0-9.]*\),.*/\1/p")
     if [[ $PRINTED -eq 1 ]]
     then
-	echo "Resuming"
+	echo "Resuming with load $LOAD"
     fi
 }
 
