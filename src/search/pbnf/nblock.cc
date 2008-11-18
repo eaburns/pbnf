@@ -65,6 +65,7 @@ void NBlock::print(ostream &o)
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;
+	o << "\topen: " << (open.empty() ? "false" : "true") << endl;
 	o << "\tbest f(n): " << best_f << endl;
 
 	o << "\tinterferes with: ";

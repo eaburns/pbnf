@@ -45,7 +45,7 @@ Tiles::Tiles(istream &in)
 	in >> height;
 
 	// Compute crazy Korf table.
-	ones.resize((int) pow(2, width * height - 1) + 1);
+	ones.resize(pow(2, width * height - 1) + 1);
 	for (unsigned int i = 1; i <= pow(2, width * height - 1); i += 1) {
 		unsigned int bits = 0;
 		unsigned int j = i;
@@ -102,7 +102,7 @@ const vector<unsigned int> *Tiles::get_ones() const
  * this, it is just really for testing purposes.
  */
 Tiles::Tiles(unsigned int width, unsigned int height)
-	: width(width), height(height) {}
+	: width(width), height(height), initial(NULL) {}
 
 
 /**
@@ -367,9 +367,17 @@ Tiles::OneTileProject::~OneTileProject(void)
 unsigned int Tiles::OneTileProject::project(const State *s) const
 {
 	const TilesState *ts = dynamic_cast<const TilesState *>(s);
+	const vector<unsigned int> *tiles = ts->get_tiles();
+	unsigned int size = tiles->size();
+	unsigned int blank;
+	unsigned int one;
 
-	unsigned int blank = ts->get_tiles()->at(0);
-	unsigned int one = ts->get_tiles()->at(1);
+	for (unsigned int i = 0; i < size; i += 1) {
+		if (tiles->at(i) == 0)
+			blank = i;
+		else if (tiles->at(i) == 1)
+			one = i;
+	}
 
 	assert(blank != one);
 
@@ -389,7 +397,7 @@ vector<unsigned int> Tiles::OneTileProject::get_neighbors(unsigned int b) const
 	unsigned int col = blank % width;
 	unsigned int row = blank / width;
 
- 	if (col > 0) {
+	if (col > 0) {
 		unsigned int i = blank - 1;
 		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
 			if (i == j)

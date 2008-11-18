@@ -154,7 +154,8 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 			pthread_cond_broadcast(&cond);
 		}
 
-		if (scope_f < free_list.best_f())
+		if (scope_f < free_list.best_f()
+		    && (!best_scope || best_scope->sigma > 0))
 			best_scope->waitingfor.insert(pthread_self());
 
 		update_scope_sigmas(finished->id, -1);
@@ -168,6 +169,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 
 		if (free_list.empty() && num_sigma_zero == num_nblocks) {
 			__set_done();
+//			__print(cerr);
 			goto out;
 		}
 
@@ -187,6 +189,13 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
 	update_scope_sigmas(n->id, 1);
+
+/*
+	for (set<NBlock *>::iterator iter = n->interferes.begin();
+	     iter != n->interferes.end();
+	     iter++)
+		assert((*iter)->sigma > 0);
+*/
 out:
 	pthread_mutex_unlock(&mutex);
 
