@@ -78,6 +78,7 @@ all: grid_search tiles_search \
      pbnf_nblock_graph_test \
      tiles_hash_test \
      tiles_read_test \
+     one_tile_project_test \
      atomic_float_test
 
 grid_search: $(OBJ) grid_search.cc
@@ -112,6 +113,10 @@ atomic_float_test: $(OBJ) util/atomic_float_test.o
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o atomic_float_test \
 	$(OBJ) util/atomic_float_test.o
 
+one_tile_project_test: $(OBJ) tiles/one_tile_project_test.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o one_tile_project_test \
+	$(OBJ) tiles/one_tile_project_test.o
+
 depend:
 	rm -f .depend
 	touch .depend
@@ -129,5 +134,6 @@ clean:
 	rm -f tiles_hash_test
 	rm -f tiles_read_test
 	rm -f atomic_float_test
+	rm -f one_tile_project_test
 
 -include .depend

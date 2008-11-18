@@ -28,7 +28,7 @@ public:
 
 	virtual SearchDomain *get_domain(void) const;
 
-	virtual int hash(void) const = 0;
+	virtual uint64_t hash(void) const = 0;
 	virtual bool is_goal(void) const = 0;
 	virtual State *clone(void) const = 0;
 	virtual void print(ostream &o) const = 0;

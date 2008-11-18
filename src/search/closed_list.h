@@ -28,7 +28,7 @@ public:
 	void delete_all_states(void);
 
 private:
-	map<int, const State *> m;
+	map<uint64_t, const State *> m;
 };
 
 #endif	/* !_CLOSED_LIST_H_ */
