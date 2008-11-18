@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <math.h>
+#include <errno.h>
 
 #include <iostream>
 #include <list>
@@ -117,7 +118,14 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 	NBlock *n = NULL;
 	NBlock *best_scope = NULL;
 
-	pthread_mutex_lock(&mutex);
+	// Take the lock, but if someone else already has it, just
+	// keep going.
+	if (finished && !finished->open.empty()) {
+		if (pthread_mutex_trylock(&mutex) == EBUSY)
+			return finished;
+	} else
+		pthread_mutex_lock(&mutex);
+
 
 	if (finished) {		// Release an NBlock
 		if (check_scope)
@@ -210,7 +218,14 @@ double NBlockGraph::best_in_scope(NBlock *b)
 {
 	double ret = INFINITY;
 
-	pthread_mutex_lock(&mutex);
+	// if this is locked, just say infinity and don't bother
+	// waiting.
+	if (!b->open.empty()) {
+		if (pthread_mutex_trylock(&mutex) == EBUSY)
+			return INFINITY;
+	} else
+		pthread_mutex_lock(&mutex);
+
 	NBlock *s = __best_in_scope(b);
 	if (s)
 		ret = s->open.get_best_f();
