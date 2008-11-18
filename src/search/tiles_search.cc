@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
 		ratio = 1.0;
 	int denom = g.get_height() / ((int) ratio * threads);
 	unsigned int nblocks = g.get_height() / denom;
-	GridWorld::RowModProject project(&g, nblocks);
-	g.set_projection(&project);
 */
+	Tiles::OneTileProject project(&g);
+	g.set_projection(&project);
 
 //	HZero hzero(&g);
 //	g.set_heuristic(&hzero);

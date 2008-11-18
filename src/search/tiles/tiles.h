@@ -11,11 +11,18 @@
 #if !defined(_TILES_H_)
 #define _TILES_H_
 
+#include <map>
+#include <utility>
+#include <vector>
+#include <iostream>
+
 #include "../search_domain.h"
 #include "../state.h"
 #include "../projection.h"
 #include "../heuristic.h"
 #include "tiles_state.h"
+
+using namespace std;
 
 class Tiles : public SearchDomain {
 public:
@@ -47,17 +54,34 @@ public:
 		vector<unsigned int> table;
 	};
 
-/*
-	class BlankTilesProject : public Projection {
+	/* only look at 1 tile and the blank. */
+	class OneTileProject : public Projection {
 	public:
-		BlankTilesProject(const SearchDomain *d, unsigned int blanks);
-		virtual ~BlankTilesProject(void);
+		OneTileProject(const SearchDomain *d);
+		virtual ~OneTileProject(void);
 		virtual unsigned int project(const State *s) const;
 		virtual unsigned int get_num_nblocks(void) const;
 		virtual vector<unsigned int> get_successors(unsigned int b) const;
 		virtual vector<unsigned int> get_predecessors(unsigned int b) const;
+		void print(unsigned int b, ostream &o) const;
+	private:
+		vector<unsigned int> get_neighbors(unsigned int b) const;
+		/* 2D vector, the first index is the position of the
+		 * blank tile, the second index is the position of
+		 * the 1 tile.  The value stored at [i][j] is the
+		 * projection ID for the NBlock with the blank at i
+		 * and 1 at j. */
+		vector<vector<unsigned int> > proj;
+
+		/* Mapping from NBlock IDs to a pair containing the
+		 * position of the blank and the position of the 1
+		 * tile. */
+		vector<pair<unsigned int, unsigned int> > unproj;
+
+		unsigned int nnblocks;
+
+		const Tiles* tiles;
 	};
-*/
 
 	bool is_goal(const State *s) const;
 
@@ -75,6 +99,7 @@ private:
 	/* Korf's crazy table of the number of ones in the binary
 	 * representation on an integer. */
 	vector<unsigned int> ones;
+
 };
 
 #endif	/* !_TILES_H_ */

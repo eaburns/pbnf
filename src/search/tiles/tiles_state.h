@@ -28,7 +28,7 @@ public:
 		   unsigned int blank);
 
 	virtual bool is_goal(void) const;
-	virtual int hash(void) const;
+	virtual uint64_t hash(void) const;
 	virtual State *clone(void) const;
 	virtual void print(ostream &o) const;
 	virtual bool equals(const State *s) const;
@@ -39,7 +39,7 @@ private:
 	void compute_hash(void);
 	vector<unsigned int> tiles;
 	unsigned int blank;
-	unsigned int hash_val;
+	uint64_t hash_val;
 };
 
 #endif	/* !_TILES_STATE_H_ */

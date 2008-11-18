@@ -47,7 +47,7 @@ bool GridState::is_goal(void) const
  * Get the hash value of this state.
  * \return A unique hash value for this state.
  */
-int GridState::hash(void) const
+uint64_t GridState::hash(void) const
 {
 	const GridWorld *d;
 

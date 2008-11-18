@@ -8,6 +8,8 @@
  * \date 2008-10-09
  */
 
+#include <assert.h>
+
 #include <map>
 
 #include "state.h"
@@ -29,17 +31,16 @@ void ClosedList::add(const State *s)
  */
 const State *ClosedList::lookup(const State *c)
 {
-	map<int, const State *>::const_iterator iter;
+	map<uint64_t, const State *>::const_iterator iter;
+	const State *s;
 
 	iter = m.find(c->hash());
 
 	if (iter == m.end())
 		return NULL;
 
-	if (!iter->second->equals(c)) {
-		cerr << "Warning, ClosedList lookup of state "
-		     << "resulted in a different state." << endl;
-	}
+	s = iter->second;
+	assert(s->equals(c));
 
 	return iter->second;
 }
@@ -49,7 +50,7 @@ const State *ClosedList::lookup(const State *c)
  */
 void ClosedList::delete_all_states(void)
 {
-	map<int, const State *>::iterator iter;
+	map<uint64_t, const State *>::iterator iter;
 
 	for (iter = m.begin(); iter != m.end(); iter++)
 		delete iter->second;

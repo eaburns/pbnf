@@ -15,6 +15,8 @@
 
 #include <vector>
 #include <iostream>
+#include <map>
+#include <utility>
 
 #include "tiles.h"
 #include "tiles_state.h"
@@ -43,7 +45,7 @@ Tiles::Tiles(istream &in)
 	in >> height;
 
 	// Compute crazy Korf table.
-	ones.resize(pow(2, width * height - 1) + 1);
+	ones.resize((int) pow(2, width * height - 1) + 1);
 	for (unsigned int i = 1; i <= pow(2, width * height - 1); i += 1) {
 		unsigned int bits = 0;
 		unsigned int j = i;
@@ -100,7 +102,7 @@ const vector<unsigned int> *Tiles::get_ones() const
  * this, it is just really for testing purposes.
  */
 Tiles::Tiles(unsigned int width, unsigned int height)
-	: width(width), height(height), initial(NULL) {}
+	: width(width), height(height) {}
 
 
 /**
@@ -225,6 +227,8 @@ unsigned int Tiles::get_height(void) const
 	return height;
 }
 
+/**********************************************************************/
+
 void Tiles::ManhattanDist::init(const SearchDomain *d)
 {
 	const Tiles *t = dynamic_cast<const Tiles*>(d);
@@ -327,4 +331,117 @@ float Tiles::ManhattanDist::compute_incr(const TilesState *s,
 			    - lookup_dist(tile, new_b));
 	assert(ret >= 0.0);
 	return ret;
+}
+
+/**********************************************************************/
+
+Tiles::OneTileProject::OneTileProject(const SearchDomain *d)
+{
+	tiles = dynamic_cast<const Tiles *>(d);
+	unsigned int size = tiles->width * tiles->height;
+	unsigned int id = 0;
+
+	nnblocks = size * (size - 1);
+
+	unproj.resize(nnblocks);
+	proj.resize(size);
+	for (unsigned int i = 0; i < size; i += 1) {
+		proj[i].resize(size);
+		for (unsigned int j = 0; j < size; j += 1) {
+			if (i == j)
+				continue;
+
+			proj[i][j] = id;
+//			cout << "proj[" << i << "][" << j << "]=" << id << endl;
+			unproj[id] = pair<unsigned int, unsigned int>(i, j);
+			id += 1;
+		}
+	}
+}
+
+Tiles::OneTileProject::~OneTileProject(void)
+{
+	// nothing
+}
+
+unsigned int Tiles::OneTileProject::project(const State *s) const
+{
+	const TilesState *ts = dynamic_cast<const TilesState *>(s);
+
+	unsigned int blank = ts->get_tiles()->at(0);
+	unsigned int one = ts->get_tiles()->at(1);
+
+	assert(blank != one);
+
+	return proj[blank][one];
+}
+
+unsigned int Tiles::OneTileProject::get_num_nblocks(void) const
+{
+	return nnblocks;
+}
+
+vector<unsigned int> Tiles::OneTileProject::get_neighbors(unsigned int b) const
+{
+	vector<unsigned int> ret;
+	unsigned int blank = unproj[b].first;
+	unsigned int width = tiles->width;
+	unsigned int col = blank % width;
+	unsigned int row = blank / width;
+
+ 	if (col > 0) {
+		unsigned int i = blank - 1;
+		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
+			if (i == j)
+				continue;
+			ret.push_back(proj[i][j]);
+		}
+	}
+	if (col < width - 1) {
+		unsigned int i = blank + 1;
+		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
+			if (i == j)
+				continue;
+			ret.push_back(proj[i][j]);
+		}
+	}
+	if (row > 0) {
+		unsigned int i = blank - width;
+		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
+			if (i == j)
+				continue;
+			ret.push_back(proj[i][j]);
+		}
+	}
+	if (row < tiles->height - 1) {
+		unsigned int i = blank + width;
+		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
+			if (i == j)
+				continue;
+			ret.push_back(proj[i][j]);
+		}
+	}
+
+	return ret;
+}
+
+vector<unsigned int> Tiles::OneTileProject::get_successors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+vector<unsigned int> Tiles::OneTileProject::get_predecessors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+/**
+ * Print the projection with the given ID, b.
+ */
+void Tiles::OneTileProject::print(unsigned int b, ostream &o) const
+{
+	o << b << ": "
+	  << "blank=" << unproj[b].first
+	  << ", one=" << unproj[b].second
+	  << endl;
 }
