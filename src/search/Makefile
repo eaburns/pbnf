@@ -124,7 +124,7 @@ depend:
 	rm -f .depend.bak
 
 clean:
-	find . -name \*.o -maxdepth 2 -exec rm -f '{}' \;
+	find . -name \*.o -exec rm -f '{}' \;
 	rm -f grid_search
 	rm -f tiles_search
 	rm -f thread_test
