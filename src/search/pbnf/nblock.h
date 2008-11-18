@@ -46,7 +46,10 @@ namespace PBNF {
 		ClosedList closed;
 		PQOpenList open;
 
-		set<pthread_t> waitingfor;
+		unsigned int sigma_hot;
+		int hot;
+		int inuse;
+
 		set<NBlock *> interferes;
 		set<NBlock *> preds;
 		set<NBlock *> succs;
