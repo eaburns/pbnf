@@ -1,31 +1,38 @@
 - (Seth) Check out PRA*
 
-- (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
+- (Ethan/Seth) track and graph # nodes gen/exp
+   
+- (Ethan) trylock
+
+- (Ethan) improve safe PBNF
+
+- (Ethan/Seth) test on other grid world boards
    
 - (Seth) A* with lock-free datastructures -- maybe this will be great
    - Look at tfogal's lock-free hashtable
    - Look at Kumar's lock-free Prio-queue
 
-- (Seth) Implement Parallel Window Search
+- (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
 
 - (Ethan) Implement 8-way movement in gridworld (need real value costs,
    sqrt(2) diagonals)
 
 - plot vs. A*
 
-- only first thread sleeps on better non-free nblock
+- (Ethan) only first thread sleeps on better non-free nblock
     - or maybe no one sleeps?
 
 - (Ethan) gprof
 
-- colored grid per-thread colors
+- (Ethan) colored grid per-thread colors
    
-- Figure out if we want PSDD to use uniform-cost search or just BFS
-   -- we only care about unit costs for now
-
 - (Ethan) Look into possible contention on LAMA globals
 
 ------------------------------------------------------------
+
+- (Ethan) gprof
+
+- (Ethan/Seth) Get graphs for Wheeler
 
 - (Ethan) Get a benchmark for speedup by running multiple A* searches
    in seperate threads.  This should show the max speed up of the
@@ -67,3 +74,5 @@
 
 - (Ethan) Finish Sliding tiles
    - implement projection
+   
+- (Ethan) Find good parameters for PSDD/PBNF
