@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for min in 5 15 30 50 80
+for min in 5 10 30 60 80
 do
     for nblocks in 1 5 10 15 20
     do
