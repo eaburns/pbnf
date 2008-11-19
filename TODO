@@ -2,8 +2,6 @@
 
 - (Ethan/Seth) track and graph # nodes gen/exp
    
-- (Ethan) trylock
-
 - (Ethan) improve safe PBNF
 
 - (Ethan/Seth) test on other grid world boards
@@ -76,3 +74,5 @@
    - implement projection
    
 - (Ethan) Find good parameters for PSDD/PBNF
+
+- (Ethan) trylock
