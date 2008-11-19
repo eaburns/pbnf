@@ -112,22 +112,27 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
-	double cur, scope, free;
 
 	if (expansions < search->min_expansions)
 		return false;
 
-	if (search->detect_livelocks)
-		scope = graph->best_in_scope(n);
-	else
-		scope = INFINITY;
-	free = graph->next_nblock_f_value();
-	cur = n->open.peek()->get_f();
+	double free = graph->next_nblock_f_value();
+	double cur = n->open.peek()->get_f();
 
-	ret = free < cur || scope < cur;
+	if (search->detect_livelocks) {
+		NBlock *best_scope = graph->best_in_scope(n);
+		double scope = best_scope->open.get_best_f();
 
-	if (!ret && search->detect_livelocks)
-		graph->wont_release(n);
+		ret = free < cur || scope < cur;
+		if (!ret)
+			graph->wont_release(n);
+		else if (scope < free)
+			graph->set_hot(best_scope);
+
+	} else {
+		ret = free < cur;
+	}
+
 	return ret;
 }
 

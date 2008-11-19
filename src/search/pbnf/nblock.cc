@@ -26,7 +26,10 @@ using namespace PBNF;
  */
 NBlock::NBlock(unsigned int id)
 	: id(id),
-	  sigma(0) {}
+	  sigma(0),
+	  sigma_hot(0),
+	  hot(false),
+	  inuse(false) {}
 
 
 /**
@@ -65,6 +68,9 @@ void NBlock::print(ostream &o)
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;
+	o << "\tsigma_hot: " << sigma_hot << endl;
+	o << "\thot: " << hot << endl;
+	o << "\tinuse: " << inuse << endl;
 	o << "\topen: " << (open.empty() ? "false" : "true") << endl;
 	o << "\tbest f(n): " << best_f << endl;
 

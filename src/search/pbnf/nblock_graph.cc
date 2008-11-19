@@ -116,7 +116,6 @@ NBlockGraph::~NBlockGraph()
 NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 {
 	NBlock *n = NULL;
-	NBlock *best_scope = NULL;
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
@@ -128,12 +127,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 
 
 	if (finished) {		// Release an NBlock
-		if (check_scope)
-			best_scope = __best_in_scope(finished);
-		double scope_f = INFINITY;
-		if (best_scope)
-			scope_f = best_scope->open.get_best_f();
-
 		if (finished->sigma != 0) {
 			cerr << "A proc had an NBlock with sigma != 0" << endl;
 			finished->print(cerr);
@@ -142,14 +135,14 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 		}
 		assert(finished->sigma == 0);
 
-		if (!free_list.empty() && !finished->open.empty()) {
-			// If there is not a free NBlock or an NBlock
-			// in the interference scope that is better
-			// than the one being freed, just search the
-			// previous one more.
+		if (!finished->open.empty()) {
 			double cur_f = finished->open.get_best_f();
-			double new_f = free_list.best_f();
-			if (cur_f <= new_f && cur_f < scope_f) {
+			double new_f;
+			if (free_list.empty())
+				new_f = INFINITY;
+			else
+				new_f = free_list.best_f();
+			if (cur_f <= new_f) {
 				n = finished;
 				goto out;
 			}
@@ -157,23 +150,12 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 
 		nblocks_assigned -= 1;
 
-		if (!finished->open.empty()) {
+		if (is_free(finished)) {
 			free_list.add(finished);
 			pthread_cond_broadcast(&cond);
 		}
-
-		if (scope_f < free_list.best_f()
-		    && (!best_scope || best_scope->sigma > 0))
-			best_scope->waitingfor.insert(pthread_self());
-
+		finished->inuse = false;
 		update_scope_sigmas(finished->id, -1);
-
-		// short-cut: if the best block in our scope was freed
-		// when we released our block, NULL-out the best_scope
-		// variable so we don't need to check the waitingfor
-		// set later.
-		if (best_scope && best_scope->waitingfor.empty())
-			best_scope = NULL;
 
 		if (free_list.empty() && num_sigma_zero == num_nblocks) {
 			__set_done();
@@ -183,10 +165,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 
 	}
 
-	while ((free_list.empty()
-		|| (best_scope && (best_scope->waitingfor.find(pthread_self())
-				   != best_scope->waitingfor.end())))
-	       && !done)
+	while (!done && free_list.empty())
 		pthread_cond_wait(&cond, &mutex);
 
 	if (done)
@@ -196,13 +175,14 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
 	nblocks_assigned += 1;
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
+	n->inuse = true;
 	update_scope_sigmas(n->id, 1);
 
 /*
-	for (set<NBlock *>::iterator iter = n->interferes.begin();
-	     iter != n->interferes.end();
-	     iter++)
-		assert((*iter)->sigma > 0);
+  for (set<NBlock *>::iterator iter = n->interferes.begin();
+  iter != n->interferes.end();
+  iter++)
+  assert((*iter)->sigma > 0);
 */
 out:
 	pthread_mutex_unlock(&mutex);
@@ -210,38 +190,17 @@ out:
 	return n;
 }
 
-/**
- * Get the cost of the best NBlock that is interfered with, if there
- * is one.
- */
-double NBlockGraph::best_in_scope(NBlock *b)
-{
-	double ret = INFINITY;
-
-	// if this is locked, just say infinity and don't bother
-	// waiting.
-	if (!b->open.empty()) {
-		if (pthread_mutex_trylock(&mutex) == EBUSY)
-			return INFINITY;
-	} else
-		pthread_mutex_lock(&mutex);
-
-	NBlock *s = __best_in_scope(b);
-	if (s)
-		ret = s->open.get_best_f();
-	pthread_mutex_unlock(&mutex);
-
-	return ret;
-}
 
 /**
- * Get the best NBlock that is interfered with, if there is one.
+ * Get the best NBlock in the interference scope of b which is not free.
  */
-NBlock *NBlockGraph::__best_in_scope(NBlock *b)
+NBlock *NBlockGraph::best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
 	double best_f = INFINITY;
 	map<unsigned int, NBlock*>::iterator i;
+
+	pthread_mutex_lock(&mutex);
 
 	for (i = blocks.begin(); i != blocks.end(); i++) {
 		NBlock *b = i->second;
@@ -253,31 +212,9 @@ NBlock *NBlockGraph::__best_in_scope(NBlock *b)
 		}
 	}
 
-	return best_b;
-}
-
-/**
- * We won't release block b, so if there are processess waiting on it,
- * the wake them all up.
- */
-void NBlockGraph::wont_release(NBlock *b)
-{
-	set<NBlock *>::iterator iter;
-	bool wake = false;
-
-	pthread_mutex_lock(&mutex);
-
-	for (iter = b->interferes.begin();
-	     iter != b->interferes.end();
-	     iter++) {
-		if (!(*iter)->waitingfor.empty()) {
-			(*iter)->waitingfor.clear();
-			wake = true;
-		}
-	}
-
-	pthread_cond_broadcast(&cond);
 	pthread_mutex_unlock(&mutex);
+
+	return best_b;
 }
 
 /**
@@ -331,32 +268,6 @@ void NBlockGraph::print(ostream &o)
 }
 
 /**
- * Update the sigma value of a block, add it to the freelist if need
- * be, or remove it from the freelist.
- */
-void NBlockGraph::update_sigma(NBlock *yblk, int delta)
-{
-	if (yblk->sigma == 0) {
-		assert(delta > 0);
-		if (!yblk->open.empty())
-			free_list.remove(yblk);
-		num_sigma_zero -= 1;
-	}
-
-	yblk->sigma += delta;
-
-	if (yblk->sigma == 0) {
-		if (!yblk->open.empty()) {
-			free_list.add(yblk);
-			yblk->waitingfor.clear();
-			pthread_cond_broadcast(&cond);
-		}
-
-		num_sigma_zero += 1;
-	}
-}
-
-/**
  * Update the sigmas by delta for all of the predecessors of y and all
  * of the predecessors of the successors of y.
  */
@@ -378,7 +289,22 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	for (iter = blocks[y]->interferes.begin();
 	     iter != blocks[y]->interferes.end();
 	     iter++) {
-		update_sigma(*iter, delta);
+		if ((*iter)->sigma == 0) {
+			assert(delta > 0);
+			if (is_free(*iter))
+				free_list.remove(*iter);
+			num_sigma_zero -= 1;
+		}
+		(*iter)->sigma += delta;
+		if ((*iter)->sigma == 0) {
+			if ((*iter)->hot)
+				set_cold(*iter);
+			if (is_free(*iter)) {
+				free_list.add(*iter);
+				pthread_cond_broadcast(&cond);
+			}
+			num_sigma_zero += 1;
+		}
 	}
 }
 
@@ -412,5 +338,78 @@ void NBlockGraph::set_done(void)
 {
 	pthread_mutex_lock(&mutex);
 	__set_done();
+	pthread_mutex_unlock(&mutex);
+}
+
+/**
+ * Test if an NBlock is free.
+ */
+bool NBlockGraph::is_free(NBlock *b)
+{
+	return !b->inuse
+		&& b->sigma == 0
+		&& b->sigma_hot == 0
+		&& !b->open.empty();
+}
+
+/**
+ * Mark an NBlock as hot, we want this one.
+ */
+void NBlockGraph::set_hot(NBlock *b)
+{
+	set<NBlock*>::iterator i;
+
+	pthread_mutex_lock(&mutex);
+	if (!b->hot && b->sigma > 0) {
+		b->hot = true;
+
+		for (i = b->interferes.begin();
+		     i != b->interferes.end();
+		     i++) {
+			assert(b != *i);
+			if (is_free(*i))
+				free_list.remove(*i);
+			(*i)->sigma_hot += 1;
+		}
+	}
+	pthread_mutex_unlock(&mutex);
+}
+
+/**
+ * Mark an NBlock as cold.  The mutex must be held *before* this
+ * function is called.n
+ */
+void NBlockGraph::set_cold(NBlock *b)
+{
+	set<NBlock*>::iterator i;
+
+	b->hot = false;
+	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
+		assert(b != *i);
+		(*i)->sigma_hot -= 1;
+		if (is_free(*i)) {
+			free_list.add(*i);
+			pthread_cond_broadcast(&cond);
+		}
+	}
+}
+
+/**
+ * We won't release block b, so set all hot blocks in its interference
+ * scope back to cold.
+ */
+void NBlockGraph::wont_release(NBlock *b)
+{
+	set<NBlock *>::iterator iter;
+
+	pthread_mutex_lock(&mutex);
+
+	for (iter = b->interferes.begin();
+	     iter != b->interferes.end();
+	     iter++) {
+		if ((*iter)->hot)
+			set_cold(*iter);
+	}
+
 	pthread_mutex_unlock(&mutex);
 }
