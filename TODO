@@ -4,6 +4,8 @@
    
 - (Ethan) improve safe PBNF
 
+- Ensure that we always find optimal solutions over all our data
+
 - (Ethan/Seth) test on other grid world boards
    
 - (Seth) A* with lock-free datastructures -- maybe this will be great
