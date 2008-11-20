@@ -25,9 +25,7 @@ using namespace PSDD;
  */
 NBlock::NBlock(unsigned int id)
 	: id(id),
-	  sigma(0),
-	  cur_open(&open_a),
-	  next_open(&open_b) {}
+	  sigma(0) {}
 
 
 
@@ -36,25 +34,11 @@ NBlock::NBlock(unsigned int id)
  */
 NBlock::~NBlock(void)
 {
-	open_a.delete_all_states();
-	open_b.delete_all_states();
+	open[0].delete_all_states();
+	open[1].delete_all_states();
 	closed.delete_all_states();
 }
 
-/**
- * Swap the current and next open lists in this NBlock.
- */
-void NBlock::next_iteration(void)
-{
-	OpenList *tmp;
-
-	assert(cur_open->empty());
-	assert(sigma == 0);
-
-	tmp = cur_open;
-	cur_open = next_open;
-	next_open = tmp;
-}
 
 /**
  * Print an NBlock to the given stream.

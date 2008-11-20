@@ -31,6 +31,8 @@ namespace PSDD {
 
 	class NBlockGraph {
 	public:
+		enum layer { LAYERA = 0, LAYERB };
+
 		NBlockGraph(const Projection *p, const State *init);
 
 		~NBlockGraph();
@@ -41,6 +43,9 @@ namespace PSDD {
 
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
+
+		enum layer get_next_layer(void) const;
+		enum layer get_cur_layer(void) const;
 
 	private:
 		void __print(ostream &o);
@@ -57,7 +62,9 @@ namespace PSDD {
 		unsigned int num_sigma_zero;
 
 		/* list of free nblock numbers */
-		list<NBlock *> free_list;
+		list<NBlock *> free_list[2];
+		/* The current layer of the search */
+		enum layer layer;
 
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;

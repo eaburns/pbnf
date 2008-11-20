@@ -67,7 +67,7 @@ void PSDDSearch::PSDDThread::run(void)
 vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 {
 	vector<const State *> *path = NULL;
-	OpenList *cur_open = n->cur_open;
+	OpenList *cur_open = &n->open[graph->get_cur_layer()];
 	ClosedList *closed = &n->closed;
 
 	while (!cur_open->empty()) {
@@ -88,9 +88,12 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 
 		vector<const State *> *children = search->expand(s);
 		vector<const State *>::iterator iter;
-		for (iter = children->begin(); iter != children->end(); iter++) {
+		for (iter = children->begin();
+		     iter != children->end();
+		     iter++) {
 			unsigned int block = search->project->project(*iter);
-			OpenList *next_open = graph->get_nblock(block)->next_open;
+			NBlock *b = graph->get_nblock(block);
+			OpenList *next_open = &b->open[graph->get_next_layer()];
 
 			if ((*iter)->get_f() < search->bound)
 				next_open->add(*iter);

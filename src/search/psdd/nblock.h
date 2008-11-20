@@ -30,17 +30,12 @@ namespace PSDD {
 
 		~NBlock(void);
 
-		void next_iteration(void);
-
 		void print(ostream &s) const;
 
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		QueueOpenList open_a;
-		QueueOpenList open_b;
-		OpenList *cur_open;
-		OpenList *next_open;
+		QueueOpenList open[2];
 
 		set<NBlock *> interferes;
 		set<NBlock *> preds;
