@@ -32,7 +32,7 @@ public:
 		return fa > fb;
 	}
 
-	float get_value(const State *s) {
+	float get_value(const State *s) const {
 		return s->get_f();
 	}
 };

@@ -65,7 +65,6 @@ void NBlockFreeList::remove(NBlock *b)
 			return;
 		}
 	}
-	assert("false");
 }
 
 float NBlockFreeList::best_f(void)

@@ -1,4 +1,4 @@
-- (Ethan) Implement ``Best-first'' PSDD
+- (Ethan) Implement integer PQ for BFPSDD.
 
 - (Ethan) Create NBlocks lazily in PBNF and PSDD
 
@@ -96,3 +96,5 @@
 
 - (Ethan) Use a flag to denote the current layer in Breadth-first PSDD
    (instead of touching all NBlocks to switch layers).
+
+- (Ethan) Implement ``Best-first'' PSDD

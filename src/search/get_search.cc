@@ -21,6 +21,7 @@
 #include "ida_star.h"
 #include "kbfs.h"
 #include "psdd_search.h"
+#include "bfpsdd_search.h"
 #include "dynamic_bounded_psdd.h"
 #include "pbnf_search.h"
 #include "pastar.h"
@@ -55,6 +56,9 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "psdd-%u-%f", &threads, &ratio) == 2) {
 		return new PSDDSearch(threads);
 	} else if (argc > 1
+		   && sscanf(argv[1], "bfpsdd-%u-%f", &threads, &ratio) == 2) {
+		return new BFPSDDSearch(threads);
+	} else if (argc > 1
 		   && sscanf(argv[1], "dynpsdd-%u-%f-%f",
 			     &threads, &ratio, &weight) == 3) {
 		return new DynamicBoundedPSDD(threads, weight);
@@ -78,6 +82,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tpastar-<threads>" << endl
 		     << "\tpsdd-<threads>-<nblocks/thread>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks/thread>-<weight>" << endl
+		     << "\tbfpsdd-<threads>-<nblocks/thread>" << endl
 		     << "\tpbnf-<min_expansions>-<threads>-<nblocks/thread>" << endl
 		     << "\tsafepbnf-<min_expansions>-<threads>-<nblocks/thread>" << endl
 		     << "\tmultiastar-<threads>" << endl
