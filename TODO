@@ -1,3 +1,18 @@
+- (Ethan) Use atomic float for checking incumbant costs in PBNF.
+
+- (Ethan) Use a flag to denote the current layer in Breadth-first PSDD
+   (instead of touching all NBlocks to switch layers).
+
+- (Ethan) Implement ``Best-first'' PSDD
+
+- (Ethan) Create NBlocks lazily in PBNF and PSDD
+
+- (Ethan) Get and merge Wheeler's BiBteX file in /home/rai/group
+
+- (Ethan) Read SDD and Edelkamp papers
+
+- (Seth) Read SDD and Edelkamp papers? 
+
 - (Ethan) Make the tiles projection function better (with respect to
    interference scopes).
 
