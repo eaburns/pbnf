@@ -7,4 +7,3 @@
 ./run_vary_pbnf.sh
 ./run_vary_psdd.sh
 ./run_vary_safepbnf.sh
-./run_vary_safepbnf.sh.orig
