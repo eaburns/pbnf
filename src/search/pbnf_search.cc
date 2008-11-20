@@ -62,7 +62,7 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 	while (!open->empty() && !should_switch(n)) {
 		const State *s = open->take();
 
-		if (s->get_f() >= search->bound) {
+		if (s->get_f() >= search->bound.read()) {
 			delete s;
 			open->delete_all_states();
 			break;
@@ -90,7 +90,7 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 			unsigned int block = search->project->project(*iter);
 			OpenList *next_open = &graph->get_nblock(block)->open;
 
-			if ((*iter)->get_f() < search->bound)
+			if ((*iter)->get_f() < search->bound.read())
 				next_open->add(*iter);
 			else
 				delete *iter;
@@ -190,9 +190,9 @@ void PBNFSearch::set_path(vector<const State *> *path)
 {
 	pthread_mutex_lock(&path_mutex);
 	assert(path->at(0)->get_g() == path->at(0)->get_f());
-	if (path && bound > path->at(0)->get_g()) {
+	if (path && bound.read() > path->at(0)->get_g()) {
 		this->path = path;
-		bound = path->at(0)->get_g();
+		bound.set(path->at(0)->get_g());
 	}
 	pthread_mutex_unlock(&path_mutex);
 }

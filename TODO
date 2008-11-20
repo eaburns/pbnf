@@ -1,5 +1,3 @@
-- (Ethan) Use atomic float for checking incumbant costs in PBNF.
-
 - (Ethan) Use a flag to denote the current layer in Breadth-first PSDD
    (instead of touching all NBlocks to switch layers).
 
@@ -96,3 +94,5 @@
 - (Ethan) trylock
 
 - (Ethan) improve safe PBNF
+
+- (Ethan) Use atomic float for checking incumbant costs in PBNF.

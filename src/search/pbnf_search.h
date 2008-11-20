@@ -16,6 +16,7 @@
 #include "pbnf/nblock_graph.h"
 #include "pbnf/nblock.h"
 #include "util/thread.h"
+#include "util/atomic_float.h"
 #include "projection.h"
 #include "search.h"
 #include "state.h"
@@ -55,7 +56,7 @@ private:
 	const Projection *project;
 	pthread_mutex_t path_mutex;
 	vector<const State *> *path;
-	float bound;
+	AtomicFloat bound;
 	bool detect_livelocks;
 	unsigned int min_expansions;
 };
