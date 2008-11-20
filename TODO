@@ -2,8 +2,6 @@
 
 - (Ethan/Seth) track and graph # nodes gen/exp
    
-- (Ethan) improve safe PBNF
-
 - Ensure that we always find optimal solutions over all our data
 
 - (Ethan/Seth) test on other grid world boards
@@ -78,3 +76,5 @@
 - (Ethan) Find good parameters for PSDD/PBNF
 
 - (Ethan) trylock
+
+- (Ethan) improve safe PBNF
