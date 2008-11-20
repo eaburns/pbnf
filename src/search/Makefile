@@ -17,9 +17,7 @@ SRC= \
 	state.cc \
 	search_domain.cc \
 	open_list.cc \
-	pq_open_list.cc \
 	queue_open_list.cc \
-	synch_pq_olist.cc \
 	closed_list.cc \
 	synch_closed_list.cc \
 	search.cc \

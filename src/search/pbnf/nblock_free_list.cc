@@ -15,6 +15,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../pq_open_list.h"
 #include "nblock.h"
 #include "nblock_free_list.h"
 

@@ -18,7 +18,8 @@
 /**
  * A thread safe PQ OpenList implementation.
  */
-class SynchPQOList : public PQOpenList {
+template<class PQCompare>
+class SynchPQOList : public PQOpenList<PQCompare> {
 public:
 	SynchPQOList(void);
 
@@ -27,8 +28,78 @@ public:
 	virtual const State *peek(void);
 	virtual bool empty(void);
 	virtual void delete_all_states(void);
+	virtual float get_best_val(void);
 private:
 	pthread_mutex_t mutex;
 };
+
+template<class PQCompare>
+SynchPQOList<PQCompare>::SynchPQOList(void) {
+	pthread_mutex_init(&mutex, NULL);
+}
+
+template<class PQCompare>
+void SynchPQOList<PQCompare>::add(const State *s)
+{
+	pthread_mutex_lock(&mutex);
+	PQOpenList<PQCompare>::add(s);
+	pthread_mutex_unlock(&mutex);
+}
+
+template<class PQCompare>
+const State *SynchPQOList<PQCompare>::take(void)
+{
+	const State *ret;
+
+	pthread_mutex_lock(&mutex);
+	ret = PQOpenList<PQCompare>::take();
+	pthread_mutex_unlock(&mutex);
+
+	return ret;
+}
+
+template<class PQCompare>
+const State *SynchPQOList<PQCompare>::peek(void)
+{
+	const State *ret;
+
+	pthread_mutex_lock(&mutex);
+	ret = PQOpenList<PQCompare>::peek();
+	pthread_mutex_unlock(&mutex);
+
+	return ret;
+}
+
+template<class PQCompare>
+bool SynchPQOList<PQCompare>::empty(void)
+{
+	bool ret;
+
+	pthread_mutex_lock(&mutex);
+	ret = PQOpenList<PQCompare>::empty();
+	pthread_mutex_unlock(&mutex);
+
+	return ret;
+}
+
+template<class PQCompare>
+void SynchPQOList<PQCompare>::delete_all_states(void)
+{
+	pthread_mutex_lock(&mutex);
+	PQOpenList<PQCompare>::delete_all_states();
+	pthread_mutex_unlock(&mutex);
+}
+
+template<class PQCompare>
+float SynchPQOList<PQCompare>::get_best_val(void)
+{
+	float ret;
+
+	pthread_mutex_lock(&mutex);
+	ret = PQOpenList<PQCompare>::get_best_val();
+	pthread_mutex_unlock(&mutex);
+
+	return ret;
+}
 
 #endif	/* !_SYNCH_PQ_OLIST_H_ */

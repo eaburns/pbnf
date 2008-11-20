@@ -19,7 +19,7 @@
 #include <vector>
 
 #include "../closed_list.h"
-#include "../queue_open_list.h"
+#include "../pq_open_list.h"
 #include "../open_list.h"
 #include "../projection.h"
 #include "nblock.h"

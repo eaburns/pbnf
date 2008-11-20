@@ -13,6 +13,7 @@
 
 #include "state.h"
 #include "search.h"
+#include "pq_open_list.h"
 #include "synch_pq_olist.h"
 #include "synch_closed_list.h"
 #include "util/completion_counter.h"
@@ -27,7 +28,7 @@ public:
         void set_path(vector<const State *> *path);
         bool has_path();
 private:
-	SynchPQOList open;
+	SynchPQOList<CompareOnF> open;
 	SynchClosedList closed;
 	pthread_cond_t cond;
         bool done;
