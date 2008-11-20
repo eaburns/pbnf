@@ -18,9 +18,9 @@ OBSTACLES="uniform"
 COSTS="Unit"
 MOVES="Four-way"
 
-USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar"
+USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf safepbnf"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd"
 USES_MIN_EXPANSIONS="safepbnf pbnf"
 
 if [ "$#" -eq 0 ]
