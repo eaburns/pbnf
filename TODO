@@ -1,3 +1,6 @@
+- (Ethan) Make the tiles projection function better (with respect to
+   interference scopes).
+
 - (Seth) Check out PRA*
 
 - (Ethan/Seth) track and graph # nodes gen/exp
