@@ -39,7 +39,7 @@ int main(void)
 	n->print(cout);
 	cout << endl;
 	g.print(cout);
-	n->next_open->add(n->cur_open->take());
+	n->open[1].add(n->open[0].take());
 
 	cout << endl << endl << endl << endl;
 	n = g.next_nblock(n);

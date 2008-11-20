@@ -35,14 +35,16 @@ NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
 	map<unsigned int, NBlock *>::iterator iter;
 	unsigned int init_nblock = p->project(initial);
 
+	layer = LAYERA;
+
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
 	for (unsigned int i = 0; i < num_nblocks; i += 1) {
 		NBlock *n = new NBlock(i);
 		if (i == init_nblock) {
-			n->cur_open->add(initial);
-			free_list.push_back(n);
+			n->open[layer].add(initial);
+			free_list[layer].push_back(n);
 		}
 
 		blocks[i] = n;
@@ -127,21 +129,18 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		nblocks_assigned -= 1;
 		update_scope_sigmas(finished->id, -1);
 
-		if (free_list.size() == 0 && num_sigma_zero == num_nblocks) {
+		if (free_list[layer].size() == 0
+		    && num_sigma_zero == num_nblocks) {
 			// If there are no NBlocks that are currently
 			// free with nodes on them, and all of the
 			// NBlocks have sigma values of zero:
 			// Switch to the next iteration
 			map<unsigned int, NBlock *>::iterator iter;
 
-			// Switch the open lists on all of the NBlocks.
-			for (iter = blocks.begin(); iter != blocks.end(); iter++) {
-				iter->second->next_iteration();
-				if (!iter->second->cur_open->empty())
-					free_list.push_back(iter->second);
-			}
+			// Switch layers
+			layer = get_next_layer();
 
-			if (free_list.empty())
+			if (free_list[layer].empty())
 				goto out;
 
 			// Wake up everyone...
@@ -149,14 +148,14 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		}
 	}
 
-	while (free_list.empty() && !path_found)
+	while (free_list[layer].empty() && !path_found)
 		pthread_cond_wait(&cond, &mutex);
 
 	if (path_found)
 		goto out;
 
-	n = free_list.front();
-	free_list.pop_front();
+	n = free_list[layer].front();
+	free_list[layer].pop_front();
 	nblocks_assigned += 1;
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
@@ -214,8 +213,8 @@ void NBlockGraph::__print(ostream &o)
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
 	o << "--------------------" << endl;
 	o << "Current Free Blocks:" << endl;
-	for (fiter = free_list.begin();
-	     fiter != free_list.end();
+	for (fiter = free_list[layer].begin();
+	     fiter != free_list[layer].end();
 	     fiter++)
 		(*fiter)->print(o);
 	o << "--------------------" << endl;
@@ -243,16 +242,23 @@ void NBlockGraph::update_sigma(NBlock *yblk, int delta)
 {
 	if (yblk->sigma == 0) {
 		assert(delta > 0);
-		if (!yblk->cur_open->empty())
-			free_list.remove(yblk);
+		if (!yblk->open[layer].empty())
+			free_list[layer].remove(yblk);
+		if (!yblk->open[get_next_layer()].empty())
+			free_list[get_next_layer()].remove(yblk);
 		num_sigma_zero -= 1;
 	}
 
 	yblk->sigma += delta;
 
 	if (yblk->sigma == 0) {
-		if (!yblk->cur_open->empty()) {
-			free_list.push_back(yblk);
+		if (!yblk->open[layer].empty()) {
+			// this shouldn't happen?
+			free_list[layer].push_back(yblk);
+			pthread_cond_signal(&cond);
+		}
+		if (!yblk->open[get_next_layer()].empty()) {
+			free_list[get_next_layer()].push_back(yblk);
 			pthread_cond_signal(&cond);
 		}
 
@@ -284,4 +290,14 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	     iter++) {
 		update_sigma(*iter, delta);
 	}
+}
+
+enum NBlockGraph::layer NBlockGraph::get_next_layer(void) const
+{
+	return layer == LAYERA ? LAYERB : LAYERA;
+}
+
+enum NBlockGraph::layer NBlockGraph::get_cur_layer(void) const
+{
+	return layer;
 }
