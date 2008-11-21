@@ -50,6 +50,7 @@ SRC= \
 	pbnf_search.cc \
 	kbfs.cc \
 	pastar.cc \
+	prastar.cc
 
 OBJ=$(SRC:.cc=.o)
 

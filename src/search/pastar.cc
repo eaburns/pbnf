@@ -28,7 +28,6 @@ public:
         if (cc->is_complete()){
           p->done = true;
           pthread_cond_broadcast(con);
-          return;
         }
         else{
           pthread_cond_wait(con, mut);

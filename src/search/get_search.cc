@@ -25,6 +25,7 @@
 #include "dynamic_bounded_psdd.h"
 #include "pbnf_search.h"
 #include "pastar.h"
+#include "prastar.h"
 
 #include "get_search.h"
 
@@ -52,6 +53,8 @@ Search *get_search(int argc, char *argv[])
 		return new KBFS(threads);
 	} else if (argc > 1 && sscanf(argv[1], "pastar-%u", &threads) == 1) {
 		return new PAStar(threads);
+	} else if (argc > 1 && sscanf(argv[1], "prastar-%u", &threads) == 1) {
+		return new PRAStar(threads);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%f", &threads, &ratio) == 2) {
 		return new PSDDSearch(threads);
@@ -80,6 +83,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tcostbounddfs-<cost>" << endl
 		     << "\tkbfs-<threads>" << endl
 		     << "\tpastar-<threads>" << endl
+		     << "\tprastar-<threads>" << endl
 		     << "\tpsdd-<threads>-<nblocks/thread>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks/thread>-<weight>" << endl
 		     << "\tbfpsdd-<threads>-<nblocks/thread>" << endl

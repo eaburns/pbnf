@@ -39,6 +39,15 @@ void CompletionCounter::set_max(unsigned int max)
 	pthread_mutex_unlock(&mutex);
 }
 
+unsigned int CompletionCounter::get_count()
+{
+	unsigned int ret;
+	pthread_mutex_lock(&mutex);
+	ret = counter;
+	pthread_mutex_unlock(&mutex);
+        return ret;
+}
+
 bool CompletionCounter::is_complete()
 {
 	bool ret;

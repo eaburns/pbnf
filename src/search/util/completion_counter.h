@@ -19,6 +19,7 @@ public:
 	CompletionCounter(unsigned int max);
 
 	void set_max(unsigned int max);
+        unsigned int get_count();
 
 	void complete(void);
 	void uncomplete(void);
