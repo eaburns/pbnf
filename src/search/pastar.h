@@ -13,7 +13,6 @@
 
 #include "state.h"
 #include "search.h"
-#include "pq_open_list.h"
 #include "synch_pq_olist.h"
 #include "synch_closed_list.h"
 #include "util/completion_counter.h"

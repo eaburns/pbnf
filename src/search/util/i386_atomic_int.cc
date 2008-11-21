@@ -10,6 +10,8 @@
  * \date 2008-10-21
  */
 
+#include <assert.h>
+
 #include "atomic_int.h"
 
 #define LOCK_PREFIX    "lock;"

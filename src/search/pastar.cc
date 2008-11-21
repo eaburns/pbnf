@@ -74,7 +74,6 @@ public:
   }
   
 private:
-  const State *s;
   PAStar *p;
   pthread_cond_t* con;
   pthread_mutex_t* mut;
@@ -130,7 +129,6 @@ vector<const State *> *PAStar::search(const State *init)
 		threads.push_back(t);
 		t->start();
         }
-
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 		delete *iter;
