@@ -95,9 +95,9 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 			NBlock *b = graph->get_nblock(block);
 			OpenList *next_open = &b->open[graph->get_next_layer()];
 
-			if ((*iter)->get_f() < search->bound)
+			if ((*iter)->get_f() <= search->bound.read()) {
 				next_open->add(*iter);
-			else
+			} else
 				delete *iter;
 		}
 		delete children;
@@ -204,5 +204,5 @@ vector<const State *> *PSDDSearch::search(const State *initial)
  */
 void PSDDSearch::set_bound(float bound)
 {
-	this->bound = bound;
+	this->bound.set(bound);
 }

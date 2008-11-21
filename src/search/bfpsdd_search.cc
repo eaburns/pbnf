@@ -100,7 +100,7 @@ vector<const State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareO
 			NBlock<CompareOnF> *b = graph->get_nblock(block);
 			OpenList *next_open = &b->open;
 
-			if ((*iter)->get_f() < search->bound)
+			if ((*iter)->get_f() <= search->bound.read())
 				next_open->add(*iter);
 			else
 				delete *iter;
@@ -210,5 +210,5 @@ vector<const State *> *BFPSDDSearch::search(const State *initial)
  */
 void BFPSDDSearch::set_bound(float bound)
 {
-	this->bound = bound;
+	this->bound.set(bound);
 }

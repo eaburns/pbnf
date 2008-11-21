@@ -80,8 +80,6 @@ NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
 				n->interferes.insert(blocks[*i]);
 	}
 
-
-
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
 	path_found = false;
@@ -129,6 +127,9 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		nblocks_assigned -= 1;
 		update_scope_sigmas(finished->id, -1);
 
+		if (!finished->open[get_next_layer()].empty())
+			free_list[get_next_layer()].push_back(finished);
+
 		if (free_list[layer].size() == 0
 		    && num_sigma_zero == num_nblocks) {
 			// If there are no NBlocks that are currently
@@ -140,8 +141,11 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			// Switch layers
 			layer = get_next_layer();
 
-			if (free_list[layer].empty())
+			if (free_list[layer].empty()) {
+				path_found = true;
+				pthread_cond_broadcast(&cond);
 				goto out;
+			}
 
 			// Wake up everyone...
 			pthread_cond_broadcast(&cond);

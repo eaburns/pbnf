@@ -51,7 +51,7 @@ private:
 		BFPSDDSearch *search;
 	};
 
-	float bound;
+	AtomicFloat bound;
 	unsigned int n_threads;
 	const Projection *project;
 	vector<const State *> *path;

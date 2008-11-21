@@ -291,7 +291,7 @@ float Tiles::ManhattanDist::compute(const State *state) const
 		const TilesState *ptile =
 			dynamic_cast<const TilesState *>(p);
 		ret = compute_incr(s, ptile);
-		assert(ret == compute_full(s));
+//		assert(ret == compute_full(s));
 	} else
 		ret = compute_full(s);
 
