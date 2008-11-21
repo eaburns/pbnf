@@ -8,9 +8,6 @@
 
 - (Seth) Read SDD and Edelkamp papers? 
 
-- (Ethan) Make the tiles projection function better (with respect to
-   interference scopes).
-
 - (Seth) Check out PRA*
 
 - (Ethan/Seth) track and graph # nodes gen/exp
@@ -98,3 +95,6 @@
    (instead of touching all NBlocks to switch layers).
 
 - (Ethan) Implement ``Best-first'' PSDD
+
+- (Ethan) Make the tiles projection function better (with respect to
+   interference scopes).

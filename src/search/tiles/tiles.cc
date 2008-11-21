@@ -393,41 +393,38 @@ vector<unsigned int> Tiles::OneTileProject::get_neighbors(unsigned int b) const
 {
 	vector<unsigned int> ret;
 	unsigned int blank = unproj[b].first;
+	unsigned int one = unproj[b].second;
 	unsigned int width = tiles->width;
 	unsigned int col = blank % width;
 	unsigned int row = blank / width;
 
 	if (col > 0) {
 		unsigned int i = blank - 1;
-		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
-			if (i == j)
-				continue;
-			ret.push_back(proj[i][j]);
-		}
+		if (one == i)
+			ret.push_back(proj[one][blank]);
+		else
+			ret.push_back(proj[i][one]);
 	}
 	if (col < width - 1) {
 		unsigned int i = blank + 1;
-		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
-			if (i == j)
-				continue;
-			ret.push_back(proj[i][j]);
-		}
+		if (one == i)
+			ret.push_back(proj[one][blank]);
+		else
+			ret.push_back(proj[i][one]);
 	}
 	if (row > 0) {
 		unsigned int i = blank - width;
-		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
-			if (i == j)
-				continue;
-			ret.push_back(proj[i][j]);
-		}
+		if (one == i)
+			ret.push_back(proj[one][blank]);
+		else
+			ret.push_back(proj[i][one]);
 	}
 	if (row < tiles->height - 1) {
 		unsigned int i = blank + width;
-		for (unsigned int j = 0; j < proj[i].size(); j += 1) {
-			if (i == j)
-				continue;
-			ret.push_back(proj[i][j]);
-		}
+		if (one == i)
+			ret.push_back(proj[one][blank]);
+		else
+			ret.push_back(proj[i][one]);
 	}
 
 	return ret;
