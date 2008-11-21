@@ -1,9 +1,3 @@
-- (Ethan) Implement integer PQ for BFPSDD.
-
-- (Ethan) Create NBlocks lazily in PBNF and PSDD
-
-- (Ethan) Get and merge Wheeler's BiBteX file in /home/rai/group
-
 - (Ethan) Read SDD and Edelkamp papers
 
 - (Seth) Read SDD and Edelkamp papers? 
@@ -12,10 +6,12 @@
 
 - (Ethan/Seth) track and graph # nodes gen/exp
    
-- Ensure that we always find optimal solutions over all our data
-
 - (Ethan/Seth) test on other grid world boards
    
+- (Ethan) Implement integer PQ for BFPSDD.
+
+- (Ethan) Create NBlocks lazily in PBNF and PSDD
+
 - (Seth) A* with lock-free datastructures -- maybe this will be great
    - Look at tfogal's lock-free hashtable
    - Look at Kumar's lock-free Prio-queue
@@ -98,3 +94,8 @@
 
 - (Ethan) Make the tiles projection function better (with respect to
    interference scopes).
+
+- (Ethan) Ensure that we always find optimal solutions over all our
+   data... The plotting code does this now.
+   
+- (Ethan) Get and merge Wheeler's BiBteX file in /home/rai/group
