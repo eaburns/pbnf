@@ -25,7 +25,8 @@ using namespace PSDD;
  */
 NBlock::NBlock(unsigned int id)
 	: id(id),
-	  sigma(0) {}
+	  sigma(0),
+	  inuse(false) {}
 
 
 

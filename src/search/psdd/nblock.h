@@ -37,6 +37,8 @@ namespace PSDD {
 		ClosedList closed;
 		QueueOpenList open[2];
 
+		bool inuse;
+
 		set<NBlock *> interferes;
 		set<NBlock *> preds;
 		set<NBlock *> succs;

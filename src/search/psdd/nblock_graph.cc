@@ -126,9 +126,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 
 		nblocks_assigned -= 1;
 		update_scope_sigmas(finished->id, -1);
-
-		if (!finished->open[get_next_layer()].empty())
-			free_list[get_next_layer()].push_back(finished);
+		finished->inuse = false;
 
 		if (free_list[layer].size() == 0
 		    && num_sigma_zero == num_nblocks) {
@@ -159,6 +157,8 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		goto out;
 
 	n = free_list[layer].front();
+	assert(!n->inuse);
+	n->inuse = true;
 	free_list[layer].pop_front();
 	nblocks_assigned += 1;
 	if (nblocks_assigned > nblocks_assigned_max)
