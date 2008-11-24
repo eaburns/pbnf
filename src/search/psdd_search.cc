@@ -91,14 +91,17 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 		for (iter = children->begin();
 		     iter != children->end();
 		     iter++) {
+
+			if ((*iter)->get_f() > search->bound.read()) {
+				delete *iter;
+				continue;
+			}
+
 			unsigned int block = search->project->project(*iter);
 			NBlock *b = graph->get_nblock(block);
 			OpenList *next_open = &b->open[graph->get_next_layer()];
 
-			if ((*iter)->get_f() <= search->bound.read()) {
-				next_open->add(*iter);
-			} else
-				delete *iter;
+			next_open->add(*iter);
 		}
 		delete children;
 

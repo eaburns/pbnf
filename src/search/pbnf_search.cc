@@ -87,13 +87,15 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		vector<const State *>::iterator iter;
 
  		for (iter = children->begin(); iter != children->end(); iter++) {
+			if ((*iter)->get_f() >= search->bound.read()) {
+				delete *iter;
+				continue;
+			}
 			unsigned int block = search->project->project(*iter);
 			OpenList *next_open = &graph->get_nblock(block)->open;
 
-			if ((*iter)->get_f() < search->bound.read())
-				next_open->add(*iter);
-			else
-				delete *iter;
+			next_open->add(*iter);
+
 		}
 		delete children;
 	}
