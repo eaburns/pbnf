@@ -8,8 +8,6 @@
 
 - (Ethan/Seth) track and graph # nodes gen/exp
    
-- (Ethan) Re-Read SDD and Edelkamp papers
-   
 - (Ethan) Implement integer PQ for BFPSDD.
 
 - (Ethan) Create NBlocks lazily in PBNF and PSDD
