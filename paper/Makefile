@@ -1,11 +1,10 @@
 eaburns.pdf: eaburns.dvi
 	dvipdf $^
 
-eaburns.dvi: eaburns.tex
-	latex eaburns
+eaburns.dvi: eaburns.tex master.bib
 	latex eaburns
 	bibtex eaburns
-	bibtex eaburns
+	latex eaburns
 	latex eaburns
 
 clean:
