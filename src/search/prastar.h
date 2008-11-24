@@ -40,11 +40,15 @@ private:
                 PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, pthread_cond_t* con, pthread_mutex_t* mut, CompletionCounter* cc);
                 virtual ~PRAStarThread(void);
                 virtual void run(void);
+                void add(const State* s);
+                const State *take(void);
+
         private:
-		PRAStar *p;
+                PRAStar *p;
                 vector<PRAStarThread *> *threads;
                 pthread_cond_t* con;
                 pthread_mutex_t* mut;
+                bool completed;
                 CompletionCounter *cc;
                 friend class PRAStar;
                 SynchPQOList<CompareOnF> open;

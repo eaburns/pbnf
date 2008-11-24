@@ -34,6 +34,7 @@ public:
         }
         if (p->done==true){
           pthread_mutex_unlock(mut);
+          delete children;
           return;
         }
         cc->uncomplete();
