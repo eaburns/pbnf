@@ -1,6 +1,6 @@
-- (Seth) Read SDD and Edelkamp papers? 
+- (Seth) Read SDD and Edelkamp papers?
 
-- (Seth) Check out PRA*
+- (Seth) Implement learning for min expansions
 
 - (Ethan/Seth) test on other grid world boards
 
@@ -26,15 +26,15 @@
 - (Ethan) only first thread sleeps on better non-free nblock
     - or maybe no one sleeps?
 
-- (Ethan) gprof
-
 - (Ethan) colored grid per-thread colors
    
 - (Ethan) Look into possible contention on LAMA globals
 
 ------------------------------------------------------------
 
-- (Ethan) gprof
+- (Ethan) gprof 
+
+- (Seth) Implement PRA*
 
 - (Ethan/Seth) Get graphs for Wheeler
 
