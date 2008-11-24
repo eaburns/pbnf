@@ -9,7 +9,8 @@ do
 	    ./run_grids.sh safepbnf \
 		-m $min \
 		-t $threads \
-		-n $nblocks
+		-n $nblocks \
+                $@
 	done
     done
 done

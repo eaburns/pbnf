@@ -9,7 +9,8 @@ do
 	    ./run_grids.sh dynpsdd \
 		-t $threads \
 		-n $nblocks \
-		-w $wt
+		-w $wt \
+                $@
 	done
     done
 done

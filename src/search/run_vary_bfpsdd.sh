@@ -6,6 +6,7 @@ do
     do
 	./run_grids.sh bfpsdd \
 	    -t $threads \
-	    -n $nblocks
+	    -n $nblocks \
+            $@
 	done
 done

@@ -6,6 +6,7 @@ do
     do
 	./run_grids.sh psdd \
 	    -t $threads \
-	    -n $nblocks
-	done
+	    -n $nblocks \
+            $@
+    done
 done

@@ -3,5 +3,6 @@
 for (( threads=1; threads <= 10; threads++ ))
 do
 	./run_grids.sh kbfs \
-	    -t $threads
+	    -t $threads \
+            $@
 done

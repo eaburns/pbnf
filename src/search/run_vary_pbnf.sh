@@ -8,7 +8,8 @@ do
 	    ./run_grids.sh pbnf \
 		-m $min \
 		-t $threads \
-		-n $nblocks
+		-n $nblocks \
+                $@
 	done
     done
 done
