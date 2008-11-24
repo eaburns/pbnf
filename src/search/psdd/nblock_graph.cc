@@ -44,6 +44,7 @@ NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
 		NBlock *n = new NBlock(i);
 		if (i == init_nblock) {
 			n->open[layer].add(initial);
+
 			free_list[layer].push_back(n);
 		}
 
@@ -128,6 +129,9 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		update_scope_sigmas(finished->id, -1);
 		finished->inuse = false;
 
+		if (!finished->open[get_next_layer()].empty())
+			free_list[get_next_layer()].push_back(finished);
+
 		if (free_list[layer].size() == 0
 		    && num_sigma_zero == num_nblocks) {
 			// If there are no NBlocks that are currently
@@ -138,7 +142,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 
 			// Switch layers
 			layer = get_next_layer();
-
 			if (free_list[layer].empty()) {
 				path_found = true;
 				pthread_cond_broadcast(&cond);
@@ -157,13 +160,17 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		goto out;
 
 	n = free_list[layer].front();
-	assert(!n->inuse);
-	n->inuse = true;
 	free_list[layer].pop_front();
 	nblocks_assigned += 1;
+	assert(n->sigma == 0);
+	assert(!n->open[layer].empty());
+	assert(!n->inuse);
+	n->inuse = true;
+
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
 	update_scope_sigmas(n->id, 1);
+
 out:
 	pthread_mutex_unlock(&mutex);
 
@@ -248,7 +255,7 @@ void NBlockGraph::update_sigma(NBlock *yblk, int delta)
 		assert(delta > 0);
 		if (!yblk->open[layer].empty())
 			free_list[layer].remove(yblk);
-		if (!yblk->open[get_next_layer()].empty())
+		else if (!yblk->open[get_next_layer()].empty())
 			free_list[get_next_layer()].remove(yblk);
 		num_sigma_zero -= 1;
 	}
@@ -257,11 +264,9 @@ void NBlockGraph::update_sigma(NBlock *yblk, int delta)
 
 	if (yblk->sigma == 0) {
 		if (!yblk->open[layer].empty()) {
-			// this shouldn't happen?
 			free_list[layer].push_back(yblk);
 			pthread_cond_signal(&cond);
-		}
-		if (!yblk->open[get_next_layer()].empty()) {
+		} else if (!yblk->open[get_next_layer()].empty()) {
 			free_list[get_next_layer()].push_back(yblk);
 			pthread_cond_signal(&cond);
 		}
@@ -292,6 +297,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	for (iter = blocks[y]->interferes.begin();
 	     iter != blocks[y]->interferes.end();
 	     iter++) {
+		assert(*iter != blocks[y]);
 		update_sigma(*iter, delta);
 	}
 }

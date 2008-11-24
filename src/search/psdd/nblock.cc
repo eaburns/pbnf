@@ -49,6 +49,7 @@ void NBlock::print(ostream &o) const
 	set<NBlock *>::const_iterator iter;
 
 	o << "nblock " << id << endl;
+	o << "\tinuse: " << inuse << endl;
 	o << "\tsigma: " << sigma << endl;
 
 	o << "\tinterferes with: ";
