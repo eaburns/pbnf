@@ -1,3 +1,5 @@
+- (Ethan/Seth) track and graph # nodes gen/exp
+
 - (Seth) Read SDD and Edelkamp papers?
 
 - (Seth) Implement learning for min expansions
@@ -5,8 +7,6 @@
 - (Ethan/Seth) test on other grid world boards
 
 - (Ethan/Seth) test on tiles
-
-- (Ethan/Seth) track and graph # nodes gen/exp
    
 - (Ethan) Implement integer PQ for BFPSDD.
 
