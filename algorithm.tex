@@ -18,21 +18,23 @@
 
   \item threadsearch()
   \begin{algorithmic}[1]
-  \WHILE {$open$ is not empty}
-    \STATE $b \leftarrow$ $open$ of nblock with minimum f valued node
+  \WHILE {$open$ of any nblock is not empty}
+    \STATE $b \leftarrow$ free nblock with minimum f valued node
     \STATE increment $sigma$ for $b$ and each nblock in its duplicate detection scope
-    \STATE \COMMENT {$m$ is the minumum number of expansions required to balance out locking overhead}
-    \STATE \COMMENT {$n$ is the number of nodes in b for which there are no other cheaper nodes in non-locked nblocks}
-    \FOR {$i=0$ to min(max($m$, $n$), length($b$)$-1$))}
-      \STATE $node \leftarrow$ head of $b$
-      \IF{$node$ is a goal}
+    \IF {$b$ is a different nblock than before}
+      \STATE $i \leftarrow 0$
+    \ENDIF
+    \REPEAT
+      \STATE $node \leftarrow$ head of open list of $b$
+      \IF {$node$ is a goal}
         \STATE foundgoal($node$)
       \ELSIF {$node$ is not a duplicate}
         \STATE $children \leftarrow$ expand($node$)
         \STATE remove duplicates from $children$
-        \STATE insert $children$ into $open$ and $closed$
+        \STATE insert $children$ into $open$ and $closed$ of appropriate nblocks
       \ENDIF
-    \ENDFOR
+    \UNTIL {$i > m$ OR open list of $b$ is empty}
+    \STATE \COMMENT {$m$ is the minumum number of expansions required to balance out locking overhead}
     \STATE decrement $sigma$ for $b$ and each nblock in its duplicate detection scope
   \ENDWHILE
   \end{algorithmic}
@@ -41,7 +43,7 @@
   \begin{algorithmic}[1]
       \IF{g($new$) $<$ g($current$)}
         \STATE $current \leftarrow new$
-        \STATE prune all nodes from $b$ with g values higher than g($current$)
+        \STATE prune all nodes from open list of $b$ with g values higher than g($current$)
       \ENDIF
   \end{algorithmic}
 \end{itemize}
