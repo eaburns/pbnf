@@ -34,7 +34,7 @@ namespace PBNF {
 
 		~NBlockGraph();
 
-		NBlock *next_nblock(NBlock *finished, bool check_scope = true);
+		NBlock *next_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
 		float next_nblock_f_value(void);
 		void print(ostream &o);
@@ -62,7 +62,6 @@ namespace PBNF {
 
 		/* list of free nblock numbers */
 		NBlockFreeList free_list;
-
 
 		/* This flag is set when the search is completed to
 		 * signal to all waiting processess that the search

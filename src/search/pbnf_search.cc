@@ -36,7 +36,7 @@ void PBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		n = graph->next_nblock(n, search->detect_livelocks);
+		n = graph->next_nblock(n);
 		if (n) {
 			expansions = 0;
 			path = search_nblock(n);

@@ -108,12 +108,10 @@ NBlockGraph::~NBlockGraph()
  * \note This call will block if there are currently no free nblocks.
  * \param finished If non-NULL, the finished nblock will be released
  *        into the next level's free_list.
- * \param check_scope Whether or not we should test NBlocks in our
- *                    scope to see if they are better.
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock(NBlock *finished, bool check_scope)
+NBlock *NBlockGraph::next_nblock(NBlock *finished)
 {
 	NBlock *n = NULL;
 
@@ -313,13 +311,8 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
  */
 float NBlockGraph::next_nblock_f_value(void)
 {
-	float val;
-
-	pthread_mutex_lock(&mutex);
-	val = free_list.best_f();
-	pthread_mutex_unlock(&mutex);
-
-	return val;
+	// this is atomic
+	return free_list.best_f();
 }
 
 /**
