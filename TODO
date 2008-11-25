@@ -1,27 +1,36 @@
-- (Ethan/Seth) track and graph # nodes gen/exp
-
-- (Seth) Read SDD and Edelkamp papers?
-
 - (Seth) Get Rong updated algorithm description
 
-- (Seth) Implement learning for min expansions
+- (Seth) Generate 8-puzzles
 
-- (Ethan/Seth) test on other grid world boards
+- (Seth) Cancel threads in PRA*
 
-- (Ethan/Seth) test on tiles
-   
-- (Ethan) Implement integer PQ for BFPSDD.
+- (Ethan) Re-read SDD & Edelkamp papers
+   - email Rong
 
-- (Ethan) Create NBlocks lazily in PBNF and PSDD
+- (Ethan) 
 
 - (Seth) A* with lock-free datastructures -- maybe this will be great
    - Look at tfogal's lock-free hashtable
    - Look at Kumar's lock-free Prio-queue
 
-- (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
+- (Seth) Implement learning for min expansions
+
+- (Ethan/Seth) test on other grid world boards
 
 - (Ethan) Implement 8-way movement in gridworld (need real value costs,
    sqrt(2) diagonals)
+
+- (Ethan/Seth) test on tiles
+   
+- (Ethan/Seth) track and graph # nodes gen/exp
+
+- (Seth) Read SDD and Edelkamp papers?
+
+- (Ethan) Implement integer PQ for BFPSDD.
+
+- (Ethan) Create NBlocks lazily in PBNF and PSDD
+
+- (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
 
 - plot vs. A*
 
@@ -31,6 +40,8 @@
 - (Ethan) colored grid per-thread colors
    
 - (Ethan) Look into possible contention on LAMA globals
+
+- (Ethan) Learn a merge tool (Meld?)
 
 ------------------------------------------------------------
 
