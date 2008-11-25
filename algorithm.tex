@@ -20,7 +20,7 @@
   \begin{algorithmic}[1]
   \WHILE {$open$ of any nblock is not empty}
     \STATE $b \leftarrow$ free nblock with minimum f valued node
-    \STATE increment $sigma$ for $b$ and each nblock in its duplicate detection scope
+    \STATE increment $\sigma$ for $b$ and each nblock in its duplicate detection scope
     \IF {$b$ is a different nblock than before}
       \STATE $i \leftarrow 0$
     \ENDIF
@@ -35,7 +35,7 @@
       \ENDIF
     \UNTIL {$i > m$ OR open list of $b$ is empty}
     \STATE \COMMENT {$m$ is the minumum number of expansions required to balance out locking overhead}
-    \STATE decrement $sigma$ for $b$ and each nblock in its duplicate detection scope
+    \STATE decrement $\sigma$ for $b$ and each nblock in its duplicate detection scope
   \ENDWHILE
   \end{algorithmic}
 
