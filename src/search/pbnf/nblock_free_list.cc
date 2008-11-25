@@ -15,6 +15,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../util/atomic_float.h"
 #include "../pq_open_list.h"
 #include "nblock.h"
 #include "nblock_free_list.h"
@@ -33,6 +34,7 @@ void NBlockFreeList::add(NBlock *b)
 
 	heap.push_back(b);
 	push_heap(heap.begin(), heap.end(), NBlock::compare);
+	best.set(heap.front()->open.peek()->get_f());
 }
 
 
@@ -43,6 +45,11 @@ NBlock *NBlockFreeList::take(void)
 	b = heap.front();
 	pop_heap(heap.begin(), heap.end(), NBlock::compare);
 	heap.pop_back();
+
+	if (heap.empty())
+		best.set(INFINITY);
+	else
+		best.set(heap.front()->open.peek()->get_f());
 
 	return b;
 }
@@ -69,10 +76,7 @@ void NBlockFreeList::remove(NBlock *b)
 
 float NBlockFreeList::best_f(void)
 {
-	if (heap.empty())
-		return INFINITY;
-
-	return heap.front()->open.peek()->get_f();
+	return best.read();
 }
 
 

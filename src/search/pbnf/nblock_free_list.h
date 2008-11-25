@@ -14,6 +14,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../util/atomic_float.h"
 #include "nblock.h"
 
 using namespace std;
@@ -31,6 +32,7 @@ namespace PBNF {
 		void print(ostream &o);
 	private:
 		vector<NBlock *> heap;
+		AtomicFloat best;
 	};
 }	/* PBNF */
 #endif	/* !_NBLOCK_FREE_LIST_H_ */
