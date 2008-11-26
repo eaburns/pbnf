@@ -24,7 +24,6 @@ then   # Script needs at least one command-line argument.
     echo -e "Usage:"
     echo -e "\
  run_tiles.sh \
-[-n <nblocks/thread>] \
 [-t <threads>] \
 [-w <weight>] \
 [-m <min_expansions>] \
@@ -43,7 +42,6 @@ do
     case "$1" in
 	-a) ALGORITHM=$2 ; shift ;;
 	-m) MIN_EXPANSIONS=$2 ; shift ;;
-	-n) NBLOCKS=$2 ; shift ;;
 	-t) THREADS=$2 ; shift ;;
 	-w) WEIGHT=$2 ; shift ;;
 	-r) ROWS=$2 ; shift ;;
@@ -111,11 +109,6 @@ function run_file ()
     if alg_on_list $USES_THREADS
     then
 	ARGS+="threads=$THREADS "
-    fi
-
-    if alg_on_list $USES_NBLOCKS
-    then
-	ARGS+="nblocks-per-thread=$NBLOCKS "
     fi
 
     if alg_on_list $USES_WEIGHT
@@ -259,11 +252,6 @@ do
 	if alg_on_list $USES_THREADS
 	then
 	    echo -e "#pair  \"threads\"\t\"$THREADS\""
-	fi
-
-	if alg_on_list $USES_NBLOCKS
-	then
-	    echo -e "#pair  \"nblocks-per-thread\"\t\"$NBLOCKS\""
 	fi
 
 	if alg_on_list $USES_WEIGHT
