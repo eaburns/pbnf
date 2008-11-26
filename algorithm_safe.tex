@@ -16,7 +16,36 @@
   \STATE return $current$
   \end{algorithmic}
   
-  \item shouldswitch()
+  \item isfree($n$)
+  \begin{algorithmic}[1]
+  \STATE return $\sigma$($n$) $== 0$ and $\sigma_h$($n$) $== 0$ and open list of $n$ is not empty
+  \end{algorithmic}
+  
+  \item sethot($n$)
+  \begin{algorithmic}[1]
+  \IF {$n.hot ==$ false and $\sigma$($n$) $> 0$}
+    \STATE $b.hot \leftarrow$ true
+    \FOR {each nblock $n'$ in interference scope of $n$}
+      \IF {isfree($n'$)}
+        \STATE remove $n'$ from free list
+      \ENDIF
+      \STATE $\sigma_h$($n'$) $\leftarrow \sigma_h$($n'$) $+ 1$
+    \ENDFOR
+  \ENDIF
+  \end{algorithmic}
+  
+  \item setcold($n$)
+  \begin{algorithmic}[1]
+  \STATE $b.hot \leftarrow$ false
+  \FOR {each nblock $n'$ in interference scope of $n$}
+    \STATE $\sigma_h$($n'$) $\leftarrow \sigma_h$($n'$) $- 1$
+    \IF {isfree($n'$)}
+      \STATE add $n'$ to free list
+    \ENDIF
+  \ENDFOR
+  \end{algorithmic}
+
+  \item shouldswitch($b$)
   \begin{algorithmic}[1]
   \STATE \COMMENT {$m$ is the minumum number of expansions required to balance out locking overhead}
   \IF {$b$ is empty or  $i < m$}
@@ -24,70 +53,66 @@
   \ELSIF{best node in free list or interference scope is better than best in $b$}
     \STATE return true
   \ELSE
-    \FOR {$j$ in $0$ to size(interference scope)}
-      \FOR {each $t$ in wait list of $j$}
-        \STATE wake($t$)
-      \ENDFOR
-      \STATE wait list of $j \leftarrow \{\}$
+    \FOR {each nblock $b'$ in interference scope of $b$}
+      \IF {$b'.hot ==$ true}
+        \STATE setcold($b'$)
+      \ENDIF
     \ENDFOR
     \STATE return false
   \ENDIF
   \end{algorithmic}
 
+  \item release($b$)
+  \begin{algorithmic}[1]
+  \STATE decrement $\sigma$ for $b$ and each nblock in its duplicate detection scope
+  \end{algorithmic}
+
   \item nextnblock($b$)
   \begin{algorithmic}[1]
   \IF {$b$ is not NULL}
-    \IF {the best node in $b$ is better than the best on the free list or in interference scope}
+    \STATE $s \leftarrow$ nblock from interference scope with the best node on its open list
+    \IF {the best node in $b$ is better than the best on the free list or in $s$}
       \STATE return $b$
     \ENDIF
-    \STATE release($n$)
-    \STATE $s \leftarrow$ nblock from interference scope with the best node on its open list
-    \IF {the best node in $s$ is better than the best in free list}
-      \STATE add this thread's id to wait list for b
+    \STATE release($b$)
+    \IF {the best node in $s$ is better than the best on free list}
+      \STATE sethot($s$)
     \ELSE
       \STATE $s \leftarrow$ NULL
     \ENDIF
   \ENDIF
-  \IF {sigma == 0 for all nblocks and free list is empty}
+  \IF {$\sigma == 0$ for all nblocks and free list is empty}
     \STATE $done \leftarrow$ true
     \STATE wake all threads
   \ENDIF
-  \WHILE {free list is empty or ($s$ != NULL and this thread's id is in the wait set of $s$) and $done =$ false}
+  \WHILE {free list is empty and $done =$ false}
     \STATE sleep on condition for $s$
   \ENDWHILE
   \IF {$done =$ true}
     \STATE $n \leftarrow$ NULL
   \ELSE
     \STATE $n \leftarrow$ best on free list
-    \STATE increment $sigma$ for $n$ and each nblock in its duplicate detection scope
+    \STATE increment $\sigma$ for $n$ and each nblock in its duplicate detection scope
   \ENDIF
   \STATE return $n$
-  \end{algorithmic}
-
-  \item release($b$)
-  \begin{algorithmic}[1]
-  \FOR {$j$ in $0$ to size(interference scope)}
-    \FOR {each $t$ in wait list of $j$}
-      \STATE wake($t$)
-    \ENDFOR
-    \STATE wait list of $j \leftarrow \{\}$
-  \ENDFOR
   \end{algorithmic}
 
   \item threadsearch()
   \begin{algorithmic}[1]
   \WHILE {not $done$}
-    \STATE $b \leftarrow$ $open$ of nextnblock($b$)
-    \STATE $i \leftarrow 0$
+    \STATE $b \leftarrow$ nextnblock($b$)
+    \IF {$b$ is a different nblock than before}
+      \STATE $i \leftarrow 0$
+    \ENDIF
     \WHILE {not shouldswitch($i$)}
       \STATE $i \leftarrow i+1$
-      \STATE $node \leftarrow$ head of $b$
+      \STATE $node \leftarrow$ head of $b$'s open list
       \IF{$node$ is a goal}
         \STATE foundgoal($node$)
       \ELSIF {$node$ is not a duplicate}
         \STATE $children \leftarrow$ expand($node$)
         \STATE remove duplicates from $children$
-        \STATE insert $children$ into $open$ and $closed$
+        \STATE insert $children$ into $open$ and $closed$ for the appropriate nblocks
       \ENDIF
     \ENDWHILE
   \ENDWHILE
