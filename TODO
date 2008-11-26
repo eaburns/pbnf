@@ -4,6 +4,9 @@
 
 - (Seth) Cancel threads in PRA*
 
+- (Ethan) Look into PBNF with 5nblocks/thread and 1 thread... it
+   performs very poorly.
+
 - (Ethan) Re-read SDD & Edelkamp papers
    - email Rong
 
