@@ -37,7 +37,7 @@ namespace BFPSDD {
 			bool operator()(NBlock<StateCompare> *a,
 					NBlock<StateCompare> *b) {
 				return a->open.get_best_val()
-					< b->open.get_best_val();
+				       > b->open.get_best_val();
 			}
 		};
 
