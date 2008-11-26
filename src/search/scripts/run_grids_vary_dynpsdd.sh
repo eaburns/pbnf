@@ -1,15 +1,15 @@
 #!/bin/bash
 
-for min in 5 10 30 60 80
+for wt in 1.1 1.5 2.0 2.2
 do
-    for nblocks in 3 5 10 15 20
+    for nblocks in 2 4 8 10
     do
 	for (( threads=1; threads <= 10; threads++ ))
 	do
-	    ./run_grids.sh safepbnf \
-		-m $min \
+	    ./scripts/run_grids.sh dynpsdd \
 		-t $threads \
 		-n $nblocks \
+		-w $wt \
                 $@
 	done
     done

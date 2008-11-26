@@ -1,15 +1,14 @@
 #!/bin/bash
 
-for wt in 1.1 1.5 2.0 2.2
+for min in 5 10 30 60 80
 do
-    for nblocks in 2 4 8 10
+    for nblocks in 3 5 10 15 20
     do
 	for (( threads=1; threads <= 10; threads++ ))
-	do
-	    ./run_grids.sh dynpsdd \
+	    ./scripts/run_grids.sh pbnf \
+		-m $min \
 		-t $threads \
 		-n $nblocks \
-		-w $wt \
                 $@
 	done
     done
