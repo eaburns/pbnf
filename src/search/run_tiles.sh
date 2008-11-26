@@ -4,19 +4,15 @@
 THREADS=1
 NBLOCKS=1
 WEIGHT=1.0
-PROB=0.25
-WIDTH=2000
-HEIGHT=1200
+ROWS=3
+COLS=3
 ALGORITHM=""
 
 # constants
 RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
-GRID_SEARCH="./grid_search.bin"
-DATA_ROOT="/home/rai/group/data/grid_instances"
-RUNS_ROOT="/home/rai/eaburns/data/grid"
-OBSTACLES="uniform"
-COSTS="Unit"
-MOVES="Four-way"
+SEARCH_PROG="./tiles_search.bin"
+DATA_ROOT="/home/rai/group/data/tiles_instances"
+RUNS_ROOT="/home/rai/eaburns/data/tiles"
 
 USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd"
 USES_WEIGHT="dynpsdd"
@@ -27,13 +23,13 @@ if [ "$#" -eq 0 ]
 then   # Script needs at least one command-line argument.
     echo -e "Usage:"
     echo -e "\
- run_grid.sh \
-[-d <dimensions>] \
+ run_tiles.sh \
 [-n <nblocks/thread>] \
-[-p <prob>] \n        \
 [-t <threads>] \
 [-w <weight>] \
 [-m <min_expansions>] \
+[-r <rows>] \
+[-c <columns>] \
 <algorithm>"
     exit 1
 fi  
@@ -41,18 +37,17 @@ fi
 #
 # Parse arugments
 #
-set -- `getopt "d:m:n:p:t:w:" "$@"`
+set -- `getopt "m:n:t:w:r:c:" "$@"`
 while [ ! -z "$1" ]
 do
     case "$1" in
 	-a) ALGORITHM=$2 ; shift ;;
-	-d) WIDTH=$(echo $2 | cut -dx -f1) ;
-	    HEIGHT=$(echo $2 | cut -dx -f2) ;;
 	-m) MIN_EXPANSIONS=$2 ; shift ;;
 	-n) NBLOCKS=$2 ; shift ;;
-	-p) PROB=$2 ; shift ;;
 	-t) THREADS=$2 ; shift ;;
 	-w) WEIGHT=$2 ; shift ;;
+	-r) ROWS=$2 ; shift ;;
+	-c) COLS=$2 ; shift ;;
 	*) break ;;
     esac
     shift
@@ -90,12 +85,9 @@ function alg_on_list {
 function paths ()
 {
     ARGS=""
-    ARGS+="obstacles=$OBSTACLES "
-    ARGS+="costs=$COSTS "
-    ARGS+="moves=$MOVES "
-    ARGS+="prob=$PROB "
-    ARGS+="width=$WIDTH "
-    ARGS+="height=$HEIGHT "
+    ARGS+="model=random "
+    ARGS+="rows=$ROWS "
+    ARGS+="cols=$COLS "
 
     ARGS+="num=*"
     $RDB_GET_PATH $DATA_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
@@ -131,12 +123,9 @@ function run_file ()
 	ARGS+="wt=$WEIGHT "
     fi
 
-    ARGS+="obstacles=$OBSTACLES "
-    ARGS+="costs=$COSTS "
-    ARGS+="moves=$MOVES "
-    ARGS+="prob=$PROB "
-    ARGS+="width=$WIDTH "
-    ARGS+="height=$HEIGHT "
+    ARGS+="model=random "
+    ARGS+="rows=$ROWS "
+    ARGS+="cols=$COLS "
 
     ARGS+="num=$1"
     $RDB_GET_PATH $RUNS_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
@@ -283,19 +272,15 @@ do
 	fi
 
 #    echo -e "#pair  \"type\"\t\"instances\""
-	echo -e "#pair  \"obstacles\"\t\"$OBSTACLES\""
-	echo -e "#pair  \"costs\"\t\"$COSTS\""
-	echo -e "#pair  \"moves\"\t\"$MOVES\""
-	echo -e "#pair  \"prob\"\t\"$PROB\""
-	echo -e "#pair  \"width\"\t\"$WIDTH\""
-	echo -e "#pair  \"height\"\t\"$HEIGHT\""
-	echo -e "#pair  \"num\"\t\"$NUM\"") > $OUT
+	echo -e "#pair  \"model\"\t\"random\""
+	echo -e "#pair  \"rows\"\t\"$ROWS\""
+	echo -e "#pair  \"cols\"\t\"$COLS\"") > $OUT
 
 
     #
     # Preform the search
     #
-    OUTPUT=$($GRID_SEARCH $FULL_NAME < $INSTANCE)
+    OUTPUT=$($SEARCH_PROG $FULL_NAME < $INSTANCE)
     SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9.]\+\).*/\1/p")
     SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9.]\+\).*/\1/p")
     WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9.]\+\).*/\1/p")
