@@ -352,7 +352,13 @@ float GridWorld::ManhattanDist::compute_up_over(int x, int y,
 	float dx = abs(gx - x);
 	float dy = max_y - min_y;
 
-	return (dx * min_y) + (((min_y + max_y) * dy) / 2.0);
+	float last = gy;
+	if (y < gy)
+		last -= 1;
+	else if (y > gy)
+		last += 1;
+
+	return (dx * min_y) + (((y + last) * dy) / 2.0);
 }
 
 /**
