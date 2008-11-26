@@ -26,8 +26,7 @@
 using namespace std;
 
 /**
- * Read in a puzzle from the given input stream... this just blindly
- * assumes that it was given a perfect square.
+ * Read in a puzzle from the given input stream...
  *
  * The datafiles list the position for each corresponding tile.  This
  * means that the first number read is the initial state's position of
@@ -41,8 +40,8 @@ Tiles::Tiles(istream &in)
 	char buff[1024];
 	vector<unsigned int> g;
 
-	in >> width;
 	in >> height;
+	in >> width;
 
 	// Compute crazy Korf table.
 	ones.resize(pow(2, width * height - 1) + 1);
