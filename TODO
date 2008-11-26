@@ -7,8 +7,6 @@
 - (Ethan) Re-read SDD & Edelkamp papers
    - email Rong
 
-- (Ethan) 
-
 - (Seth) A* with lock-free datastructures -- maybe this will be great
    - Look at tfogal's lock-free hashtable
    - Look at Kumar's lock-free Prio-queue
@@ -25,8 +23,6 @@
 - (Ethan/Seth) track and graph # nodes gen/exp
 
 - (Seth) Read SDD and Edelkamp papers?
-
-- (Ethan) Implement integer PQ for BFPSDD.
 
 - (Ethan) Create NBlocks lazily in PBNF and PSDD
 
