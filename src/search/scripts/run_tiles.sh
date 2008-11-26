@@ -262,7 +262,8 @@ do
 #    echo -e "#pair  \"type\"\t\"instances\""
 	echo -e "#pair  \"model\"\t\"random\""
 	echo -e "#pair  \"rows\"\t\"$ROWS\""
-	echo -e "#pair  \"cols\"\t\"$COLS\"") > $OUT
+	echo -e "#pair  \"cols\"\t\"$COLS\""
+	echo -e "#pair  \"num\"\t\"$NUM\"") > $OUT
 
 
     #
