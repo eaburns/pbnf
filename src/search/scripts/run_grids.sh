@@ -29,8 +29,10 @@ then   # Script needs at least one command-line argument.
     echo -e "\
  run_grid.sh \
 [-d <dimensions>] \
+[-p <prob>] \
+[-c <costs>] \
+[-o <obstacles>] \
 [-n <nblocks/thread>] \
-[-p <prob>] \n        \
 [-t <threads>] \
 [-w <weight>] \
 [-m <min_expansions>] \
@@ -41,7 +43,7 @@ fi
 #
 # Parse arugments
 #
-set -- `getopt "d:m:n:p:t:w:" "$@"`
+set -- `getopt "o:c:d:m:n:p:t:w:" "$@"`
 while [ ! -z "$1" ]
 do
     case "$1" in
@@ -51,6 +53,9 @@ do
 	-m) MIN_EXPANSIONS=$2 ; shift ;;
 	-n) NBLOCKS=$2 ; shift ;;
 	-p) PROB=$2 ; shift ;;
+	-p) PROB=$2 ; shift ;;
+	-c) COSTS=$2 ; shift ;;
+	-o) OBSTACLES=$2 ; shift ;;
 	-t) THREADS=$2 ; shift ;;
 	-w) WEIGHT=$2 ; shift ;;
 	*) break ;;
