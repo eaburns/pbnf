@@ -42,33 +42,33 @@ search graph.  The projection function creates an abstract space of
 nodes that are projections, or images, of the nodes in the original
 state space.  For a projection function $p$, $y$ is said to be the
 \emph{image} of a node $x$ if $p(x) = y$.  Additionally $y'$ is a
-successor of an abstract node $y$ if there are two states $x$ and $x'$
-such that $x'$ is a successor of $x$, $y$ is the image of $x$ and $y'$
-is the image of $x'$.  In other words:
+successor of $y$, in the abstract graph, if there are two states $x$
+and $x'$ such that $x'$ is a successor of $x$, $y$ is the image of $x$
+and $y'$ is the image of $x'$.  In other words:
 
 \begin{eqnarray*}
 &&x' \in successors(x) \wedge p(x) = y \wedge p(x') = y' \\
 &\Rightarrow& y' \in successors(y)
 \end{eqnarray*}
 
-In the description of the SDD algorithm, the term \emph{nblock} is
-used to refer to all nodes in the original state space that have the
-same image in the abstract space, throughout the remainder of this
-paper, the terms ``abstract state'', and ``nblock'' will be used
+In the description of the SDD algorithm, Zhou and Hansen use the term
+\emph{nblock} to refer to all nodes in the original state space that
+have the same image in the abstract space, throughout the remainder of
+this paper, the terms ``abstract state'', and ``nblock'' will be used
 interchangeably since each nblock corresponds to a single abstract
 state.
 
 Zhou and Hansen show that, while performing duplicate detection, only
-nodes within the same nblock must be checked for duplicates.  By the
-definition of the successor set of an abstract node: any child node
-$x'$ of a node $x$, in the original state space, will have an image
-$p(x') \in successors(p(x))$, and therefore when performing duplicate
-detection for $x'$ the only nodes that must be checked are in the
-nblock $p(x') \in successors(p(x))$.  For this reason,
-$successors(p(x))$ is called the \emph{duplicate detection scope} of
-the nblock $p(x)$ -- no other nodes in the original state space will
-ever need to be consulted for duplicate detection when expanding nodes
-in the nblock $p(x)$.
+nodes which reside within the same nblock must be checked for
+duplicates.  By the definition of the successor set of an abstract
+node: any child node $x'$ of a node $x$, in the original state space,
+will have an image $p(x') \in successors(p(x))$, and therefore when
+performing duplicate detection for $x'$ the only nodes that must be
+checked are in the nblock $p(x') \in successors(p(x))$.  For this
+reason, $successors(p(x))$ is called the \emph{duplicate detection
+  scope} of the nblock $p(x)$ -- no other nodes in the original state
+space will ever need to be consulted for duplicate detection when
+expanding nodes in the nblock $p(x)$.
 
 This idea can be shown using the sliding tile puzzle as an example.
 It is conceivable that a projection function for the sliding tiles
@@ -79,9 +79,9 @@ example: all states with the empty tile in the upper left-hand corner
 position of the empty tile.  Using this abstraction, there are sixteen
 possible abstract states (one for each possible position of the empty
 tile).  It is easy to see that all of the children of a state in the
-nblock shown in this figure will have the empty tile in either
-position 1 or 4 (either by sliding the tile in position 1 to the left,
-or by sliding the tile in position 4 up).  Figure
+nblock shown in Figure \ref{fig:tile-abstraction} will have the empty
+tile in either position 1 or 4 (either by sliding the tile in position
+1 to the left, or by sliding the tile in position 4 up).  Figure
 \ref{fig:duplicate-detection-scope} shows the duplicate detection
 scope for the nblock in Figure \ref{fig:tile-abstraction}.  Any of the
 children of a state $x$ in the nblock shown in Figure
@@ -110,17 +110,26 @@ In \cite{zhou:sdd} Zhou and Hansen are interested in state space
 decomposition so that they can explicitly move generated nodes to a
 secondary storage device (such as a disk drive) when they are not
 needed.  The SDD approach uses breadth-first heuristic search, where
-one nblock is searched at a time.  Since duplicates can only fall into
-the duplicate detection scope of the nblock being searched, the
-remainder of the nodes can be pushed off to disk, instead of being
-stored in main memory.  Nblocks can then be intelligently swapped into
-and out of main-memory as the search progresses.
+only the nodes of the current search depth in a single nblock are
+searched at a time.  Nodes of this nblock are expanded from the
+current depth-layer and their children are placed into the next-depth
+layer of their corresponding nblocks.  When the current nblock has no
+more nodes at the current depth-layer, it is swapped for another
+nblock which does have open nodes at this depth.  If no more nblocks
+have nodes at the search depth, the search progresses to the next
+layer (which contains the children nodes of the previous layer).  This
+procedure repeats until a goal is found, or no nodes remain. Since
+duplicates can only fall into the duplicate detection scope of the
+nblock being searched, the remainder of the nodes can be pushed off to
+disk, instead of being stored in main-memory.  Nblocks can then be
+intelligently swapped into and out of main-memory as the search
+progresses.
 
 \subsection{Parallel Structured Duplicate Detection (PSDD)}
 
 While the motivation of SDD is to have explicit control over which
-portions of a search space reside in main-memory, Zhou and Hansen show
-in \cite{zhou:psd} that this approach also lends itself to
+portions of a search space reside in main-memory.  Zhou and Hansen
+show in \cite{zhou:psd} that this approach also lends itself to
 parallelization.  The parallel SDD (or PSDD) algorithm uses the graph
 of nblocks to find \emph{disjoint duplicate detection scopes}, or
 duplicate detection scopes that do not overlap.  Nblocks with disjoint
@@ -135,26 +144,13 @@ $\sigma(b)$ value for each nblock $b$, where $\sigma(b)$ is the number
 of nblocks in $successors(b)$ that are in use by another processor.
 Any nblock $b$ with $\sigma(b) = 0$ is free, and therefore a processor
 can acquire $b$ and its duplicate detection scope for a period of lock
-free expansion.  PSDD is an attractive algorithm because it only uses
-a single shared data structure (the nblock graph) which reduces the
-amount of contention between processors during a search.
+free expansion.  Besides tracking disjoint duplicate detection scopes,
+the search procedure of PSDD is the same as that of SDD; the search
+progresses by searching one depth-layer at a time until a goal is
+found or the search space is exhausted.  PSDD is an attractive
+algorithm because it reduces the amount of contention between
+processors by allowing for lock-free periods of expansion.
 
-In PSDD, as in SDD, the search progresses in layers, in a
-breadth-first manor.  For example, an nblock can be thought of as a
-closed-list and two open-lists -- one open-list for the current layer
-(which is being expanded from) and one for the next layer (which is
-being expanded into).  Nodes are removed from the open-list of the
-current layer of an nblock, duplicate detection is performed from the
-closed-list, if the node is not a duplicate its children are inserted
-into the next layer open-list for their respective nblocks.  When the
-current layer for an nblock is done expanding, it is added to the free
-nblock list for the next layer, and the processor tries to acquire a
-new free nblock in the current layer.  Once there are no more nblocks
-to expand on the current layer, the search switches to the next layer
-and begins again.  The search progresses in this fashion until a goal
-is found or the entire search space is covered and there is no
-solution.  Since the search order is breadth-first, the first goal
-that is found is the optimal goal.
 
 \section{Parallel Best NBlock First (PBNF)}
 \subsection{Safe PBNF}

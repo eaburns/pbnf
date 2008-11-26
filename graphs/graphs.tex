@@ -1,0 +1,82 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{graphicx}
+
+\begin{document}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics{grid_unit_four-way_0.25_2000_1200/PSDD-time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Wall clock time: PSDD on a 2000x1200 grid world with 25\%
+  obstacles and unit cost four-way movement.}
+\end{center}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.1.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.5.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=2.0.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=2.2.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Wall clock time: DYNPSDD on a 2000x1200 grid world with 25\%
+  obstacles and unit cost four-way movement.  This algorithm uses wA*
+  to get an upper solution cost bound, then performs PSDD using this
+  bound for pruning.}
+\end{center}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics{grid_unit_four-way_0.25_2000_1200/BFPSDD-time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Wall clock time: Best-first PSDD on a 2000x1200 grid world with 25\%
+  obstacles and unit cost four-way movement.}
+\end{center}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=5.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=10.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=30.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=60.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=80.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Wall clock time: Safe PBNF on a 2000x1200 grid world with 25\%
+  obstacles and unit cost four-way movement.}
+\end{center}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics{grid_unit_four-way_0.25_2000_1200/time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{A comparison of the best combination of parameters for Safe
+  PBNF and Best-first PSDD on a 2000x1200 grid world with 25\%
+  obstacles and unit cost four-way movement.}
+\end{center}
+\end{figure}
+
+% ------------------------------------------------------------
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics{grid_unit_four-way_0.25_2000_1200/BFPSDD-expanded-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Number of expansions: Best-first PSDD on a 2000x1200 grid world with 25\%
+  obstacles and unit cost four-way movement.}
+\end{center}
+\end{figure}
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-expanded-Unit_Four-way_0.25_2000_1200_min=5.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-expanded-Unit_Four-way_0.25_2000_1200_min=10.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-expanded-Unit_Four-way_0.25_2000_1200_min=30.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-expanded-Unit_Four-way_0.25_2000_1200_min=60.eps}
+\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-expanded-Unit_Four-way_0.25_2000_1200_min=80.eps}
+%\includegraphics[width=3in]{grid_unit_four-way_0.25_2000_1200/SAFEPBNF-expanded-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Number of expansions: Safe PBNF on a 2000x1200 grid world with 25\%
+  obstacles and unit cost four-way movement.}
+\end{center}
+\end{figure}
+
+\end{document}
