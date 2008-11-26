@@ -84,7 +84,7 @@ tile in either position 1 or 4 (either by sliding the tile in position
 1 to the left, or by sliding the tile in position 4 up).  Figure
 \ref{fig:duplicate-detection-scope} shows the duplicate detection
 scope for the nblock in Figure \ref{fig:tile-abstraction}.  Any of the
-children of a state $x$ in the nblock shown in Figure
+children of a state in the nblock shown in Figure
 \ref{fig:tile-abstraction} will fall into one of the two nblocks shown
 in Figure \ref{fig:duplicate-detection-scope}.
 
@@ -107,7 +107,7 @@ in Figure \ref{fig:duplicate-detection-scope}.
 \end{figure}
 
 In \cite{zhou:sdd} Zhou and Hansen are interested in state space
-decomposition so that they can explicitly move generated nodes to a
+decomposition so that generated nodes can be explicitly moved to a
 secondary storage device (such as a disk drive) when they are not
 needed.  The SDD approach uses breadth-first heuristic search, where
 only the nodes of the current search depth in a single nblock are
