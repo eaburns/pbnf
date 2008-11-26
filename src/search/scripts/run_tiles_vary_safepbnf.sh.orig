@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for min in 10 50 80
+do
+    for (( threads=1; threads <= 10; threads++ ))
+    do
+	./scripts/run_tiles.sh safepbnf -m $min -t $threads $@
+    done
+done
