@@ -132,7 +132,7 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 			graph->set_hot(best_scope);
 
 	} else {
-		ret = free < cur;
+		ret = free + search->delta_f < cur;
 	}
 
 	return ret;
@@ -144,13 +144,15 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 PBNFSearch::PBNFSearch(unsigned int n_threads,
 		       unsigned int min_expansions,
+		       float delta_f,
 		       bool detect_livelocks)
 	: n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  bound(INFINITY),
 	  detect_livelocks(detect_livelocks),
-	  min_expansions(min_expansions)
+	  min_expansions(min_expansions),
+	  delta_f(0.0)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }

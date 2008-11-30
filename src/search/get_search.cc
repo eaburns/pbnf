@@ -39,6 +39,7 @@ float weight = 1.0;
 Search *get_search(int argc, char *argv[])
 {
 	unsigned int min_expansions = 0;
+	float delta_f = 0.0;
 
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
@@ -68,11 +69,17 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1
 		   && sscanf(argv[1], "pbnf-%u-%u-%f",
 			     &min_expansions, &threads, &ratio) == 3) {
-		return new PBNFSearch(threads, min_expansions, false);
+		return new PBNFSearch(threads, min_expansions, 0.0, false);
 	} else if (argc > 1
-		   && sscanf(argv[1], "safepbnf-%u-%u-%f",
-			     &min_expansions, &threads, &ratio) == 3) {
-		return new PBNFSearch(threads, min_expansions, true);
+		   && sscanf(argv[1], "pbnf2-%f-%u-%f",
+			     &delta_f, &threads, &ratio) == 3) {
+		return new PBNFSearch(threads, 1, delta_f, false);
+	} else if (argc > 1
+		   && sscanf(argv[1], "safepbnf-%u-%u-%f", &min_expansions, &threads, &ratio) == 3) {
+		return new PBNFSearch(threads, min_expansions, 0.0, true);
+	} else if (argc > 1
+		   && sscanf(argv[1], "safepbnf2-%f-%u-%f", &delta_f, &threads, &ratio) == 3) {
+		return new PBNFSearch(threads, 1, delta_f, true);
 	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
 		return new MultiAStar(threads);
 	} else {
@@ -88,7 +95,8 @@ Search *get_search(int argc, char *argv[])
 		     << "\tdynpsdd-<threads>-<nblocks/thread>-<weight>" << endl
 		     << "\tbfpsdd-<threads>-<nblocks/thread>" << endl
 		     << "\tpbnf-<min_expansions>-<threads>-<nblocks/thread>" << endl
-		     << "\tsafepbnf-<min_expansions>-<threads>-<nblocks/thread>" << endl
+		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks/thread>" << endl
+		     << "\tsafepbnf2-<delta_f>-<threads>-<nblocks/thread>" << endl
 		     << "\tmultiastar-<threads>" << endl
 		     << endl;
 		exit(EXIT_FAILURE);

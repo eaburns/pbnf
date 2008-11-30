@@ -29,7 +29,7 @@ using namespace PBNF;
 class PBNFSearch : public Search {
 public:
 	PBNFSearch(unsigned int n_threads, unsigned int min_expansions,
-		   bool detect_livelocks);
+		   float delta_f, bool detect_livelocks);
 
 	virtual ~PBNFSearch(void);
 
@@ -58,7 +58,9 @@ private:
 	vector<const State *> *path;
 	AtomicFloat bound;
 	bool detect_livelocks;
+
 	unsigned int min_expansions;
+	float delta_f;
 };
 
 #endif	/* !_PBNF_SEARCH_H_ */
