@@ -44,7 +44,7 @@ Tiles::Tiles(istream &in)
 	in >> width;
 
 	// Compute crazy Korf table.
-	ones.resize(pow(2, width * height - 1) + 1);
+	ones.resize((int) pow(2, width * height - 1) + 1);
 	for (unsigned int i = 1; i <= pow(2, width * height - 1); i += 1) {
 		unsigned int bits = 0;
 		unsigned int j = i;
@@ -101,7 +101,7 @@ const vector<unsigned int> *Tiles::get_ones() const
  * this, it is just really for testing purposes.
  */
 Tiles::Tiles(unsigned int width, unsigned int height)
-	: width(width), height(height), initial(NULL) {}
+	: width(width), height(height) {}
 
 
 /**

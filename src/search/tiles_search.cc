@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 		// Make sure that the heuristic was actually admissible!
 		for (unsigned int i = path->size() - 1; i >= 0; i -= 1) {
 			const State *s = path->at(i);
-			unsigned int togo = path->at(0)->get_g() - s->get_g();
+			float togo = path->at(0)->get_g() - s->get_g();
 			assert(s->get_h() <= togo);
 			if (i > 0)
 				assert(s->get_h() > 0);
