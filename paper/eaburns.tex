@@ -19,9 +19,9 @@ We are approaching a time when it will no longer be beneficial for
 hardware manufactures to create micro-processors with greater clock
 speeds.  In order to get increased performance, software developers
 will need to take advantage of concurrency and multi-core processors.
-We propose a best-first-ish search algorithm which makes use of
-multiple core CPUs in order to more quickly solve search problems
-which are small enough to fit into memory.
+We make use of novel ideas used for external memory search to create a
+parallel best-first-ish algorithm for quickly solving problems which
+are small enough to fit into memory.
 \end{abstract}
 
 \section{Introduction}
@@ -30,7 +30,7 @@ As microprocessor manufacturers build processors with more and more
 cores, software developers are being pressured to create algorithms to
 make better use of the newly available parallelism.
 
-\section{Background}
+\section{Previous Work}
 
 \subsection{Structured Duplicate Detection}
 
@@ -187,7 +187,6 @@ upper-bound on the optimal solution, the search can stop when there
 are no frontier nodes that have f-values less than the current
 incumbent -- this means that the current incumbent solution \emph{is}
 the optimal solution.
-
 
 \section{Parallel Best NBlock First (PBNF)}
 \subsection{Safe PBNF}
