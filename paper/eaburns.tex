@@ -34,17 +34,17 @@ make better use of the newly available parallelism.
 
 \subsection{Structured Duplicate Detection}
 
-In \cite{zhou:sdd} Zhou and Hansen propose a new method for external
-memory graph search called Structured Duplicate Detection or SDD.  SDD
-uses a projection function, which is a many-to-one mapping from states
-in the search space to states in an abstract space, to decompose a
-search graph.  The projection function creates an abstract space of
-nodes that are projections, or images, of the nodes in the original
-state space.  For a projection function $p$, $y$ is said to be the
-\emph{image} of a node $x$ if $p(x) = y$.  Additionally $y'$ is a
-successor of $y$, in the abstract graph, if there are two states $x$
-and $x'$ such that $x'$ is a successor of $x$, $y$ is the image of $x$
-and $y'$ is the image of $x'$.  In other words:
+Structured Duplicate Detection or SDD \cite{zhou:sdd} is a method for
+performing external memory search.  SDD uses a projection function,
+which is a many-to-one mapping from states in the search space to
+states in an abstract space, to decompose a search graph.  The
+projection function creates an abstract space of nodes that are
+projections, or images, of the nodes in the original state space.  For
+a projection function $p$, $y$ is said to be the \emph{image} of a
+node $x$ if $p(x) = y$.  Additionally $y'$ is a successor of $y$, in
+the abstract graph, if there are two states $x$ and $x'$ such that
+$x'$ is a successor of $x$, $y$ is the image of $x$ and $y'$ is the
+image of $x'$.  In other words:
 
 \begin{eqnarray*}
 &&x' \in successors(x) \wedge p(x) = y \wedge p(x') = y' \\
@@ -106,31 +106,30 @@ in Figure \ref{fig:duplicate-detection-scope}.
 \end{center}
 \end{figure}
 
-In \cite{zhou:sdd} Zhou and Hansen are interested in state space
-decomposition so that generated nodes can be explicitly moved to a
-secondary storage device (such as a disk drive) when they are not
-needed.  The SDD approach uses breadth-first heuristic search, where
-only the nodes of the current search depth in a single nblock are
-searched at a time.  Nodes of this nblock are expanded from the
-current depth-layer and their children are placed into the next-depth
-layer of their corresponding nblocks.  When the current nblock has no
-more nodes at the current depth-layer, it is swapped for another
-nblock which does have open nodes at this depth.  If no more nblocks
-have nodes at the search depth, the search progresses to the next
-layer (which contains the children nodes of the previous layer).  This
-procedure repeats until a goal is found, or no nodes remain. Since
-duplicates can only fall into the duplicate detection scope of the
-nblock being searched, the remainder of the nodes can be pushed off to
-disk, instead of being stored in main-memory.  Nblocks can then be
-intelligently swapped into and out of main-memory as the search
-progresses.
+The main focus of the SDD approach is using state space decomposition
+so that generated nodes can be explicitly moved to a secondary storage
+device (such as a disk drive) when they are not needed.  The SDD
+approach uses breadth-first heuristic search, where only the nodes of
+the current search depth in a single nblock are searched at a time.
+Nodes of this nblock are expanded from the current depth-layer and
+their children are placed into the next-depth layer of their
+corresponding nblocks.  When the current nblock has no more nodes at
+the current depth-layer, it is swapped for another nblock which does
+have open nodes at this depth.  If no more nblocks have nodes at the
+search depth, the search progresses to the next layer (which contains
+the children nodes of the previous layer).  This procedure repeats
+until a goal is found, or no nodes remain. Since duplicates can only
+fall into the duplicate detection scope of the nblock being searched,
+the remainder of the nodes can be pushed off to disk, instead of being
+stored in main-memory.  Nblocks can then be intelligently swapped into
+and out of main-memory as the search progresses.
 
 \subsection{Parallel Structured Duplicate Detection (PSDD)}
 
 While the motivation of SDD is to have explicit control over which
 portions of a search space reside in main-memory.  Zhou and Hansen
-show in \cite{zhou:psd} that this approach also lends itself to
-parallelization.  The parallel SDD (or PSDD) algorithm uses the graph
+also show that this approach also lends itself to parallelization
+\cite{zhou:psd}.  The parallel SDD (or PSDD) algorithm uses the graph
 of nblocks to find \emph{disjoint duplicate detection scopes}, or
 duplicate detection scopes that do not overlap.  Nblocks with disjoint
 duplicate detection scopes can be searched in parallel without any
@@ -151,6 +150,11 @@ found or the search space is exhausted.  PSDD is an attractive
 algorithm because it reduces the amount of contention between
 processors by allowing for lock-free periods of expansion.
 
+\subsection{Localizing A*}
+
+An alternative approach for improving the efficiency of large searches
+is to slightly loosen the node ordering restriction of A* as is done
+by Edelkamp and Schrodl \cite{edelkamp:loc}.  Edelkamp and Schrodl 
 
 \section{Parallel Best NBlock First (PBNF)}
 \subsection{Safe PBNF}
