@@ -2,6 +2,10 @@
 
 - (Seth) Cancel threads in PRA*
 
+- (Ethan) start tests on lines grid world boards
+
+- (Ethan) Figure out why we suck on tiles
+
 - (Ethan) Look into PBNF with 5nblocks/thread and 1 thread... it
    performs very poorly.
 
@@ -11,15 +15,9 @@
 
 - (Seth) Implement learning for min expansions
 
-- (Ethan/Seth) test on other grid world boards
-
 - (Ethan) Implement 8-way movement in gridworld (need real value costs,
    sqrt(2) diagonals)
-
-- (Ethan/Seth) test on tiles
-
-- (Ethan/Seth) track and graph # nodes gen/exp
-
+   
 - (Seth) Read SDD and Edelkamp papers?
 
 - (Ethan) Create NBlocks lazily in PBNF and PSDD
@@ -112,3 +110,6 @@
 - (Ethan) Re-read SDD & Edelkamp papers
    - email Rong
 
+- (Ethan) test on tiles
+
+- (Ethan) track and graph # nodes gen/exp
