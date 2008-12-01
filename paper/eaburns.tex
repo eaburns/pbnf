@@ -154,7 +154,40 @@ processors by allowing for lock-free periods of expansion.
 
 An alternative approach for improving the efficiency of large searches
 is to slightly loosen the node ordering restriction of A* as is done
-by Edelkamp and Schrodl \cite{edelkamp:loc}.  Edelkamp and Schrodl 
+by Edelkamp and Schrodl \cite{edelkamp:loc}.  Edelkamp and Schrodl
+create an algorithm that loosens the node ordering of A* in order to
+achieve a better memory locality, this algorithm will be called lA*
+(for localized A*).  While lA* expands more nodes than A* does, the
+intuition is that lA* can achieve better performance than A* for large
+searches because it can reduce the number of virtual-memory operations
+that swap to disk.
+
+lA* uses a data structure called a \emph{Heap-of-heaps} to order its
+node expansions.  A heap-of-heaps, $H$, is composed of elements $H_0$,
+$H_1$, ..., $H_n$, where each element $H_i$ is a heap of search nodes
+that reside in the same page of memory.  The heap-of-heaps, $H$, is
+loosely sorted based on the f-values of the best nodes of each heap
+$H_i$ (denoted as $best(H_i)$).  The lA* procedure searches the best
+heap $H_0$, of the heap-of-heaps, until $best(H_1) + \Delta >
+best(H_0)$, where $H_1$ is the new best heap on $H$ after the removal
+of heap $H_0$.  The $\Delta$ value allows the search to expand a set
+of nodes in $H_0$ which may not have a the best f-values, but that
+have better memory locality with respect to the previously expanded
+nodes.
+
+Since lA* prefers nodes with better memory locality, it reduces the
+number of page-faults, and virtual memory swap operations that the
+operating system must perform.  The tradeoff is that the first
+solution found by lA* may be sub-optimal, since it is not searching in
+strict f-value order.  To fix this problem, lA* doesn't return its
+first solution; instead it behaves like an any-time algorithm and
+continues the search, pruning on the f-value of the incumbent
+solution.  Since the f-value of the incumbent solution is an
+upper-bound on the optimal solution, the search can stop when there
+are no frontier nodes that have f-values less than the current
+incumbent -- this means that the current incumbent solution \emph{is}
+the optimal solution.
+
 
 \section{Parallel Best NBlock First (PBNF)}
 \subsection{Safe PBNF}
