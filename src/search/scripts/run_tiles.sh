@@ -4,6 +4,8 @@
 THREADS=1
 NBLOCKS=1
 WEIGHT=1.0
+MIN_EXPANSIONS=1
+DELTA_F=0
 ROWS=3
 COLS=3
 ALGORITHM=""
@@ -14,10 +16,11 @@ SEARCH_PROG="./tiles_search.bin"
 DATA_ROOT="/home/rai/group/data/tiles_instances"
 RUNS_ROOT="/home/rai/eaburns/data/tiles"
 
-USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd"
+USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2"
 USES_MIN_EXPANSIONS="safepbnf pbnf"
+USES_DELTA_F="safepbnf2 pbnf2"
 
 if [ "$#" -eq 0 ]
 then   # Script needs at least one command-line argument.
@@ -26,6 +29,7 @@ then   # Script needs at least one command-line argument.
  run_tiles.sh \
 [-t <threads>] \
 [-w <weight>] \
+[-d <delta_f>] \
 [-m <min_expansions>] \
 [-r <rows>] \
 [-c <columns>] \
@@ -36,11 +40,12 @@ fi
 #
 # Parse arugments
 #
-set -- `getopt "m:n:t:w:r:c:" "$@"`
+set -- `getopt "d:m:n:t:w:r:c:" "$@"`
 while [ ! -z "$1" ]
 do
     case "$1" in
 	-a) ALGORITHM=$2 ; shift ;;
+	-d) DELTA_F=$2 ; shift ;;
 	-m) MIN_EXPANSIONS=$2 ; shift ;;
 	-t) THREADS=$2 ; shift ;;
 	-w) WEIGHT=$2 ; shift ;;
@@ -101,6 +106,11 @@ function run_file ()
     ARGS+="type=run "
     ARGS+="alg=$ALGORITHM "
 
+    if alg_on_list $USES_DELTA_F
+    then
+	ARGS+="delta-f=$DELTA_F "
+    fi
+
     if alg_on_list $USES_MIN_EXPANSIONS
     then
 	ARGS+="min-expansions=$MIN_EXPANSIONS "
@@ -132,6 +142,11 @@ function run_file ()
 function full_algo_name ()
 {
     FULL_NAME="$1"
+
+    if alg_on_list $USES_DELTA_F
+    then
+	FULL_NAME+="-$DELTA_F"
+    fi
 
     if alg_on_list $USES_MIN_EXPANSIONS
     then
@@ -243,6 +258,11 @@ do
 	echo -e "#pair  \"wall start time\"\t\"NULL\""
 	echo -e "#pair  \"machine id\"\t\"$(hostname -f)-$(uname -m)-$(uname -s)-$(uname -r)\""
 	echo -e "#pair  \"alg\"\t\"$ALGORITHM\""
+
+	if alg_on_list $USES_DELTA_F
+	then
+	    echo -e "#pair  \"delta-f\"\t\"$DELTA_F\""
+	fi
 
 	if alg_on_list $USES_MIN_EXPANSIONS
 	then
