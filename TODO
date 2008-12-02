@@ -1,10 +1,12 @@
+- (Ethan) Try m expansions between testing the interference scope.
+
+- (Seth) New pseudo code to Rong.
+
 - (Ethan) Fix the tiles abstraction
 
 - (Ethan) Look into the grid-world abstraction
    
-- (Seth) Learn algorithm2e
-
-- (Seth) Generate 8-puzzles
+- (Seth) Generate 3x4 puzzles
 
 - (Seth) Cancel threads in PRA*
 
@@ -13,20 +15,26 @@
 - (Ethan) Look into PBNF with 5nblocks/thread and 1 thread... it
    performs very poorly.
 
-- (Seth) A* with lock-free datastructures -- maybe this will be great
-   - Look at tfogal's lock-free hashtable
-   - Look at Kumar's lock-free Prio-queue
-
-- (Seth) Implement learning for min expansions
+- Wted A* for large problems
 
 - (Ethan) Implement 8-way movement in gridworld (need real value costs,
    sqrt(2) diagonals)
    
-- (Seth) Read SDD and Edelkamp papers?
+- (Ethan/Seth) Read Edelkamp's "External A*"
+   
+- PSDD with some kind of f-range
 
-- (Ethan) Create NBlocks lazily in PBNF and PSDD
+- (Seth) A* with lock-free datastructures -- maybe this will be great
+   - Look at tfogal's lock-free hashtable
+   - Look at Kumar's lock-free Prio-queue
+   
+- (Seth) Implement learning for min expansions
+
+--------------------
 
 - (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
+   
+- (Ethan) Create NBlocks lazily in PBNF and PSDD
 
 - plot vs. A*
 
@@ -39,7 +47,7 @@
 
 - (Ethan) Learn a merge tool (Meld?)
 
-------------------------------------------------------------
+============================================================
 
 - (Seth) Get Rong updated algorithm description
 
