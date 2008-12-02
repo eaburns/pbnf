@@ -1,4 +1,6 @@
-\documentclass{article} \usepackage{aaai} \usepackage{graphicx}
+\documentclass{article}
+\usepackage{aaai}
+\usepackage{graphicx}
 
 % Big margins for now so people can take notes/scribbles.
 %\usepackage{fullpage}
@@ -33,7 +35,7 @@ make better use of the newly available parallelism.  In the field of
 artificial intelligence it is always necessary to solve problems more
 quickly.  A trend in current research on heuristic search, however,
 seems to be focusing on finding solutions in larger and larger search
-domains instead of solving smaller domains faster.  For this work, our
+domains instead of solving smaller domains faster.  For this work our
 goal was to attempt to use parallelism to solve some problems that are
 traditionally considered small more quickly.
 
@@ -46,49 +48,50 @@ synchronization and performing extra search effort.  This tradeoff can
 be directly related to detection of duplicate nodes in the graph.
 
 In a typical, serial best-first search algorithm, an \emph{open-list}
-and \emph{closed-list} are maintained.  The open-list contains nodes
-on the search frontier that have yet to be searched, and the
-closed-list maintains nodes which have already been expanded.  The
-closed-list is used to detect cycles in the search graph so that a
-node is not searched multiple times.  This is referred to as
+and \emph{closed-list} of nodes are maintained.  The open-list
+contains nodes on the search frontier that have yet to be searched
+(expanded), and the closed-list maintains nodes which have already
+been expanded.  The closed-list is used to detect cycles in the search
+graph so that a node is not searched multiple times.  The process of
+detection nodes that have already been searched is called
 \emph{duplicate detection}.  In a serial best-first search, a node is
 added to the closed-list the first time that the search encounters it.
-If the node is encountered again during the search process, it is
-ignored since it has already been searched.  This process breaks
+If a node is encountered again during the search process, it is
+ignored since it has already been expanded.  This process breaks
 cycles and eliminates extra, wasted, search effort.
 
 In a parallel graph search, where many processors are searching nodes
 concurrently, keeping track of which nodes have already been searched
-can be more complicated.  Since multiple processors are searching at
-the same time a shared data structure is necessary to communicate
+can be complicated.  Since multiple processors are searching at the
+same time a shared data structure is often necessary to communicate
 between the processors which nodes have already been searched.  The
 problem with this approach is that the synchronization overhead
 required to access a shared data structure can be expensive,
-especially as the number of processors increases, creating more
+especially as the number of processors increases creating more
 contention.  An alternative approach would be to ignore duplicate
 tracking altogether, or less extremely, to have each processor only
 track duplicate nodes locally; not communicating the information with
 other processors at all.  While this approach eliminates
-synchronization overhead, it leads to extra search effort being
-expended searching nodes that may have already been encountered by
-another processor.
+synchronization overhead it leads to extra search effort due to the
+searching of nodes that may have already been encountered by other
+processors.
 
 External memory graph search is another graph search technique that
 exhibits similar problems to those of parallel search.  External
-memory graph search uses a secondary storage devices, such as a hard
+memory graph search uses secondary storage devices, such as a hard
 disks, to store large portions of search space which are not currently
 being used.  Since secondary storage devices can have a much larger
-capacity per cost than primary memory, this technique allows larger
-search domains to be solved using more commonly available hardware.
+capacity-per-unit-cost than primary memory, this technique allows
+larger search domains to be solved using commonly available hardware.
 Both external memory and parallel graph search share a common problem:
-duplicate detection must be performed with only access to a (possibly
-small) subset of the entire closed-list.  In the case of external
-memory search some of the closed nodes will be residing on a slow
-secondary storage device, and in the case of parallel search some of
-the nodes will be in use by other processors.  The question that must
-be answered is how to decompose a search graph to allow for efficient
-and accurate duplicate detection using only subsets of the search
-graph.
+duplicate detection must be performed while only having access to a
+(possibly small) subset of the entire closed-list.  In the case of
+external memory search some of the closed nodes will be residing on a
+slow, secondary storage device.  In the case of parallel search some
+of the nodes will be in use by other processors.  The question that
+must be answered is how to decompose a search graph to allow for
+efficient and accurate duplicate detection using only subsets of all
+of the graph's nodes.
 
 \section{Previous Work}
 
@@ -98,16 +101,16 @@ graph.
 
 Structured Duplicate Detection or SDD \cite{zhou:sdd} is a method for
 performing external memory search.  SDD uses a projection function, a
-many-to-one mapping from states in the search space to states in an
+many-to-one mapping from states in a search space to states in an
 abstract space, to decompose a search graph.  The projection function
 creates an abstract space of nodes that are projections, or images, of
 the nodes in the original state space.  Since the projection function
 is a many-to-one mapping, the abstract space is significantly smaller
-than the original space.  For a projection function $p$, $y$ is said
-to be the \emph{image} of a node $x$ if $p(x) = y$.  Additionally $y'$
-is a successor of $y$, in the abstract graph, if there are two states
-$x$ and $x'$ such that $x'$ is a successor of $x$, $y$ is the image of
-$x$ and $y'$ is the image of $x'$.  In other words:
+than the original search space.  For a projection function $p$, $y$ is
+said to be the \emph{image} of a node $x$ if $p(x) = y$.  Additionally
+$y'$ is a successor of $y$, in the abstract graph, if there are two
+states $x$ and $x'$ such that $x'$ is a successor of $x$, $y$ is the
+image of $x$ and $y'$ is the image of $x'$.  In other words:
 
 \begin{eqnarray*}
 &&x' \in successors(x) \wedge p(x) = y \wedge p(x') = y' \\
@@ -224,8 +227,8 @@ processors by allowing for lock-free periods of expansion.
 An alternative approach for improving the efficiency of large searches
 is to slightly loosen the node ordering restriction of A* as is done
 by Edelkamp and Schrodl \cite{edelkamp:loc}.  Edelkamp and Schrodl
-create an algorithm that loosens the node ordering of A* in order to
-achieve a better memory locality, this algorithm will be called lA*
+create an algorithm that uses a looser node ordering than A* in order
+to achieve a better memory locality. We refer to this algorithm as lA*
 (for localized A*).  While lA* expands more nodes than A* does, the
 intuition is that lA* can achieve better performance than A* for large
 searches because it can reduce the number of virtual-memory operations
@@ -247,11 +250,11 @@ nodes.
 Since lA* prefers nodes with better memory locality, it reduces the
 number of page-faults, and virtual memory swap operations that the
 operating system must perform.  The tradeoff is that the first
-solution found by lA* may be sub-optimal, since it is not searching in
+solution found by lA* may be sub-optimal since it is not searching in
 strict f-value order.  To fix this problem, lA* doesn't return its
-first solution; instead it behaves like an any-time algorithm and
-continues the search, pruning on the f-value of the incumbent
-solution.  Since the f-value of the incumbent solution is an
+first solution, instead it behaves like an any-time search algorithm
+by continuing the search and pruning on the f-value of incumbent
+solutions.  Since the f-value of an incumbent solution is an
 upper-bound on the optimal solution, the search can stop when there
 are no frontier nodes that have f-values less than the current
 incumbent -- this means that the current incumbent solution \emph{is}
