@@ -86,10 +86,10 @@
   \ENDIF
   \IF {$\sigma == 0$ for all nblocks and free list is empty}
     \STATE $done \leftarrow$ true
-    \STATE wake all threads
+    \STATE wake all sleeping threads
   \ENDIF
   \WHILE {free list is empty and $done =$ false}
-    \STATE sleep on condition for $s$
+    \STATE sleep
   \ENDWHILE
   \IF {$done =$ true}
     \STATE $n \leftarrow$ NULL
