@@ -42,16 +42,17 @@ problems, that are traditionally considered small, more quickly.
 \subsection{Structured Duplicate Detection}
 
 Structured Duplicate Detection or SDD \cite{zhou:sdd} is a method for
-performing external memory search.  SDD uses a projection function,
-which is a many-to-one mapping from states in the search space to
-states in an abstract space, to decompose a search graph.  The
-projection function creates an abstract space of nodes that are
-projections, or images, of the nodes in the original state space.  For
-a projection function $p$, $y$ is said to be the \emph{image} of a
-node $x$ if $p(x) = y$.  Additionally $y'$ is a successor of $y$, in
-the abstract graph, if there are two states $x$ and $x'$ such that
-$x'$ is a successor of $x$, $y$ is the image of $x$ and $y'$ is the
-image of $x'$.  In other words:
+performing external memory search.  SDD uses a projection function, a
+many-to-one mapping from states in the search space to states in an
+abstract space, to decompose a search graph.  The projection function
+creates an abstract space of nodes that are projections, or images, of
+the nodes in the original state space.  Since the projection function
+is a many-to-one mapping, the abstract space is significantly smaller
+than the original space.  For a projection function $p$, $y$ is said
+to be the \emph{image} of a node $x$ if $p(x) = y$.  Additionally $y'$
+is a successor of $y$, in the abstract graph, if there are two states
+$x$ and $x'$ such that $x'$ is a successor of $x$, $y$ is the image of
+$x$ and $y'$ is the image of $x'$.  In other words:
 
 \begin{eqnarray*}
 &&x' \in successors(x) \wedge p(x) = y \wedge p(x') = y' \\
@@ -60,35 +61,39 @@ image of $x'$.  In other words:
 
 In the description of the SDD algorithm, Zhou and Hansen use the term
 \emph{nblock} to refer to all nodes in the original state space that
-have the same image in the abstract space, throughout the remainder of
-this paper, the terms ``abstract state'', and ``nblock'' will be used
-interchangeably since each nblock corresponds to a single abstract
+have the same image in the abstract space.  Throughout the remainder
+of this paper, the terms ``abstract state'', and ``nblock'' will be
+used interchangeably, as each nblock corresponds to a single abstract
 state.
 
 Zhou and Hansen show that, while performing duplicate detection, only
 nodes which reside within the same nblock must be checked for
-duplicates.  By the definition of the successor set of an abstract
-node: any child node $x'$ of a node $x$, in the original state space,
-will have an image $p(x') \in successors(p(x))$, and therefore when
-performing duplicate detection for $x'$ the only nodes that must be
-checked are in the nblock $p(x') \in successors(p(x))$.  For this
-reason, $successors(p(x))$ is called the \emph{duplicate detection
-  scope} of the nblock $p(x)$ -- no other nodes in the original state
-space will ever need to be consulted for duplicate detection when
-expanding nodes in the nblock $p(x)$.
+duplicates.  This is because, for a node $x$ which is a duplicate of a
+node $z$, both $x$ and $z$ will project to the same abstract state
+(and therefore reside in the same nblock) Intuitively, this makes
+sense, because both $x$ and $z$ are the same node.  This leads to the
+idea of a \emph{duplicate detection scope}.  By the definition of the
+successor set of an abstract node: any child node $x'$ of a node $x$,
+in the original state space, will have an image $p(x') \in
+successors(p(x))$, and therefore when performing duplicate detection
+for $x'$ the only nodes that must be checked are in the nblock $p(x')
+\in successors(p(x))$.  For this reason, $successors(p(x))$ is called
+the duplicate detection scope of the nblock $p(x)$ -- no other nodes
+in the original state space will ever need to be consulted for
+duplicate detection when expanding nodes in the nblock $p(x)$.
 
 This idea can be shown using the sliding tile puzzle as an example.
-It is conceivable that a projection function for the sliding tiles
-puzzle would be to only look at the position of the empty tile.  For
-example: all states with the empty tile in the upper left-hand corner
-(position 0) would map to the nblock shown in Figure
-\ref{fig:tile-abstraction}, where the grayed square represents the
-position of the empty tile.  Using this abstraction, there are sixteen
-possible abstract states (one for each possible position of the empty
-tile).  It is easy to see that all of the children of a state in the
-nblock shown in Figure \ref{fig:tile-abstraction} will have the empty
-tile in either position 1 or 4 (either by sliding the tile in position
-1 to the left, or by sliding the tile in position 4 up).  Figure
+One possible projection function for the sliding tiles puzzle would be
+to only look at the position of the empty tile.  For example: all
+states with the empty tile in the upper left-hand corner (position 0)
+would map to the nblock shown in Figure \ref{fig:tile-abstraction},
+where the grayed square represents the position of the empty tile.
+Using this abstraction, there are sixteen possible abstract states,
+one for each possible position of the empty tile.  It is easy to see
+that all of the children of a state in the nblock shown in Figure
+\ref{fig:tile-abstraction} will have the empty tile in either position
+1 or 4 (either by sliding the tile in position 1 to the left, or by
+sliding the tile in position 4 up).  Figure
 \ref{fig:duplicate-detection-scope} shows the duplicate detection
 scope for the nblock in Figure \ref{fig:tile-abstraction}.  Any of the
 children of a state in the nblock shown in Figure
@@ -115,21 +120,23 @@ in Figure \ref{fig:duplicate-detection-scope}.
 
 The main focus of the SDD approach is using state space decomposition
 so that generated nodes can be explicitly moved to a secondary storage
-device (such as a disk drive) when they are not needed.  The SDD
-approach uses breadth-first heuristic search, where only the nodes of
-the current search depth in a single nblock are searched at a time.
-Nodes of this nblock are expanded from the current depth-layer and
-their children are placed into the next-depth layer of their
-corresponding nblocks.  When the current nblock has no more nodes at
-the current depth-layer, it is swapped for another nblock which does
-have open nodes at this depth.  If no more nblocks have nodes at the
-search depth, the search progresses to the next layer (which contains
-the children nodes of the previous layer).  This procedure repeats
-until a goal is found, or no nodes remain. Since duplicates can only
-fall into the duplicate detection scope of the nblock being searched,
-the remainder of the nodes can be pushed off to disk, instead of being
-stored in main-memory.  Nblocks can then be intelligently swapped into
-and out of main-memory as the search progresses.
+device (such as a disk drive) when they are not in the duplicate
+detection scope of the nblock being expanded and therefore are not
+needed.  The SDD approach uses breadth-first heuristic search, where
+only the nodes of the current search depth in a single nblock are
+searched at a time.  Nodes of this nblock are expanded from the
+current depth-layer and their children are placed into the next-depth
+layer of their corresponding nblocks.  When the current nblock has no
+more nodes at the current depth-layer, it is swapped for another
+nblock which does have open nodes at this depth.  If no more nblocks
+have nodes at the search depth, the search progresses to the next
+layer (which contains the children nodes of the previous layer).  This
+procedure repeats until a goal is found, or until no nodes
+remain. Since duplicates can only fall into the duplicate detection
+scope of the nblock being searched, the remainder of the nodes can be
+pushed off to disk, instead of being stored in main-memory.  Nblocks
+can then be intelligently swapped into and out of main-memory as the
+search progresses.
 
 \subsection{Parallel Structured Duplicate Detection (PSDD)}
 
