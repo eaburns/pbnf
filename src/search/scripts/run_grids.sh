@@ -99,7 +99,7 @@ function paths ()
     ARGS+="obstacles=$OBSTACLES "
 
     # This is Jordan's fault.
-    if [[ "$OBSTACLES" -eq "lines" ]]
+    if [[ "$OBSTACLES" == "lines" ]]
     then
 	ARGS+="type=instance "
     fi

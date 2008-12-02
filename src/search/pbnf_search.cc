@@ -131,6 +131,10 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 		else if (scope < free)
 			graph->set_hot(best_scope);
 
+		// Reset the expansion counter.  If we are not
+		// switching then lets do more expansions before
+		// testing the interference scope instead.
+		expansions = 0;
 	} else {
 		ret = free + search->delta_f < cur;
 	}
