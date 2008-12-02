@@ -45,11 +45,14 @@
   \ENDFOR
   \end{algorithmic}
 
-  \item shouldswitch($b$)
+  \item shouldswitch($b$, $i$)
   \begin{algorithmic}[1]
   \STATE \COMMENT {$m$ is the minumum number of expansions required to balance out locking overhead}
-  \IF {$b$ is empty or  $i < m$}
+  \IF {$b$ is empty}
     \STATE return true
+  \ENDIF
+  \IF {$i < m$}
+    \STATE return false
   \ELSIF{best node in free list or interference scope is better than best in $b$}
     \STATE return true
   \ELSE
@@ -104,7 +107,7 @@
     \IF {$b$ is a different nblock than before}
       \STATE $i \leftarrow 0$
     \ENDIF
-    \WHILE {not shouldswitch($i$)}
+    \WHILE {not shouldswitch($b$, $i$)}
       \STATE $i \leftarrow i+1$
       \STATE $node \leftarrow$ head of $b$'s open list
       \IF{$node$ is a goal}
