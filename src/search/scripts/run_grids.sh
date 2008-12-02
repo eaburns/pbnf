@@ -95,7 +95,15 @@ function alg_on_list {
 function paths ()
 {
     ARGS=""
+
     ARGS+="obstacles=$OBSTACLES "
+
+    # This is Jordan's fault.
+    if [[ "$OBSTACLES" -eq "lines" ]]
+    then
+	ARGS+="type=instance "
+    fi
+
     ARGS+="costs=$COSTS "
     ARGS+="moves=$MOVES "
     ARGS+="prob=$PROB "

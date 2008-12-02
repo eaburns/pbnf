@@ -6,8 +6,6 @@
 
 - (Seth) Cancel threads in PRA*
 
-- (Ethan) start tests on lines grid world boards
-
 - (Ethan) Figure out why we suck on tiles
 
 - (Ethan) Look into PBNF with 5nblocks/thread and 1 thread... it
@@ -117,3 +115,5 @@
 - (Ethan) test on tiles
 
 - (Ethan) track and graph # nodes gen/exp
+
+- (Ethan) start tests on lines grid world boards
