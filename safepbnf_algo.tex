@@ -38,7 +38,7 @@
 \begin{function}
   \caption{isfree(block)}
   \KwIn{\block -- an nblock}
-  \KwResult{Whether or not the given nblock is free}
+  \KwOut{Whether or not the given nblock is free}
   \Return $\sigma(\block) = 0$ {\bf and} $\sigma_h(\block) = 0$
           {\bf and} \block is not empty\;
 \end{function}
@@ -46,6 +46,7 @@
 \begin{function}
   \caption{sethot(block)}
   \KwIn{\block -- an nblock}
+  \KwResult{\block is flagged as hot}
   \If{{\bf not} $\hot(\block)$ {\bf and} $\sigma(\block) > 0$}{
     $\hot(\block) \leftarrow true$\;
     \ForEach{$n' \in \interferenceScope(\block)$}{
@@ -60,6 +61,7 @@
 \begin{function}
   \caption{setcold(block)}
   \KwIn{\block -- an nblock}
+  \KwResult{\block is marked as cold}
   $\hot(\block) \leftarrow false$\;
   \ForEach{$n' \in \interferenceScope(\block)$}{
     $\sigma_h(n') \leftarrow \sigma_h(n') - 1$\;
@@ -75,7 +77,7 @@
     \expansions -- the number of nodes expanded in \block so far}
   \KwData{\minexpansions -- the minimum number of expansions to
     perform per-nblock}
-  \KwResult{Whether or not the nblock should be switched}
+  \KwOut{Whether or not the nblock should be switched}
 
   \lIf{\block is empty}{
     \Return true\;
@@ -98,8 +100,11 @@
 \begin{function}
   \caption{release(block)}
   \KwIn{\block -- an nblock}
+  \KwResult{Update the sigma values of neighboring nodes, and add them
+  to the \FreeList where appropriate}
   \ForEach{$b' \in \interferenceScope(\block)$}{
-    $\sigma_h(b') \leftarrow \sigma_h(b') - 1$\;
+    $\sigma(b') \leftarrow \sigma(b') - 1$\;
+    \lIf{$\isfree(b')$}{$\FreeList \leftarrow \FreeList \cup \{b'\}$}
   }
 \end{function}
 
@@ -129,7 +134,7 @@
   }
 
   \If{$\forall b \in nblocks : \sigma(b) = 0$ {\bf and}
-    \FreeList) is empty} {
+    \FreeList is empty} {
     $\done \leftarrow true$\;
     wake all sleeping threads\;
   }
