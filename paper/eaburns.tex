@@ -20,9 +20,9 @@ problems.  Various techniques have been developed for making heuristic
 search more memory efficient.  Other techniques have been developed
 that allow heuristic search to make use of external storage devices
 (such as hard disks) to increase their memory capacity.  In this paper
-we build on some of the techniques that are used to allow searching of
-very large problem domains in order to use multi-core CPUs to more
-quickly solve some smaller search problems.
+we build on some of the techniques used for external memory search to
+create a parallel best-first style search to be used to more quickly
+solve smaller search domains.
 \end{abstract}
 
 \section{Introduction}
@@ -31,13 +31,68 @@ As microprocessor manufacturers build processors with more and more
 cores, software developers are being pressured to create algorithms to
 make better use of the newly available parallelism.  In the field of
 artificial intelligence it is always necessary to solve problems more
-quickly.  A trend in current research in heuristic search, however,
+quickly.  A trend in current research on heuristic search, however,
 seems to be focusing on finding solutions in larger and larger search
 domains instead of solving smaller domains faster.  For this work, our
-goal was to attempt to use parallelism to attempt to solve some
-problems, that are traditionally considered small, more quickly.
+goal was to attempt to use parallelism to solve some problems that are
+traditionally considered small more quickly.
+
+There has been a lot of previous work in parallel heuristic search.
+Various algorithms have been created that exploit features of some
+well known search algorithms to concurrently expand portions of a
+search graph.  One of the issues that is encountered with parallel
+heuristic search, however, is that there is a trade off between
+synchronization and performing extra search effort.  This tradeoff can
+be directly related to detection of duplicate nodes in the graph.
+
+In a typical, serial best-first search algorithm, an \emph{open-list}
+and \emph{closed-list} are maintained.  The open-list contains nodes
+on the search frontier that have yet to be searched, and the
+closed-list maintains nodes which have already been expanded.  The
+closed-list is used to detect cycles in the search graph so that a
+node is not searched multiple times.  This is referred to as
+\emph{duplicate detection}.  In a serial best-first search, a node is
+added to the closed-list the first time that the search encounters it.
+If the node is encountered again during the search process, it is
+ignored since it has already been searched.  This process breaks
+cycles and eliminates extra, wasted, search effort.
+
+In a parallel graph search, where many processors are searching nodes
+concurrently, keeping track of which nodes have already been searched
+can be more complicated.  Since multiple processors are searching at
+the same time a shared data structure is necessary to communicate
+between the processors which nodes have already been searched.  The
+problem with this approach is that the synchronization overhead
+required to access a shared data structure can be expensive,
+especially as the number of processors increases, creating more
+contention.  An alternative approach would be to ignore duplicate
+tracking altogether, or less extremely, to have each processor only
+track duplicate nodes locally; not communicating the information with
+other processors at all.  While this approach eliminates
+synchronization overhead, it leads to extra search effort being
+expended searching nodes that may have already been encountered by
+another processor.
+
+External memory graph search is another graph search technique that
+exhibits similar problems to those of parallel search.  External
+memory graph search uses a secondary storage devices, such as a hard
+disks, to store large portions of search space which are not currently
+being used.  Since secondary storage devices can have a much larger
+capacity per cost than primary memory, this technique allows larger
+search domains to be solved using more commonly available hardware.
+Both external memory and parallel graph search share a common problem:
+duplicate detection must be performed with only access to a (possibly
+small) subset of the entire closed-list.  In the case of external
+memory search some of the closed nodes will be residing on a slow
+secondary storage device, and in the case of parallel search some of
+the nodes will be in use by other processors.  The question that must
+be answered is how to decompose a search graph to allow for efficient
+and accurate duplicate detection using only subsets of the search
+graph.
 
 \section{Previous Work}
+
+\subsection{Parallel Retraction A*}
 
 \subsection{Structured Duplicate Detection}
 
