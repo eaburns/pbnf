@@ -15,20 +15,27 @@ Durham, NH 03824 USA \\
 \maketitle
 
 \begin{abstract}
-We are approaching a time when it will no longer be beneficial for
-hardware manufactures to create micro-processors with greater clock
-speeds.  In order to get increased performance, software developers
-will need to take advantage of concurrency and multi-core processors.
-We make use of novel ideas used for external memory search to create a
-parallel best-first-ish algorithm for quickly solving problems which
-are small enough to fit into memory.
+A lot of work in heuristic search focuses on solving larger and larger
+problems.  Various techniques have been developed for making heuristic
+search more memory efficient.  Other techniques have been developed
+that allow heuristic search to make use of external storage devices
+(such as hard disks) to increase their memory capacity.  In this paper
+we build on some of the techniques that are used to allow searching of
+very large problem domains in order to use multi-core CPUs to more
+quickly solve some smaller search problems.
 \end{abstract}
 
 \section{Introduction}
 
 As microprocessor manufacturers build processors with more and more
 cores, software developers are being pressured to create algorithms to
-make better use of the newly available parallelism.
+make better use of the newly available parallelism.  In the field of
+artificial intelligence it is always necessary to solve problems more
+quickly.  A trend in current research in heuristic search, however,
+seems to be focusing on finding solutions in larger and larger search
+domains instead of solving smaller domains faster.  For this work, our
+goal was to attempt to use parallelism to attempt to solve some
+problems, that are traditionally considered small, more quickly.
 
 \section{Previous Work}
 
