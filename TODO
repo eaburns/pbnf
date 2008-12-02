@@ -1,3 +1,7 @@
+- (Ethan) Fix the tiles abstraction
+
+- (Ethan) Look into the grid-world abstraction
+
 - (Seth) Generate 8-puzzles
 
 - (Seth) Cancel threads in PRA*
