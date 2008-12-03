@@ -1,30 +1,32 @@
 \documentclass{article}
 \usepackage{aaai}
 \usepackage{graphicx}
+\usepackage[ruled, vlined, linesnumbered]{algorithm2e}
+\usepackage[toc, page]{appendix}
 
 % Big margins for now so people can take notes/scribbles.
 %\usepackage{fullpage}
 
 \title{Parallel Best NBlock First}
 \author{Ethan Burns \and Seth Lemons \and Wheeler Ruml \\
-Department of Computer Science \\
-University of New Hampshire \\
-Durham, NH 03824 USA \\
-\{eaburns,seth.lemons, ruml\}@unh.edu}
+  Department of Computer Science \\
+  University of New Hampshire \\
+  Durham, NH 03824 USA \\
+  \{eaburns,seth.lemons, ruml\}@unh.edu}
 \date{\today}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-A lot of work in heuristic search focuses on solving larger and larger
-problems.  Various techniques have been developed for making heuristic
-search more memory efficient.  Other techniques have been developed
-that allow heuristic search to make use of external storage devices
-(such as hard disks) to increase their memory capacity.  In this paper
-we build on some of the techniques used for external memory search to
-create a parallel best-first style search to be used to more quickly
-solve smaller search domains.
+  A lot of work in heuristic search focuses on solving larger and larger
+  problems.  Various techniques have been developed for making heuristic
+  search more memory efficient.  Other techniques have been developed
+  that allow heuristic search to make use of external storage devices
+  (such as hard disks) to increase their memory capacity.  In this paper
+  we build on some of the techniques used for external memory search to
+  create a parallel best-first style search to be used to more quickly
+  solve smaller search domains.
 \end{abstract}
 
 \section{Introduction}
@@ -39,7 +41,7 @@ domains instead of solving smaller domains faster.  For this work our
 goal was to attempt to use parallelism to solve some problems that are
 traditionally considered small more quickly.
 
-There has been a lot of previous work in parallel heuristic search.
+There has been a lot previous work in parallel heuristic search.
 Various algorithms have been created that exploit features of some
 well known search algorithms to concurrently expand portions of a
 search graph.  One of the issues that is encountered with parallel
@@ -95,7 +97,33 @@ of the graph's nodes.
 
 \section{Previous Work}
 
-\subsection{Parallel Retraction A*}
+\subsection{Parallel Retracting A*}
+
+There has been a handful of algorithms created that attempt to provide
+duplicate node detection while reducing the amount of synchronization
+between processors.  One such algorithm is Parallel Retracting A*
+(PRA*) \cite{evett:pra}.  PRA* attempts to reduce synchronization
+overhead by distributing the duplicate detection between processors.
+A hashing scheme is used to divide the search nodes up among all of
+the available processors.  Each time a processor expands a node,
+passes the node to its respective processor based on the hash value of
+the node.  Each processor is then in charge of expanding and detecting
+duplicates for all of the nodes that hash to it.  This method allows
+duplicate detection to happen without communicating between all of the
+processors which nodes have already been searched.  The PRA* algorithm
+also use a node-retraction scheme to reduce the amount of memory that
+a search uses.  For this work, we are only concerned with problems
+that fit into memory, and our interest in PRA* is for its unique
+method of splitting the search space amongst processors.
+
+One of the problems that PRA* encounters is that, while no
+synchronization is required for duplicate detection, there is a
+substantial amount of overhead incurred by the message passing that is
+used to move nodes to their respective processors.  In a shared memory
+system, each processor must have a synchronized queue which all of the
+other processors have the ability to add search nodes to.  While this
+is less of a bottle-neck than having a single global shared data
+structure, we have found that it is still very expensive.
 
 \subsection{Structured Duplicate Detection}
 
@@ -113,8 +141,8 @@ states $x$ and $x'$ such that $x'$ is a successor of $x$, $y$ is the
 image of $x$ and $y'$ is the image of $x'$.  In other words:
 
 \begin{eqnarray*}
-&&x' \in successors(x) \wedge p(x) = y \wedge p(x') = y' \\
-&\Rightarrow& y' \in successors(y)
+  &&x' \in successors(x) \wedge p(x) = y \wedge p(x') = y' \\
+  &\Rightarrow& y' \in successors(y)
 \end{eqnarray*}
 
 In the description of the SDD algorithm, Zhou and Hansen use the term
@@ -144,37 +172,31 @@ This idea can be shown using the sliding tile puzzle as an example.
 One possible projection function for the sliding tiles puzzle would be
 to only look at the position of the empty tile.  For example: all
 states with the empty tile in the upper left-hand corner (position 0)
-would map to the nblock shown in Figure \ref{fig:tile-abstraction},
-where the grayed square represents the position of the empty tile.
-Using this abstraction, there are sixteen possible abstract states,
-one for each possible position of the empty tile.  It is easy to see
-that all of the children of a state in the nblock shown in Figure
-\ref{fig:tile-abstraction} will have the empty tile in either position
-1 or 4 (either by sliding the tile in position 1 to the left, or by
-sliding the tile in position 4 up).  Figure
-\ref{fig:duplicate-detection-scope} shows the duplicate detection
-scope for the nblock in Figure \ref{fig:tile-abstraction}.  Any of the
-children of a state in the nblock shown in Figure
-\ref{fig:tile-abstraction} will fall into one of the two nblocks shown
-in Figure \ref{fig:duplicate-detection-scope}.
+would map to the nblock shown on the left in Figure
+\ref{fig:tile-abstraction}, where the grayed square represents the
+position of the empty tile.  Using this abstraction, there are sixteen
+possible abstract states, one for each possible position of the empty
+tile.  It is easy to see that all of the children of a state in the
+nblock shown on the left in Figure \ref{fig:tile-abstraction} will
+have the empty tile in either position 1 or 4 (either by sliding the
+tile in position 1 to the left, or by sliding the tile in position 4
+up).  The image on the right, in Figure \ref{fig:tile-abstraction},
+shows the duplicate detection scope for the nblock shown on the left
+in this figure.  Any of the children of a state in the nblock shown on
+the left in Figure \ref{fig:tile-abstraction} will fall into one of
+the two nblocks shown on the right.
 
-\begin{figure}[t]
-\begin{center}
-\includegraphics[width=1.5in]{images/tile-abstraction.eps}
-\caption{The abstract image of all states with a empty tile in
-  position 0.}
-\label{fig:tile-abstraction}
-\end{center}
-\end{figure}
-
-\begin{figure}[t]
-\begin{center}
-\includegraphics[width=1.5in]{images/duplicate-detection-scope.eps}
-\caption{The duplicate detection scope of the abstract node shown in
-  Figure \ref{fig:tile-abstraction}.}
-\label{fig:duplicate-detection-scope}
-\end{center}
-\end{figure}
+\begin{figure*}[t]
+  \begin{center}
+    \includegraphics[width=1.5in]{images/tile-abstraction.eps}
+    \hspace{4cm}
+    \includegraphics[width=1.5in]{images/duplicate-detection-scope.eps}
+    \caption{The abstract image of all states with a empty tile in
+      position 0 (left).  The duplicate detection scope of the
+      abstract state with the empty tile in position 0 (left).}
+    \label{fig:tile-abstraction}
+  \end{center}
+\end{figure*}
 
 The main focus of the SDD approach is using state space decomposition
 so that generated nodes can be explicitly moved to a secondary storage
@@ -222,6 +244,10 @@ found or the search space is exhausted.  PSDD is an attractive
 algorithm because it reduces the amount of contention between
 processors by allowing for lock-free periods of expansion.
 
+\subsubsection{Best-First Parallel Structured Duplicate Detection}
+
+
+
 \subsection{Localizing A*}
 
 An alternative approach for improving the efficiency of large searches
@@ -261,11 +287,74 @@ incumbent -- this means that the current incumbent solution \emph{is}
 the optimal solution.
 
 \section{Parallel Best NBlock First (PBNF)}
+
+One of the nice features of the PSDD algorithm is that it allows
+processors to perform periods of lock-free expansions with duplicate
+detection.  While this algorithm can perform well, it suffers from
+per-layer synchronization.  Each time a layer is complete, all of the
+processors must synchronize so that they can all start the next layer
+at the same time.  The reason for this in the PSDD algorithm is
+because, if processors were to be searching different layers, there
+would be a chance that the first solution encountered is not optimal.
+A processor searching a further layer may find a solution before a
+better solution on a previous layer is found.
+
+In order to get the benefits of lock-free expansion and duplicate
+detection that are provided by PSDD without the need for
+layer-synchronization, we have created an algorithm that is a
+combination of PSDD and lA* called Parallel Best NBlock First (PBNF).
+The PBNF algorithm maintains a heap-of-nblocks (this is analogous to
+the heap-of-heaps in lA*) and each nblock has a heap of nodes sorted
+on f-value.  Processors use the heap-of-nblocks to attempt to acquire
+a free nblock with the lowest f-valued search node.  Instead of
+releasing an nblock when it no longer contains any more search nodes,
+processors \emph{switch} their nblock for a better one as they become
+available.
+
+\begin{algorithm}
+  \caption{PBNF Search}
+  \SetKwData{block}{b}
+  \SetKwData{goal}{goal}
+  \SetKwData{incumbent}{incumbent}
+  \label{alg:pbnfsearch}
+  \KwResult{Searches nblocks for a goal node.  After each thread
+    completes \incumbent contains the optimal solution.}
+  \Repeat{solution is found {\bf or} all nodes are exhausted} {
+    $\block \leftarrow$ best free nblock\;
+    \While {$\block$ is better than the best free nblock} {
+      $\goal \leftarrow$ search $\block$\;
+      \If {$\goal$ {\bf and} $\goal$ is better than $\incumbent$}{
+        $\incumbent \leftarrow \goal$\;
+      }
+    }
+  }
+\end{algorithm}
+
+Algorithm \ref{alg:pbnfsearch} gives a general overview of the search
+procedure that is performed by each thread with PBNF.  Each thread
+greedily acquires a free nblock and searches it while it remains
+better than the best free nblock.  There is no layer synchronization,
+so it is possible that the first solution found is suboptimal.  Since
+we are interested in optimal solutions, a global incumbent solution is
+kept and used for pruning the open list.  Like lA*, when all of the
+nodes have been pruned, the incumbent solution is the optimal solution
+and the search procedure return it.
+
 \subsection{Safe PBNF}
+
+A fairly complete pseudo-code for the SAFEPBNF algorithm can be found
+in the appendix.
+
 \section{Experimental Results}
+
 \section{Conclusion}
 
 \bibliography{master}
 \bibliographystyle{aaai}
+
+\begin{appendices}
+\section{Pseudo Code}
+\include{safepbnf_pseudo_code}
+\end{appendices}
 
 \end{document}
