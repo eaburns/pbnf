@@ -63,8 +63,9 @@
   $\hot(\block) \leftarrow false$\;
   \ForEach{$n' \in \interferenceScope(\block)$}{
     $\sigma_h(n') \leftarrow \sigma_h(n') - 1$\;
-    \lIf{$\isfree(n')$}{
+    \If{$\isfree(n')$}{
       $\FreeList \leftarrow \FreeList \cup \{n'\}$\;
+      wake all sleeping threads\;
     }
   }
 \end{function*}
@@ -102,7 +103,10 @@
   to the \FreeList where appropriate}
   \ForEach{$b' \in \interferenceScope(\block)$}{
     $\sigma(b') \leftarrow \sigma(b') - 1$\;
-    \lIf{$\isfree(b')$}{$\FreeList \leftarrow \FreeList \cup \{b'\}$}
+    \If{$\isfree(b')$}{
+     $\FreeList \leftarrow \FreeList \cup \{b'\}$\;
+     wake all sleeping threads\;
+    }
   }
 \end{function*}
 
@@ -123,12 +127,6 @@
       \Return \block\;
     }
     \release(\block)\;
-    \lIf{$\bestScope < \best(\FreeList)$}{
-      $\sethot(\bestScope)$\;
-    }
-    \lElse {
-      $\bestScope \leftarrow$ NULL\;
-    }
   }
 
   \If{$\forall b \in nblocks : \sigma(b) = 0$ {\bf and}
