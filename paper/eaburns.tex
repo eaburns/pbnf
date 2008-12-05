@@ -344,14 +344,15 @@ In order to get the benefits of lock-free expansion and duplicate
 detection, which are provided by the PSDD algorithm, without the need
 for layer-synchronization, we have created an algorithm that combines
 the ideas from PSDD and lA* which we call Parallel Best NBlock First
-(PBNF).  The PBNF algorithm maintains a heap-of-nblocks where each
-nblock has a heap of open nodes sorted on f-value.  Processors use the
-heap-of-nblocks to attempt to acquire the free nblock with the lowest
-f-valued node.  A processor will search its acquired nblock as long as
-it contains nodes which are better those on the best free nblock.  If
-the acquired nblock becomes worse than the best free nblock, the
-processor will attempt to release its current nblock and acquire the
-better one.
+(PBNF).  The PBNF algorithm maintains a heap of free nblocks where
+each nblock has a heap of open nodes sorted on f-value and a hash
+table of closed nodes which have already been searched.  Processors
+use the heap of free nblocks to attempt to acquire the free nblock
+with the best open node.  A processor will search its acquired nblock
+as long as it contains nodes which are better than those in the nblock
+on the front of the heap of free nblocks.  If the acquired nblock
+becomes worse than the best free nblock, the processor will attempt to
+release its current nblock and acquire the better one.
 
 \begin{algorithm}
   \caption{PBNF Search}
@@ -374,15 +375,18 @@ better one.
 
 Algorithm \ref{alg:pbnfsearch} gives a general overview of the search
 procedure that is performed by each thread with PBNF.  Each thread
-greedily acquires a free nblock from the heap-of-nblocks and searches
-it while it remains better than the new best free nblock.  There is no
-layer synchronization, so it is possible that the first solution found
-is suboptimal.  Since we are interested in optimal solutions, a global
-incumbent solution is kept and used for pruning the open list.  Like
-lA*, when all of the nodes have been pruned, the incumbent solution is
-the optimal solution which will then be returned by the search
-procedure.
+greedily acquires a free nblock from the heap of free nblocks and
+searches it while it remains better than the new best free nblock.
+There is no layer synchronization, so it is possible that the first
+solution found is suboptimal.  Since we are interested in optimal
+solutions, a global incumbent solution is kept and used for pruning
+the open list.  Like lA*, when all of the nodes have been pruned, the
+incumbent solution is the optimal solution which will then be returned
+by the search procedure.
 
+Since it is possible that an nblock has only a very small number of
+good nodes on it, PBNF implements a simple scheme to attempt to reduce
+the contention on the nblock heap.
 %%
 %% Add more here... mention min-expansions.
 %%
