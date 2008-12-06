@@ -1,5 +1,3 @@
-- (Ethan) Try m expansions between testing the interference scope.
-
 - (Seth) New pseudo code to Rong.
 
 - (Ethan) Fix the tiles abstraction
@@ -127,3 +125,6 @@
 - (Ethan) track and graph # nodes gen/exp
 
 - (Ethan) start tests on lines grid world boards
+
+- (Ethan) Try m expansions between testing the interference scope.
+          - Doesn't matter
