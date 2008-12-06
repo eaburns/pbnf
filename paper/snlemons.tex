@@ -10,13 +10,14 @@
 Department of Computer Science \\
 University of New Hampshire \\
 Durham, NH 03824 USA \\
-\seth.lemons@unh.edu}
+seth.lemons@unh.edu}
 \date{\today}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
+State space search is a intensive process requiring the examination of many different paths before a solution is found. Any success in doing different parts of a search at the same time is of great potential benefit. However, states are often interrelated in ways that make parallelization very difficult, causing many proposed algorithms to suffer from synchronization issues or the inability to properly portion out the work. This work attempts to examine the strengths and weaknesses of the most promising parallel search algorithms. We will attempt to determine if they outperform serial algorithms, how scalable they are, and whether they generalize to more than a limited number of domains.
 \end{abstract}
 
 \section{Introduction}
@@ -24,9 +25,9 @@ Durham, NH 03824 USA \\
 \subsection{Parallel A*}
 \subsection{Parallel Retracting A*}
 \subsection{Parallel Structured Duplicate Detection (PSDD)}
-\subsection{Localizing A*}
 \subsection{Parallel Best NBlock First (PBNF)}
 \section{Experimental Results}
+\section{Related Work}
 \section{Conclusion}
 
 \bibliography{master}
