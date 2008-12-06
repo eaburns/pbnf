@@ -484,6 +484,32 @@ numbers of nblocks and processors using an automated model checker.
 
 \section{Experimental Results}
 
+This section presents experimental results which compare PBNF to a
+handful of other state of the art parallel heuristic search
+algorithms.  For these experiments two domains are used, grid world
+path planning and the sliding tiles puzzle.  All of the experiments in
+this section were performed on dual-quad core Intel Xeon E5320
+1.86GHz processors, with 16Gb RAM running the 64-bit Fedora 9
+operating system.
+
+\subsection{Grid World Path Planning}
+
+In the grid world path planning domain the goal is to find a path from
+a start state $S$ to a goal state $G$ in a 2-dimensional grid.  To
+complicate the problem, squares of the grid have a probability $P$ of
+being obstructed, where a valid path can not include any obstructed
+states.  We use two cost models, the unit cost model in which each
+move has a cost of one, and the life cost model where moves have a
+cost of the row number of the state where the move was performed.
+
+\begin{figure}
+\includegraphics{../graphs/grid_unit_four-way_0.25_2000_1200/time-Unit_Four-way_0.25_2000_12000.eps}
+\label{fig:grid-unit}
+\caption{CPU time measurements 
+\end{figure}
+
+\subsection{Sliding Tiles}
+
 \section{Conclusion}
 \section{Acknowledgements}
 
