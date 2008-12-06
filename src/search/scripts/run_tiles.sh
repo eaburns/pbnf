@@ -16,7 +16,7 @@ SEARCH_PROG="./tiles_search.bin"
 DATA_ROOT="/home/rai/group/data/tiles_instances"
 RUNS_ROOT="/home/rai/eaburns/data/tiles"
 
-USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2"
+USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2"
 USES_WEIGHT="dynpsdd"
 USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2"
 USES_MIN_EXPANSIONS="safepbnf pbnf"
