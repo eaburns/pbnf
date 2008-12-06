@@ -384,21 +384,59 @@ the open list.  Like lA*, when all of the nodes have been pruned, the
 incumbent solution is the optimal solution which will then be returned
 by the search procedure.
 
-Since it is possible that an nblock has only a very small number of
-good nodes on it, PBNF implements a simple scheme to attempt to reduce
-the contention on the nblock heap.
-%%
-%% Add more here... mention min-expansions.
-%%
+Each time a processor expands a node off of its acquired nblock, it
+must test the head of the heap of free nblocks to see if it is still
+looking at better nodes in its acquired nblock.  Since it is possible
+that an nblock has only a very small number of nodes which are better
+than the next free nblock, PBNF implements as simple scheme to prevent
+too much nblock switching.  When a processor acquires a new nblock for
+expansion, they need to search at least a minimum number, $m$, nodes
+off of the nblock before it considers switching.  This is done as an
+attempt to reduce the contention on the nblock heap.  With out
+requiring $m$ expansions before switching nblocks, we anticipate that
+there will be too much contention on the heap of free nblocks when
+many nblocks have similar quality nodes.  Our experimental results
+seem to agree with this observation.
 
-Since there is no layer-synchronization in the PBNF algorithm no
-modifications are required when searching non-unit or real-valued edge
-cost graphs.  Also, the best-first nature of PBNF allows it to be
-easily adapted to perform sub-optimal search with a weighted or
-pessimistic heuristic.  While we have yet to experiment with
-sub-optimal PBNF, we believe that this has the ability to greatly
-increase the speed of sub-optimal search on large domains by
-exploiting parallelism.
+In addition to the parameter $m$, the PBNF algorithm attempts to
+reduce the amount of time that a processor is waiting on a mutex by
+using a \texttt{try\_lock} operation when ever possible.  A
+\texttt{try\_lock} operation attempts to gain exclusive access to a
+mutex, however, if it fails it returns a failure instead of putting
+the calling process to sleep until the mutex is available.  In
+situations when a processor is trying to acquire a new nblock, but the
+current block has nodes remaining in its open list the
+\texttt{try\_lock} can be used.  If the \texttt{try\_lock} fails, the
+processor can expand more nodes off of its current nblock instead of
+sleeping.  These nodes may not be very good (that is why the processor
+was switching anyway), but this is still much more beneficial than
+sleeping because.  Consider the following two situations which may
+help demonstrate why this is good:
+\begin{enumerate}
+\item The processor finds a solution in nodes that it is searching.
+  This may not be the optimal solution (or even a very good solution),
+  but it allows for upper-bound pruning.
+\item The processor searches some nodes that are currently not
+  considered very good, but as the search progresses the f-values of
+  each nblock raise and these nodes may indeed be near the solution.
+\end{enumerate}
+Were the \texttt{try\_lock} not to be used, the processor would be
+doing \emph{nothing} while waiting for the lock instead or expanding
+some nodes which may need to be searched later anyway.
+
+One of the most important features of the PBNF algorithm is that it is
+simply a parallel version of best-first search.  The basic algorithm
+that we have presented here sorts nodes based on their $f(n) = g(n) +
+h(n)$ values, but instead nodes can be sorted in a variety of other
+parameters leading to a host of other parallel search algorithms.  A
+weighted or pessimistic heuristic can be used to provide a parallel
+sub-optimal search (this would also require the removal of the
+any-time portion of the algorithm which guarantees optimality).
+Additionally it is trivial to modify PBNF to produce a parallel,
+optimistic sub-optimal search \cite{thayer:fas}.  It is easy to
+imagine lots of other modifications too.  Although we have not yet
+explored any of these flavors of PBNF, we believe that they could be
+greatly beneficial and should be explored in the future.
 
 \subsection{Safe PBNF}
 
@@ -414,18 +452,19 @@ they are interfering with a better nblock.  We call this modified
 version of PBNF, ``safe PBNF.''
 
 In the safe PBNF algorithm, a processor periodically checks the
-nblocks which it is interfering (that is to say, it checks its
-\emph{interference scope}) for better nblocks.  This test happens each
-time a processor checks the free list for better nblocks.  If a
-processor finds a better nblock in its interference scope, it flags
-this nblock as hot.  For each nblock $b$ a value $\sigma_h(b)$ tracks
-the number of nblocks in the interference scope of $b$ which are
-flagged as hot.  If $\sigma_h(b) \neq 0$ the nblock $b$ is removed
-from the list of free nblocks.  This ensures that a processor will not
-acquire an nblock which is blocking a hot nblock from becoming free.
-Removing all nblocks with $\sigma_h \neq 0$ from the free list ensures
-the property that if an nblock is flagged as hot it will eventually
-become free.
+nblocks which it is interfering (we call these blocks the
+\emph{interference scope} of an nblock) for better nblocks.  This test
+happens each time a processor checks the heap of free nblocks -- it
+happens each expansion after the obligatory $m$ expansions are
+performed.  If a processor finds a better nblock in its interference
+scope, it flags this nblock as hot.  For each nblock $b$ a value
+$\sigma_h(b)$ tracks the number of nblocks in the interference scope
+of $b$ which are flagged as hot.  If $\sigma_h(b) \neq 0$ the nblock
+$b$ is removed from the heap of free nblocks.  This ensures that a
+processor will not acquire an nblock which is preventing a hot nblock
+from becoming free.  Removing all nblocks with $\sigma_h \neq 0$ from
+the nblock heap ensures the property that if an nblock is flagged as
+hot it will eventually become free.
 
 Since processors can be searching nblocks with a wide range of
 f-values, we also allow for a processor to un-flag a hot nblock
@@ -439,8 +478,9 @@ back to cold and update the $\sigma_h$ values as appropriate.
 
 A fairly complete pseudo-code for the safe PBNF algorithm can be found
 in the appendix along with a mathematical model of the $\sigma_h$
-procedure which has been proven for small numbers of nblocks and
-numbers or processors using an automated model checker.
+procedure (written in TLA$^+$) for which the desired property (an
+nblock flagged as hot will eventually become free) proven for small
+numbers of nblocks and processors using an automated model checker.
 
 \section{Experimental Results}
 
@@ -456,6 +496,10 @@ Seth, Wheeler, Rong, Jordan -- make this section better
 \begin{appendices}
 \section{Pseudo Code}
 \include{safepbnf_pseudo_code}
+\section{Set Hot Model}
+\include{GridWorld}
+\include{NBlockGraph}
+\include{Lock}
 \end{appendices}
 
 \end{document}
