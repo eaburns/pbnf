@@ -17,17 +17,31 @@ seth.lemons@unh.edu}
 \maketitle
 
 \begin{abstract}
-State space search is a intensive process requiring the examination of many different paths before a solution is found. Any success in doing different parts of a search at the same time is of great potential benefit. However, states are often interrelated in ways that make parallelization very difficult, causing many proposed algorithms to suffer from synchronization issues or the inability to properly portion out the work. This work attempts to examine the strengths and weaknesses of the most promising parallel search algorithms. We will attempt to determine if they outperform serial algorithms, how scalable they are, and whether they generalize to more than a limited number of domains.
+State space search is an intensive process requiring the examination of many different paths before a solution is found. Any success in doing different parts of a search at the same time can be of great benefit in our increasingly multi-core world. However, states are often interrelated in ways that make parallelization very difficult, causing many proposed algorithms to suffer from synchronization issues or the inability to properly portion out the work. This work attempts to examine the strengths and weaknesses of the most promising parallel search algorithms. We will attempt to determine how well they perform compared to serial algorithms, how scalable they are, and whether they generalize to more than a limited number of domains.
 \end{abstract}
 
 \section{Introduction}
-\subsection{KBFS}
+Given the large amounts of work that have to be done in state space search, the ability to do more of it at the same time is a tool that could greatly improve the ability to find fast solutions. With multi-core processors becoming more common and the numbers of cores increasing, doing work in parallel has become much more of a practical consideration. 
+%limit ourselves to searches that fit in memory
 \subsection{Parallel A*}
+%OMFG contention
 \subsection{Parallel Retracting A*}
+\cite{evett:pra}
+%ignore retracting
+%contention sucks here, too
+\subsection{Parallel KBFS}
+%waiting on last processor to finish takes time
 \subsection{Parallel Structured Duplicate Detection (PSDD)}
+%layers cause issues for non-unit
+\subsection{Best First Parallel Structured Duplicate Detection (BFPSDD)}
+%only benefit from sorting in last layer
 \subsection{Parallel Best NBlock First (PBNF)}
+%livelock issue
+%size of abstraction can cause issues
+%\subsection{Safe Parallel Best NBlock First (Safe PBNF)}
 \section{Experimental Results}
-\section{Related Work}
+%\section{Related Work}
+%maybe mention PWS and DTS
 \section{Conclusion}
 
 \bibliography{master}
