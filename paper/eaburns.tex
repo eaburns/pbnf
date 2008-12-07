@@ -455,7 +455,7 @@ In the safe PBNF algorithm, a processor periodically checks the
 nblocks which it is interfering (we call these blocks the
 \emph{interference scope} of an nblock) for better nblocks.  This test
 happens each time a processor checks the heap of free nblocks -- it
-happens each expansion after the obligatory $m$ expansions are
+happens each expansion after the required $m$ expansions are
 performed.  If a processor finds a better nblock in its interference
 scope, it flags this nblock as hot.  For each nblock $b$ a value
 $\sigma_h(b)$ tracks the number of nblocks in the interference scope
