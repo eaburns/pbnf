@@ -309,6 +309,12 @@ do
     # Preform the search
     #
     OUTPUT=$($GRID_SEARCH $FULL_NAME < $INSTANCE)
+    if echo $OUTPUT | grep "No Solution" >& /dev/null;
+    then
+	echo "No solution found"
+	rm $OUT
+	exit 1
+    fi
     SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9.]\+\).*/\1/p")
     SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9.]\+\).*/\1/p")
     WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9.]\+\).*/\1/p")
