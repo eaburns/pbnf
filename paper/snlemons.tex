@@ -74,7 +74,16 @@ As we can see from Figure \ref{fig:BFPSDD-nblock-grid} and Figure \ref{fig:PBNF-
 
 In other domains, control over the abstraction size is more coarse. The abstraction most commonly used in the sliding tile puzzle is to ignore the locations of all but some subset of the tiles. Adding or removing a tile from the set we pay attention to, however, changes the number of abstract states dramatically. Likewise, we can partition the grid world board into an abstract grid where each abstract grid location contains a set of neighboring original grid locations. Again, the number of abstract states increases or decreases dramatically when we increase the factor by which we divide the board. Results for a domain should still apply in regard to the correct abstraction size, however, even if we cannot control the ratio as precisely.
 \subsection{Weight for Preliminary Search}
-The weight used in the preliminary search for DynPSDD and BFPSDD affects the optimality of the solution found and, therefore, the amount of pruning that can be done during the search.
+The weight used in the preliminary search for DynPSDD and BFPSDD affects the optimality of the solution found and, therefore, the amount of pruning that can be done during the search. For higher weights, the initial search should be faster, but little pruning can be done. When weights approach 1, though, the initial search will take longer with no benefit from parallelization and much of the work done in the actual PSDD search will be reproducing work done by the weighted search.
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/PBNF-time-Unit_Four-way_0.25_2000_1200_min=10.eps}
+\caption{Comparison of weights for the preliminary weighted A* search and their effect on overall search time.}
+\label{fig:DynPSDD-weight-grid}
+\end{figure}
+
+As Figure \ref{fig:DynPSDD-weight-grid} shows, the weight used can greatly affect the cost of the overall search. With very low weights, time is always high and there is only minor variation because of the number of threads used for the actual PSDD search. The weight of 1.5 worked best in our grid world tests, finding an adequate solution relatively fast, allowing PSDD to do less work without waiting as long to begin. Higher weights not only run the risk of returning poorer solutions which negatively affect pruning, but in some cases they can also cause the weighted A* search to run longer than at lower weights because it veers too far of on bad paths.
+%discussion of interaction between abstraction size and weight used?
 \subsection{Minimum Expansions}
 \section{Experimental Results}
 \subsection{Performance}
