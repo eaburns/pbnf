@@ -501,36 +501,39 @@ complicate the problem, squares of the grid have a probability $P$ of
 being obstructed, where a valid path can not include any obstructed
 states.  We use two cost models, the unit cost model in which each
 move has a cost of one, and the life cost model where moves have a
-cost of the row number of the state where the move was performed.
+cost of the row number of the state where the move was performed.  In
+this model, moves near the top of the grid are less expensive (row
+zero is actually free) than the states near the bottom, and the most
+direct path from the start to the goal may not be the least cost path.
 
 The projection function which we used for the grid world domain
-projects from a search state to an abstract state which only considers
+projects from a search state to an abstract state that only considers
 the row of the search state modulo a value $M$.  The parameter $M$ can
 be tuned to change the number of abstract states.  The number of
 abstract states has the potential to greatly influence the performance
 of the search.  If there are too many abstract states (and therefore
-nblock) then nblocks will be filled with only a very small number of
-nodes and processors will be forced to switched after an insignificant
+nblocks) then nblocks will be filled with only a very small number of
+nodes and processors will be forced to switch after an insignificant
 amount of searching.  If there are too few nblocks then there may not
 be enough disjoint duplicate detection scopes and not all processors
 will be able to search in parallel (instead they will be waiting on
 free nblocks).
 
-Originally we hypothesized that the desired number of nblocks was
-related to the number of processes that would be performing the
-search.  This is because if more processes are searching more nblocks
-are required to create a sufficient number disjoint duplicate
-detection scopes.  If less processes are searching, however, less
-scopes may be desired to ensure that each nblock has a sufficient
-number of nodes.  We used the parameter $M$ (which dictates the total
-number of nblocks for a grid search) along with the number of
-searching processes to explore the best setting for the number of
-\emph{nblocks per thread}.  The full set of data for this
-mini-experiment is available in the appendix along with another
-mini-experiment to find the best setting for the parameter $m$
-(minimum expansions per-block) for PBNF.  In this section of the
-paper, we present our results with the best combination of parameters
-according to the data shown in the appendix for each algorithm.
+We hypothesized that the desired number of nblocks was related to the
+number of processes that would be performing the search.  This is
+because if more processes are searching more nblocks are required to
+create a sufficient number disjoint duplicate detection scopes.  If
+less processes are searching, however, less scopes may be desired to
+ensure that each nblock has a sufficient number of nodes.  We used the
+parameter $M$ (which dictates the total number of nblocks for a grid
+search) along with the number of searching processes to explore the
+best setting for the number of \emph{nblocks per thread}.  The full
+set of data for this mini-experiment is available in the appendix
+along with another mini-experiment to find the best setting for the
+parameter $m$ (minimum expansions per nblock) for PBNF.  In this
+section of the paper, we present our results with the best combination
+of parameters according to the data shown in the appendix for each
+algorithm.
 
 \begin{figure}[t]
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/time-Unit_Four-way_0.25_2000_1200.eps}
@@ -545,37 +548,38 @@ x-axis is the number of threads of execution\footnote{In our results
   we use the term threads instead of the term processes (which is
   slightly more general, and is used throughout the beginning of this
   paper) to be specific about this detail of our implementation.} for
-each search, and the y-axis represents the wall clock time in
-seconds. The line labeled ``psdd-4nblocks'' shows the average CPU time
-for the PSDD algorithm to solve the grid world problem with four
-nblocks per thread.  The next line, labeled
-``dynpsdd-4nblocks-1.5wt,'' shows the CPU time for: a serial weighted
-A* search with a weight of 1.5 followed by a PSDD search with pruning
-on the solution cost from the previous weighted A*.  We call this
-algorithm DYNPSDD (dynamically cost bounded PSDD) and we feel that
-this may be a more reasonable demonstration of the performance of the
-standard PSDD algorithm since the breadth-first search which PSDD uses
-relies on upper-bound solution cost pruning.  The next set of data in
-this plot is labeled ``bfpsdd-4nblocks,'' and it shows the performance
-of the best-first flavor of the PSDD algorithm with four nblocks per
-thread.  The final two data sets show the performance for safe PBNF
-and PBNF with 10 nblocks per thread and 30 and 10 minimum expansions
-per nblock respectively.
+each search, and the y-axis represents the average wall-clock time in
+seconds that each search took to complete. The line labeled
+``psdd-4nblocks'' shows the average search time for the PSDD algorithm
+to solve a set of grid world problems with four nblocks per thread.
+The next line, labeled ``dynpsdd-4nblocks-1.5wt,'' shows the time for:
+a serial weighted A* search with a weight of 1.5 followed by a PSDD
+search with pruning on the solution cost from the previous weighted
+A*.  We call this algorithm DYNPSDD (dynamically cost bounded PSDD)
+and we feel that this may be a more reasonable demonstration of the
+performance of the standard PSDD algorithm since the breadth-first
+search which PSDD uses relies on upper-bound solution cost pruning.
+The next set of data in this plot is labeled ``bfpsdd-4nblocks,'' and
+it shows the performance of the best-first flavor of the PSDD
+algorithm with four nblocks per thread.  The final two data sets show
+the performance for safe PBNF and PBNF with 10 nblocks per thread and
+30 and 10 minimum expansions per nblock respectively.
 
 The first thing that this plot demonstrates is that the performance of
 the PBNF algorithm is superior to that of the PSDD variants on these
 instances of the unit-cost grid world domain.  The confidence
-intervals shown in this plot are very tight showing that the results
+intervals shown in this plot are very tight; showing that the results
 are indeed statistically significant.  The PBNF algorithm outperforms
 all of the other algorithms, including the safe variant of PBNF.  We
 suspect that the small amount of extra overhead incurred by safe PBNF
-is from checking the interference scopes for blocks to label as hot,
-and because removing nblocks which interfere with hot blocks from the
+is from checking the interference scopes for nblocks to label as hot,
+and because removing nblocks which interfere with hot nblocks from the
 nblock heap makes for slightly less free disjoint duplicate detection
 scopes.  The ``good parameter settings'' for the safe PBNF algorithm
-help to back up our suspicion.  By performing more expansions before
-testing the interference scope of the acquired nblocks, the overhead
-is slightly reduced.
+help to back up our suspicion.  Safe PBNF performs best with a larger
+number of required minimum expansions per nblock than standard PBNF.
+By performing more expansions before testing the interference scope of
+the acquired nblocks, the overhead is slightly reduced.
 
 As mentioned at the beginning of this section, the computers used to
 run these experiments have a total of eight cores.  This means that
@@ -584,15 +588,15 @@ increased performance by increasing the thread count up to eight (one
 thread for each core).  A more subtle -- but equally as important --
 observation from this plot is that the DYNPSDD algorithm begins
 performing slightly worse as more threads are added.  While all of the
-other algorithms (especially standard PSDD) perform better as more
-threads are added, the DYNPSDD algorithm seems to perform increasingly
-worse as more threads are added beyond six.  One reason for this may
-be because the cost of the serial weighted A* search becomes the
-limiting factor of the search preventing it from taking full advantage
-of the parallelism from the PSDD portion.  The problem with this
-explanation is that it only accounts for why DYNPSDD doesn't perform
-\emph{better} as threads are added, not why it begins to perform
-slightly worse.  This issue is still open for future exploration.
+other algorithms perform better as more threads are added, the DYNPSDD
+algorithm seems to perform increasingly worse as more threads are
+added beyond six.  One reason for this may be because the cost of the
+serial weighted A* search becomes the limiting factor preventing the
+search from taking full advantage of the parallelism from the PSDD
+portion.  The problem with this explanation is that it only accounts
+for why DYNPSDD doesn't perform \emph{better} as threads are added,
+not why it begins to perform slightly worse.  This issue is still open
+for future exploration.
 
 \begin{figure}[t]
 \includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/time-Life_Four-way_0.25_2000_1200.eps}
@@ -615,9 +619,9 @@ search nodes.  This means that best-first PSDD will perform a large
 number of synchronizations with only a small amount on searching
 in between.  Since the PBNF algorithm doesn't use layer-based
 synchronization, it continues to perform well on the life-cost grid
-world boards.
+world boards without modification.
 
-Another aspect of this plot that is interesting is that all of the
+Another aspect of this plot that is notable is that all of the
 algorithms show a performance decrease as more threads are added.  One
 reason why the best-first PSDD shows a decreased performance is
 because the synchronization steps are more expensive since there are
@@ -637,7 +641,7 @@ should be explored, we suggest:
 \item Only look at columns.
 \item Look at both columns and rows of the search space, but use a
   coarser grid in the abstract space.  For example, the grid world
-  instance shown in Figure \ref{fig:small-grid}, would be decomposed
+  instance shown in Figure \ref{fig:small-grid}, could be decomposed
   into two abstract states, one which contains squares: (0,A), (0,B),
   (1,A) and (1,B) and another which contains squares: (0,C), (0,D),
   (1,C) and (1,D).
@@ -655,14 +659,13 @@ should be explored, we suggest:
 
 The sliding tiles puzzle is a common domain for benchmarking heuristic
 search algorithms.  In this paper we use 7x2 sliding tiles puzzles
-(13-puzzles) because they are boards which were small enough to fit
-into memory, but are difficult enough that the timing measurements
-would be more accurate.
+(13-puzzles) because they are small enough to fit into memory, but are
+difficult enough that the timing measurements can be accurate.
 
 The projection function which was used for these puzzles was similar
-to the one shown in Figure \ref{fig:tiles-abstraction}, except instead
+to the one shown in Figure \ref{fig:tile-abstraction}, except instead
 of using just the position of the blank tile, the projection takes
-into account the position of the one tile too.  This make for 182
+into account the position of the 1-tile too.  This make for 182
 abstract states.  Using this projection function there is no
 parameter, like the $M$ parameter for grid world which can control the
 number of nblocks, so the nblocks per thread value is not displayed
@@ -672,26 +675,27 @@ Figure \ref{fig:tiles-7x2} shows the performance of the best-first
 PSDD algorithm and the two PBNF algorithms on a set of 7x2 sliding
 tiles puzzles.  The confidence intervals in this plot are not very
 tight, as they were in the grid world domain.  This is because the
-difficulty of the puzzles varied greatly.  We can see in this figure
-that, as the thread count increases the best-first PSDD algorithm
-performs significantly better than the PBNF algorithms.  In fact,
-BFPSDD gets increasingly better as threads are added, but PBNF gets
-significantly worse with more than three threads and safe PBNF
-performs better as threads are added until six, then its performance
-decreases.  One reason for this is that, as the number of threads
-increases, there are not enough disjoint duplicate detection scopes to
-keep all of the threads searching at once.  Also, since there is an
-insufficient number of nblocks, it may be the case that each nblock
-only has a small number of nodes, and the contention from many threads
-trying to switch nblocks becomes more expensive than the benefits of
-the search method.  This theory can be partially supported by the fact
-that the best minimum expansions parameter settings for the two PBNF
-algorithms is relatively high compared to that of the grid world
-domain.  This means that more expansions are required to reduce the
-great amount of contention on the heap of free nblocks.  This
-hypothesis is also supported by the fact that both the PBNF and safe
-PBNF algorithms do improve in performance up to a point, it would seem
-that this point is when contention becomes overwhelming.
+difficulty of the puzzles varied greatly and therefore the times to
+solve each instance varied too.  We can see in this figure that, as
+the thread count increases the best-first PSDD algorithm performs
+significantly better than the PBNF algorithms.  In fact, BFPSDD gets
+increasingly better as threads are added, but PBNF gets significantly
+worse with more than three threads and safe PBNF performs better as
+threads are added until six, then its performance decreases with
+additional threads.  One reason for this is that, as the number of
+threads increases, there may not be enough disjoint duplicate
+detection scopes to keep all of the threads searching at once.  Also,
+if there is an insufficient number of nblocks, it may be the case that
+each nblock only has a small number of nodes, and the contention from
+many threads trying to switch nblocks often becomes more expensive
+than the benefits of the search method.  This theory can be partially
+supported by the fact that the best minimum expansions parameter
+settings for the two PBNF algorithms is relatively high compared to
+that of the grid world domain.  This means that more expansions are
+required to reduce the great amount of contention on the heap of free
+nblocks.  This hypothesis is also supported by the fact that both the
+PBNF and safe PBNF algorithms do improve in performance up to a point,
+it would seem that this point is when contention becomes overwhelming.
 
 \begin{figure}[t]
 \begin{center}
@@ -704,8 +708,8 @@ that this point is when contention becomes overwhelming.
 
 We speculate that, to correct this problem, a larger abstract state
 space could be used to create more nblocks.  Future work should
-explore the projection function that tracks the blank, tile one and
-also tile two.  This would create 2184 nblocks, which should create a
+explore the projection function that tracks the blank tile, 1-tile and
+2-tile.  This would create 2184 nblocks, which should create a
 sufficient number of disjoint duplicate detection scopes.
 
 \section{Conclusion}
@@ -715,17 +719,16 @@ which makes use of some techniques traditionally used in external and
 efficient memory search to solve smaller search problems more quickly.
 The PBNF algorithm attempts to use a best-first search ordering
 without layer-synchronization, and because of this it is trivial to
-adapt PBNF to perform a bunch of other algorithms in parallel,
-including: weighted, pessimistic and optimistic heuristic search.  In
-addition, we have performed an analysis of the performance of the PBNF
-algorithm along with the PSDD algorithm, which has been shown to be
-the nearest competitor for PBNF on the chosen domains.  In all of the
-grid world domains the PBNF algorithm outperforms all of the variants
-of the PSDD algorithm.  When solving the tiles puzzle, however, the
-PBNF algorithm begins to perform worse as more search threads are
-added.  We believe that this is because of a flaw in our projection
-function, and not the algorithm.  This problem is still open for
-debate and future research.
+adapt PBNF to perform many other algorithms in parallel, including:
+weighted, pessimistic and optimistic heuristic search.  In addition,
+we have performed an analysis of the performance of the PBNF algorithm
+along with the PSDD algorithm, which has been shown to be the nearest
+competitor for PBNF on the chosen domains.  In all of the grid world
+domains the PBNF algorithm outperforms all of the variants of the PSDD
+algorithm.  When solving the tiles puzzle, however, the PBNF algorithm
+begins to perform worse as more search threads are added.  We believe
+that this is because of a flaw in our projection function, and not the
+algorithm.  This problem is still open for debate and future research.
 
 \section{Acknowledgements}
 
