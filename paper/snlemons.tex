@@ -72,12 +72,14 @@ In some domains, we have a very fine grained control over the size of the abstra
 
 As we can see from Figure \ref{fig:BFPSDD-nblock-grid} and Figure \ref{fig:PBNF-nblock-grid}, not only do both PBNF and BFPSDD start to perform worse as the number of nblocks per thread increases beyond a value of 10, but the shape of the curve actually changes. Having too many nblocks does not simply slow these algorithms down, it makes them perform worse as the number of threads increases. Values below 10 are not shown because they caused the algorithms to take too long to measure over a large enough problem set. The same results are true, although with variation in the optimal ratio, for other variants of these algorithms, as shown in Figure \ref{fig:nblock-grid} in the appendix. Determining the appropriate ratio before execution, however, is a non-trivial problem.
 
-In other domains, control over the abstraction size is more coarse. The abstraction most commonly used in the sliding tile puzzle is to ignore the locations of all but some subset of the tiles. Adding or removing a tile from the set we pay attention to, however, changes the number of abstract states dramatically. Likewise, we can partition the grid world board into an abstract grid where each abstract grid location contains a set of neighboring original grid locations. Again, the number of abstract states increases or decreases dramatically when we increase the factor by which we divide the board. Results for a domain should still apply in regard to the correct abstraction size, however, even if we cannot control the ratio as precisely.
+%discussion of life cost boards
+
+In other domains or when a different abstraction is used, control over the abstraction size is more coarse. The abstraction most commonly used in the sliding tile puzzle is to ignore the locations of all but some subset of the tiles. Adding or removing a tile from the set we pay attention to, however, changes the number of abstract states dramatically. Likewise, we can partition the grid world board into an abstract grid where each abstract grid location contains a set of neighboring original grid locations. Again, the number of abstract states increases or decreases dramatically when we increase the factor by which we divide the board. Results for a domain should still apply in regard to the correct abstraction size, however, even if we cannot control the ratio as precisely.
 \subsection{Weight for Preliminary Search}
 The weight used in the preliminary search for DynPSDD and BFPSDD affects the optimality of the solution found and, therefore, the amount of pruning that can be done during the search. For higher weights, the initial search should be faster, but little pruning can be done. When weights approach 1, though, the initial search will take longer with no benefit from parallelization and much of the work done in the actual PSDD search will be reproducing work done by the weighted search.
 
 \begin{figure}[h!]
-\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/PBNF-time-Unit_Four-way_0.25_2000_1200_min=10.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200.eps}
 \caption{Comparison of weights for the preliminary weighted A* search and their effect on overall search time.}
 \label{fig:DynPSDD-weight-grid}
 \end{figure}
@@ -85,6 +87,29 @@ The weight used in the preliminary search for DynPSDD and BFPSDD affects the opt
 As Figure \ref{fig:DynPSDD-weight-grid} shows, the weight used can greatly affect the cost of the overall search. With very low weights, time is always high and there is only minor variation because of the number of threads used for the actual PSDD search. The weight of 1.5 worked best in our grid world tests, finding an adequate solution relatively fast, allowing PSDD to do less work without waiting as long to begin. Higher weights not only run the risk of returning poorer solutions which negatively affect pruning, but in some cases they can also cause the weighted A* search to run longer than at lower weights because it veers too far of on bad paths.
 %discussion of interaction between abstraction size and weight used?
 \subsection{Minimum Expansions}
+One variable unique to PBNF variants is the number of expansions to perform before attempting to find a new nblock to work on. In the ideal situation, this parameter would keep threads from contending over the hash table of $\sigma$ values, but it could also cause them to expand far more nodes than necessary. The best value for this will change based not only the problem at hand, but the abstraction size and how well good states are distributed among nblocks.
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/PBNF-time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Different values for minimum expansions in PBNF on unit cost grids.}
+\label{fig:PBNF-min-grid}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/PBNF-time-Life_Four-way_0.25_2000_1200.eps}
+\caption{Different values for minimum expansions in PBNF on life cost grids.}
+\label{fig:PBNF-min-life}
+\end{figure}
+
+In our grid world tests, 10 minimum expansions before switching seems to lead to the best performance. Figure \ref{fig:PBNF-min-grid} illustrates that values above 10 increase performance times, shifting the line upward without substantially changing its shape. Higher values do not appear to make the algorithm less scalable, however. Values below 10 caused such bad performance that we were again unable to complete tests on them. The distinction is less clear in the life cost tests shown in Figure \ref{fig:PBNF-min-life}, indicating that variable edge costs may necessitate a more flexible method of determining this value.
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/tiles_random_7_2/PBNF-time-random_7_2.eps}
+\caption{Different values for minimum expansions in PBNF on 7x2 sliding tile puzzles.}
+\label{fig:PBNF-min-tile}
+\end{figure}
+
+
 \section{Experimental Results}
 \subsection{Performance}
 \subsection{Discussion}
