@@ -1,3 +1,4 @@
+
 \documentclass{article}
 \usepackage{aaai}
 \usepackage{graphicx}
@@ -47,10 +48,10 @@ the field of artificial intelligence it is always necessary to solve
 problems more quickly.  A trend in current research on heuristic
 search, however, seems to be focusing on finding solutions in larger
 and larger search domains instead of solving smaller domains faster.
-If real-time responses are desired, however, it is crucial to solve
-even small domains very quickly.  For this work our goal was to use
-parallelism to solve some problems that are traditionally considered
-small more quickly.
+If real-time responses are desired is crucial to solve even small
+domains very quickly.  For this work our goal was to use parallelism
+to solve some problems that are traditionally considered small as fast
+as possible.
 
 In a typical (serial) best-first search algorithm, an \emph{open-list}
 and \emph{closed-list} of nodes are maintained.  The open-list
@@ -94,7 +95,7 @@ performs poorly on domains which do not have unit cost edges.
 The algorithm which is presented in this paper extends some ideas
 which were developed for external memory search -- an area which
 shares some of the same problems as parallel search.  Our algorithm,
-which is called Parallel Best NBlock First (PBNF), allows processors
+which is called Parallel Best NBlock First (PBNF), enables processors
 to acquire exclusive access to sections of a search space in a manor
 which allows for periods of synchronization-free search.
 Additionally, this method lets the search to progress in a best-first
@@ -104,8 +105,8 @@ sub-optimal, weighted or pessimistic heuristics.
 
 We demonstrate the performance of our algorithm on a handful of common
 search domains, including grid-world and the sliding tiles domain.
-Our results show that this algorithm outperforms all previously
-proposed algorithms which we compare against.
+Our results show that this algorithm can outperform all algorithms
+which we compare against.
 
 \section{Previous Work}
 
@@ -122,10 +123,10 @@ parallel heuristic search, by making use of distributed open and
 closed lists instead of using global data structures.  One such
 algorithm is Parallel Retracting A* (PRA*) \cite{evett:pra}.  In PRA*
 a hashing scheme is used to divide the search nodes among all of the
-available processors.  Each time a processor expands a node it passes
-the node to the appropriate processor dictated by the hash function.
-Each processor is then in charge of expanding and detecting duplicates
-for all of the nodes that hash to it.  This method allows duplicate
+available processors.  Each time a node is expanded it is passed to
+the appropriate processor dictated by the hash function.  Each
+processor is then in charge of expanding and detecting duplicates for
+all of the nodes that hash to it.  This method allows duplicate
 detection to happen without extra communication, it also reduces the
 amount of contention on the open-list by distributing it amongst all
 of the processors\footnote{The true PRA* algorithm also use a
@@ -144,7 +145,7 @@ other processors have the ability to add search nodes to.  While this
 is less of a bottle-neck than having a single global, shared
 open-list, we have found that it is still very expensive.  Work done
 by Seth Lemons in his survey of parallel heuristic search algorithms
-demonstrates that the performance for PRA* \cite{lemons:sur} suffers
+\cite{lemons:sur} demonstrates that the performance for PRA* suffers
 from the overhead of passing nodes to their respective processors.
 
 \subsection{Structured Duplicate Detection}
@@ -225,7 +226,7 @@ The main focus of the SDD approach is: using state space decomposition
 so that generated nodes can be explicitly moved to a secondary storage
 device (such as a disk drive) when they are not in the duplicate
 detection scope of the nblock being expanded.  The SDD approach uses
-breadth-first heuristic search \cite{zhou,bhs}, where only the nodes
+breadth-first heuristic search \cite{zhou:bhs}, where only the nodes
 of the current search depth in a single nblock are searched at a time.
 Nodes of this nblock are expanded from the current depth-layer and
 their children are placed into the next-depth layer of their
