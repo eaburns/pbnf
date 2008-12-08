@@ -85,7 +85,8 @@ The weight used in the preliminary search for DynPSDD and BFPSDD affects the opt
 \end{figure}
 
 As Figure \ref{fig:DynPSDD-weight-grid} shows, the weight used can greatly affect the cost of the overall search. With very low weights, time is always high and there is only minor variation because of the number of threads used for the actual PSDD search. The weight of 1.5 worked best in our grid world tests, finding an adequate solution relatively fast, allowing PSDD to do less work without waiting as long to begin. Higher weights not only run the risk of returning poorer solutions which negatively affect pruning, but in some cases they can also cause the weighted A* search to run longer than at lower weights because it veers too far of on bad paths.
-%discussion of interaction between abstraction size and weight used?
+
+Additionally, there appears to be a relationship between the weight of the initial search and the best number of nblocks per thread. For a weight of 1.1, the search performs best on average with 2 nblocks per thread, while for all other weights the best performance is at 4 nblocks per thread. Results for various weights in relation to the nblock to thread ratio can be seen in Figure \ref{fig:weight-grid} of the appendix. It is quite possible that with a near-optimal bound on solution cost, the algorithm performs better with a smaller abstraction because there are fewer nodes to spread around.
 \subsection{Minimum Expansions}
 One variable unique to PBNF variants is the number of expansions to perform before attempting to find a new nblock to work on. In the ideal situation, this parameter would keep threads from contending over the hash table of $\sigma$ values, but it could also cause them to expand far more nodes than necessary. The best value for this will change based not only the problem at hand, but the abstraction size and how well good states are distributed among nblocks.
 
@@ -110,13 +111,27 @@ In our grid world tests, 10 minimum expansions before switching seems to lead to
 \end{figure}
 
 %discuss tile results for min expansions
-\section{Experimental Results}
-\subsection{Performance}
-\subsection{Discussion}
+\section{Comparison}
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/seth/time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Comparison of all algorithms on unit cost grid world problems.}
+\label{fig:comp-grid}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/seth/time-Life_Four-way_0.25_2000_1200.eps}
+\caption{Comparison of all algorithms on life cost grid world problems.}
+\label{fig:comp-life}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/seth/time-random_7_2.eps}
+\caption{Comparison of BFPSDD, PBNF, and Safe PBNF on 7x2 sliding tile puzzles.}
+\label{fig:comp-tile}
+\end{figure}
 %\section{Related Work}
 %maybe mention PWS and DTS
 \section{Future Work}
-\section{Conclusion}
 
 \section{Appendix}
 \begin{figure*}[h!]
@@ -127,6 +142,20 @@ In our grid world tests, 10 minimum expansions before switching seems to lead to
 \caption{Comparison of different nblock/thread ratios on execution time of PSDD, DynPSDD, BFPSDD, PBNF, and Safe PBNF.}
 \label{fig:nblock-grid}
 \end{figure*}
+
+\begin{figure*}[h!]
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.1.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.5.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=2.0.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=2.2.eps}
+\caption{Different weights with different nblock ratios in DynPSDD.}
+\label{fig:weight-grid}
+\end{figure*}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/tiles_random_7_2/SAFEPBNF-time-random_7_2.eps}
+\caption{Different values for minimum expansions in Safe PBNF on 7x2 sliding tile puzzles.}
+\end{figure}
 
 \bibliography{master}
 \bibliographystyle{aaai}
