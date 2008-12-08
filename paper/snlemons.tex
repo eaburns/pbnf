@@ -51,12 +51,11 @@ The proposed fix for this issue is to add a flag that can be used to mark nblock
 
 The additional effort required to check the interference scope for good nblocks will cause at most a constant factor increase in time because it will be done in all cases where the free list would be checked normally. The greatest cost is most likely to be incurred due to additional nblock switching in attempts to free up promising nblocks. The hope is that the overhead will be balanced out by the more strict adherence to a best first order.
 \section{Optimizing Parameters}
-Many of the algorithms need only to be given a maximum number of threads to execute. In the case of some algorithms, the number of threads does affect other implicit parameters, such as k in KBFS, the size of the hash function in PRA*, etc. However, several of the algorithms we examined require explicit parameters be defined at the beginning of execution. The values given to these parameters have varying effects on performance, and exploring the results for different values can tell us much about the behavior of the algorithm overall.
+Many of the algorithms need only to be given a maximum number of threads to execute. In the case of some algorithms, the number of threads does affect other implicit parameters, such as k in KBFS, the size of the hash function in PRA*, etc. However, several of the algorithms we examined require explicit parameters be defined at the beginning of execution. The values given to these parameters have varying effects on performance, and exploring the results for different values can tell us much about the behavior of the algorithm overall. Results will be shown here for varying parameters on PBNF and BFPSDD because they were the fastest variants and results for other variants (where possible to obtain) were similar in all cases. Other results are shown in the appendix.
 \subsection{Abstraction Size}
 The number of abstract states used in variants of PSDD and PBNF is a very important parameter, as it determines the number of disjoint duplicate detection scopes and, therefore, the maximum number of threads that can operate in parallel at a given point in time. If we know the number of successors an nblock has, we can easily determine the maximum number of disjoint duplicate detection scopes possible for a given abstraction. It is obvious that we want to have at least as many disjoint duplicate detection scopes as we have threads or we are guaranteed not to have all threads all threads actively searching at any point during execution. We also want fewer abstract states than original states, but this leaves a very large range in between to explore.
 
 In some domains, we have a very fine grained control over the size of the abstraction, allowing us to try many different values and examine their effect on performance. In the grid world domain, for instance, abstracting away the row or column value of a state provides a simple abstraction the size of which is trivial to vary. We implemented such an abstraction by representing all states in the same column (or set of columns) as belonging to a single nblock. We can then vary the number of nblocks in relation to the number of threads (nblocks/thread) and analyze the changes in performance for varying ratios.
-
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/BFPSDD-time-Unit_Four-way_0.25_2000_1200.eps}
@@ -66,13 +65,25 @@ In some domains, we have a very fine grained control over the size of the abstra
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/PBNF-time-Unit_Four-way_0.25_2000_1200_min=10.eps}
-\caption{Comparison of different nblock/thread ratios on execution time of PBNF.}
+\caption{Comparison of different nblock/thread ratios on execution time of PBNF in unit cost grid world.}
 \label{fig:PBNF-nblock-grid}
 \end{figure}
 
 As we can see from Figure \ref{fig:BFPSDD-nblock-grid} and Figure \ref{fig:PBNF-nblock-grid}, not only do both PBNF and BFPSDD start to perform worse as the number of nblocks per thread increases beyond a value of 10, but the shape of the curve actually changes. Having too many nblocks does not simply slow these algorithms down, it makes them perform worse as the number of threads increases. Values below 10 are not shown because they caused the algorithms to take too long to measure over a large enough problem set. The same results are true, although with variation in the optimal ratio, for other variants of these algorithms, as shown in Figure \ref{fig:nblock-grid} in the appendix. Determining the appropriate ratio before execution, however, is a non-trivial problem.
 
-%discussion of life cost boards
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/BFPSDD-time-Life_Four-way_0.25_2000_1200.eps}
+\caption{Comparison of different nblock/thread ratios on execution time of BFPSDD in life cost grid world.}
+\label{fig:BFPSDD-nblock-life}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/PBNF-time-Life_Four-way_0.25_2000_1200_min=10.eps}
+\caption{Comparison of different nblock/thread ratios on execution time of PBNF in life cost grid world.}
+\label{fig:PBNF-nblock-life}
+\end{figure}
+
+Both BFPSDD and PBNF have a clearly discernable best ratio of nblocks to threads in life cost grid world problems tested, although their behavior overall is less desirable. Figure \ref{fig:BFPSDD-nblock-life} and Figure  \ref{fig:PBNF-nblock-life} show that the ratios of 2 and 10 are best for PSDD and PBNF respectively in the life cost instances they were run on. No data is reported for other variants of PSDD or ratios less than 10 for PBNF because all of them were too slow to be tested in a reasonable amount of time.
 
 In other domains or when a different abstraction is used, control over the abstraction size is more coarse. The abstraction most commonly used in the sliding tile puzzle is to ignore the locations of all but some subset of the tiles. Adding or removing a tile from the set we pay attention to, however, changes the number of abstract states dramatically. Likewise, we can partition the grid world board into an abstract grid where each abstract grid location contains a set of neighboring original grid locations. Again, the number of abstract states increases or decreases dramatically when we increase the factor by which we divide the board. Results for a domain should still apply in regard to the correct abstraction size, however, even if we cannot control the ratio as precisely.
 \subsection{Weight for Preliminary Search}
@@ -110,8 +121,10 @@ In our grid world tests, 10 minimum expansions before switching seems to lead to
 \label{fig:PBNF-min-tile}
 \end{figure}
 
-%discuss tile results for min expansions
+Optimizing the minimum number of expansions proved much more complicated for sliding tile puzzles. While 30 minimum expansions gives the best average performance, results varied widely enough that no option is clearly the best. Figure \ref{fig:PBNF-min-tile} shows that the confidence intervals of almost all minimum expansion values overlap, even though the instances used did not vary greatly in difficulty. It is possible that either the abstraction does not suit all problems equally well or that there are other factors of sliding tile puzzles which affect the algorithm in ways we have yet to understand.
 \section{Comparison}
+Something about comparison.
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/time-Unit_Four-way_0.25_2000_1200.eps}
 \caption{Comparison of all algorithms on unit cost grid world problems.}
@@ -129,8 +142,6 @@ In our grid world tests, 10 minimum expansions before switching seems to lead to
 \caption{Comparison of BFPSDD, PBNF, and Safe PBNF on 7x2 sliding tile puzzles.}
 \label{fig:comp-tile}
 \end{figure}
-%\section{Related Work}
-%maybe mention PWS and DTS
 \section{Future Work}
 
 \section{Appendix}
@@ -144,6 +155,18 @@ In our grid world tests, 10 minimum expansions before switching seems to lead to
 \end{figure*}
 
 \begin{figure*}[h!]
+\begin{center}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.1.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.5.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=2.0.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=2.2.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{DynPSDD on unit cost grid world boards.}
+\label{fig:DynPSDD-grid}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[h!]
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.1.eps}
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.5.eps}
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=2.0.eps}
@@ -152,9 +175,32 @@ In our grid world tests, 10 minimum expansions before switching seems to lead to
 \label{fig:weight-grid}
 \end{figure*}
 
+\begin{figure*}[h!]
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=5.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=10.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=30.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=60.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=80.eps}
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Safe PBNF on unit cost grid world boards.}
+\label{fig:SafePBNF-grid}
+\end{figure*}
+
+\begin{figure*}[h!]
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/SAFEPBNF-time-Life_Four-way_0.25_2000_1200_min=5.eps}
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/SAFEPBNF-time-Life_Four-way_0.25_2000_1200_min=10.eps}
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/SAFEPBNF-time-Life_Four-way_0.25_2000_1200_min=30.eps}
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/SAFEPBNF-time-Life_Four-way_0.25_2000_1200_min=60.eps}
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/SAFEPBNF-time-Life_Four-way_0.25_2000_1200_min=80.eps}
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/SAFEPBNF-time-Life_Four-way_0.25_2000_1200.eps}
+\caption{Safe PBNF on life cost grid world boards.}
+\label{fig:SafePBNF-life}
+\end{figure*}
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/tiles_random_7_2/SAFEPBNF-time-random_7_2.eps}
 \caption{Different values for minimum expansions in Safe PBNF on 7x2 sliding tile puzzles.}
+\label{fig:SafePBNF-tile}
 \end{figure}
 
 \bibliography{master}
