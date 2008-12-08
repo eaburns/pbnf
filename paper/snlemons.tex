@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{aaai}
 \usepackage{graphicx}
+\usepackage[toc, page]{appendix}
 
 \title{A Survey of Parallel Search Algorithms}
 \author{Seth Lemons \\
@@ -131,7 +132,7 @@ Having determined the best parameters to use with each algorithm for the domains
 \label{fig:comp-grid}
 \end{figure}
 
-Figure \ref{fig:comp-grid} shows all listed algorithms on unit cost grid world instances. 
+Figure \ref{fig:comp-grid} shows all algorithms on unit cost grid world instances. It is interesting to note that with a single thread, PA* and PRA* are equivalent to serial A*. Their execution time increases steeply at first and gradually decreases as threads are added. PRA* seems to have more erratic behavior than PA*, most likely because the way threads are hashed changes based on the number of threads and the interactions between threads are slightly more complex. While BFPSDD, PBNF, and SafePBNF start out slightly more expensive than serial A*, their runtimes slowly decrease and are consistently the best. KBFS is a real oddity because, in theory, its performance at 1 thread should also be roughly equivalent to A*. However, it appears that the overhead of synchronizing the main thread and the search thread(s) is quite large. It seems to benefit from more threads, but is still far worse off than most of the other algorithms at any point tested. We can see that SafePBNF is slightly slower than PBNF, most likely due to additional overhead of checking the protection scope. BFPSDD is slower than both variants of PBNF, probably because of the fact that it expands all nodes at every layer but the last. Dynamic PSDD comes close to being in the set of good algorithms at times, but also seems to increase in execution time for higher numbers of threads. The cause of this slowing down is not immediately apparent, especially considering the fact that both other variants of PSDD do not suffer from it. PSDD behaves quite poorly because it is searching far more nodes than any other algorithm, and the cost is only later outweighed by the benefits of parallel execution at higher numbers of threads.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/time-Life_Four-way_0.25_2000_1200.eps}
@@ -139,18 +140,27 @@ Figure \ref{fig:comp-grid} shows all listed algorithms on unit cost grid world i
 \label{fig:comp-life}
 \end{figure}
 
-\ref{fig:comp-life}
+The comparison of most of the algorithms, shown in Figure \ref{fig:comp-life}, illustrates that non-unit action cost has a dramatic effect on many of them. The behavioe exhibited by PA* and PRA* is essentially the same as unit cost, increasing for the first few threads and gradually decreasing. KBFS also performs roughly the same as before, still being overwhelmed by synchronization costs. BFPSDD behaves quite strangely, with execution times increasing steadily for each thread added. This behavior is because of the layered nature of PSDD algorithms and the fact that to return an optimal solution, g costs, rather than depth of a node, have to be used to determine layers. With multiple layers at each depth level, more time is spent switching between nblocks with very small open lists. The other PSDD variants behaved even more poorly than BFPSDD, as is to be expected. The PBNF variants perform relatively well, outperforming the other algorithms at almost all points past 1 thread. The disappointing fact is that both PBNF and SafePBNF require longer execution times for more threads after a certain point. This may be due to the abstraction becoming too large at higher numbers of threads because we maintain a ratio of nblocks to threads, rather than a constant number of nblocks. As we have said, too many nblocks could increase overhead from switching when nblocks empty too easily.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/time-random_7_2.eps}
-\caption{Comparison of BFPSDD, PBNF, and Safe PBNF on 7x2 sliding tile puzzles.}
+\caption{Comparison of all algorithms on 7x2 sliding tile puzzles.}
 \label{fig:comp-tile}
 \end{figure}
 
-\ref{fig:comp-tile}
+Finally, the results of testing on 7x2 sliding tile puzzles are shown in Figure \ref{fig:comp-tile}. As the large confidence intervals indicate, behavior for all algorithms was erratic, possibly due to variance in difficulty of the instances used. Execution times of PA* and PRA* increase at the start, just as before, but their slope after that point is not clear. As always, KBFS starts off very poorly and slowly improves its time, albeit with a strange jump upward and back down between 2 and 4 threads. The abstraction used for the PSDD and PBNF variants was quite small, causing even further anomalies in some of their results. SafePBNF starts out almost as poorly as KBFS, improves, and then seems to become worse again. PBNF begins, as usual, very near serial A*, improving as it goes, but it starts to do worse for higher numbers of threads. BFPSDD seems to be the only algorithm to truly behave well in this example. It starts out somewhat worse than serial A*, but consistently decreases execution times as threads are added. Its good performance in sliding tiles makes sense in light of the fact that it was originally tested by Zhou and Hansen in this domain. Also, its method of searching fits for a domain in which the actions are unit cost and the heuristic is admissible but not extremely accurate.
 \section{Future Work}
+One obvious limitation of the evaluations done here is the number of threads used. In several cases, algorithms are improving in speed, but we cannot be sure that they would continue doing so. It is very difficult to make definite statements about scalability without further information.
+While attention was paid to the size of the abstraction used for PSDD and PBNF variants, examination of the properties that make an abstraction useful to such algorithms and how big of an effect these properties have on execution time could be very informative. In addition, PRA* could be tested with has functions of varying quality. Both abstractions and hashes could be tested to see how well they split up the state space and how evenly they distribute good nodes.
+The problem instances used for our tests were the same size and did not vary much in difficulty. Future evaluations of these algorithms could look at how difficult it is to optimize parameters over larger distributions of problem size and difficulty. If good parameters cannot be found in such a situation, it would make a much stronger case for automatically learning or adjusting these values for each problem solved.
+Several changes could be made to the algorithms' implementations to test whether the problems observed could be circumvented. Because PRA* was originally designed for message passing systems, the effect of contention on the algorithm could be different if message passing were simulated in a threaded system, rather than allowing threads to contend over each other's open lists. Likewise, it could be instructive to implement the modification to PSDD variants by which layers could represent a range of values, rather than a single value. This could improve their performance in the life cost problems.
+\section{Acknowledgements}
+My thanks to Ethan Burns, Wheeler Ruml, and Rong Zhou for collaboration on implementation and testing of these algorithms.
 
-\section{Appendix}
+\bibliography{master}
+\bibliographystyle{aaai}
+
+\begin{appendices}
 \begin{figure*}[h!]
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/PSDD-time-Unit_Four-way_0.25_2000_1200.eps}
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200_weight=1.5.eps}
@@ -208,8 +218,6 @@ Figure \ref{fig:comp-grid} shows all listed algorithms on unit cost grid world i
 \caption{Different values for minimum expansions in Safe PBNF on 7x2 sliding tile puzzles.}
 \label{fig:SafePBNF-tile}
 \end{figure}
-
-\bibliography{master}
-\bibliographystyle{aaai}
+\end{appendices}
 
 \end{document}
