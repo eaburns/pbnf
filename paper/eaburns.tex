@@ -365,16 +365,25 @@ acquire the better one.
   \SetKwData{block}{b}
   \SetKwData{node}{n}
   \SetKwData{incumbent}{incumbent}
+  \SetKwData{children}{children}
+  \SetKwData{child}{c}
   \label{alg:pbnfsearch}
   \KwResult{Searches nblocks for a goal node.  After each process
     completes \incumbent contains the optimal solution.}
-  \Repeat{solution is found {\bf or} all nodes are exhausted} {
+  \Repeat{all nodes are exhausted} {
     $\block \leftarrow$ best free nblock\;
     \While {$\block$ is better than the next best free nblock} {
-      $\node \leftarrow$ expand the best node on $\block$\;
-      \If {$\node$ is a goal {\bf and} the cost of the path to $\node$
-        is better than $\incumbent$}{
-        $\incumbent \leftarrow$ path to $\node$\;
+      $\node \leftarrow$ best node on $\block$\;
+      \If {$\node$ is a goal}{
+        \If{the cost of the path to $\node$ is better than $\incumbent$}{
+          $\incumbent \leftarrow$ path to $\node$\;
+        }
+      }
+      \Else {
+        $\children \leftarrow$ expand $\node$\;
+        \ForEach{$\child \in \children$}{
+          place $\child$ in its appropriate nblock\;
+        }
       }
     }
   }
