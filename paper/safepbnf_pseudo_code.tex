@@ -45,9 +45,13 @@
   \caption{sethot(block)}
   \KwIn{\block -- an nblock}
   \KwResult{\block is flagged as hot}
-  \If{{\bf not} $\hot(\block)$ {\bf and} $\sigma(\block) > 0$}{
+  \If{{\bf not} $\hot(\block)$ {\bf and} $\sigma(\block) > 0$ {\bf
+  and} $\neg\exists i \in interferenceScope(\block) : i < \block \wedge \hot(i)$ }{
     $\hot(\block) \leftarrow true$\;
     \ForEach{$n' \in \interferenceScope(\block)$}{
+      \lIf{$\hot(n')$} {
+        $\setcold(n')$\;
+      }
       \lIf{$\isfree(n')$}{
         $\FreeList \leftarrow \FreeList \setminus \{n'\}$\;
       }
