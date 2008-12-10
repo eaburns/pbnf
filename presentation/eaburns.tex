@@ -1,15 +1,17 @@
 \documentclass[style=unh]{powerdot}
-\usepackage{graphix}
+\usepackage{graphicx}
 
-\pdsetup{lf={Ethan Burns (UNH)},
-  rf = {Parallel Best-First Heuristic Search}}
+\pdsetup{
+  lf={Ethan Burns (UNH)},
+  rf = {Parallel Best-First Heuristic Search},
+  list={itemsep=8pt}}
 
 
 \title{Parallel Best-First Heuristic Search}
 \author{Ethan Burns \vspace{0.2in} \\
-        \includegraphics[height=0.4in]{figures/unh-logo-words.eps} \\
-        Department of Computer Science \\
-	{\tt eaburns} at {\ttunh.edu}}
+  \includegraphics[height=0.4in]{figures/unh-logo-words.eps} \\
+  Department of Computer Science \\
+  {\tt eaburns} at {\tt unh.edu}}
 \date{\mbox{}}
 
 \begin{document}
@@ -19,19 +21,286 @@
 
 \section[slide=false]{Introduction}
 
-% ------------------------------------------------------------
+% --------------------
 
-\begin{slide}{Overview}
+\begin{slide}{Goal}
+  \vspace{1in}
+  \begin{center}
+    Solve small problems as fast as possible \\
+    {\tiny Using multi-core}
+  \end{center}
+
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Motivation}
+  \onslide{1,2}{
+    \begin{center}
+      Why multi-core?
+    \end{center}
+
+    \begin{itemize}
+    \item Parallelism is replacing horse power for speed
+    \end{itemize}
+  }
+  \vspace{.3in}
+  \onslide*{2}{
+    \begin{center}
+      Why small problems?
+    \end{center}
+
+    \begin{itemize}
+    \item Trend in research is to solve larger and larger problems
+    \item Large problems are hard to solve
+    \item Re-learn to solve small problems using parallelism for speed
+    \end{itemize}
+  }
 \end{slide}
 
 % ------------------------------------------------------------
 
-\section[slide=false]{Conclusion}
+\section{Background}
+
+% --------------------
+
+\begin{slide}{PRA*}
+  \vspace{.2in}
+  \begin{center}
+    Parallel Retracting A*
+  \end{center}
+
+  \vspace{.1in}
+
+  \begin{itemize}[type=1]
+  \item Each processor is a hash bucket
+  \item Each search node hashes to a single processor
+  \item Processors expand their nodes and pass children to
+    appropriate buckets
+  \item Uses a retracting scheme for memory efficiency
+  \end{itemize}
+\end{slide}
+
+% --------------------
+
+\begin{slide}{SDD}
+  \vspace{.2in}
+  \begin{center}
+    Structured Duplicate Detection
+  \end{center}
+
+  \onslide*{1}{
+    \begin{itemize}
+    \item Decompose search graph by \emph{projecting} nodes into an abstract
+      space
+    \item NBlock: all of the search nodes in the same abstract state
+    \item \emph{Duplicate detection scopes}
+    \item Breadth-first heuristic search
+    \item Single $g$ value layer at a time
+    \end{itemize}
+  }
+  \onslide*{2}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/disjoint-scopes1} \\
+      15-Puzzle projected on the blank
+    \end{center}
+  }
+\end{slide}
+
+% --------------------
+
+\begin{slide}{PSDD}
+  \vspace{.2in}
+  \begin{center}
+    Parallel Structured Duplicate Detection
+  \end{center}
+  \onslide*{1}{
+    \begin{itemize}
+    \item Multiple processors search \emph{disjoint duplicate detection
+      scopes} concurrently.
+    \item Search proceeds in a breadth-first manor, as in SDD
+    \item Processors synchronize before switching layers
+    \end{itemize}
+  }
+  \onslide*{2}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/disjoint-scopes0} \\
+    \end{center}
+  }
+  \onslide*{3}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/disjoint-scopes1} \\
+    \end{center}
+  }
+  \onslide*{4}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/disjoint-scopes2} \\
+    \end{center}
+  }
+  \onslide*{5}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/disjoint-scopes3} \\
+    \end{center}
+  }
+  \onslide*{6}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/disjoint-scopes4} \\
+    \end{center}
+  }
+  \onslide*{7}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/disjoint-scopes5} \\
+    \end{center}
+  }
+
+  \onslide*{2,3,4,5,6,7} {
+    \vspace{-.3in}
+    \begin{center}
+      15-Puzzle projected on the blank
+    \end{center}
+  }
+
+\end{slide}
+
+\begin{slide}{PSDD Variants}
+  \vspace{.2in}
+  \begin{center}
+    Parallel Structured Duplicate Detection Variants
+  \end{center}
+
+  \begin{description}
+
+  \item[Standard PSDD]
+    Uses breadth-first heuristic search
+  \item[Dynamic PSDD]
+    Not really technically a variant -- Dynamic PSDD uses an initial
+    weighted A* to get a cost bound, then performs standard PSDD.
+  \item[Best-first PSDD]
+    Uses $f$ value layers instead of $g$ value layers.
+  \item[Iterative Deepening PSDD]
+    Performs Best-first PSDD with iterative deepening cost bounds.
+  \end{description}
+
+\end{slide}
+
+% --------------------
+
+\begin{slide}{lA*}
+  \vspace{.2in}
+  \begin{center}
+    Localized A*
+  \end{center}
+
+  \begin{itemize}
+  \item Efficient memory search
+  \item Prefer memory locality to strict best-firstyness
+  \item \emph{Heap-of-heaps} $H = \langle H_0, H_1, ..., H_n \rangle$
+  \item Heaps $H_i$ contain nodes in the same memory page
+  \item Best heap, $H_0$, expanded while
+    \begin{eqnarray*}
+      (\mathop{\rm min}_{n \in H_0} f(n)) < (\mathop{\rm min}_{m \in H_1} f(m)) + \Delta
+    \end{eqnarray*}
+    where $H_1$ is the next best heap on $H$
+  \end{itemize}
+
+\end{slide}
 
 % ------------------------------------------------------------
+
+\section{PBNF}
+
+% --------------------
+
+\begin{slide}{PBNF}
+  \vspace{.2in}
+  \begin{center}
+    Parallel Best NBlock First
+  \end{center}
+
+  \begin{itemize}
+  \item Heap of free nblocks $H = \langle N_0, N_1, ..., N_n \rangle$
+  \item Processors acquire the best disjoint nblocks
+  \item NBlock, $N_0$, expanded while
+    \begin{eqnarray*}
+      (\mathop{\rm min}_{n \in N_0} f(n)) < (\mathop{\rm min}_{m \in N_{next}} f(m))
+    \end{eqnarray*}
+    where $N_{next}$ is the next best nblock on $H$
+  \item Minimum expansions, $m$ to reduce contention
+  \item No layer based synchronization
+  \end{itemize}
+
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Safe PBNF}
+  \vspace{.2in}
+  \begin{center}
+    Safe Parallel Best NBlock First
+  \end{center}
+\end{slide}
+
+% --------------------
+
+\begin{slide}{PBNF Variants}
+  \vspace{.2in}
+  \begin{center}
+    Parallel Best NBlock First Variants
+  \end{center}
+  \begin{description}
+  \item[PBNF] The standard PBNF algorithm
+  \item[Safe PBNF] The safe PBNF algorithm
+  \item[Weighted PBNF] PBNF with a weighted heuristic (no proving
+    optimality phase).
+  \item[Pessimistic PBNF] PBNF with a pessimistic heuristic (no proving
+    optimality phase).
+  \item[Optimistic PBNF] Weighted PBNF as the greedy phase of an optimistic search.
+  \item[Possibly many more...]
+  \end{description}
+\end{slide}
+
+% ------------------------------------------------------------
+
+\section{Experiments}
+
+% --------------------
+
+\begin{slide}{Parameters}
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Unit Grid World}
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Life Grid World}
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Sliding Tiles}
+\end{slide}
+
+% ------------------------------------------------------------
+
+\section{Conclusion}
+
+% --------------------
 
 \begin{slide}{Summary}
 \end{slide}
+
+% --------------------
+
+\begin{slide}{Future Work}
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Questions}
+\end{slide}{Questions}
 
 % ------------------------------------------------------------
 
