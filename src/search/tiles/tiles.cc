@@ -449,3 +449,149 @@ void Tiles::OneTileProject::print(unsigned int b, ostream &o) const
 	  << ", one=" << unproj[b].second
 	  << endl;
 }
+
+/**********************************************************************/
+
+int Tiles::TwoTileProject::setup_proj(unsigned int id,
+				      unsigned int i,
+				      unsigned int j,
+				      unsigned int k)
+{
+	if (i == j || i == k || j == k)
+		return 0;
+
+	proj[i][j][k] = id;
+	unproj[id].resize(3);
+	unproj[id][0] = i;
+	unproj[id][1] = j;
+	unproj[id][2] = k;
+
+	return 1;
+}
+
+Tiles::TwoTileProject::TwoTileProject(const SearchDomain *d)
+{
+	tiles = dynamic_cast<const Tiles *>(d);
+	unsigned int size = tiles->width * tiles->height;
+	unsigned int id = 0;
+
+	nnblocks = size * (size - 1) * (size - 2);
+
+	unproj.resize(nnblocks);
+	proj.resize(size);
+	for (unsigned int i = 0; i < size; i += 1) {
+		proj[i].resize(size);
+		for (unsigned int j = 0; j < size; j += 1) {
+			proj[i][j].resize(size);
+			for (unsigned int k = 0; k < size; k += 1)
+				id += setup_proj(id, i, j, k);
+		}
+	}
+}
+
+Tiles::TwoTileProject::~TwoTileProject(void)
+{
+	// nothing
+}
+
+unsigned int Tiles::TwoTileProject::project(const State *s) const
+{
+	const TilesState *ts = dynamic_cast<const TilesState *>(s);
+	const vector<unsigned int> *tiles = ts->get_tiles();
+	unsigned int size = tiles->size();
+	unsigned int blank;
+	unsigned int one;
+	unsigned int two;
+
+	for (unsigned int i = 0; i < size; i += 1) {
+		if (tiles->at(i) == 0)
+			blank = i;
+		else if (tiles->at(i) == 1)
+			one = i;
+		else if (tiles->at(i) == 2)
+			two = i;
+	}
+
+	assert(blank != one);
+	assert(blank != two);
+	assert(one != two);
+
+	return proj[blank][one][two];
+}
+
+unsigned int Tiles::TwoTileProject::get_num_nblocks(void) const
+{
+	return nnblocks;
+}
+
+vector<unsigned int> Tiles::TwoTileProject::get_neighbors(unsigned int b) const
+{
+	vector<unsigned int> ret;
+	unsigned int blank = unproj[b][0];
+	unsigned int one = unproj[b][1];
+	unsigned int two = unproj[b][2];
+	unsigned int width = tiles->width;
+	unsigned int col = blank % width;
+	unsigned int row = blank / width;
+
+	if (col > 0) {
+		unsigned int i = blank - 1;
+		if (one == i)
+			ret.push_back(proj[one][blank][two]);
+		else if (two == i)
+			ret.push_back(proj[two][one][blank]);
+		else
+			ret.push_back(proj[i][one][two]);
+	}
+	if (col < width - 1) {
+		unsigned int i = blank + 1;
+		if (one == i)
+			ret.push_back(proj[one][blank][two]);
+		else if (two == i)
+			ret.push_back(proj[two][one][blank]);
+		else
+			ret.push_back(proj[i][one][two]);
+	}
+	if (row > 0) {
+		unsigned int i = blank - width;
+		if (one == i)
+			ret.push_back(proj[one][blank][two]);
+		else if (two == i)
+			ret.push_back(proj[two][one][blank]);
+		else
+			ret.push_back(proj[i][one][two]);
+	}
+	if (row < tiles->height - 1) {
+		unsigned int i = blank + width;
+		if (one == i)
+			ret.push_back(proj[one][blank][two]);
+		else if (two == i)
+			ret.push_back(proj[two][one][blank]);
+		else
+			ret.push_back(proj[i][one][two]);
+	}
+
+	return ret;
+}
+
+vector<unsigned int> Tiles::TwoTileProject::get_successors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+vector<unsigned int> Tiles::TwoTileProject::get_predecessors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+/**
+ * Print the projection with the given ID, b.
+ */
+void Tiles::TwoTileProject::print(unsigned int b, ostream &o) const
+{
+	o << b << ": "
+	  << "blank=" << unproj[b][0]
+	  << ", one=" << unproj[b][1]
+	  << ", two=" << unproj[b][2]
+	  << endl;
+}

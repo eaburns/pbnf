@@ -83,6 +83,39 @@ public:
 		const Tiles* tiles;
 	};
 
+	/* look at the 1-tile, 2-tile and the blank. */
+	class TwoTileProject : public Projection {
+	public:
+		TwoTileProject(const SearchDomain *d);
+		virtual ~TwoTileProject(void);
+		virtual unsigned int project(const State *s) const;
+		virtual unsigned int get_num_nblocks(void) const;
+		virtual vector<unsigned int> get_successors(unsigned int b) const;
+		virtual vector<unsigned int> get_predecessors(unsigned int b) const;
+		void print(unsigned int b, ostream &o) const;
+	private:
+		int setup_proj(unsigned int id,
+			       unsigned int i,
+			       unsigned int j,
+			       unsigned int k);
+		vector<unsigned int> get_neighbors(unsigned int b) const;
+		/* 3D vector, the first index is the position of the
+		 * blank tile, the second index is the position of the
+		 * 1 tile, 3rd is the 2-tile.  The value stored at
+		 * [i][j][k] is the projection ID for the NBlock with
+		 * the blank at i, 1 at j, 2 at k. */
+		vector<vector<vector<unsigned int> > > proj;
+
+		/* Mapping from NBlock IDs to a pair containing the
+		 * position of the blank and the position of the 1
+		 * tile. */
+		vector<vector<unsigned int> > unproj;
+
+		unsigned int nnblocks;
+
+		const Tiles* tiles;
+	};
+
 	bool is_goal(const State *s) const;
 
 	const vector<unsigned int> *get_ones(void) const;
