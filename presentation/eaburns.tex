@@ -439,11 +439,32 @@
 % --------------------
 
 \begin{slide}{Summary}
+  \begin{center}
+    Parallel Best NBlock First
+  \end{center}
+  \begin{itemize}
+  \item Parallel best-first style search
+  \item No synchronization in the ``fast-path''
+  \item Performs well on a variety of domains \emph{without modification}
+  \item Allows for \emph{many} possible variations:
+    \begin{itemize}
+    \item Weighted
+    \item Pessimistic
+    \item Optimistic
+    \end{itemize}
+  \item ``Hot Potato'' method prevents live-lock in infinite domains
+  \end{itemize}
 \end{slide}
 
 % --------------------
 
 \begin{slide}{Future Work}
+  \begin{itemize}
+  \item Test better grid world projections
+  \item Test better tiles projections
+  \item Evaluate the performance of iterative deepening PSDD
+  \item Evaluate sub-optimal variants of PBNF
+  \end{itemize}
 \end{slide}
 
 % --------------------
