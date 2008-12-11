@@ -35,8 +35,16 @@ int main(int argc, char *argv[])
 	if (ratio == 0)
 		ratio = 1.0;
 	int denom = g.get_height() / ((int) ratio * threads);
+	if (denom == 0) {
+		cerr << "Abstraction is too big or it is zero" << endl;
+		return EXIT_FAILURE;
+	}
 	unsigned int nblocks = g.get_height() / denom;
-	GridWorld::RowModProject project(&g, nblocks);
+	cout << "nblocks = " << nblocks << endl;
+	unsigned int root = (unsigned int) sqrt(nblocks);
+	cout << "root = " << root << endl;
+//	GridWorld::RowModProject project(&g, nblocks);
+	GridWorld::CoarseProject project(&g, root, root);
 	g.set_projection(&project);
 
 //	HZero hzero(&g);

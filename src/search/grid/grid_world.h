@@ -73,6 +73,21 @@ public:
 		unsigned int max_row;
 	};
 
+	class CoarseProject : public Projection {
+	public:
+		CoarseProject(const SearchDomain *d, unsigned int cols, unsigned int rows);
+		virtual ~CoarseProject();
+		virtual unsigned int project(const State *s) const ;
+		virtual unsigned int get_num_nblocks(void) const ;
+		virtual vector<unsigned int> get_successors(unsigned int b) const;
+		virtual vector<unsigned int> get_predecessors(unsigned int b) const;
+	private:
+		unsigned int get_id(unsigned int x, unsigned int y) const;
+		vector<unsigned int> get_neighbors(unsigned int b) const;
+		unsigned int cols, cols_div;
+		unsigned int rows, rows_div;
+	};
+
 private:
 	bool on_path(const vector<const State *> *path, int x, int y) const;
 	bool is_obstacle(int x, int y) const;

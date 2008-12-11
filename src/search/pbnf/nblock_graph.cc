@@ -28,11 +28,7 @@
 using namespace std;
 using namespace PBNF;
 
-/**
- * Create a new NBlock graph.
- * \param p The projection function.
- */
-NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
+void NBlockGraph::cpp_is_a_bad_language(const Projection *p, const State *initial)
 {
 	map<unsigned int, NBlock *>::iterator iter;
 	unsigned int init_nblock = p->project(initial);
@@ -87,6 +83,15 @@ NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
 
 	nblocks_assigned = 0;
 	nblocks_assigned_max = 0;
+}
+
+/**
+ * Create a new NBlock graph.
+ * \param p The projection function.
+ */
+NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
+{
+	cpp_is_a_bad_language(p, initial);
 }
 
 /**

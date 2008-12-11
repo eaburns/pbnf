@@ -409,6 +409,8 @@ float GridWorld::ManhattanDist::compute(const State *state) const
 	}
 }
 
+/****************************************************************************/
+
 /**
  * Create a new row modulos projection function.
  * \param d The search domain (a GridWorld)
@@ -482,6 +484,118 @@ vector<unsigned int> GridWorld::RowModProject::get_neighbors(unsigned int b) con
 		p.push_back(mod_val - 1);
 
 	p.push_back((b + 1) % mod_val);
+
+	return p;
+}
+
+/****************************************************************************/
+
+/**
+ * Create a new row modulos projection function.
+ * \param d The search domain (a GridWorld)
+ * \param mod_val The mod value to use (this will be the number of NBlocks).
+ */
+GridWorld::CoarseProject::CoarseProject(const SearchDomain *d,
+					unsigned int cols,
+					unsigned int rows)
+{
+	const GridWorld *g;
+
+	g = dynamic_cast<const GridWorld *>(d);
+
+	while (g->width % cols)
+		cols += 1;
+
+	while (g->height % rows)
+		rows += 1;
+
+	this->cols = cols;
+	this->rows = rows;
+	this->cols_div = g->width / cols;
+	this->rows_div = g->height / rows;
+
+/*
+	cerr << "Creating coarse projection, cols="
+	     << this->cols << ", rows=" << this->rows
+	     << ", cols_div=" << cols_div << ", rows_div=" << rows_div
+	     << endl;
+*/
+}
+
+
+/**
+ * Destructor (because we have virtual functions).
+ */
+GridWorld::CoarseProject::~CoarseProject() {}
+
+unsigned int GridWorld::CoarseProject::get_id(unsigned int x, unsigned int y) const
+{
+	return (y * cols) + x;
+}
+
+unsigned int GridWorld::CoarseProject::project(const State *s) const
+{
+	const GridState *g;
+
+	g = dynamic_cast<const GridState *>(s);
+
+	unsigned int id =  get_id(g->get_x() / cols_div, g->get_y() / rows_div);
+
+/*
+	cerr << "Projecting, x=" << g->get_x() << ", y=" << g->get_y()
+	     << " to x=" << g->get_x() / cols_div
+	     << ", y=" << g->get_y() / rows_div
+	     << ", id=" << id << endl;
+*/
+	return id;
+}
+
+/**
+ * Get the number of nblocks.
+ * \return The number of NBlocks.
+ */
+unsigned int GridWorld::CoarseProject::get_num_nblocks(void) const
+{
+	return rows * cols;
+}
+
+/**
+ * Get the successors of an NBlock with the given hash value.
+ * \param b The hash value of the NBlock.
+ * \return The successor NBlocks of the given NBlock.
+ */
+vector<unsigned int> GridWorld::CoarseProject::get_successors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+/**
+ * Get the predecessors of an NBlock with the givev hash value.
+ * \param b The hash value of the NBlock.
+ * \return The predecessor NBlocks of the given NBlock.
+ */
+vector<unsigned int> GridWorld::CoarseProject::get_predecessors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+/**
+ * Get the neighboring NBlock numbers.
+ */
+vector<unsigned int> GridWorld::CoarseProject::get_neighbors(unsigned int b) const
+{
+	vector<unsigned int> p;
+	unsigned int x = b % cols;
+	unsigned int y = b / cols;
+
+	if (x > 0)
+		p.push_back(get_id(x - 1, y));
+	if (x < cols - 1)
+		p.push_back(get_id(x + 1, y));
+	if (y > 0)
+		p.push_back(get_id(x, y - 1));
+	if (y < rows - 1)
+		p.push_back(get_id(x, y + 1));
 
 	return p;
 }

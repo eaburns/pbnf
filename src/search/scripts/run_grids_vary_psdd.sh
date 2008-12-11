@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for nblocks in 2 4 8 10
+for nblocks in 2 10 40 100
 do
     for (( threads=1; threads <= 10; threads++ ))
     do

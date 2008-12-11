@@ -45,6 +45,7 @@ namespace PBNF {
 		void set_hot(NBlock *b);
 
 	private:
+		void cpp_is_a_bad_language(const Projection *p, const State *initial);
 		void __set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);
