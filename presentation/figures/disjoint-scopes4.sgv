@@ -36,15 +36,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="103.78343"
+     inkscape:cx="459.38821"
      inkscape:cy="536.63055"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1118"
      inkscape:window-height="1037"
-     inkscape:window-x="1857"
-     inkscape:window-y="105">
+     inkscape:window-x="191"
+     inkscape:window-y="25">
     <inkscape:grid
        type="xygrid"
        id="grid3165" />
@@ -90,7 +90,7 @@
        id="path3319" />
     <path
        style="fill:#77e5e7;fill-opacity:1;stroke:none;stroke-width:2.85700011;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline"
-       d="M 480,652.36218 L 480,592.36218 L 539.99999,592.36218 L 599.99999,592.36218 L 599.99999,652.36218 L 599.99999,712.36218 L 539.99999,712.36218 L 480,712.36218 L 480,652.36218 z"
+       d="M 480.00001,652.36218 L 480.00001,592.36218 L 540,592.36218 L 600,592.36218 L 600,652.36218 L 600,712.36218 L 540,712.36218 L 480.00001,712.36218 L 480.00001,652.36218 z"
        id="path3349" />
     <flowRoot
        xml:space="preserve"
@@ -112,7 +112,7 @@
        id="path3375" />
     <path
        style="fill:#5b69e2;fill-opacity:1;stroke:none;stroke-width:2.85700011;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline"
-       d="M 360.00001,652.36218 L 360.00001,592.36218 L 420,592.36218 L 480,592.36218 L 480,652.36218 L 480,712.36218 L 420,712.36218 L 360.00001,712.36218 L 360.00001,652.36218 z"
+       d="M 360,652.36218 L 360,592.36218 L 419.99999,592.36218 L 479.99999,592.36218 L 479.99999,652.36218 L 479.99999,712.36218 L 419.99999,712.36218 L 360,712.36218 L 360,652.36218 z"
        id="path3377" />
     <path
        style="fill:#00931b;fill-opacity:1;stroke:none;stroke-width:2.85700011;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline"
