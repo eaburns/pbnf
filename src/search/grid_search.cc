@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
 	GridWorld g(cin);
 	Timer timer;
 
-	cout << "nblocks = " << nblocks << endl;
 	unsigned int root = (unsigned int) sqrt(nblocks);
 //	GridWorld::RowModProject project(&g, nblocks);
 	GridWorld::CoarseProject project(&g, root, root);
