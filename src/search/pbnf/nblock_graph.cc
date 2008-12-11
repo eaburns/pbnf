@@ -351,20 +351,27 @@ bool NBlockGraph::is_free(NBlock *b)
 void NBlockGraph::set_hot(NBlock *b)
 {
 	set<NBlock*>::iterator i;
+	float f = b->open.get_best_f();
 
 	pthread_mutex_lock(&mutex);
 	if (!b->hot && b->sigma > 0) {
-		b->hot = true;
+		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
+			assert(b != *i);
+			if ((*i)->hot && (*i)->open.get_best_f() < f)
+				goto out;
+		}
 
-		for (i = b->interferes.begin();
-		     i != b->interferes.end();
-		     i++) {
+		b->hot = true;
+		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b != *i);
 			if (is_free(*i))
 				free_list.remove(*i);
+			if ((*i)->hot)
+				set_cold(*i);
 			(*i)->sigma_hot += 1;
 		}
 	}
+out:
 	pthread_mutex_unlock(&mutex);
 }
 
