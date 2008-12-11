@@ -32,7 +32,7 @@ then   # Script needs at least one command-line argument.
 [-p <prob>] \
 [-c <costs>] \
 [-o <obstacles>] \
-[-n <nblocks/thread>] \
+[-n <nblocks>] \
 [-t <threads>] \
 [-w <weight>] \
 [-m <min_expansions>] \
@@ -136,7 +136,7 @@ function run_file ()
 
     if alg_on_list $USES_NBLOCKS
     then
-	ARGS+="nblocks-per-thread=$NBLOCKS "
+	ARGS+="nblocks=$NBLOCKS "
     fi
 
     if alg_on_list $USES_WEIGHT
@@ -158,7 +158,7 @@ function run_file ()
 
 #
 # Get the full name of the search algorithm (possibly including
-# threads, nblocks/thread, and weights).
+# threads, nblocks, and weights).
 #
 function full_algo_name ()
 {
@@ -287,7 +287,7 @@ do
 
 	if alg_on_list $USES_NBLOCKS
 	then
-	    echo -e "#pair  \"nblocks-per-thread\"\t\"$NBLOCKS\""
+	    echo -e "#pair  \"nblocks\"\t\"$NBLOCKS\""
 	fi
 
 	if alg_on_list $USES_WEIGHT

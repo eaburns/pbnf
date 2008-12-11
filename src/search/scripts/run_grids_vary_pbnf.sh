@@ -2,7 +2,7 @@
 
 for min in 5 10 30 60 80
 do
-    for nblocks in 2 10 40 100
+    for nblocks in 100 625 1600 2500 6400 10000
     do
 	for (( threads=1; threads <= 10; threads++ ))
 	do

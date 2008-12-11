@@ -503,10 +503,10 @@ GridWorld::CoarseProject::CoarseProject(const SearchDomain *d,
 
 	g = dynamic_cast<const GridWorld *>(d);
 
-	while (g->width % cols)
+	if (g->width % cols)
 		cols += 1;
 
-	while (g->height % rows)
+	if (g->height % rows)
 		rows += 1;
 
 	this->cols = cols;
@@ -540,6 +540,7 @@ unsigned int GridWorld::CoarseProject::project(const State *s) const
 	g = dynamic_cast<const GridState *>(s);
 
 	unsigned int id =  get_id(g->get_x() / cols_div, g->get_y() / rows_div);
+	assert(id < (rows * cols));
 
 /*
 	cerr << "Projecting, x=" << g->get_x() << ", y=" << g->get_y()

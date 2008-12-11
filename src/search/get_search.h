@@ -15,7 +15,7 @@ class Search;
 
 extern unsigned int threads;
 extern float cost_bound;
-extern float ratio;
+extern unsigned int nblocks;
 extern float weight;
 
 Search *get_search(int argc, char *argv[]);
