@@ -98,7 +98,12 @@
   \vspace{.1in}
 
   \begin{itemize}[type=1]
-  \item 
+  \item One main thread, many worker threads
+  \item Main thread takes K best nodes off open list
+  \item Each worker is given a node to expand
+  \item Lock on open list needed for insertion only
+  \item Lock on closed list for duplicate detection
+  \item Main thread waits for all workers to finish before repeating
   \end{itemize}
 \end{slide}
 
