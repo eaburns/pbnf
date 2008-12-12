@@ -173,10 +173,11 @@
   \end{center}
   }
   \onslide*{3}{
-  \begin{center}
-    Nblocks per thread \\
-    %\includegraphics[width=2in]{figures/disjoint-scopes6}
-  \end{center}
+    \begin{center}
+      Nblocks per thread\\
+      %\includegraphics[width=2in]{figures/disjoint-scopes6}
+    \end{center}
+  }
   }
 \end{slide}
 
@@ -192,7 +193,7 @@
   \item Expands fewer nodes than pure breadth first
   \end{itemize}
   }
-  \onslide*{2}{
+  \onslide*{2,3,4}{
   \begin{center}
     Nblocks per thread \\
     %\includegraphics[width=2in]{figures/disjoint-scopes6}
@@ -208,17 +209,27 @@
     Parallel Best NBlock First
   \end{center}
 
+  \onslide*{1}{
   \begin{itemize}
-  \item Heap of free nblocks $H = \langle N_0, N_1, ..., N_n \rangle$
-  \item Processors acquire the best disjoint nblocks
-  \item NBlock, $N_0$, expanded while
-    \begin{eqnarray*}
-      (\mathop{\rm min}_{n \in N_0} f(n)) < (\mathop{\rm min}_{m \in N_{next}} f(m))
-    \end{eqnarray*}
-    where $N_{next}$ is the next best nblock on $H$
-  \item Minimum expansions, $m$ to reduce contention
-  \item No layer based synchronization
+  \item Uses abstraction like PSDD
+  \item Processors acquire the best free nblock
+  \item Expand nodes from current nblock until it is empty or a better nblock is free
+  \item Force a minimum number of expansions to avoid contention
+  \item Approximates best first ordering
   \end{itemize}
+  }
+  \onslide*{2,3,4}{
+  \begin{center}
+    Nblocks per thread \\
+    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+  \end{center}
+  }
+  \onslide*{5,6,7}{
+  \begin{center}
+    Minimum expansions \\
+    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+  \end{center}
+  }
 
 \end{slide}
 
@@ -232,103 +243,16 @@
   \onslide*{1}{
     \begin{center}
       \includegraphics[width=2in]{figures/livelock0} \\
-    \end{center}
-  }
-  \onslide*{2}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock1} \\
-    \end{center}
-  }
-  \onslide*{3}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock2} \\
-    \end{center}
-  }
-  \onslide*{4}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock3} \\
-    \end{center}
-  }
-  \onslide*{5}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock4} \\
-    \end{center}
-  }
-  \onslide*{6}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock5} \\
-    \end{center}
-  }
-  \onslide*{7}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock6} \\
-    \end{center}
-  }
-  \onslide*{8}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock7} \\
-    \end{center}
-  }
-  \onslide*{9}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock8} \\
-    \end{center}
-  }
-  \onslide*{10}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock9} \\
-    \end{center}
-  }
-  \onslide*{11}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock0} \\
-    \end{center}
-  }
-
-  \onslide*{1,2,3,4,5,6,7,8,9,10,11} {
-    \vspace{-.3in}
-    \begin{center}
+      \vspace{-.3in}
       15-Puzzle projected on the blank
     \end{center}
   }
-
-  \onslide*{12}{
+  \onslide*{2}{
     \begin{itemize}
     \item Mark nblocks as \emph{hot}
     \item Release nblocks which are interfering with hot nblocks
     \item Do not acquire scopes which interfere with hot nblocks
     \end{itemize}
-  }
-  \onslide*{13}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock0} \\
-    \end{center}
-  }
-  \onslide*{14}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock1h} \\
-    \end{center}
-  }
-  \onslide*{15}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock2h} \\
-    \end{center}
-  }
-  \onslide*{16}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock3h} \\
-    \end{center}
-  }
-  \onslide*{17}{
-    \begin{center}
-      \includegraphics[width=2in]{figures/livelock4h} \\
-    \end{center}
-  }
-  \onslide*{13,14,15,16,17} {
-    \vspace{-.3in}
-    \begin{center}
-      15-Puzzle projected on the blank
-    \end{center}
   }
 
 \end{slide}
