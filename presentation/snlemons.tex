@@ -126,7 +126,7 @@
     \begin{itemize}
     \item Abstraction function used to map states to abstract states or \emph{nblocks}
     \item For each abstract state, all successor states are known
-    \item Successors of an abstract state are called its duplicate detection scope
+    \item Successors of an abstract state are called its \emph{duplicate detection scope}
     \end{itemize}
   }
   \onslide*{2}{
@@ -134,6 +134,7 @@
     \item Processors get exclusive access to a \emph{duplicate detection
       scope}
     \item Uses a breadth first search, searching all of one layer before moving on
+    \item Expand all nodes of current layer in an nblock before taking a new one
     \end{itemize}
   }
   \onslide*{3}{
@@ -400,21 +401,32 @@
 
 % --------------------
 
-\begin{slide}{Summary}
-  
+\begin{slide}{Conclusions}
+  \begin{itemize}
+  \item Synchronization can be more expensive than contention
+  \item 
+  \item PSDD variants competitive in unit cost
+  \end{itemize}
 \end{slide}
 
 % --------------------
 
 \begin{slide}{Future Work}
   \begin{itemize}
-  \item 
+  \item More threads
+  \item Different abstractions/hashes
+  \item Varying size and difficulty more
+  \item PSDD variants with ranged layers
+  \item Simulated message passing for PRA*
   \end{itemize}
 \end{slide}
 
 % --------------------
 
 \begin{slide}{Questions}
+  \begin{center}
+    Questions?
+  \end{center}
 \end{slide}{Questions}
 
 % ------------------------------------------------------------
