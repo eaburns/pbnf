@@ -404,7 +404,11 @@
 \begin{slide}{Conclusions}
   \begin{itemize}
   \item Synchronization can be more expensive than contention
-  \item Abstractions: too small is more harmful than too large
+  \item Abstractions:
+    \begin{itemize}
+    \item too small is immediately harmful
+    \item too large hurts scalability
+    \end{itemize}
   \item PSDD variants competitive in unit cost
   \item PBNF best in life cost, but may not scale
   \item PSDD best and most stable for tiles with small abstraction
@@ -420,6 +424,7 @@
   \item Varying size and difficulty more
   \item PSDD variants with ranged layers
   \item Simulated message passing for PRA*
+  \item Nblocks as constant, rather than ratio
   \end{itemize}
 \end{slide}
 
