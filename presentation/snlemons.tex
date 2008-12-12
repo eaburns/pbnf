@@ -147,19 +147,22 @@
   \onslide*{4}{
     \begin{center}
       Nblocks per thread\\
-      %\includegraphics[width=2in]{figures/disjoint-scopes6}
     \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PSDD-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
   }
 
 \end{slide}
 
 \begin{slide}{DynPSDD}
   \vspace{.2in}
+
+  \onslide*{1}{
   \begin{center}
     Dynamic Parallel Structured Duplicate Detection
   \end{center}
-
-  \onslide*{1}{
   \begin{itemize}
   \item Obtains a suboptimal solution using weighted A*
   \item Uses breadth first heuristic search for PSDD
@@ -169,33 +172,50 @@
   \onslide*{2}{
   \begin{center}
     What weight to use? \\
-    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+  \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/DYNPSDD-weight.eps} \\
+    (unit cost grids)
   \end{center}
   }
   \onslide*{3}{
     \begin{center}
       Nblocks per thread\\
-      %\includegraphics[width=2in]{figures/disjoint-scopes6}
     \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/DYNPSDD-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
   }
 \end{slide}
 
 \begin{slide}{BFPSDD}
   \vspace{.2in}
+
+  \onslide*{1}{
   \begin{center}
     Best-First Parallel Structured Duplicate Detection
   \end{center}
-
-  \onslide*{1}{
   \begin{itemize}
   \item Layers based on $f$ values, rather than $g$
   \item Expands fewer nodes than pure breadth first
   \end{itemize}
   }
-  \onslide*{2,3,4}{
+  \onslide*{2,3}{
   \begin{center}
     Nblocks per thread \\
-    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/BFPSDD-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/BFPSDD-nblocks.eps} \\
+    (life cost grids)
   \end{center}
   }
 \end{slide}
@@ -204,11 +224,10 @@
 
 \begin{slide}{PBNF}
   \vspace{.2in}
+  \onslide*{1}{
   \begin{center}
     Parallel Best NBlock First
   \end{center}
-
-  \onslide*{1}{
   \begin{itemize}
   \item Uses abstraction like PSDD
   \item Processors acquire the best free nblock
@@ -217,16 +236,44 @@
   \item Approximates best first ordering
   \end{itemize}
   }
-  \onslide*{2,3,4}{
+  \onslide*{2,3}{
   \begin{center}
     Nblocks per thread \\
-    %\includegraphics[width=2in]{figures/disjoint-scopes6}
   \end{center}
   }
-  \onslide*{5,6,7}{
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PBNF-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PBNF-nblocks.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{4,5,6}{
   \begin{center}
     Minimum expansions \\
-    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PBNF-min.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{5}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PBNF-min.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{6}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/PBNF-min.eps} \\
+    (sliding tiles)
   \end{center}
   }
 
@@ -236,9 +283,11 @@
 
 \begin{slide}{Safe PBNF}
   \vspace{.2in}
+  \onslide*{1,2}{
   \begin{center}
     Safe Parallel Best NBlock First
   \end{center}
+  }
   \onslide*{1}{
     \begin{center}
       \includegraphics[width=2in]{figures/livelock0} \\
@@ -256,35 +305,44 @@
     \item Nblocks with \emph{hot} nblocks in their \emph{interference scope} are not considered free
     \end{itemize}
   }
-  \onslide*{3,4,5}{
-  \vspace{-.3in}
+  \onslide*{3,4}{
   \begin{center}
     Nblocks per thread \\
   \end{center}
   }
   \onslide*{3}{
   \begin{center}
-    (unit cost grids) \\
-    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+    \includegraphics[width=2in]{figures/seth/unit/SAFEPBNF-nblocks.eps} \\
+    (unit cost grids)
   \end{center}
   }
   \onslide*{4}{
   \begin{center}
-    (life cost grids) \\
-    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+    \includegraphics[width=2in]{figures/seth/life/SAFEPBNF-nblocks.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{5,6,7}{
+  \begin{center}
+    Minimum expansions \\
   \end{center}
   }
   \onslide*{5}{
-  \vspace{-.3in}
   \begin{center}
-    \includegraphics[width=2in]{figures/disjoint-scopes6} \\
-    (sliding tiles)
+    \includegraphics[width=2in]{figures/seth/unit/SAFEPBNF-min.eps} \\
+    (unit cost grids)
   \end{center}
   }
-  \onslide*{6,7,8}{
+  \onslide*{6}{
   \begin{center}
-    Minimum expansions \\
-    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+    \includegraphics[width=2in]{figures/seth/life/SAFEPBNF-min.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{7}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/SAFEPBNF-min.eps} \\
+    (sliding tiles)
   \end{center}
   }
 
