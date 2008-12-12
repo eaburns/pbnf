@@ -250,9 +250,10 @@
   }
   \onslide*{2}{
     \begin{itemize}
-    \item Mark nblocks as \emph{hot}
-    \item Release nblocks which are interfering with hot nblocks
-    \item Do not acquire scopes which interfere with hot nblocks
+    \item \emph{Interference scope}: for nblock $n$, $successors$($n$) and $successors$($n'$) for all $n'$ in $successors$($n$)
+    \item If nblock $n'$ in \emph{interference scope} is better than current nblock, mark $n'$ as \emph{hot}
+    \item Release current nblock if an nblock in its \emph{interference scope} is \emph{hot} and better than current nblock
+    \item Nblocks with \emph{hot} nblocks in their \emph{interference scope} are not considered free
     \end{itemize}
   }
 
