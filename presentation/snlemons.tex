@@ -1,0 +1,441 @@
+\documentclass[style=unh]{powerdot}
+\usepackage{graphicx}
+
+\pdsetup{
+  lf={Seth Lemons (UNH)},
+  rf = {An Empirical Comparison of Parallel Search Algorithms},
+  list={itemsep=8pt}}
+
+
+\title{An Empirical Comparison of Parallel Search Algorithms}
+\author{Seth Lemons \vspace{0.2in} \\
+  \includegraphics[height=0.4in]{figures/unh-logo-words.eps} \\
+  Department of Computer Science \\
+  {\tt seth.lemons} at {\tt unh.edu}}
+\date{\mbox{}}
+
+\begin{document}
+\maketitle
+
+% ------------------------------------------------------------
+
+\section[slide=false]{Introduction}
+
+% --------------------
+
+\begin{slide}{Goal}
+  \vspace{1in}
+  \begin{center}
+    Evaluating parallel algorithms \\
+    {\tiny Factorial and comparative analysis}
+  \end{center}
+
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Motivation}
+    \begin{center}
+      What do we really know?
+    \end{center}
+
+    \begin{itemize}
+    \item Lots of individual tests
+    \item Not much discussion of weaknesses
+    \item How do we determine parameters?
+    \end{itemize}
+\end{slide}
+
+% ------------------------------------------------------------
+
+\section{Algorithms}
+
+% --------------------
+
+\begin{slide}{PA*}
+  \vspace{.2in}
+  \begin{center}
+    Parallel A*
+  \end{center}
+
+  \vspace{.1in}
+
+  \onslide*{1}{
+  \begin{itemize}[type=1]
+  \item Single open and closed list
+  \item Each processor grabs first node on open
+  \item Lock on open list for popping best node and pushing children
+  \item Lock on closed list for checking duplicates
+  \end{itemize}
+  }
+\end{slide}
+
+% --------------------
+
+\begin{slide}{PRA*}
+  \vspace{.2in}
+  \begin{center}
+    Parallel Retracting A*
+  \end{center}
+
+  \vspace{.1in}
+
+  \onslide*{1}{
+  \begin{itemize}[type=1]
+  \item Hash from nodes to processors
+  \item Open and closed list for each processor
+  \item Each processor picks best node from its open list
+  \item Children are pushed to processor which they hash to
+  \item Can be made memory bounded
+  \end{itemize}
+  }
+\end{slide}
+
+% --------------------
+
+\begin{slide}{KBFS}
+  \vspace{.2in}
+  \begin{center}
+    K Best-First Search
+  \end{center}
+
+  \vspace{.1in}
+
+  \onslide*{1}{
+  \begin{itemize}[type=1]
+  \item One main thread, many worker threads
+  \item Main thread takes K best nodes off open list
+  \item Each worker is given a node to expand
+  \item Lock on open list needed for insertion only
+  \item Lock on closed list for duplicate detection
+  \item Main thread waits for all workers to finish before repeating
+  \end{itemize}
+  }
+\end{slide}
+
+% --------------------
+
+\begin{slide}{PSDD}
+  \vspace{.2in}
+  \onslide*{1,2,3}{
+  \begin{center}
+    Parallel Structured Duplicate Detection
+  \end{center}
+  }
+  \onslide*{1}{
+    \begin{itemize}
+    \item Abstraction function used to map states to abstract states or \emph{nblocks}
+    \item For each abstract state, all successor states are known
+    \item Successors of an abstract state are called its \emph{duplicate detection scope}
+    \end{itemize}
+  }
+  \onslide*{2}{
+    \begin{itemize}
+    \item Processors get exclusive access to a \emph{duplicate detection
+      scope}
+    \item Uses a breadth first search, searching all of one layer before moving on
+    \item Expand all nodes of current layer in an nblock before taking a new one
+    \end{itemize}
+  }
+  \onslide*{3}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/disjoint-scopes6} \\
+    \end{center}
+
+    \vspace{-.3in}
+    \begin{center}
+      15-Puzzle projected on the blank
+    \end{center}
+  }
+  \onslide*{4}{
+    \begin{center}
+      Nblocks per thread\\
+    \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PSDD-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+
+\end{slide}
+
+\begin{slide}{DynPSDD}
+  \vspace{.2in}
+
+  \onslide*{1}{
+  \begin{center}
+    Dynamic Parallel Structured Duplicate Detection
+  \end{center}
+  \begin{itemize}
+  \item Obtains a suboptimal solution using weighted A*
+  \item Uses breadth first heuristic search for PSDD
+  \item Prunes nodes based on cost of suboptimal solution
+  \end{itemize}
+  }
+  \onslide*{2}{
+  \begin{center}
+    What weight to use? \\
+  \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/DYNPSDD-weight.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+    \begin{center}
+      Nblocks per thread\\
+    \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/DYNPSDD-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+\end{slide}
+
+\begin{slide}{BFPSDD}
+  \vspace{.2in}
+
+  \onslide*{1}{
+  \begin{center}
+    Best-First Parallel Structured Duplicate Detection
+  \end{center}
+  \begin{itemize}
+  \item Layers based on $f$ values, rather than $g$
+  \item Expands fewer nodes than pure breadth first
+  \end{itemize}
+  }
+  \onslide*{2,3}{
+  \begin{center}
+    Nblocks per thread \\
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/BFPSDD-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/BFPSDD-nblocks.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+\end{slide}
+
+% ------------------------------------------------------------
+
+\begin{slide}{PBNF}
+  \vspace{.2in}
+  \onslide*{1}{
+  \begin{center}
+    Parallel Best NBlock First
+  \end{center}
+  \begin{itemize}
+  \item Uses abstraction like PSDD
+  \item Processors acquire the best free nblock
+  \item Expand nodes from current nblock until it is empty or a better nblock is free
+  \item Force a minimum number of expansions to avoid contention
+  \item Approximates best first ordering
+  \end{itemize}
+  }
+  \onslide*{2,3}{
+  \begin{center}
+    Nblocks per thread \\
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PBNF-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PBNF-nblocks.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{4,5,6}{
+  \begin{center}
+    Minimum expansions \\
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PBNF-min.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{5}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PBNF-min.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{6}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/PBNF-min.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
+
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Safe PBNF}
+  \vspace{.2in}
+  \onslide*{1,2}{
+  \begin{center}
+    Safe Parallel Best NBlock First
+  \end{center}
+  }
+  \onslide*{1}{
+    \begin{center}
+      \includegraphics[width=2in]{figures/livelock0} \\
+    \end{center}
+    \vspace{-.3in}
+    \begin{center}
+      15-Puzzle projected on the blank
+    \end{center}
+  }
+  \onslide*{2}{
+    \begin{itemize}
+    \item \emph{Interference scope}: for nblock $n$, $successors$($n$) and $successors$($n'$) for all $n'$ in $successors$($n$)
+    \item If nblock $n'$ in \emph{interference scope} is better than current nblock, mark $n'$ as \emph{hot}
+    \item Release current nblock if an nblock in its \emph{interference scope} is \emph{hot} and better than current nblock
+    \item Nblocks with \emph{hot} nblocks in their \emph{interference scope} are not considered free
+    \end{itemize}
+  }
+  \onslide*{3,4}{
+  \begin{center}
+    Nblocks per thread \\
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/SAFEPBNF-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/SAFEPBNF-nblocks.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{5,6,7}{
+  \begin{center}
+    Minimum expansions \\
+  \end{center}
+  }
+  \onslide*{5}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/SAFEPBNF-min.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{6}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/SAFEPBNF-min.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{7}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/SAFEPBNF-min.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
+
+\end{slide}
+
+% ------------------------------------------------------------
+
+\section{Comparison}
+
+% --------------------
+
+\begin{slide}{Grid World}
+  \onslide*{1}{
+    \begin{description}
+    \item [Width] 2000
+    \item [Height] 1200
+    \item [Obstacle distribution] Uniform 0.25
+    \item [Costs] Unit and Life
+    \item [Start] Bottom Left
+    \item [Goal] Bottom Right
+    \item[Projection] $(row \bmod{M})$, where $M$ is a parameter
+      which allows us to choose the number of nblocks and $row$ is the
+      row of the grid state.
+    \end{description}
+  }
+  \onslide*{2}{
+    \includegraphics[width=4in,height=3in]{figures/seth/unit/comparison.eps}
+  }
+  \onslide*{3}{
+    \includegraphics[width=4in,height=3in]{figures/seth/life/comparison.eps}
+  }
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Sliding Tiles}
+  \onslide*{1}{
+    \begin{description}
+    \item [Width] 7
+    \item [Height] 2
+    \item [Costs] Unit
+    \item [Projection] The blank and the 1-tile.
+    \end{description}
+  }
+  \onslide*{2}{
+    \includegraphics[width=4in,height=3in]{figures/seth/tiles/comparison.eps}
+  }
+\end{slide}
+
+% ------------------------------------------------------------
+
+\section{Conclusion}
+
+% --------------------
+
+\begin{slide}{Conclusions}
+  \begin{itemize}
+  \item Synchronization can be more expensive than contention
+  \item Abstractions:
+    \begin{itemize}
+    \item too small is immediately harmful
+    \item too large hurts scalability
+    \end{itemize}
+  \item PSDD variants competitive in unit cost
+  \item PBNF best in life cost, but may not scale
+  \item PSDD best and most stable for tiles with small abstraction
+  \end{itemize}
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Future Work}
+  \begin{itemize}
+  \item More threads
+  \item Different abstractions/hashes
+  \item Varying size and difficulty more
+  \item PSDD variants with ranged layers
+  \item Simulated message passing for PRA*
+  \item Nblocks as constant, rather than ratio
+  \end{itemize}
+\end{slide}
+
+% --------------------
+
+\begin{slide}{Questions}
+  \begin{center}
+    Questions?
+  \end{center}
+\end{slide}{Questions}
+
+% ------------------------------------------------------------
+
+\end{document}
