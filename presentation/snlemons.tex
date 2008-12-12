@@ -60,12 +60,14 @@
 
   \vspace{.1in}
 
+  \onslide*{1}{
   \begin{itemize}[type=1]
   \item Single open and closed list
   \item Each processor grabs first node on open
   \item Lock on open list for popping best node and pushing children
   \item Lock on closed list for checking duplicates
   \end{itemize}
+  }
 \end{slide}
 
 % --------------------
@@ -78,6 +80,7 @@
 
   \vspace{.1in}
 
+  \onslide*{1}{
   \begin{itemize}[type=1]
   \item Hash from nodes to processors
   \item Open and closed list for each processor
@@ -85,6 +88,7 @@
   \item Children are pushed to processor which they hash to
   \item Can be made memory bounded
   \end{itemize}
+  }
 \end{slide}
 
 % --------------------
@@ -97,6 +101,7 @@
 
   \vspace{.1in}
 
+  \onslide*{1}{
   \begin{itemize}[type=1]
   \item One main thread, many worker threads
   \item Main thread takes K best nodes off open list
@@ -105,6 +110,7 @@
   \item Lock on closed list for duplicate detection
   \item Main thread waits for all workers to finish before repeating
   \end{itemize}
+  }
 \end{slide}
 
 % --------------------
@@ -116,13 +122,19 @@
   \end{center}
   \onslide*{1}{
     \begin{itemize}
-    \item Multiple processors search \emph{disjoint duplicate detection
-      scopes} concurrently.
-    \item Search proceeds in a breadth-first manor, as in SDD
-    \item Processors synchronize before switching layers
+    \item Abstraction function used to map states to abstract states or \emph{nblocks}
+    \item For each abstract state, all successor states are known
+    \item Successors of an abstract state are called its duplicate detection scope
     \end{itemize}
   }
   \onslide*{2}{
+    \begin{itemize}
+    \item Processors get exclusive access to a \emph{duplicate detection
+      scope}
+    \item Uses a breadth first search, searching all of one layer before moving on
+    \end{itemize}
+  }
+  \onslide*{3}{
     \begin{center}
       \includegraphics[width=2in]{figures/disjoint-scopes6} \\
     \end{center}
@@ -135,25 +147,30 @@
 
 \end{slide}
 
-\begin{slide}{PSDD Variants}
+\begin{slide}{DynPSDD}
   \vspace{.2in}
   \begin{center}
-    Parallel Structured Duplicate Detection Variants
+    Dynamic Parallel Structured Duplicate Detection
   \end{center}
 
-  \begin{description}
+  \onslide*{1}{
+  \begin{itemize}
+  \item
+  \end{itemize}
+  }
+\end{slide}
 
-  \item[Standard PSDD]
-    Uses breadth-first heuristic search
-  \item[Dynamic PSDD]
-    Not really technically a variant -- Dynamic PSDD uses an initial
-    weighted A* to get a cost bound, then performs standard PSDD.
-  \item[Best-first PSDD]
-    Uses $f$ value layers instead of $g$ value layers.
-  \item[Iterative Deepening PSDD]
-    Performs Best-first PSDD with iterative deepening cost bounds.
-  \end{description}
+\begin{slide}{BFPSDD}
+  \vspace{.2in}
+  \begin{center}
+    Best-First Parallel Structured Duplicate Detection
+  \end{center}
 
+  \onslide*{1}{
+  \begin{itemize}
+  \item
+  \end{itemize}
+  }
 \end{slide}
 
 % ------------------------------------------------------------
