@@ -1,10 +1,10 @@
 all: eaburns.pdf snlemons.pdf
 
-eaburns.pdf: snlemons.tex
-	rubber --ps --pdf snlemons.tex
-
-snlemons.pdf: eaburns.tex
+eaburns.pdf: eaburns.tex
 	rubber --ps --pdf eaburns.tex
+
+snlemons.pdf: snlemons.tex
+	rubber --ps --pdf snlemons.tex
 
 clean:
 	rubber --ps --pdf --clean eaburns.tex
