@@ -3,7 +3,7 @@ all: eaburns.pdf snlemons.pdf
 eaburns.pdf: snlemons.tex
 	rubber --ps --pdf snlemons.tex
 
-eaburns.pdf: eaburns.tex
+snlemons.pdf: eaburns.tex
 	rubber --ps --pdf eaburns.tex
 
 clean:
