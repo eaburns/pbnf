@@ -257,9 +257,28 @@
     \end{itemize}
   }
   \onslide*{3,4,5}{
+  \vspace{-.3in}
   \begin{center}
     Nblocks per thread \\
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    (unit cost grids) \\
     %\includegraphics[width=2in]{figures/disjoint-scopes6}
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    (life cost grids) \\
+    %\includegraphics[width=2in]{figures/disjoint-scopes6}
+  \end{center}
+  }
+  \onslide*{5}{
+  \vspace{-.3in}
+  \begin{center}
+    \includegraphics[width=2in]{figures/disjoint-scopes6} \\
+    (sliding tiles)
   \end{center}
   }
   \onslide*{6,7,8}{
@@ -286,7 +305,7 @@
     \item [Costs] Unit and Life
     \item [Start] Bottom Left
     \item [Goal] Bottom Right
-    \item[Projection] $(row {\rm MOD} M)$, where $M$ is a parameter
+    \item[Projection] $(row \bmod{M})$, where $M$ is a parameter
       which allows us to choose the number of nblocks and $row$ is the
       row of the grid state.
     \end{description}
