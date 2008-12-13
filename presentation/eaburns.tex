@@ -54,6 +54,7 @@
     \item Trend in research is to solve larger and larger problems
     \item Large problems are hard to solve
     \item Re-learn to solve small problems using parallelism for speed
+    \item Real-time
     \end{itemize}
   }
 \end{slide}
@@ -64,22 +65,22 @@
 
 % --------------------
 
-\begin{slide}{PRA*}
-  \vspace{.2in}
-  \begin{center}
-    Parallel Retracting A*
-  \end{center}
+%% \begin{slide}{PRA*}
+%%   \vspace{.2in}
+%%   \begin{center}
+%%     Parallel Retracting A*
+%%   \end{center}
 
-  \vspace{.1in}
+%%   \vspace{.1in}
 
-  \begin{itemize}[type=1]
-  \item Each processor is a hash bucket
-  \item Each search node hashes to a single processor
-  \item Processors expand their nodes and pass children to
-    appropriate buckets
-  \item Uses a retracting scheme for memory efficiency
-  \end{itemize}
-\end{slide}
+%%   \begin{itemize}[type=1]
+%%   \item Each processor is a hash bucket
+%%   \item Each search node hashes to a single processor
+%%   \item Processors expand their nodes and pass children to
+%%     appropriate buckets
+%%   \item Uses a retracting scheme for memory efficiency
+%%   \end{itemize}
+%% \end{slide}
 
 % --------------------
 
@@ -96,7 +97,7 @@
     \item NBlock: all of the search nodes in the same abstract state
     \item \emph{Duplicate detection scopes}
     \item Breadth-first heuristic search
-    \item Single $g$ value layer at a time
+    \item Single $depth$ layer at a time
     \end{itemize}
   }
   \onslide*{2}{
@@ -181,9 +182,7 @@
     Not really technically a variant -- Dynamic PSDD uses an initial
     weighted A* to get a cost bound, then performs standard PSDD.
   \item[Best-first PSDD]
-    Uses $f$ value layers instead of $g$ value layers.
-  \item[Iterative Deepening PSDD]
-    Performs Best-first PSDD with iterative deepening cost bounds.
+    Uses $f$ value layers instead of $depth$ layers.
   \end{description}
 
 \end{slide}
@@ -230,6 +229,7 @@
       (\mathop{\rm min}_{n \in N_0} f(n)) < (\mathop{\rm min}_{m \in N_{next}} f(m))
     \end{eqnarray*}
     where $N_{next}$ is the next best nblock on $H$
+  \item Cleanup phase for optimal solutions
   \item Minimum expansions, $m$ to reduce contention
   \item No layer based synchronization
   \end{itemize}
