@@ -60,6 +60,7 @@ ClosedList::Bucket *ClosedList::Bucket::add(const State *s)
 
 void ClosedList::init(unsigned long size)
 {
+	this->table = NULL;
 	this->size = size;
 	fill = 0;
 }
