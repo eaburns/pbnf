@@ -3,11 +3,11 @@
 
 \pdsetup{
   lf={Seth Lemons (UNH)},
-  rf = {An Empirical Comparison of Parallel Search Algorithms},
+  rf = {An Empirical Evaluation of Parallel Search Algorithms},
   list={itemsep=8pt}}
 
 
-\title{An Empirical Comparison of Parallel Search Algorithms}
+\title{An Empirical Evaluation of Parallel Search Algorithms}
 \author{Seth Lemons \vspace{0.2in} \\
   \includegraphics[height=0.4in]{figures/unh-logo-words.eps} \\
   Department of Computer Science \\
@@ -54,13 +54,11 @@
 
 \begin{slide}{PA*}
   \vspace{.2in}
+
+  \onslide*{1}{
   \begin{center}
     Parallel A*
   \end{center}
-
-  \vspace{.1in}
-
-  \onslide*{1}{
   \begin{itemize}[type=1]
   \item Single open and closed list
   \item Each processor grabs first node on open
@@ -68,26 +66,70 @@
   \item Lock on closed list for checking duplicates
   \end{itemize}
   }
+  \onslide*{2,3,4}{
+  \begin{center}
+    Performance \\
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PAStar.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PAStar.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/PAStar.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
 \end{slide}
 
 % --------------------
 
 \begin{slide}{PRA*}
   \vspace{.2in}
+
+  \onslide*{1}{
   \begin{center}
     Parallel Retracting A*
   \end{center}
-
-  \vspace{.1in}
-
-  \onslide*{1}{
   \begin{itemize}[type=1]
-  \item Hash from nodes to processors
+  \item Hash nodes to processors
   \item Open and closed list for each processor
-  \item Each processor picks best node from its open list
+  \item Each processor expands best node from its open list
   \item Children are pushed to processor which they hash to
   \item Can be made memory bounded
   \end{itemize}
+  }
+  \onslide*{2,3,4}{
+  \begin{center}
+    Performance \\
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PRAStar.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PRAStar.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/PRAStar.eps} \\
+    (sliding tiles)
+  \end{center}
   }
 \end{slide}
 
@@ -95,21 +137,42 @@
 
 \begin{slide}{KBFS}
   \vspace{.2in}
+
+  \onslide*{1}{
   \begin{center}
     K Best-First Search
   \end{center}
-
-  \vspace{.1in}
-
-  \onslide*{1}{
   \begin{itemize}[type=1]
-  \item One main thread, many worker threads
+  \item One main thread, K worker threads
   \item Main thread takes K best nodes off open list
   \item Each worker is given a node to expand
   \item Lock on open list needed for insertion only
   \item Lock on closed list for duplicate detection
-  \item Main thread waits for all workers to finish before repeating
+  \item Wait for all workers to finish before repeating
   \end{itemize}
+  }
+  \onslide*{2,3,4}{
+  \begin{center}
+    Performance \\
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/KBFS.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/KBFS.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/KBFS.eps} \\
+    (sliding tiles)
+  \end{center}
   }
 \end{slide}
 
@@ -133,8 +196,9 @@
     \begin{itemize}
     \item Processors get exclusive access to a \emph{duplicate detection
       scope}
-    \item Uses a breadth first search, searching all of one layer before moving on
+    \item Uses a breadth first search
     \item Expand all nodes of current layer in an nblock before taking a new one
+    \item Finish all nodes at current layer before any of the next
     \end{itemize}
   }
   \onslide*{3}{
@@ -156,6 +220,15 @@
     (unit cost grids)
   \end{center}
   }
+  \onslide*{5}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PSDD.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
 
 \end{slide}
 
@@ -167,8 +240,8 @@
     Dynamic Parallel Structured Duplicate Detection
   \end{center}
   \begin{itemize}
-  \item Obtains a suboptimal solution using weighted A*
   \item Uses breadth first heuristic search for PSDD
+  \item Obtains a suboptimal solution using weighted A*
   \item Prunes nodes based on cost of suboptimal solution
   \end{itemize}
   }
@@ -187,6 +260,15 @@
     \end{center}
   \begin{center}
     \includegraphics[width=2in]{figures/seth/unit/DYNPSDD-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{4}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/DYNPSDD.eps} \\
     (unit cost grids)
   \end{center}
   }
@@ -221,6 +303,29 @@
     (life cost grids)
   \end{center}
   }
+  \onslide*{4,5,6}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/BFPSDD.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{5}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/BFPSDD.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{6}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/BFPSDD.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
 \end{slide}
 
 % ------------------------------------------------------------
@@ -233,7 +338,7 @@
   \end{center}
   \begin{itemize}
   \item Uses abstraction like PSDD
-  \item Processors acquire the best free nblock
+  \item Processors acquire the free nblock with the best node on its open list
   \item Expand nodes from current nblock until it is empty or a better nblock is free
   \item Force a minimum number of expansions to avoid contention
   \item Approximates best first ordering
@@ -276,6 +381,29 @@
   \onslide*{6}{
   \begin{center}
     \includegraphics[width=2in]{figures/seth/tiles/PBNF-min.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
+  \onslide*{7,8,9}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  }
+  \onslide*{7}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PBNF.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{8}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PBNF.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{9}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/PBNF.eps} \\
     (sliding tiles)
   \end{center}
   }
@@ -348,6 +476,29 @@
     (sliding tiles)
   \end{center}
   }
+  \onslide*{8,9,10}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  }
+  \onslide*{8}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/SAFEPBNF.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{9}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/SAFEPBNF.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{10}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/SAFEPBNF.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
 
 \end{slide}
 
@@ -409,9 +560,9 @@
     \item too small is immediately harmful
     \item too large hurts scalability
     \end{itemize}
-  \item PSDD variants competitive in unit cost
+  \item Some PSDD variants competitive in unit cost
   \item PBNF best in life cost, but may not scale
-  \item PSDD best and most stable for tiles with small abstraction
+  \item BFPSDD most stable for tiles with small abstraction
   \end{itemize}
 \end{slide}
 
