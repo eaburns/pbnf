@@ -54,13 +54,11 @@
 
 \begin{slide}{PA*}
   \vspace{.2in}
+
+  \onslide*{1}{
   \begin{center}
     Parallel A*
   \end{center}
-
-  \vspace{.1in}
-
-  \onslide*{1}{
   \begin{itemize}[type=1]
   \item Single open and closed list
   \item Each processor grabs first node on open
@@ -68,26 +66,70 @@
   \item Lock on closed list for checking duplicates
   \end{itemize}
   }
+  \onslide*{2,3,4}{
+  \begin{center}
+    Performance \\
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PAStar.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PAStar.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/PAStar.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
 \end{slide}
 
 % --------------------
 
 \begin{slide}{PRA*}
   \vspace{.2in}
+
+  \onslide*{1}{
   \begin{center}
     Parallel Retracting A*
   \end{center}
-
-  \vspace{.1in}
-
-  \onslide*{1}{
   \begin{itemize}[type=1]
-  \item Hash from nodes to processors
+  \item Hash nodes to processors
   \item Open and closed list for each processor
-  \item Each processor picks best node from its open list
+  \item Each processor expands best node from its open list
   \item Children are pushed to processor which they hash to
   \item Can be made memory bounded
   \end{itemize}
+  }
+  \onslide*{2,3,4}{
+  \begin{center}
+    Performance \\
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PRAStar.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PRAStar.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/PRAStar.eps} \\
+    (sliding tiles)
+  \end{center}
   }
 \end{slide}
 
@@ -95,21 +137,42 @@
 
 \begin{slide}{KBFS}
   \vspace{.2in}
+
+  \onslide*{1}{
   \begin{center}
     K Best-First Search
   \end{center}
-
-  \vspace{.1in}
-
-  \onslide*{1}{
   \begin{itemize}[type=1]
-  \item One main thread, many worker threads
+  \item One main thread, K worker threads
   \item Main thread takes K best nodes off open list
   \item Each worker is given a node to expand
   \item Lock on open list needed for insertion only
   \item Lock on closed list for duplicate detection
-  \item Main thread waits for all workers to finish before repeating
+  \item Wait for all workers to finish before repeating
   \end{itemize}
+  }
+  \onslide*{2,3,4}{
+  \begin{center}
+    Performance \\
+  \end{center}
+  }
+  \onslide*{2}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/KBFS.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{3}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/KBFS.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/KBFS.eps} \\
+    (sliding tiles)
+  \end{center}
   }
 \end{slide}
 
@@ -133,8 +196,9 @@
     \begin{itemize}
     \item Processors get exclusive access to a \emph{duplicate detection
       scope}
-    \item Uses a breadth first search, searching all of one layer before moving on
+    \item Uses a breadth first search
     \item Expand all nodes of current layer in an nblock before taking a new one
+    \item Finish all nodes at current layer before any of the next
     \end{itemize}
   }
   \onslide*{3}{
@@ -153,6 +217,15 @@
     \end{center}
   \begin{center}
     \includegraphics[width=2in]{figures/seth/unit/PSDD-nblocks.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{5}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PSDD.eps} \\
     (unit cost grids)
   \end{center}
   }
@@ -190,6 +263,15 @@
     (unit cost grids)
   \end{center}
   }
+  \onslide*{4}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/DYNPSDD.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
 \end{slide}
 
 \begin{slide}{BFPSDD}
@@ -219,6 +301,29 @@
   \begin{center}
     \includegraphics[width=2in]{figures/seth/life/BFPSDD-nblocks.eps} \\
     (life cost grids)
+  \end{center}
+  }
+  \onslide*{4,5,6}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  }
+  \onslide*{4}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/BFPSDD.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{5}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/BFPSDD.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{6}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/BFPSDD.eps} \\
+    (sliding tiles)
   \end{center}
   }
 \end{slide}
@@ -276,6 +381,29 @@
   \onslide*{6}{
   \begin{center}
     \includegraphics[width=2in]{figures/seth/tiles/PBNF-min.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
+  \onslide*{7,8,9}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  }
+  \onslide*{7}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/PBNF.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{8}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/PBNF.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{9}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/PBNF.eps} \\
     (sliding tiles)
   \end{center}
   }
@@ -345,6 +473,29 @@
   \onslide*{7}{
   \begin{center}
     \includegraphics[width=2in]{figures/seth/tiles/SAFEPBNF-min.eps} \\
+    (sliding tiles)
+  \end{center}
+  }
+  \onslide*{8,9,10}{
+    \begin{center}
+      Performance\\
+    \end{center}
+  }
+  \onslide*{8}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/unit/SAFEPBNF.eps} \\
+    (unit cost grids)
+  \end{center}
+  }
+  \onslide*{9}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/life/SAFEPBNF.eps} \\
+    (life cost grids)
+  \end{center}
+  }
+  \onslide*{10}{
+  \begin{center}
+    \includegraphics[width=2in]{figures/seth/tiles/SAFEPBNF.eps} \\
     (sliding tiles)
   \end{center}
   }
