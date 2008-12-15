@@ -9,8 +9,7 @@
  */
 
 #include <assert.h>
-
-#include <vector>
+#include <stdlib.h>
 
 #include "state.h"
 #include "closed_list.h"
@@ -77,15 +76,13 @@ ClosedList::ClosedList(unsigned long size)
 
 ClosedList::~ClosedList(void)
 {
-	vector<Bucket*>::iterator iter;
-
 	if (!table)
 		return;
 
-	for (iter = table->begin(); iter != table->end(); iter++)
-		if (*iter)
-			delete *iter;
-	delete table;
+	for (unsigned int i = 0; i < size; i += 1)
+		if (table[i])
+			delete table[i];
+	free(table);
 }
 
 /**
@@ -93,10 +90,8 @@ ClosedList::~ClosedList(void)
  */
 void ClosedList::new_table(void)
 {
-	if (!table) {
-		table = new vector<Bucket *>();
-		table->resize(size);
-	}
+	if (!table)
+		table = (Bucket **) calloc(size, sizeof(Bucket *));
 }
 
 /**
@@ -119,23 +114,23 @@ void ClosedList::add(const State *s)
 void ClosedList::resize(void)
 {
 	Bucket *b;
-	vector<Bucket*>::iterator iter;
-	vector<Bucket*> *old_table = table;
+	Bucket**old_table = table;
+	unsigned int old_size;
 
-//	cerr << "resize" << endl;
 
-	table = new vector<Bucket *>();
+	old_size = size;
 	size = size * 10;
-	table->resize(size, NULL);
+	table = NULL;
+	new_table();
 
-	for (iter = old_table->begin(); iter != old_table->end(); iter++) {
-		for (b = *iter; b; b = b->next)
+	for (unsigned int i = 0; i < old_size; i += 1) {
+		for (b = old_table[i]; b; b = b->next)
 			do_add(b->data);
-		if (*iter)
-			delete *iter;
+		if (old_table[i])
+			delete old_table[i];
 	}
 
-	delete old_table;
+	free(old_table);
 }
 
 /**
@@ -151,17 +146,12 @@ unsigned long ClosedList::get_ind(const State *s)
  */
 void ClosedList::do_add(const State *s)
 {
-	Bucket *old = table->at(get_ind(s));
+	Bucket *old = table[get_ind(s)];
 	if (!old)
-		table->at(get_ind(s)) = new Bucket(s, NULL);
+		table[get_ind(s)] = new Bucket(s, NULL);
 	else
-		table->at(get_ind(s)) = old->add(s);
+		table[get_ind(s)] = old->add(s);
 
-/*
-	if (table->at(get_ind(s))->size > 3)
-		cerr << "size: " <<  table->at(get_ind(s))->size
-		     << " fill: " << fill << endl;
-*/
 }
 
 /**
@@ -174,8 +164,8 @@ const State *ClosedList::lookup(const State *c)
 	if (!table)
 		return NULL;
 
-	if (table->at(get_ind(c)))
-		return table->at(get_ind(c))->lookup(c);
+	if (table[get_ind(c)])
+		return table[get_ind(c)]->lookup(c);
 	else
 		return NULL;
 }
@@ -186,12 +176,11 @@ const State *ClosedList::lookup(const State *c)
 void ClosedList::delete_all_states(void)
 {
 	Bucket *b;
-	vector<Bucket*>::iterator iter;
 
 	if (!table)
 		return;
 
-	for (iter = table->begin(); iter != table->end(); iter++)
-		for (b = *iter; b; b = b->next)
+	for (unsigned int i = 0; i < size; i += 1)
+		for (b = table[i]; b; b = b->next)
 			delete b->data;
 }

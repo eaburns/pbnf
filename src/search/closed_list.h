@@ -11,8 +11,6 @@
 #if !defined(_CLOSED_LIST_H_)
 #define _CLOSED_LIST_H_
 
-#include <vector>
-
 #include "state.h"
 
 using namespace std;
@@ -49,7 +47,7 @@ private:
 		unsigned int size;
 	};
 
-	vector<Bucket *> *table;
+	Bucket **table;
 	unsigned long size;
 	unsigned long fill;
 };
