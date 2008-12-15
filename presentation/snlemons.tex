@@ -3,11 +3,11 @@
 
 \pdsetup{
   lf={Seth Lemons (UNH)},
-  rf = {An Empirical Comparison of Parallel Search Algorithms},
+  rf = {An Empirical Evaluation of Parallel Search Algorithms},
   list={itemsep=8pt}}
 
 
-\title{An Empirical Comparison of Parallel Search Algorithms}
+\title{An Empirical Evaluation of Parallel Search Algorithms}
 \author{Seth Lemons \vspace{0.2in} \\
   \includegraphics[height=0.4in]{figures/unh-logo-words.eps} \\
   Department of Computer Science \\
@@ -240,8 +240,8 @@
     Dynamic Parallel Structured Duplicate Detection
   \end{center}
   \begin{itemize}
-  \item Obtains a suboptimal solution using weighted A*
   \item Uses breadth first heuristic search for PSDD
+  \item Obtains a suboptimal solution using weighted A*
   \item Prunes nodes based on cost of suboptimal solution
   \end{itemize}
   }
@@ -560,9 +560,9 @@
     \item too small is immediately harmful
     \item too large hurts scalability
     \end{itemize}
-  \item PSDD variants competitive in unit cost
+  \item Some PSDD variants competitive in unit cost
   \item PBNF best in life cost, but may not scale
-  \item PSDD best and most stable for tiles with small abstraction
+  \item BFPSDD most stable for tiles with small abstraction
   \end{itemize}
 \end{slide}
 
