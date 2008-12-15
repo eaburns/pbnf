@@ -92,12 +92,9 @@
 
   \onslide*{1}{
     \begin{itemize}
-    \item Decompose search graph by \emph{projecting} nodes into an abstract
-      space
-    \item NBlock: all of the search nodes in the same abstract state
+    \item External memory graph search
+    \item Decompose search graph by \emph{projecting} nodes into an abstract space
     \item \emph{Duplicate detection scopes}
-    \item Breadth-first heuristic search
-    \item Single $depth$ layer at a time
     \end{itemize}
   }
   \onslide*{2}{
@@ -105,6 +102,13 @@
       \includegraphics[width=2in]{figures/disjoint-scopes1} \\
       15-Puzzle projected on the blank
     \end{center}
+  }
+  \onslide*{3}{
+    \begin{itemize}
+    \item NBlock: all of the search nodes in the same abstract state
+    \item Breadth-first heuristic search
+    \item Single $depth$ layer at a time
+    \end{itemize}
   }
 \end{slide}
 
@@ -311,6 +315,9 @@
     \item Mark nblocks as \emph{hot}
     \item Release nblocks which are interfering with hot nblocks
     \item Do not acquire scopes which interfere with hot nblocks
+    \item $setcold()$ if not releasing
+    \item Hot blocks must not interfere
+    \item TLA+ model
     \end{itemize}
   }
   \onslide*{13}{
@@ -424,7 +431,7 @@
     \item [Width] 7
     \item [Height] 2
     \item [Costs] Unit
-    \item [Projection] The blank, 1-tile and 2-tile.
+    \item [Projection] The blank, and 1-tile.
     \end{description}
   }
   \onslide*{2}{
