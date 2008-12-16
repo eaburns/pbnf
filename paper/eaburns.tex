@@ -1,4 +1,3 @@
-
 \documentclass{article}
 \usepackage{aaai}
 \nocopyright
@@ -26,33 +25,23 @@
 \maketitle
 
 \begin{abstract}
-  A lot of work in heuristic search focuses on solving larger and
-  larger problems.  Various techniques have been developed for making
-  heuristic search more memory efficient.  Other techniques have been
-  developed that allow heuristic search to make use of external
-  storage devices (such as hard disks) to increase their memory
-  capacity.  In this paper we build on some of the techniques used for
-  external memory search to create a parallel best-first style search
-  to be used to more quickly solve smaller search domains.  Our new
+  In this paper we build on some of the techniques used for external
+  memory search to create a parallel best-first style search to be
+  used to more quickly solve smaller search domains.  Our new
   algorithm outperforms the state of the art parallel search
   techniques in one of the two domains which we examine.  Also, the
-  design of our now algorithm allows it to be trivially adapted to
-  parallelize a host of other heuristic search algorithms.
+  design of our new algorithm allows it to be trivially adapted to
+  parallelize a host of other algorithms such as sub-optimal,
+  pessimistic or optimistic heuristic search.
 \end{abstract}
 
 \section{Introduction}
 
-As microprocessor manufacturers build processors with more and more
-processing cores, software developers are being pressured to create
-algorithms to make better use of the newly available parallelism.  In
-the field of artificial intelligence it is always necessary to solve
-problems more quickly.  A trend in current research on heuristic
-search, however, seems to be focusing on finding solutions in larger
-and larger search domains instead of solving smaller domains faster.
-If real-time responses are desired is crucial to solve even small
-domains very quickly.  For this work our goal was to use parallelism
-to solve some problems that are traditionally considered small as fast
-as possible.
+In the field of artificial intelligence it is always beneficial to
+solve problems more quickly.  Processors are not getting any faster so
+AI researchers must begin finding methods of using parallelism for
+speed.  For this work our goal was to use parallelism to solve
+heuristic search problems as fast as possible.
 
 In a typical (serial) best-first search algorithm, an \emph{open-list}
 and \emph{closed-list} of nodes are maintained.  The open-list
@@ -60,14 +49,15 @@ contains nodes on the search frontier that have yet to be searched
 (expanded).  The open-list is usually sorted on the f-value for each
 node, where $f(n)$ for a node $n$ is the estimated cost for a solution
 path which goes through $n$.  The closed-list contains all nodes which
-have already been searched, and it is used to detect cycles in the
-search graph.  The process of detecting nodes that have already been
-searched is called \emph{duplicate detection}.  In a serial best-first
-search, a node is added to the closed-list the first time that the
-search encounters it.  If a node is encountered again during the
-search process, it is ignored since it has already been expanded.
-This process breaks cycles and eliminates extra, wasted, search
-effort.
+have already been searched, and it can be used to detect nodes which
+have already been searched.  The process of detecting nodes that have
+already been searched is called \emph{duplicate detection}.  In a
+serial best-first search, a node is added to the closed-list the first
+time that the search encounters it.  If a node is encountered again
+during the search process (assuming that an admissible and consistent
+heuristic is used) it can be ignored since it has already been
+expanded.  This process breaks cycles and eliminates extra, wasted,
+search effort.
 
 One of the greatest challenges of parallel heuristic search is
 reducing synchronization overhead.  This can be seen by looking at a
@@ -76,8 +66,8 @@ and closed list are used with a mutual exclusion lock (called a
 \emph{mutex}) to prevent data races.  The problem with this approach
 is that, as the number of processors increases, there will be an
 increasing amount of contention on these two data structures.  This
-will create a large bottle-neck, greatly slowing down the search.
-This result can be seen in work done by Seth Lemons \cite{lemons:sur}
+will create a large bottleneck, greatly slowing down the search.  This
+result can be seen in work done by Seth Lemons \cite{lemons:sur}
 
 Various methods have been proposed that attempt to alleviate the
 overhead of synchronizing the access to global data structures in
@@ -95,19 +85,20 @@ performs poorly on domains which do not have unit cost edges.
 
 The algorithm which is presented in this paper extends some ideas
 which were developed for external memory search -- an area which
-shares some of the same problems as parallel search.  Our algorithm,
-which is called Parallel Best NBlock First (PBNF), enables processors
-to acquire exclusive access to sections of a search space in a manor
-which allows for periods of synchronization-free search.
-Additionally, this method lets the search to progress in a best-first
-manor which detects duplicates and can perform well in domains with
-non-uniform move costs.  Moreover PBNF can be trivially adapted to use
-sub-optimal, weighted or pessimistic heuristics.
+shares some of the same algorithmic design challenges as parallel
+search.  Our algorithm, which is called Parallel Best NBlock First
+(PBNF), enables processors to acquire exclusive access to sections of
+a search space in a manner which allows for periods of
+synchronization-free search.  Additionally, this method lets the
+search progress in a best-first manner which detects duplicates and
+can perform well in domains with non-uniform move costs.  Moreover
+PBNF can be trivially adapted to use sub-optimal, weighted or
+pessimistic heuristics.
 
-We demonstrate the performance of our algorithm on a handful of common
-search domains, including grid-world and the sliding tiles domain.
-Our results show that this algorithm can outperform all algorithms
-which we compare against.
+We demonstrate the performance of our algorithm on two common search
+domains, including grid-world and the sliding tiles domain.  Our
+results show that this algorithm can outperform all algorithms which
+we compare against.
 
 \section{Previous Work}
 
@@ -118,8 +109,8 @@ ideas for our new parallel approach.
 
 \subsection{Parallel Retracting A*}
 
-There has been a handful of algorithms created that attempt to
-alleviate the amount of contention between processors, performing
+There have been a handful of algorithms created that attempt to
+alleviate the amount of contention between processors performing
 parallel heuristic search, by making use of distributed open and
 closed lists instead of using global data structures.  One such
 algorithm is Parallel Retracting A* (PRA*) \cite{evett:pra}.  In PRA*
@@ -128,22 +119,24 @@ available processors.  Each time a node is expanded it is passed to
 the appropriate processor dictated by the hash function.  Each
 processor is then in charge of expanding and detecting duplicates for
 all of the nodes that hash to it.  This method allows duplicate
-detection to happen without extra communication, it also reduces the
-amount of contention on the open-list by distributing it amongst all
-of the processors\footnote{The true PRA* algorithm also use a
+detection to happen without requiring all processors to track every
+node which has been expanded (a process which often requires a large
+amount of synchronization), it also reduces the amount of contention
+on the open-list by distributing it amongst all of the
+processors\footnote{The true PRA* algorithm also uses a
   node-retraction scheme to reduce the amount of memory that a search
   requires.  For this work, we are only concerned with searches that
   fit into memory, and our interest in PRA* is for its unique method
-  of splitting the search space amongst processors, not its
+  of splitting the search space among processors, not its
   node-retraction scheme.}.
 
 One of the problems that PRA* encounters is that, while no
 synchronization is required for duplicate detection, there is a
 substantial amount of overhead incurred by the message passing that is
 used to move nodes to their respective processors.  In a shared memory
-system, each processor must have a synchronized queue which all of the
-other processors have the ability to add search nodes to.  While this
-is less of a bottle-neck than having a single global, shared
+system, each processor must have a synchronized open-list which all of
+the other processors have the ability to add search nodes to.  While
+this is less of a bottle-neck than having a single global, shared
 open-list, we have found that it is still very expensive.  Work done
 by Seth Lemons in his survey of parallel heuristic search algorithms
 \cite{lemons:sur} demonstrates that the performance for PRA* suffers
@@ -163,12 +156,10 @@ said to be the \emph{image} of a node $x$ if $p(x) = y$.  Additionally
 $y'$ is a successor of $y$, in the abstract graph, if there are two
 states $x$ and $x'$ such that $x'$ is a successor of $x$, $y$ is the
 image of $x$ and $y'$ is the image of $x'$.  In other words:
-
 \begin{eqnarray*}
-  &&x' \in successors(x) \wedge p(x) = y \wedge p(x') = y' \\
-  &\Rightarrow& y' \in successors(y)
+  &&x' \in successors(x) \wedge p(x) = y \wedge p(x') = y'\\
+  &&\Rightarrow y' \in successors(y)
 \end{eqnarray*}
-
 In the description of the SDD algorithm, Zhou and Hansen use the term
 \emph{nblock} to refer to all nodes in the original state space that
 have the same image in the abstract space.  Throughout the remainder
@@ -176,24 +167,24 @@ of this paper, the terms ``abstract state'', and ``nblock'' will be
 used interchangeably, as each nblock corresponds to a single abstract
 state.
 
-Zhou and Hansen show that, while performing duplicate detection, with
-SDD, only nodes which reside within the same nblock must be checked
-for duplicates.  This is because, for a node $x$ which is a duplicate
-of a node $z$, both $x$ and $z$ will project to the same abstract
-state (and therefore reside in the same nblock) Intuitively, this
-makes sense, because both $x$ and $z$ are the same node since they are
-duplicates.  This leads to the idea of a \emph{duplicate detection
-  scope}.  By the definition of the successor set of an abstract node:
-any child node $x'$ of a node $x$, in the original state space, will
-have an image $p(x') \in successors(p(x))$, and therefore when
-performing duplicate detection for $x'$ the only nodes that must be
-checked are in the nblock $p(x') \in successors(p(x))$.  For this
-reason, $successors(p(x))$ is called the duplicate detection scope of
-the nblock $p(x)$ -- no other nodes in the original state space will
-ever need to be consulted for duplicate detection when expanding nodes
-in the nblock $p(x)$.
+Zhou and Hansen show that while performing duplicate detection with
+SDD, only nodes which reside within the same nblock must be consulted.
+This is because, for a node $x$ which is a duplicate of a node $z$,
+both $x$ and $z$ will project to the same abstract state (and
+therefore reside in the same nblock) Intuitively, this makes sense,
+because both $x$ and $z$ are the same node since they are duplicates.
+This leads to the idea of a \emph{duplicate detection scope}.  By the
+definition of the successor set of an abstract node, any child node
+$x'$ of a node $x$, in the original state space, will have an image
+$p(x') \in successors(p(x))$, and therefore when performing duplicate
+detection for $x'$ the only nodes that must be checked are in the
+nblock $p(x') \in successors(p(x))$.  For this reason,
+$successors(p(x))$ is called the duplicate detection scope of the
+nblock $p(x)$ -- no other nodes in the original state space will ever
+need to be consulted for duplicate detection when expanding nodes in
+the nblock $p(x)$.
 
-This idea can be made clear using the sliding tile puzzle as an
+This idea can be illustrated using the sliding tile puzzle as an
 example.  One possible projection function for the sliding tiles
 puzzle would be to only look at the position of the empty tile.  For
 example: all states with the empty tile in the upper left-hand corner
@@ -211,17 +202,17 @@ in this figure.  Any of the children of a state in the nblock shown on
 the left in Figure \ref{fig:tile-abstraction} will fall into one of
 the two nblocks shown on the right.
 
-\begin{figure*}[t]
+\begin{figure}[t]
   \begin{center}
-    \includegraphics[width=1.5in]{images/tile-abstraction.eps}
-    \hspace{4cm}
-    \includegraphics[width=1.5in]{images/duplicate-detection-scope.eps}
+    \includegraphics[width=1in]{images/tile-abstraction.eps}
+    \hspace{1cm}
+    \includegraphics[width=1in]{images/duplicate-detection-scope.eps}
     \caption{The abstract image of all states with a empty tile in
       position 0 (left).  The duplicate detection scope of the
       abstract state with the empty tile in position 0 (right).}
     \label{fig:tile-abstraction}
   \end{center}
-\end{figure*}
+\end{figure}
 
 The main focus of the SDD approach is: using state space decomposition
 so that generated nodes can be explicitly moved to a secondary storage
@@ -271,15 +262,16 @@ PSDD is an attractive algorithm because it reduces the amount of
 contention between processors by allowing for lock-free periods of
 expansion.  The only lock used in the PSDD algorithm is used when
 finding a new free nblock to search.  The problem with the PSDD
-approach, however, is that it performs a breadth-first style of
-search, and requires all of the processors to synchronize between each
-layer.  Furthermore because of the breadth-first nature of PSDD, the
-algorithm will not perform well on domains which do not have unit-cost
-moves.  This is because, in such a domain, each layer of the search
-may have only a small number of new nodes.  If there are not enough
-nodes in a layer to amortize the cost of synchronizing all of the
-processors between layers, or worse if there are not enough nodes to
-keep all processors busy, then the search will perform very poorly.
+approach, however, is that it performs a breadth-first style of search
+which only makes weak usage of the heuristic estimate of a node, and
+requires all of the processors to synchronize between each layer.
+Furthermore because of the breadth-first nature of PSDD, the algorithm
+will not perform well on domains which do not have unit-cost moves.
+This is because, in such a domain, each layer of the search may have
+only a small number of new nodes.  If there are not enough nodes in a
+layer to amortize the cost of synchronizing all of the processors
+between layers, or worse if there are not enough nodes to keep all
+processors busy, then the search will perform very poorly.
 
 \subsubsection{Best-First PSDD}
 
@@ -298,58 +290,58 @@ each layer consists of all of the nodes with the same f-value.  The
 BFPSDD algorithm stores all nblocks in a heap which is sorted by the
 best f-value of the best node in each nblock.  At every layer, BFPSDD
 populates its list of free nblocks with all of the nblocks which have
-the next best f-value on the heap.  When searching an nblocks, a
+the next best f-value on the heap.  When searching an nblock, a
 processor searches all of the nodes in the nblock which have an
 f-value equal to the current layer's f-value.  Once all of the nodes
 with a given f-value are searched, all of the processors synchronize
 and the search progresses to the next f-value layer by re-populating
 the free list with all nblocks from the heap that have the next best
 f-value.  It is easy to see that this search will progress in a
-best-first manor.
+best-first manner.
 
 \subsection{Localizing A*}
 
 An alternative approach to external memory search for improving
 efficiency in large search spaces is to slightly loosen the node
 ordering restriction of A* as is done by Edelkamp and Schrodl
-\cite{edelkamp:loc}.  Edelkamp and Schrodl create an algorithm that
-uses a looser node ordering than A* in order to achieve a better
-memory locality. We refer to this algorithm as lA* (for localized A*).
-While lA* expands more nodes than A* does, the intuition is that lA*
-can achieve better performance than A* for large searches because it
-can reduce the number of virtual-memory operations that swap to disk.
+\cite{edelkamp:loc}.  Edelkamp and Schrodl present an algorithm that
+uses a looser node ordering than A* in order to achieve better memory
+locality. We refer to this algorithm as LA* (for localized A*).  While
+LA* expands more nodes than A* does, the intuition is that LA* can
+achieve better performance than A* for large searches because it can
+reduce the number of virtual-memory operations that swap to disk.
 
-lA* uses a data structure called a \emph{heap-of-heaps} to order its
+LA* uses a data structure called a \emph{heap-of-heaps} to order its
 node expansions.  A heap-of-heaps, $H$, is composed of elements
 $H_0$,$H_1$,...,$H_n$ where each element $H_i$ is a heap of search
 nodes that reside in the same page of memory.  The heap-of-heaps, $H$,
-is loosely sorted on the f-values of the best nodes of each heap
-$H_i$ (denoted as $best(H_i)$).  The lA* procedure searches the best
-heap $H_0$, of the heap-of-heaps, until $best(H_1) + \Delta >
-best(H_0)$, where $H_1$ is the new best heap on $H$ after the removal
-of $H_0$.  The $\Delta$ value allows the search to expand a set of
-nodes in $H_0$ which may not have the best f-values, but that have
-better memory locality with respect to the previously expanded nodes.
+is loosely sorted on the f-values of the best node of each heap $H_i$
+(denoted as $best(H_i)$).  The LA* procedure searches the best heap
+$H_0$, of the heap-of-heaps, until $best(H_1) + \Delta > best(H_0)$,
+where $H_1$ is the new best heap on $H$ after the removal of $H_0$.
+The $\Delta$ value allows the search to expand a set of nodes in $H_0$
+which may not have the best f-values, but that have better memory
+locality with respect to the previously expanded nodes.
 
-Since lA* tends to prefer nodes with better memory locality, it can
+Since LA* tends to prefer nodes with better memory locality, it can
 reduce the number of page-faults, and virtual memory swap operations
 that the operating system must perform.  The tradeoff is that the
-first solution found by lA* may be sub-optimal since it is not
-searching in strict best-first order.  To fix this problem, lA*
-doesn't return its first solution, instead it behaves like an any-time
+first solution found by LA* may be sub-optimal since it is not
+searching in strict best-first order.  To fix this problem, LA*
+doesn't return its first solution, instead it behaves like an anytime
 search algorithm by continuing the search and pruning on the f-value
 of incumbent solutions \cite{hansen:ahs}.  Since the f-value of an
 incumbent solution is an upper-bound on the optimal solution, the
 search can stop when there are no frontier nodes that have f-values
 less than the current incumbent -- this means that the current
-incumbent solution \emph{is} the optimal solution.
+incumbent solution is the optimal solution.
 
 \section{Parallel Best NBlock First (PBNF)}
 
 In order to get the benefits of lock-free expansion and duplicate
-detection, which are provided by the PSDD algorithm, without the need
+detection which are provided by the PSDD algorithm, without the need
 for layer-synchronization, we have created an algorithm that combines
-the ideas from PSDD and lA* which we call Parallel Best NBlock First
+the ideas from PSDD and LA* which we call Parallel Best NBlock First
 (PBNF).  The PBNF algorithm uses a state space projection function and
 maintains a heap of free nblocks where each nblock has a heap of open
 nodes sorted on f-value and a hash table of closed nodes which have
@@ -370,14 +362,14 @@ acquire the better one.
   \SetKwData{child}{c}
   \label{alg:pbnfsearch}
   \KwResult{Searches nblocks for a goal node.  After each process
-    completes \incumbent contains the optimal solution.}
-  \Repeat{all nodes are exhausted} {
-    $\block \leftarrow$ best free nblock\;
+    completes, \incumbent contains the optimal solution.}
+  \Repeat{$\forall i \in Nodes : f(i) > f(incumbent)$} {
+    $\block \leftarrow$ acquire best free nblock\;
     \While {$\block$ is better than the next best free nblock} {
       $\node \leftarrow$ best node on $\block$\;
       \If {$\node$ is a goal}{
-        \If{the cost of the path to $\node$ is better than $\incumbent$}{
-          $\incumbent \leftarrow$ path to $\node$\;
+        \If{$f(\node)$ < $f(\incumbent)$}{
+          $\incumbent \leftarrow$ $\node$\;
         }
       }
       \Else {
@@ -397,7 +389,7 @@ searches it while it remains better than the new best free nblock.
 There is no layer synchronization, so it is possible that the first
 solution found is suboptimal.  Since we are interested in optimal
 solutions, a global incumbent solution is kept and used for pruning
-the open list.  Like lA*, when all of the nodes have been pruned, the
+the open list.  Like LA*, when all of the nodes have been pruned, the
 incumbent solution is the optimal solution which will then be returned
 by the search procedure.
 
@@ -405,15 +397,15 @@ Each time a processor expands a node off of its acquired nblock, it
 must test the head of the heap of free nblocks to see if it is still
 looking at better nodes in its acquired nblock.  Since it is possible
 that an nblock has only a very small number of nodes which are better
-than the next free nblock, PBNF implements as simple scheme to reduce
+than the next free nblock, PBNF implements a simple scheme to reduce
 the amount of nblock switching.  When a processor acquires a new
-nblock for expansion, it is required to search at least a minimum number,
-$m$, nodes off of the nblock before it considers switching.  This is
-done as an attempt to reduce the contention on the nblock heap.  With
-out requiring $m$ expansions before switching nblocks, we anticipate
-that there will be too much contention on the heap of free nblocks
-when many nblocks have similar quality nodes.  Our experimental
-results seem to agree with this observation.
+nblock for expansion, it is required to search at least a minimum
+number, $m$, nodes off of the nblock before it considers switching.
+This is done as an attempt to reduce the contention on the nblock
+heap.  Without requiring $m$ expansions before switching nblocks, we
+anticipate that there will be too much contention on the heap of free
+nblocks when many nblocks have similar quality nodes.  Our
+experimental results seem to agree with this observation.
 
 In addition to the parameter $m$, the PBNF algorithm attempts to
 reduce the amount of time that a processor is waiting on a mutex by
@@ -427,8 +419,8 @@ current nblock has nodes remaining in its open list the
 processor can expand more nodes off of its current nblock instead of
 sleeping.  These nodes may not be very good (that is why the processor
 was switching in the first place), but this is still much more
-beneficial than sleeping.  Were the \texttt{try\_lock} not to be used,
-the processor would be doing \emph{nothing} while waiting for the lock
+beneficial than sleeping.  Were the \texttt{try\_lock} not used, the
+processor would be doing \emph{nothing} while waiting for the lock
 instead or expanding some nodes which may not be good now, but that
 may need to be searched later anyway.
 
@@ -486,8 +478,8 @@ which is not going to relinquish its nblock will set the hot nblock
 back to cold and update the $\sigma_h$ values as appropriate, possibly
 re-adding blocks to the free heap too.
 
-A fairly complete pseudo-code for the safe PBNF algorithm can be found
-in the appendix.
+A complete pseudo-code for the safe PBNF algorithm can be found in the
+appendix.
 
 \section{Experimental Results}
 
@@ -495,11 +487,12 @@ This section presents experimental results which compare PBNF to a
 handful of other state of the art parallel heuristic search
 algorithms.  The algorithms chosen for these experiments were the ones
 that performed the best in the survey done by Seth Lemons on parallel
-heuristic search \cite{lemons:sur}.  For these experiments two domains
-are used, grid world path planning and the sliding tiles puzzle.  All
-of the experiments in this section were performed on dual-quad core
-Intel Xeon E5320 1.86GHz processors, with 16Gb RAM running the 64-bit
-Fedora 9 operating system.
+heuristic search \cite{lemons:sur}.  These algorithms were programmed
+in C++ and make use of the POSIX threading library for concurrency.
+For these experiments two domains are used, grid world path planning
+and the sliding tiles puzzle.  All of the experiments in this section
+were performed on dual quad-core Intel Xeon E5320 1.86GHz processors,
+with 16Gb RAM running the 64-bit Fedora 9 operating system.
 
 %% Mention how we only show results with PBNF and the PSDD-variations
 %% due to experimental results from Seth's unpublished paper.
@@ -533,8 +526,8 @@ free nblocks).
 We hypothesized that the desired number of nblocks was related to the
 number of processes that would be performing the search.  This is
 because if more processes are searching more nblocks are required to
-create a sufficient number disjoint duplicate detection scopes.  If
-less processes are searching, however, less scopes may be desired to
+create a sufficient number of disjoint duplicate detection scopes.  If
+fewer processes are searching, however, fewer scopes may be desired to
 ensure that each nblock has a sufficient number of nodes.  We used the
 parameter $M$ (which dictates the total number of nblocks for a grid
 search) along with the number of searching processes to explore the
@@ -546,8 +539,10 @@ section of the paper, we present our results with the best combination
 of parameters according to the data shown in the appendix for each
 algorithm.
 
+\subsubsection{Unit Cost}
+
 \begin{figure}[t]
-\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/time-Unit_Four-way_0.25_2000_1200.eps}
+\includegraphics[width=3in]{images/grid-time-unit-fourway-025-2000-1200}
 \caption{CPU time versus number of threads on a 2000x1200 unit-cost
   grid world with a 25\% probability that a square is obstructed.}
 \label{fig:grid-unit}
@@ -556,25 +551,25 @@ algorithm.
 Figure \ref{fig:grid-unit} shows the performance of three flavors of
 the PSDD algorithm along with PBNF and the Safe PBNF algorithms.  The
 x-axis is the number of threads of execution\footnote{In our results
-  we use the term threads instead of the term processes (which is
-  slightly more general, and is used throughout the beginning of this
-  paper) to be specific about this detail of our implementation.} for
-each search, and the y-axis represents the average wall-clock time in
-seconds that each search took to complete. The line labeled
-``psdd-4nblocks'' shows the average search time for the PSDD algorithm
-to solve a set of grid world problems with four nblocks per thread.
-The next line, labeled ``dynpsdd-4nblocks-1.5wt,'' shows the time for:
-a serial weighted A* search with a weight of 1.5 followed by a PSDD
-search with pruning on the solution cost from the previous weighted
-A*.  We call this algorithm DYNPSDD (dynamically cost bounded PSDD)
-and we feel that this may be a more reasonable demonstration of the
-performance of the standard PSDD algorithm since the breadth-first
-search which PSDD uses relies on upper-bound solution cost pruning.
-The next set of data in this plot is labeled ``bfpsdd-4nblocks,'' and
-it shows the performance of the best-first flavor of the PSDD
-algorithm with four nblocks per thread.  The final two data sets show
-the performance for safe PBNF and PBNF with 10 nblocks per thread and
-30 and 10 minimum expansions per nblock respectively.
+  we use the term threads instead of the term processes (which is used
+  throughout the beginning of this paper) to be specific about this
+  detail of our implementation.} for each search, and the y-axis
+represents the average wall-clock time in seconds that each search
+took to complete. The line labeled ``psdd-4nblocks'' shows the average
+search time for the PSDD algorithm to solve a set of grid world
+problems with four nblocks per thread.  The next line, labeled
+``dynpsdd-4nblocks-1.5wt,'' shows the time for: a serial weighted A*
+search with a weight of 1.5 followed by a PSDD search with pruning on
+the solution cost from the previous weighted A*.  We call this
+algorithm DYNPSDD (dynamically cost bounded PSDD) and we feel that
+this may be a more reasonable demonstration of the performance of the
+standard PSDD algorithm since the breadth-first search which PSDD uses
+relies on upper-bound solution cost pruning.  The next set of data in
+this plot is labeled ``bfpsdd-4nblocks,'' and it shows the performance
+of the best-first flavor of the PSDD algorithm with four nblocks per
+thread.  The final two data sets show the performance for safe PBNF
+and PBNF with 10 nblocks per thread and 30 and 10 minimum expansions
+per nblock respectively.
 
 The first thing that this plot demonstrates is that the performance of
 the PBNF algorithm is superior to that of the PSDD variants on these
@@ -585,7 +580,7 @@ all of the other algorithms, including the safe variant of PBNF.  We
 suspect that the small amount of extra overhead incurred by safe PBNF
 is from checking the interference scopes for nblocks to label as hot,
 and because removing nblocks which interfere with hot nblocks from the
-nblock heap makes for slightly less free disjoint duplicate detection
+nblock heap makes for slightly fewer free disjoint duplicate detection
 scopes.  The ``good parameter settings'' for the safe PBNF algorithm
 help to back up our suspicion.  Safe PBNF performs best with a larger
 number of required minimum expansions per nblock than standard PBNF.
@@ -595,8 +590,8 @@ the acquired nblocks, the overhead is slightly reduced.
 As mentioned at the beginning of this section, the computers used to
 run these experiments have a total of eight cores.  This means that
 the machines which performed these searches should, ideally, show
-increased performance by increasing the thread count up to eight (one
-thread for each core).  A more subtle -- but equally as important --
+improved performance by increasing the thread count up to eight (one
+thread for each core).  A more subtle -- but equally important --
 observation from this plot is that the DYNPSDD algorithm begins
 performing slightly worse as more threads are added.  While all of the
 other algorithms perform better as more threads are added, the DYNPSDD
@@ -609,8 +604,10 @@ for why DYNPSDD doesn't perform \emph{better} as threads are added,
 not why it begins to perform slightly worse.  This issue is still open
 for future exploration.
 
+\subsubsection{Life Cost}
+
 \begin{figure}[t]
-\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/time-Life_Four-way_0.25_2000_1200.eps}
+\includegraphics[width=3in]{images/grid-time-life-fourway-025-2000-1200}
 \caption{CPU time versus number of threads on a 2000x1200 life-cost
   grid world with a 25\% probability that a square is obstructed.}
 \label{fig:grid-life}
@@ -695,22 +692,19 @@ worse with more than three threads and safe PBNF performs better as
 threads are added until six, then its performance decreases with
 additional threads.  One reason for this is that, as the number of
 threads increases, there may not be enough disjoint duplicate
-detection scopes to keep all of the threads searching at once.  Also,
-if there is an insufficient number of nblocks, it may be the case that
-each nblock only has a small number of nodes, and the contention from
-many threads trying to switch nblocks often becomes more expensive
-than the benefits of the search method.  This theory can be partially
-supported by the fact that the best minimum expansions parameter
-settings for the two PBNF algorithms is relatively high compared to
-that of the grid world domain.  This means that more expansions are
-required to reduce the great amount of contention on the heap of free
-nblocks.  This hypothesis is also supported by the fact that both the
-PBNF and safe PBNF algorithms do improve in performance up to a point,
-it would seem that this point is when contention becomes overwhelming.
+detection scopes to keep all of the threads searching at once.  This
+theory can be partially supported by the fact that the best minimum
+expansions parameter settings for the two PBNF algorithms is
+relatively high compared to that of the grid world domain.  This means
+that more expansions are required to reduce the great amount of
+contention on the heap of free nblocks.  This hypothesis is also
+supported by the fact that both the PBNF and safe PBNF algorithms do
+improve in performance up to a point, it would seem that this point is
+when contention becomes overwhelming.
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=3in]{../graphs/tiles_random_7_2/time-random_7_2.eps}
+\includegraphics[width=3in]{images/tiles-time-random-7-2.eps}
 \caption{CPU time versus number of threads on a set of 7x2 sliding
   tiles puzzles.}
 \label{fig:tiles-7x2}
@@ -726,14 +720,14 @@ sufficient number of disjoint duplicate detection scopes.
 \section{Conclusion}
 
 We have presented a new parallel heuristic search algorithm (PBNF)
-which makes use of some techniques traditionally used in external and
-efficient memory search to solve smaller search problems more quickly.
-The PBNF algorithm attempts to use a best-first search ordering
-without layer-synchronization, and because of this it is trivial to
-adapt PBNF to perform many other algorithms in parallel, including:
-weighted, pessimistic and optimistic heuristic search.  In addition,
-we have performed an analysis of the performance of the PBNF algorithm
-along with the PSDD algorithm, which has been shown to be the nearest
+which makes use of some techniques traditionally used in external
+memory search to solve search problems more quickly.  The PBNF
+algorithm attempts to use a best-first search ordering without
+layer-synchronization, and because of this it is trivial to adapt PBNF
+to perform many other algorithms in parallel, including: weighted,
+pessimistic and optimistic heuristic search.  In addition, we have
+performed an analysis of the performance of the PBNF algorithm along
+with the PSDD algorithm, which has been shown to be the nearest
 competitor for PBNF on the chosen domains.  In all of the grid world
 domains the PBNF algorithm outperforms all of the variants of the PSDD
 algorithm.  When solving the tiles puzzle, however, the PBNF algorithm

@@ -34,6 +34,41 @@
 \end{function*}
 
 \begin{function*}
+  \caption{threadsearch()}
+  \SetKwData{node}{node}
+  \SetKwData{children}{children}
+  \SetKwFunction{expand}{expand}
+
+  \KwResult{Sets \incumbent if a solution is found}
+
+  $\block \leftarrow$ NULL\;
+  \While {{\bf not} done} {
+    $\block \leftarrow \nextnblock(\block)$\;
+    $\expansions \leftarrow 0$\;
+    \While {{\bf not} $\shouldswitch(\block,\expansions)$} {
+      $\node \leftarrow$ next node in \block\;
+
+      \lIf {$\node > \incumbent$} {
+        prune \node\;
+      }
+
+      \If {\node is a goal}{
+        \lIf {$\node < \incumbent$}{
+          $\incumbent \leftarrow \node$
+        }
+      }
+
+      \ElseIf {\node is not a duplicate}{
+        $\children \leftarrow$ \expand(\node)\;
+        insert \children into \open of the appropriate nblock\;
+      }
+
+      $\expansions \leftarrow \expansions + 1$\;
+    }
+  }
+\end{function*}
+
+\begin{function*}
   \caption{isfree(block)}
   \KwIn{\block -- an nblock}
   \KwOut{Whether or not the given nblock is free}
@@ -154,39 +189,4 @@
   }
 
   unlock\;
-\end{function*}
-
-\begin{function*}
-  \caption{threadsearch()}
-  \SetKwData{node}{node}
-  \SetKwData{children}{children}
-  \SetKwFunction{expand}{expand}
-
-  \KwResult{Sets \incumbent if a solution is found}
-
-  $\block \leftarrow$ NULL\;
-  \While {{\bf not} done} {
-    $\block \leftarrow \nextnblock(\block)$\;
-    $\expansions \leftarrow 0$\;
-    \While {{\bf not} $\shouldswitch(\block,\expansions)$} {
-      $\node \leftarrow$ next node in \block\;
-
-      \lIf {$\node > \incumbent$} {
-        prune \node\;
-      }
-
-      \If {\node is a goal}{
-        \lIf {$\node < \incumbent$}{
-          $\incumbent \leftarrow \node$
-        }
-      }
-
-      \ElseIf {\node is not a duplicate}{
-        $\children \leftarrow$ \expand(\node)\;
-        insert \children into \open of the appropriate nblock\;
-      }
-
-      $\expansions \leftarrow \expansions + 1$\;
-    }
-  }
 \end{function*}
