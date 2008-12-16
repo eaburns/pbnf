@@ -34,6 +34,7 @@ SRC= \
 	util/thread.cc \
 	util/completion_counter.cc \
 	util/timer.cc \
+	util/timeout.cc \
 	util/atomic_float.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \

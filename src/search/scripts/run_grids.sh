@@ -309,24 +309,22 @@ do
     # Preform the search
     #
     OUTPUT=$($GRID_SEARCH $FULL_NAME < $INSTANCE)
-    if echo $OUTPUT | grep "No Solution" >& /dev/null;
-    then
-	echo "No solution found"
-	rm $OUT
-	exit 1
-    fi
-    SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9.]\+\).*/\1/p")
-    SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9.]\+\).*/\1/p")
-    WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9.]\+\).*/\1/p")
-    CPU_TIME=$(echo $OUTPUT | sed -n "s/.*CPU_time: \([0-9.]\+\).*/\1/p")
-    GENERATED=$(echo $OUTPUT | sed -n "s/.*generated: \([0-9.]\+\).*/\1/p")
-    EXPANDED=$(echo $OUTPUT | sed -n "s/.*expanded: \([0-9.]\+\).*/\1/p")
+    SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9.]\+\|infinity\).*/\1/p")
+    SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9.]\+\|infinity\).*/\1/p")
+    WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9.]\+\|infinity\).*/\1/p")
+    CPU_TIME=$(echo $OUTPUT | sed -n "s/.*CPU_time: \([0-9.]\+\|infinity\).*/\1/p")
+    GENERATED=$(echo $OUTPUT | sed -n "s/.*generated: \([0-9.]\+\|infinity\).*/\1/p")
+    EXPANDED=$(echo $OUTPUT | sed -n "s/.*expanded: \([0-9.]\+\|infinity\).*/\1/p")
 
-    #
-    # The data column
-    #
-    echo -e "#cols  \"sol cost\"\t\"sol length\"\t\"nodes expanded\"\t\"nodes generated\"\t\"wall time\"" >> $OUT
-    echo -e "$SOL_COST\t$SOL_LENGTH\t$EXPANDED\t$GENERATED\t$WALL_TIME" >> $OUT
+
+    if !(echo $OUTPUT | grep "No Solution" >& /dev/null)
+    then
+	#
+	# The data column
+	#
+	echo -e "#cols  \"sol cost\"\t\"sol length\"\t\"nodes expanded\"\t\"nodes generated\"\t\"wall time\"" >> $OUT
+	echo -e "$SOL_COST\t$SOL_LENGTH\t$EXPANDED\t$GENERATED\t$WALL_TIME" >> $OUT
+    fi
 
     #
     # The footer

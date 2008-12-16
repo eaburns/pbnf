@@ -22,6 +22,7 @@
 #include "h_zero.h"
 #include "grid/grid_world.h"
 #include "util/timer.h"
+#include "util/timeout.h"
 
 using namespace std;
 
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
 	GridWorld::ManhattanDist manhattan(&g);
 	g.set_heuristic(&manhattan);
 
+//	timeout(600);
 	timer.start();
 	path = search->search(g.initial_state());
 	timer.stop();
