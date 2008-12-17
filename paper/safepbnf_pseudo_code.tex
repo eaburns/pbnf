@@ -77,6 +77,35 @@
 \end{function*}
 
 \begin{function*}
+  \caption{shouldswitch(block, expansions)}
+  \KwIn{\block -- an nblock to search,\\
+    \expansions -- the number of nodes expanded in \block so far}
+  \KwData{\minexpansions -- the minimum number of expansions to
+    perform per-nblock}
+  \KwOut{Whether or not the nblock should be switched}
+
+  \lIf{\block is empty}{
+    \Return true\;
+  }
+  \lIf{$\expansions < \minexpansions$}{
+    \Return false\;
+  }
+  \If{$\best(\FreeList) < \block$ {\bf or}
+    $\best(\interferenceScope(\block)) < \block$}{
+    \If{$\best(\interferenceScope(\block)) < \best(\FreeList)$} {
+        $\sethot(\best(\interferenceScope(\block)))$\;
+    }
+    \Return true\;
+  }
+  \ForEach{$b' \in \interferenceScope(\block)$}{
+    \lIf{$\hot(b')$}{
+      $\setcold(b')$\;
+    }
+  }
+  \Return false\;
+\end{function*}
+
+\begin{function*}
   \caption{sethot(block)}
   \KwIn{\block -- an nblock}
   \KwResult{\block is flagged as hot}
@@ -110,32 +139,6 @@
 \end{function*}
 
 \begin{function*}
-  \caption{shouldswitch(block, expansions)}
-  \KwIn{\block -- an nblock to search,\\
-    \expansions -- the number of nodes expanded in \block so far}
-  \KwData{\minexpansions -- the minimum number of expansions to
-    perform per-nblock}
-  \KwOut{Whether or not the nblock should be switched}
-
-  \lIf{\block is empty}{
-    \Return true\;
-  }
-  \lIf{$\expansions < \minexpansions$}{
-    \Return false\;
-  }
-  \lIf{$\best(\FreeList) < \block$ {\bf or}
-    $best(\interferenceScope(\block)) < \block$}{
-    \Return true\;
-  }
-  \ForEach{$b' \in \interferenceScope(\block)$}{
-    \lIf{$\hot(b')$}{
-      $\setcold(b')$\;
-    }
-  }
-  \Return false\;
-\end{function*}
-
-\begin{function*}
   \caption{release(block)}
   \KwIn{\block -- an nblock}
   \KwResult{Update the sigma values of neighboring nodes, and add them
@@ -158,11 +161,18 @@
   \KwIn{\block -- an nblock}
   \KwOut{The next nblock to search}
 
-  lock\;
+  \lIf{\block has no open nodes}{
+      lock\;
+  }
+  \lElseIf {trylock fails} {
+          \Return \block\;
+  }
+  \tcc{if trylock succeeded we have the lock}
 
   \If{$\block \neq$ NULL}{
     $\bestScope \leftarrow \best(\interferenceScope(\block))$\;
-    \lIf{$\block < \bestScope$ {\bf and} $\block < \best(\FreeList)$}{
+    \If{$\block < \bestScope$ {\bf and} $\block < \best(\FreeList)$}{
+      unlock\;
       \Return \block\;
     }
     \release(\block)\;
@@ -189,4 +199,5 @@
   }
 
   unlock\;
+  \Return $n$\;
 \end{function*}
