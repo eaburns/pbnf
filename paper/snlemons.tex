@@ -201,6 +201,8 @@ The ratio of nodes per nblock could have an even more stark effect on performanc
 \label{fig:PBNF-nblock-life}
 \end{figure}
 
+The nblock to thread ratio has the same effect on PBNF as it had on PSDD and BFPSDD, except that the best ratio is higher and ratios which are too low cause such bad performance that there was not enough time to run complete tests on them. Given the fact that PBNF does not explore large layers before switching, it is reasonable that the nblock ratio would have a more extreme effect.
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/PBNF-time-Unit_Four-way_0.25_2000_1200.eps}
 \caption{Different values for minimum expansions in PBNF in unit cost grid world.}
@@ -300,34 +302,6 @@ The number of abstract states used in variants of PSDD and PBNF is a very import
 
 In some domains, we have a very fine grained control over the size of the abstraction, allowing us to try many different values and examine their effect on performance. In the grid world domain, for instance, abstracting away the row or column value of a state provides a simple abstraction the size of which is trivial to vary. We implemented such an abstraction by representing all states in the same column (or set of columns) as belonging to a single nblock. We can then vary the number of nblocks in relation to the number of threads (nblocks/thread) and analyze the changes in performance for varying ratios.
 
-% \begin{figure}[h!]
-%\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/BFPSDD-time-Unit_Four-way_0.25_2000_1200.eps}
-% \caption{Comparison of different nblock/thread ratios on execution time of  %BFPSDD in unit cost grid world.}
-% \label{fig:BFPSDD-nblock-grid}
-% \end{figure}
-
-% \begin{figure}[h!]
-%\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/PBNF-time-Unit_Four-way_0.25_2000_1200_min=10.eps}
-% \caption{Comparison of different nblock/thread ratios on execution time of %PBNF in unit cost grid world.}
-% \label{fig:PBNF-nblock-grid}
-% \end{figure}
-
-As we can see from Figure \ref{fig:BFPSDD-nblock-grid} and Figure \ref{fig:PBNF-nblock-grid}, not only do both PBNF and BFPSDD start to perform worse as the number of nblocks per thread increases beyond a value of 10, but the shape of the curve actually changes. Having too many nblocks does not simply slow these algorithms down, it makes them perform worse as the number of threads increases. Values below 10 are not shown because they caused the algorithms to take too long to measure over a large enough problem set. The same results are true, although with variation in the optimal ratio, for other variants of these algorithms, as shown in Figure \ref{fig:nblock-grid} in the appendix. Determining the appropriate ratio before execution, however, is a non-trivial problem.
-
-% \begin{figure}[h!]
-%\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/BFPSDD-time-Life_Four-way_0.25_2000_1200.eps}
-% \caption{Comparison of different nblock/thread ratios on execution time of  %BFPSDD in life cost grid world.}
-% \label{fig:BFPSDD-nblock-life}
-% \end{figure}
-
-% \begin{figure}[h!]
-%\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/PBNF-time-Life_Four-way_0.25_2000_1200_min=10.eps}
-% \caption{Comparison of different nblock/thread ratios on execution time of  %PBNF in life cost grid world.}
-% \label{fig:PBNF-nblock-life}
-% \end{figure}
-
-Both BFPSDD and PBNF have a clearly discernible best ratio of nblocks to threads in life cost grid world problems tested, although their behavior overall is less desirable. Figure \ref{fig:BFPSDD-nblock-life} and Figure  \ref{fig:PBNF-nblock-life} show that the ratios of 2 and 10 are best for PSDD and PBNF respectively in the life cost instances they were run on. No data is reported for other variants of PSDD or ratios less than 10 for PBNF because all of them were too slow to be tested in a reasonable amount of time.
-
 In other domains or when a different abstraction is used, control over the abstraction size is more coarse. The abstraction most commonly used in the sliding tile puzzle is to ignore the locations of all but some subset of the tiles. Adding or removing a tile from the set we pay attention to, however, changes the number of abstract states dramatically. Likewise, we can partition the grid world board into an abstract grid where each abstract grid location contains a set of neighboring original grid locations. Again, the number of abstract states increases or decreases dramatically when we increase the factor by which we divide the board. Results for a domain should still apply in regard to the correct abstraction size, however, even if we cannot control the ratio as precisely.
 \subsection{Weight for Preliminary Search}
 The weight used in the preliminary search for DynPSDD and BFPSDD affects the optimality of the solution found and, therefore, the amount of pruning that can be done during the search. For higher weights, the initial search should be faster, but little pruning can be done. When weights approach 1, though, the initial search will take longer with no benefit from parallelization and much of the work done in the actual PSDD search will be reproducing work done by the weighted search.
@@ -366,7 +340,7 @@ Finally, the results of testing on 7x2 sliding tile puzzles are shown in Figure 
 One obvious limitation of the evaluations done here is the number of threads used. In several cases, algorithms are improving in speed, but we cannot be sure that they would continue doing so. It is very difficult to make definite statements about scalability without further information.
 While attention was paid to the size of the abstraction used for PSDD and PBNF variants, examination of the properties that make an abstraction useful to such algorithms and how big of an effect these properties have on execution time could be very informative. In addition, PRA* could be tested with hash functions of varying quality. Both abstractions and hashes could be tested to see how well they split up the state space and how evenly they distribute good nodes.
 The problem instances used for our tests were the same size and did not vary much in difficulty. Future evaluations of these algorithms could look at how difficult it is to optimize parameters over larger distributions of problem size and difficulty. If good parameters cannot be found in such a situation, it would make a much stronger case for automatically learning or adjusting these values for each problem solved.
-Several changes could be made to the algorithms' implementations to test whether the problems observed could be circumvented. Because PRA* was originally designed for message passing systems, the effect of contention on the algorithm could be different if message passing were simulated in a threaded system, rather than allowing threads to contend over each other's open lists. Likewise, it could be instructive to implement further modifications to PSDD variants. One possibility is to allow layers to represent a range of values, rather than a single value. In addition, an increasing cost bound like IDA* could be used to define the current search layer. This could improve their performance in the life cost problems.
+Several changes could be made to the algorithms' implementations to test whether the problems observed could be circumvented. Because PRA* was originally designed for message passing systems, the effect of contention on the algorithm could be different if message passing were simulated in a threaded system, rather than allowing threads to contend over each other's open lists. Likewise, it could be instructive to implement further modifications to PSDD variants. One possibility is to allow layers to represent a range of values, rather than a single value. In addition, an increasing cost bound like IDA* could be used to prune nodes, replacing the weighted A* for DynPSDD and allowing pruning in BFPSDD. This could possibly improve their performance in the life cost problems.
 \section{Acknowledgments}
 My thanks to Ethan Burns, Wheeler Ruml, and Rong Zhou for collaboration on implementation and testing of these algorithms.
 
