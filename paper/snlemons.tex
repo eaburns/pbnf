@@ -65,6 +65,8 @@ To avoid constant contention on a single open and closed list, Parallel Retracti
 \label{fig:PRAStar-life}
 \end{figure}
 
+Time for PRA* increases drastically for low numbers of threads, much like PA*, but its descent after 4 threads in grid world is more noisy. This is most likely due to the fact that the number of threads affects the way nodes are distributed. The number of values that have to be hashed to could cause nodes to be distributed less evenly. To avoid this, we would need guarantees that the hash function would split the state space evenly, no matter how many threads it would be hashing to. Again, PRA* does better even after the number of threads exceeds the number of cores available. In sliding tiles, however, PRA* continues performing worse even at higher numbers of threads. It is possible that it might begin to get better at later values and that its upward climb is simply extended outward.
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/tiles-single/PRAStar.eps}
 \caption{Performance of PRA* in 7x2 sliding tiles.}
@@ -85,10 +87,12 @@ One method of reducing contention is to globally synchronize where possible. The
 \label{fig:KBFS-life}
 \end{figure}
 
+The behavior of KBFS is quite poor even at 1 thread, getting better consistently thereafter, albeit not very quickly. It appears that the overhead of coordinating between the main thread and even a single worker thread is quite high, gradually being outweighed by parallelism. Roughly the same behavior is seen between all domains tested, but Figure \ref{fig:KBFS-tiles} shows an increase in performance at one point in sliding tiles. The increase in cost, however, is minor in rlation to the variance at that point.
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/tiles-single/KBFS.eps}
 \caption{Performance of KBFS in 7x2 sliding tiles.}
-\label{fig:KBFS-life}
+\label{fig:KBFS-tiles}
 \end{figure}
 \subsection{Parallel Structured Duplicate Detection}
 While PRA* partitions the state space to avoid some contention, the threads must still access each other's data to insert nodes and check for duplicates. The Parallel Structured Duplicate Detection algorithm (PSDD) uses a formal abstraction of the state space to split the state space in a more controlled manner, further avoiding contention. The abstraction looks much like the original state space but smaller, with all original states mapping to only one abstract state (or nblock) and each nblock having a known set of successors. This successor set is called the duplicate detection scope because exclusive access to this set allows a thread to expand nodes from the original nblock's open list, check the closed list of the successor nblock to which a child node belongs for duplicates, and add the children to the appropriate open lists without obtaining a lock.
