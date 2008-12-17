@@ -8,7 +8,7 @@
 % Big margins for now so people can take notes/scribbles.
 %\usepackage{fullpage}
 
-\title{Parallel Best Nblock First}
+\title{Best-First Heuristic Search for Multi-Core Machines}
 %\author{Ethan Burns \and Seth Lemons \and Wheeler Ruml \\
 %  Department of Computer Science \\
 %  University of New Hampshire \\
@@ -26,8 +26,9 @@
 
 \begin{abstract}
   In this paper we build on some of the techniques used for external
-  memory search to create a parallel best-first style search to be
-  used to more quickly solve smaller search domains.  Our new
+  memory search to create a parallel best-first style search.  Our new
+  search algorithm, called Parallel Best NBlock First (PBNF), can be
+  used to more quickly solve smaller search domains.  The PBNF
   algorithm outperforms the state of the art parallel search
   techniques in one of the two domains which we examine.  Also, the
   design of our new algorithm allows it to be trivially adapted to
@@ -38,10 +39,11 @@
 \section{Introduction}
 
 In the field of artificial intelligence it is always beneficial to
-solve problems more quickly.  Processors are not getting any faster so
-AI researchers must begin finding methods of using parallelism for
-speed.  For this work our goal was to use parallelism to solve
-heuristic search problems as fast as possible.
+solve problems more quickly.  Chip manufacturers are no longer
+creating processors with more hertz, and because of this AI
+researchers must begin finding methods of using parallelism for speed.
+For this work our goal was to use parallelism provided by multi-core
+processors to solve heuristic search problems as fast as possible.
 
 In a typical (serial) best-first search algorithm, an \emph{open-list}
 and \emph{closed-list} of nodes are maintained.  The open-list
@@ -681,11 +683,10 @@ for these plots, as the number of nblocks remains constant at 182.
 
 Figure \ref{fig:tiles-7x2} shows the performance of the best-first
 PSDD algorithm and the two PBNF algorithms on a set of 7x2 sliding
-tiles puzzles.  The confidence intervals in this plot are not very
-tight, as they were in the grid world domain.  This is because the
-difficulty of the puzzles varied greatly and therefore the times to
-solve each instance varied too.  We can see in this figure that, as
-the thread count increases the best-first PSDD algorithm performs
+tiles puzzles.  Due to the large variance in the difficulties of these
+problems the y-axis of Figure \ref{fig:tiles-7x2} shows the solution
+time normalized to that of a serial A*.We can see in this figure that,
+as the thread count increases the best-first PSDD algorithm performs
 significantly better than the PBNF algorithms.  In fact, BFPSDD gets
 increasingly better as threads are added, but PBNF gets significantly
 worse with more than three threads and safe PBNF performs better as
@@ -704,9 +705,9 @@ when contention becomes overwhelming.
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=3in]{images/tiles-time-random-7-2.eps}
-\caption{CPU time versus number of threads on a set of 7x2 sliding
-  tiles puzzles.}
+\includegraphics[width=3in]{images/tiles-time-norm-random-7-2.eps}
+\caption{Search time relative to A* versus number of threads on a set
+  of 7x2 sliding tiles puzzles.}
 \label{fig:tiles-7x2}
 \end{center}
 \end{figure}
