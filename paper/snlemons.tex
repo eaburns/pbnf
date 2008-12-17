@@ -28,6 +28,7 @@ While the details vary, most of the above explore the state space in a best-firs
 Many of the algorithms discussed need only to be given a maximum number of threads to execute. In the case of some algorithms, the number of threads does affect other implicit parameters, such as K in KBFS, the size of the hash function in PRA*, etc. However, several of the algorithms we examined require explicit parameters be defined at the beginning of execution. The values given to these parameters have varying effects on performance, and exploring the results for different values can tell us much about the behavior of the algorithm overall. Relevant data is included in the section pertaining to each algorithm, and additional results are shown in the appendix.
 \subsection{Evaluation}
 %# cores and effect on threads
+%suboptimal solution times can be used as lower bound
 \section{Algorithms Evaluated}
 \subsection{Parallel A*}
 The A* algorithm \cite{hart:fbh} is guaranteed to find optimal solutions while searching the least amount of the state space possible with the given heuristic by evaluating the single best node at every step. Because the algorithm requires that the single best node be expanded at each step, it is not possible to directly parallelize the algorithm as it stands. However, our Parallel A* (PA*) algorithm allows threads to select the current best node, ignoring nodes currently being expanded or those created but not yet added to the open list. This means that the first solution returned will not necessarily be optimal and the number of nodes expanded may be greater than serial A*. In addition, threads will have to wait on each other at many points to get nodes off of the open list and insert into the closed list. It is possible that this algorithm, by virtue of doing more than one expansion at a time, could be faster than serial A*. What we will see in our results is that the extra work done and the contention on the open and closed lists exceeds the benefits of parallel execution and makes the algorithm slower than A* for the numbers of threads used.
@@ -116,7 +117,7 @@ Much like the hash for PRA*, the size of the abstraction and how evenly the node
 \label{fig:DynPSDD-nblock-grid}
 \end{figure}
 
-We can see that the size of the abstraction greatly impacts the performance of both PSDD and DynPSDD. For PSDD, an nblock ratio that is too low will cause poor performance to begin with, but performance increases with the number of threads. However, when the ratio is too high, performance begins to get slightly worse at high numbers of threads. For DynPSDD, the effect of having too large of an abstraction is even more dramatic. This is most likely because DynPSDD expands fewer nodes due to pruning, meaning that nblocks will have even fewer nodes in their open lists and switching will happen more rapidly.
+We can see from Figure \ref{fig:PSDD-nblock-grid} and Figure \ref{fig:DynPSDD-nblock-grid} that the size of the abstraction greatly impacts the performance of both PSDD and DynPSDD. For PSDD, an nblock ratio that is too low will cause poor performance to begin with, but performance increases with the number of threads. However, when the ratio is too high, performance begins to get slightly worse at high numbers of threads. For DynPSDD, the effect of having too large of an abstraction is even more dramatic. This is most likely because DynPSDD expands fewer nodes due to pruning, meaning that nblocks will have even fewer nodes in their open lists and switching will happen more rapidly.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200.eps}
@@ -140,7 +141,7 @@ Additionally, there appears to be a relationship between the weight of the initi
 \label{fig:DynPSDD-grid}
 \end{figure}
 
-
+Because the breadth first search used by PSDD and DynPSDD expands many more nodes than A*, the algorithms start off taking much longer than a serial A*. PSDD performs better consistently at higher numbers of threads, but never catches serial A*. DynPSDD, on the other hand, beats A* at some points, but times increase for later values. This is most likely due to the amount of switching between nblocks required for layers with most nodes pruned off.
 
 Both algorithms performed so poorly on life cost grids and sliding tile puzzles that complete testing was not possible within the time available on the machines used for testing.
 \subsection{Best -First Parallel Structured Duplicate Detection}
@@ -152,11 +153,15 @@ One adaptation to PSDD \cite{zhou:sdd} suggested by Zhou and Hansen was to searc
 \label{fig:BFPSDD-nblock-grid}
 \end{figure}
 
+It is easy to see from Figure \ref{fig:BFPSDD-nblock-grid} that nblock ratios affect BFPSDD much like PSDD, with too low of values causing worse initial performance and too high of values causing issues for scalability at higher numbers of threads.
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/BFPSDD-time-Life_Four-way_0.25_2000_1200.eps}
 \caption{Different nblock/thread ratios for BFPSDD in life cost grid world.}
 \label{fig:BFPSDD-nblock-life}
 \end{figure}
+
+There is a clearly discernible best ratio of nblocks to threads in life cost grid world problems tested, but the algorithm's behavior overall is less desirable. Figure \ref{fig:BFPSDD-nblock-life} shows that the ratio of two nblocks per thread is best for BFPSDD in the life cost instances tested. One nblock per thread caused such bad performance that it could not be fully tested.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/grid-unit-single/BFPSDD.eps}
@@ -352,6 +357,9 @@ The comparison of most of the algorithms, shown in Figure \ref{fig:comp-life}, i
 \end{figure}
 
 Finally, the results of testing on 7x2 sliding tile puzzles are shown in Figure \ref{fig:comp-tile}. As the large confidence intervals indicate, behavior for all algorithms was erratic, possibly due to variance in difficulty of the instances used. Execution times of PA* and PRA* increase at the start, just as before, but their slope after that point is not clear. As always, KBFS starts off very poorly and slowly improves its time, albeit with a strange jump upward and back down between 2 and 4 threads. The abstraction used for the PSDD and PBNF variants was quite small, causing even further anomalies in some of their results. SafePBNF starts out almost as poorly as KBFS, improves, and then seems to become worse again. PBNF begins, as usual, very near serial A*, improving as it goes, but it starts to do worse for higher numbers of threads. BFPSDD seems to be the only algorithm to truly behave well in this example. It starts out somewhat worse than serial A*, but consistently decreases execution times as threads are added. Its good performance in sliding tiles makes sense in light of the fact that it was originally tested by Zhou and Hansen in this domain. Its method of search appears to fit well for domains in which the actions are unit cost and the heuristic is admissible but not very accurate.
+\section{Conclusion}
+%determining params not trivial
+%items from slides
 \section{Future Work}
 One obvious limitation of the evaluations done here is the number of threads used. In several cases, algorithms are improving in speed, but we cannot be sure that they would continue doing so. It is very difficult to make definite statements about scalability without further information.
 While attention was paid to the size of the abstraction used for PSDD and PBNF variants, examination of the properties that make an abstraction useful to such algorithms and how big of an effect these properties have on execution time could be very informative. In addition, PRA* could be tested with hash functions of varying quality. Both abstractions and hashes could be tested to see how well they split up the state space and how evenly they distribute good nodes.
