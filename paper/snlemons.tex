@@ -21,7 +21,12 @@ State space search is an intensive process requiring the examination of many dif
 \section{Introduction}
 Given the large amount of computation that has to be done in state space search, the ability to do more of it at the same time could greatly improve the ability to find solutions quickly. With multi-core processors becoming more common and the numbers of cores increasing, doing work in parallel has become much more of a practical consideration. However, designing parallel algorithms is not a trivial activity. Many attempts have been made, and they vary in applicability to given domains, speed in comparison to serial algorithms, optimality of solutions found, and scalability to larger numbers of processor cores. In this study, we evaluate parallel algorithms on several sets of search problems which can be solved using only system memory. We examine their performance in a shared memory setting.
 
-The algorithms examined are a naive parallel implementation of A*, Parallel Retracting A* \cite{evett:pra}, a parallel version of K Best-First Search \cite{felner:kbf}, two versions of Parallel Structured Duplicate Detection \cite{zhou:psd}, and Parallel Best Nblock First \cite{burns:par}. While the details vary, most of the above explore the state space in a best-first manner and all are capable of handling problems which can fit in memory. Only some can handle larger problems which require external memory or limits on total memory use, but we have not tested any in that context.
+While the details vary, most of the above explore the state space in a best-first manner and all are capable of handling problems which can fit in memory. Only some can handle larger problems which require external memory or limits on total memory use, but we have not tested any in that context.
+\section{Methods}
+\subsection{Optimizing Parameters}
+Many of the algorithms discussed need only to be given a maximum number of threads to execute. In the case of some algorithms, the number of threads does affect other implicit parameters, such as K in KBFS, the size of the hash function in PRA*, etc. However, several of the algorithms we examined require explicit parameters be defined at the beginning of execution. The values given to these parameters have varying effects on performance, and exploring the results for different values can tell us much about the behavior of the algorithm overall. Relevant data is included in the section pertaining to each algorithm, and additional results are shown in the appendix.
+\subsection{Evaluation}
+%# cores and effect on threads
 \section{Algorithms Evaluated}
 \subsection{Parallel A*}
 The A* algorithm \cite{hart:fbh} is guaranteed to find optimal solutions while searching the least amount of the state space possible with the given heuristic by evaluating the single best node at every step. Because the algorithm requires that the single best node be expanded at each step, it is not possible to directly parallelize the algorithm as it stands. However, our Parallel A* (PA*) algorithm allows threads to select the current best node, ignoring nodes currently being expanded or those created but not yet added to the open list. This means that the first solution returned will not necessarily be optimal and the number of nodes expanded may be greater than serial A*. In addition, threads will have to wait on each other at many points to get nodes off of the open list and insert into the closed list. It is possible that this algorithm, by virtue of doing more than one expansion at a time, could be faster than serial A*. What we will see in our results is that the extra work done and the contention on the open and closed lists exceeds the benefits of parallel execution and makes the algorithm slower than A* for the numbers of threads used.
@@ -37,6 +42,8 @@ The A* algorithm \cite{hart:fbh} is guaranteed to find optimal solutions while s
 \caption{Performance of PA* in life cost grid world.}
 \label{fig:PAStar-life}
 \end{figure}
+
+At low numbers of threads, PA* becomes much slower, followed by a sharp speedup at greater than 4 threads for grid world, as seen in Figures \ref{fig:PAStar-grid} and \ref{fig:PAStar-life}. This seems to indicate a critical mass at which the algorithm's parallelism starts to pay off. It seems that there is some cost greater than contention that is being incurred, perhaps related to initial overhead of the threading code. Performance does not return to the speed of serial A* at any point tested, but it is interesting to note that it continues to become faster even after the number of threads exceeds the number of processor cores. We would normally expect threads to wait more often in such a situation, but it seems the number of threads waiting on the open or closed list must generaly be more than two (the number by which we exceed number of cores.) Performance on sliding tiles (Figure \ref{PAStar-life}) shows the same upward and then downward trend in time spent, but the variance is higher and the trends are not as sharp or consistent, with plateaus at two points.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/tiles-single/PAStar.eps}
@@ -109,6 +116,10 @@ Much like the hash for PRA*, the size of the abstraction and how evenly the node
 \caption{Different weights for the preliminary weighted A* search.}
 \label{fig:DynPSDD-weight-grid}
 \end{figure}
+
+As Figure \ref{fig:DynPSDD-weight-grid} shows, the weight used can greatly affect the cost of the overall DynPSDD search. With very low weights, time is always high and there is only minor variation because of the number of threads used for the actual PSDD search. The weight of 1.5 worked best in our grid world tests, finding an adequate solution relatively fast, allowing PSDD to do less work without waiting as long to begin. Higher weights not only run the risk of returning poorer solutions which negatively affect pruning, but in some cases they can also cause the weighted A* search to run longer than at lower weights because it veers too far off on bad paths.
+
+Additionally, there appears to be a relationship between the weight of the initial search and the best number of nblocks per thread. For a weight of 1.1, the search performs best on average with 2 nblocks per thread, while for all other weights the best performance is at 4 nblocks per thread. Results for various weights in relation to the nblock to thread ratio can be seen in Figure \ref{fig:weight-grid} of the appendix. It is quite possible that with a near-optimal bound on solution cost, the algorithm performs better with a smaller abstraction because there are fewer nodes to spread around.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/grid-unit-single/PSDD.eps}
@@ -184,11 +195,15 @@ The ratio of nodes per nblock could have an even more stark effect on performanc
 \label{fig:PBNF-min-life}
 \end{figure}
 
+In our grid world tests, 10 minimum expansions before switching seems to lead to the best performance. Figure \ref{fig:PBNF-min-grid} illustrates that values above 10 increase performance times, shifting the line upward without substantially changing its shape. Higher values do not appear to make the algorithm less scalable, however. Values below 10 caused such bad performance that we were again unable to complete tests on them. The distinction is less clear in the life cost tests shown in Figure \ref{fig:PBNF-min-life}, indicating that variable edge costs may necessitate a more flexible method of determining this value.
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/tiles_random_7_2/PBNF-time-random_7_2.eps}
 \caption{Different values for minimum expansions in PBNF on 7x2 sliding tile puzzles.}
 \label{fig:PBNF-min-tile}
 \end{figure}
+
+Optimizing the minimum number of expansions proved much more complicated for sliding tile puzzles. While 30 minimum expansions gives the best average performance, results varied widely enough that no option is clearly the best. Figure \ref{fig:PBNF-min-tile} shows that the confidence intervals of almost all minimum expansion values overlap. It is possible that either the abstraction does not suit all problems equally well or that the reduced accuracy of the Manhattan Distance heuristic in this domain makes performance more erratic.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/grid-unit-single/PBNF.eps}
@@ -213,8 +228,55 @@ One issue with PBNF is that nblocks can have good nodes on their open list but b
 The proposed fix for this issue is to add a flag that can be used to mark nblocks as hot and maintain a $\sigma_h$ value for each nblock, which denotes the number of nblocks in its interference scope (or the nblock's duplicate detection scope and their duplicate detection scopes) which are currently marked as hot. The criteria for an nblock to be considered free, then, are that it have both $\sigma$ and $\sigma_h$ of zero. When a thread evaluates whether it should attempt to switch from $b$ to a new nblock, it examines both the free list and its interference scope. If the best nblock is free, then it simply attempts to get it. However, if the best nblock is in $b$'s interference scope, the thread marks the best nblock $b'$ as hot and increments $\sigma_h$ for all nblocks in $b'$'s interference scope. If $b$ is better than the best free nblock or the best one in $b$'s interference scope, then the thread marks any hot nblock $h$ as no longer hot and decrements $\sigma_h$ for all nblocks in $h$'s interference scope.
 
 The additional effort required to check the interference scope for good nblocks will cause at most a constant factor increase in time because it will be done in all cases where the free list would be checked normally. The greatest cost is most likely to be incurred due to additional nblock switching in attempts to free up promising nblocks. The hope is that the overhead will be balanced out by the more strict adherence to a best-first order, in addition to the straightforward benefit of preventing livelocks.
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200_min=10.eps}
+\caption{Different nblock/thread ratios for SafePBNF in unit cost grid world.}
+\label{fig:SafePBNF-nblock-grid}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/SAFEPBNF-time-Life_Four-way_0.25_2000_1200_min=10.eps}
+\caption{Different nblock/thread ratios for SafePBNF in life cost grid world.}
+\label{fig:SafePBNF-nblock-life}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/SAFEPBNF-time-Unit_Four-way_0.25_2000_1200.eps}
+\caption{Different values for minimum expansions in SafePBNF in unit cost grid world.}
+\label{fig:SafePBNF-min-grid}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/SAFEPBNF-time-Life_Four-way_0.25_2000_1200.eps}
+\caption{Different values for minimum expansions in SafePBNF in life cost grid world.}
+\label{fig:SafePBNF-min-life}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/tiles_random_7_2/SAFEPBNF-time-random_7_2.eps}
+\caption{Different values for minimum expansions in SafePBNF on 7x2 sliding tile puzzles.}
+\label{fig:SafePBNF-min-tile}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/seth/grid-unit-single/SAFEPBNF.eps}
+\caption{Performance of SafePBNF in unit cost grid world.}
+\label{fig:SafePBNF-grid}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/seth/grid-life-single/SAFEPBNF.eps}
+\caption{Performance of SafePBNF in life cost grid world.}
+\label{fig:SafePBNF-life}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=3in]{../graphs/seth/tiles-single/SAFEPBNF.eps}
+\caption{Performance of SafePBNF in 7x2 sliding tiles.}
+\label{fig:SafePBNF-life}
+\end{figure}
 \section{Optimizing Parameters}
-Many of the algorithms need only to be given a maximum number of threads to execute. In the case of some algorithms, the number of threads does affect other implicit parameters, such as k in KBFS, the size of the hash function in PRA*, etc. However, several of the algorithms we examined require explicit parameters be defined at the beginning of execution. The values given to these parameters have varying effects on performance, and exploring the results for different values can tell us much about the behavior of the algorithm overall. Results will be shown here for varying parameters on PBNF and BFPSDD because they were the fastest variants and results for other variants (where possible to obtain) were similar in all cases. Other results are shown in the appendix.
 \subsection{Abstraction Size}
 The number of abstract states used in variants of PSDD and PBNF is a very important parameter, as it determines the number of disjoint duplicate detection scopes and, therefore, the maximum number of threads that can operate in parallel at a given point in time. If we know the number of successors an nblock has, we can easily determine the maximum number of disjoint duplicate detection scopes possible for a given abstraction. It is obvious that we want to have at least as many disjoint duplicate detection scopes as we have threads or we are guaranteed not to have all threads all threads actively searching at any point during execution. We also want fewer abstract states than original states, but this leaves a very large range in between to explore.
 
@@ -251,40 +313,8 @@ Both BFPSDD and PBNF have a clearly discernible best ratio of nblocks to threads
 In other domains or when a different abstraction is used, control over the abstraction size is more coarse. The abstraction most commonly used in the sliding tile puzzle is to ignore the locations of all but some subset of the tiles. Adding or removing a tile from the set we pay attention to, however, changes the number of abstract states dramatically. Likewise, we can partition the grid world board into an abstract grid where each abstract grid location contains a set of neighboring original grid locations. Again, the number of abstract states increases or decreases dramatically when we increase the factor by which we divide the board. Results for a domain should still apply in regard to the correct abstraction size, however, even if we cannot control the ratio as precisely.
 \subsection{Weight for Preliminary Search}
 The weight used in the preliminary search for DynPSDD and BFPSDD affects the optimality of the solution found and, therefore, the amount of pruning that can be done during the search. For higher weights, the initial search should be faster, but little pruning can be done. When weights approach 1, though, the initial search will take longer with no benefit from parallelization and much of the work done in the actual PSDD search will be reproducing work done by the weighted search.
-
-% \begin{figure}[h!]
-%\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/DYNPSDD-time-Unit_Four-way_0.25_2000_1200.eps}
-% \caption{Comparison of weights for the preliminary weighted A* search and  %their effect on overall search time.}
-% \label{fig:DynPSDD-weight-grid}
-% \end{figure}
-
-As Figure \ref{fig:DynPSDD-weight-grid} shows, the weight used can greatly affect the cost of the overall search. With very low weights, time is always high and there is only minor variation because of the number of threads used for the actual PSDD search. The weight of 1.5 worked best in our grid world tests, finding an adequate solution relatively fast, allowing PSDD to do less work without waiting as long to begin. Higher weights not only run the risk of returning poorer solutions which negatively affect pruning, but in some cases they can also cause the weighted A* search to run longer than at lower weights because it veers too far off on bad paths.
-
-Additionally, there appears to be a relationship between the weight of the initial search and the best number of nblocks per thread. For a weight of 1.1, the search performs best on average with 2 nblocks per thread, while for all other weights the best performance is at 4 nblocks per thread. Results for various weights in relation to the nblock to thread ratio can be seen in Figure \ref{fig:weight-grid} of the appendix. It is quite possible that with a near-optimal bound on solution cost, the algorithm performs better with a smaller abstraction because there are fewer nodes to spread around.
 \subsection{Minimum Expansions}
 One variable unique to PBNF variants is the number of expansions to perform before attempting to find a new nblock to work on. In the ideal situation, this parameter would keep threads from contending over the hash table of $\sigma$ values, but it could also cause them to expand far more nodes than necessary. The best value for this will change based not only the problem at hand, but the abstraction size and how well good states are distributed among nblocks.
-
-% \begin{figure}[h!]
-%\includegraphics[width=3in]{../graphs/grid_unit_four-way_0.25_2000_1200/PBNF-time-Unit_Four-way_0.25_2000_1200.eps}
-% \caption{Different values for minimum expansions in PBNF on unit cost %grids.}
-% \label{fig:PBNF-min-grid}
-% \end{figure}
-
-% \begin{figure}[h!]
-%\includegraphics[width=3in]{../graphs/grid_life_four-way_0.25_2000_1200/PBNF-time-Life_Four-way_0.25_2000_1200.eps}
-% \caption{Different values for minimum expansions in PBNF on life cost %grids.}
-% \label{fig:PBNF-min-life}
-% \end{figure}
-
-In our grid world tests, 10 minimum expansions before switching seems to lead to the best performance. Figure \ref{fig:PBNF-min-grid} illustrates that values above 10 increase performance times, shifting the line upward without substantially changing its shape. Higher values do not appear to make the algorithm less scalable, however. Values below 10 caused such bad performance that we were again unable to complete tests on them. The distinction is less clear in the life cost tests shown in Figure \ref{fig:PBNF-min-life}, indicating that variable edge costs may necessitate a more flexible method of determining this value.
-
-% \begin{figure}[h!]
-%\includegraphics[width=3in]{../graphs/tiles_random_7_2/PBNF-time-random_7_2.eps}
-% \caption{Different values for minimum expansions in PBNF on 7x2 sliding tile % puzzles.}
-% \label{fig:PBNF-min-tile}
-% \end{figure}
-
-Optimizing the minimum number of expansions proved much more complicated for sliding tile puzzles. While 30 minimum expansions gives the best average performance, results varied widely enough that no option is clearly the best. Figure \ref{fig:PBNF-min-tile} shows that the confidence intervals of almost all minimum expansion values overlap, even though the instances used did not vary greatly in difficulty. It is possible that either the abstraction does not suit all problems equally well or that there are other factors of sliding tile puzzles which affect the algorithm in ways we have yet to understand.
 \section{Comparison}
 Having determined the best parameters to use with each algorithm for the domains we tested them on, the next step is to compare their performance across those domains. We show results for unit cost grid world, life cost grid world, and the 7x2 sliding tile puzzle for all algorithms which performed well enough to complete execution on the given domain. All parameters were set to the best known value to compare best case performance. We test with 1 to 8 threads because the machine we tested on has 8 cores.
 
