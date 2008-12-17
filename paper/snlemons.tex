@@ -45,7 +45,7 @@ The A* algorithm \cite{hart:fbh} is guaranteed to find optimal solutions while s
 \label{fig:PAStar-life}
 \end{figure}
 
-At low numbers of threads, PA* becomes much slower, followed by a sharp speedup at greater than 4 threads for grid world, as seen in Figures \ref{fig:PAStar-grid} and \ref{fig:PAStar-life}. This seems to indicate a critical mass at which the algorithm's parallelism starts to pay off. It seems that there is some cost greater than contention that is being incurred, perhaps related to initial overhead of the threading code. Performance does not return to the speed of serial A* at any point tested, but it is interesting to note that it continues to become faster even after the number of threads exceeds the number of processor cores. We would normally expect threads to wait more often in such a situation, but it seems the number of threads waiting on the open or closed list must generaly be more than two (the number by which we exceed number of cores.) Performance on sliding tiles (Figure \ref{PAStar-life}) shows the same upward and then downward trend in time spent, but the variance is higher and the trends are not as sharp or consistent, with plateaus at two points.
+At low numbers of threads, PA* becomes much slower, followed by a sharp speedup at greater than 4 threads for grid world, as seen in Figures \ref{fig:PAStar-grid} and \ref{fig:PAStar-life}. This seems to indicate a critical mass at which the algorithm's parallelism starts to pay off. It seems that there is some cost greater than contention that is being incurred, perhaps related to initial overhead of the threading code. Performance does not return to the speed of serial A* at any point tested, but it is interesting to note that it continues to become faster even after the number of threads exceeds the number of processor cores. We would normally expect threads to wait more often in such a situation, but it seems the number of threads waiting on the open or closed list must generaly be more than 2 (the number by which we exceed number of cores.) Performance on sliding tiles (Figure \ref{PAStar-life}) shows the same upward and then downward trend in time spent, but the variance is higher and the trends are not as sharp or consistent, with plateaus at two points.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/tiles-single/PAStar.eps}
@@ -161,7 +161,7 @@ It is easy to see from Figure \ref{fig:BFPSDD-nblock-grid} that nblock ratios af
 \label{fig:BFPSDD-nblock-life}
 \end{figure}
 
-There is a clearly discernible best ratio of nblocks to threads in life cost grid world problems tested, but the algorithm's behavior overall is less desirable. Figure \ref{fig:BFPSDD-nblock-life} shows that the ratio of two nblocks per thread is best for BFPSDD in the life cost instances tested. One nblock per thread caused such bad performance that it could not be fully tested.
+There is a clearly discernible best ratio of nblocks to threads in life cost grid world problems tested, but the algorithm's behavior overall is less desirable. Figure \ref{fig:BFPSDD-nblock-life} shows that the ratio of 2 nblocks per thread is best for BFPSDD in the life cost instances tested. One nblock per thread caused such bad performance that it could not be fully tested.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/grid-unit-single/BFPSDD.eps}
@@ -181,7 +181,7 @@ There is a clearly discernible best ratio of nblocks to threads in life cost gri
 \label{fig:BFPSDD-tiles}
 \end{figure}
 
-In unit cost grids (Figure \ref{fig:BFPSDD-grid}) and sliding tiles (Figure \ref{fig:BFPSDD-tiles}), BFPSDD performs better than serial A* after only two or three threads and continues to perform consistently better as the number of threads increases. However, Figure \ref{fig:BFPSDD-life} shows that the algorithm does consistently worse as the number of threads increases for life cost grids. This is because the layers in this domain are based on $g$, which will lead to many layers for each depth level of the state space. These layers will be very small and threads will be required to switch nblocks and layers much more often than in unit cost domains.
+In unit cost grids (Figure \ref{fig:BFPSDD-grid}) and sliding tiles (Figure \ref{fig:BFPSDD-tiles}), BFPSDD performs better than serial A* after only 2 or 3 threads and continues to perform consistently better as the number of threads increases. However, Figure \ref{fig:BFPSDD-life} shows that the algorithm does consistently worse as the number of threads increases for life cost grids. This is because the layers in this domain are based on $g$, which will lead to many layers for each depth level of the state space. These layers will be very small and threads will be required to switch nblocks and layers much more often than in unit cost domains.
 \subsection{Parallel Best Nblock First}
 An algorithm that utilizes the abstraction method of PSDD but does not limit itself to one layer at a time is Parallel Best Nblock First (PBNF.) It attempts to utilize a best-first order for nblock selection, in addition to a best-first ordering of the open lists within nblocks. When a thread has no nblock to search, it acquires the lock on the hash table for the abstraction, finds a list of the nodes with $\sigma$ equal to zero, and selects from that list the nblock with the lowest f-valued node on its open list. Threads expand a minimum number of nodes before attempting to reacquire the lock to get a new nblock with a better f-valued node on its open list. If the thread fails to obtain a new nblock (either because the lock was taken by another thread or no better nblock is free), it performs the minimum number of expansions again before repeating its attempt to get a new nblock. The algorithm may find a suboptimal solution first, but it stores incumbent solutions and uses the cost of the current incumbent to prune more expensive nodes off every nblock's open list. When all open lists have emptied, the algorithm terminates and returns the incumbent, which is guaranteed to be the optimal solution if any solution exists.
 
@@ -215,7 +215,7 @@ The nblock to thread ratio has the same effect on PBNF as it had on PSDD and BFP
 \label{fig:PBNF-min-life}
 \end{figure}
 
-In our grid world tests, 10 minimum expansions before switching seems to lead to the best performance. Figure \ref{fig:PBNF-min-grid} illustrates that values above 10 increase performance times, shifting the line upward without substantially changing its shape. Higher values do not appear to make the algorithm less scalable, however. Values below 10 caused such bad performance that we were again unable to complete tests on them. The distinction is less clear in the life cost tests shown in Figure \ref{fig:PBNF-min-life}, indicating that variable edge costs may necessitate a more flexible method of determining this value.
+In our grid world tests, 10 minimum expansions before switching leads to the best performance with PBNF. Figure \ref{fig:PBNF-min-grid} illustrates that values above 10 increase performance times, shifting the line upward without substantially changing its shape. Higher values do not appear to make the algorithm less scalable, however. Values below 10 caused such bad performance that we were again unable to complete tests on them. The distinction is less clear in the life cost tests shown in Figure \ref{fig:PBNF-min-life}, indicating that variable edge costs may necessitate a more flexible method of determining this value.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/tiles_random_7_2/PBNF-time-random_7_2.eps}
@@ -237,11 +237,15 @@ Optimizing the minimum number of expansions proved much more complicated for sli
 \label{fig:PBNF-life}
 \end{figure}
 
+PBNF does much better than A* in both unit and life cost grid world, with a continued decrease in time spent on unit cost problems and an upward slope after five threads on life cost problems. This is most likely because maintaining a ratio of nblocks to threads means that the abstraction may be too large for higher numbers of threads. Because the costs of nodes will vary more, good nodes are likely to be fewer and more distributed among the nblocks, especially with the abstract states being defined by row, which also defines action cost.
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/tiles-single/PBNF.eps}
 \caption{Performance of PBNF in 7x2 sliding tiles.}
 \label{fig:PBNF-life}
 \end{figure}
+
+When run on sliding tiles puzzles, PBNF does not always outperform A*, with a sharp increase in times for more than 3 threads. We believe that this is due to either problems with the size of abstraction used or the inaccuracy of the Manhattan Distance heuristic for sliding tiles puzzles.
 \subsection{Safe Parallel Best Nblock First}
 One issue with PBNF is that nblocks can have good nodes on their open list but be neither free nor actively having nodes expanded from them. A good node could be expanded into an nblock because it is in the duplicate detection scope of $b$ (the active nblock), but $b$ might not immediately be released, so its duplicate detection scope will continue to not be free. Likewise, an nblock could contain nodes that did not previously look promising and thus have other nblocks in its duplicate detection scope be made active. As more of the lower f-valued nodes are expanded, the nblock looks better, but still may not become free. Because non-free nblocks are not taken into consideration in the original PBNF specification, both situations could result in extra work being done on less promising nblocks or, in the case of infinite state spaces with sparse solutions, a livelock in which the good nodes are never expanded.
 
@@ -279,6 +283,8 @@ The additional effort required to check the interference scope for good nblocks 
 \label{fig:SafePBNF-min-tile}
 \end{figure}
 
+Parameters in PBNF have very similar results to those found for PBNF, with one exception. SafePBNF often performs best when more expansions are required before switching than would be used for PBNF, because the algorithm is designed to switch nblocks in even more situations than PBNF.
+
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/grid-unit-single/SAFEPBNF.eps}
 \caption{Performance of SafePBNF in unit cost grid world.}
@@ -296,8 +302,10 @@ The additional effort required to check the interference scope for good nblocks 
 \caption{Performance of SafePBNF in 7x2 sliding tiles.}
 \label{fig:SafePBNF-life}
 \end{figure}
+
+Performance for SafePBNF in grid worlds follows the same trends as PBNF, beating A* at all points and with consistent improvement in unit cost and less scaability in life cost. Performance in sliding tiles likewise follows the same basic trend, except that the first 3 threads do not seem to positively or negatively impact performance. We do not know why this happens, but variance for results on those values is much higher than others.
 \section{Comparison}
-Having determined the best parameters to use with each algorithm for the domains we tested them on, the next step is to compare their performance across those domains. We show results for unit cost grid world, life cost grid world, and the 7x2 sliding tile puzzle for all algorithms which performed well enough to complete execution on the given domain. All parameters were set to the best known value to compare best case performance. We test with 1 to 8 threads because the machine we tested on has 8 cores.
+Having determined the best parameters to use with each algorithm for the domains we tested them on and examining their individual behavior, the next step is to compare their performance across those domains. We show results for unit cost grid world, life cost grid world, and the 7x2 sliding tile puzzle for all algorithms which performed well enough to complete execution on the given domain. All parameters were set to the best known value to compare best case performance. We test with 1 to 8 threads because the machine we tested on has 8 cores.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/time-Unit_Four-way_0.25_2000_1200.eps}
@@ -313,7 +321,7 @@ Figure \ref{fig:comp-grid} shows all algorithms on unit cost grid world instance
 \label{fig:comp-life}
 \end{figure}
 
-The comparison of most of the algorithms, shown in Figure \ref{fig:comp-life}, illustrates that non-unit action cost has a dramatic effect on many of them. The behavior exhibited by PA* and PRA* is essentially the same as unit cost, increasing for the first few threads and gradually decreasing. KBFS also performs roughly the same as before, still being overwhelmed by synchronization costs. BFPSDD behaves quite strangely, with execution times increasing steadily for each thread added. This behavior is because of the layered nature of PSDD algorithms and the fact that to return an optimal solution, $g$ costs, rather than depth of a node, have to be used to determine layers. With multiple layers at each depth level, more time is spent switching between nblocks with very small open lists. The other PSDD variants behaved even more poorly than BFPSDD, as is to be expected. The PBNF variants perform relatively well, outperforming the other algorithms at almost all points past 1 thread. The disappointing fact is that both PBNF and SafePBNF require longer execution times for more threads after a certain point. This may be due to the abstraction becoming too large at higher numbers of threads because we maintain a ratio of nblocks to threads, rather than a constant number of nblocks. As we have said, too many nblocks could increase overhead from switching when nblocks empty too easily.
+The comparison of most of the algorithms, shown in Figure \ref{fig:comp-life}, illustrates that non-unit action cost has a dramatic effect on many of them. The behavior exhibited by PA* and PRA* is essentially the same as unit cost, increasing for the first few threads and gradually decreasing. KBFS also performs roughly the same as before, still being overwhelmed by synchronization costs. BFPSDD behaves quite strangely, with execution times increasing steadily for each thread added. This behavior is because of the layered nature of PSDD algorithms and the fact that to return an optimal solution, $g$ costs, rather than depth of a node, have to be used to determine layers. With multiple layers at each depth level, more time is spent switching between nblocks with very small open lists. The other PSDD variants behaved even more poorly than BFPSDD, as is to be expected. The PBNF variants perform relatively well, outperforming the other algorithms at almost all points past 1 thread. The disappointing fact is that both PBNF and SafePBNF require longer execution times for more threads after a certain point. This may be due to the abstraction becoming too large at higher numbers of threads because we maintain a ratio of nblocks to threads, rather than a constant number of nblocks. Too many nblocks could increase overhead from switching when nblocks empty too easily.
 
 \begin{figure}[h!]
 \includegraphics[width=3in]{../graphs/seth/time-random_7_2.eps}
