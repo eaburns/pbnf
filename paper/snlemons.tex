@@ -16,7 +16,7 @@ seth.lemons@unh.edu}
 \maketitle
 
 \begin{abstract}
-State space search is an intensive process requiring the examination of many different paths before a solution is found. Being able to execute different parts of a search at the same time can be of great benefit in our increasingly multi-core world. However, states are often interrelated in ways that make parallelization difficult, causing many proposed algorithms to suffer from synchronization issues or the inability to properly allocate work. This work attempts to examine the strengths and weaknesses of the most promising parallel search algorithms. We will attempt to determine how well they perform compared to serial algorithms, how scalable they are, and whether they generalize to more than a limited number of domains.
+State space search is an intensive process requiring the examination of many different paths before a solution is found. Being able to execute different parts of a search at the same time can be of great benefit in our increasingly multi-core world. However, states are often interrelated in ways that make parallelization difficult, causing many proposed algorithms to suffer from synchronization issues or the inability to properly allocate work. This work attempts to examine the strengths and weaknesses of the most promising parallel search algorithms. We find that BFPSDD performs quite well in unit cost domains, better than all others in sliding tiles and only slightly below PBNF variants in unit cost grids. However, it is drastically outperformed in variable cost domains by PBNF.
 \end{abstract}
 
 \section{Introduction}
