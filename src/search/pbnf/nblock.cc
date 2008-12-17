@@ -27,6 +27,7 @@ using namespace PBNF;
 NBlock::NBlock(unsigned int id)
 	: id(id),
 	  sigma(0),
+	  closed(1000),
 	  sigma_hot(0),
 	  hot(false),
 	  inuse(false) {}
