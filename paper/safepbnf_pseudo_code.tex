@@ -97,11 +97,13 @@
     }
     \Return true\;
   }
+  lock\;
   \ForEach{$b' \in \interferenceScope(\block)$}{
     \lIf{$\hot(b')$}{
       $\setcold(b')$\;
     }
   }
+  unlock\;
   \Return false\;
 \end{function*}
 
@@ -109,6 +111,7 @@
   \caption{sethot(block)}
   \KwIn{\block -- an nblock}
   \KwResult{\block is flagged as hot}
+  lock\;
   \If{{\bf not} $\hot(\block)$ {\bf and} $\sigma(\block) > 0$ {\bf
   and} $\neg\exists i \in interferenceScope(\block) : i < \block \wedge \hot(i)$ }{
     $\hot(\block) \leftarrow true$\;
@@ -122,6 +125,7 @@
       $\sigma_h(n') \leftarrow \sigma_h(n') + 1$\;
     }
   }
+  unlock\;
 \end{function*}
 
 \begin{function*}
