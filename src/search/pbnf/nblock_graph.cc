@@ -203,7 +203,7 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 	double best_f = INFINITY;
 	map<unsigned int, NBlock*>::iterator i;
 
-	pthread_mutex_lock(&mutex);
+//	pthread_mutex_lock(&mutex);
 
 	for (i = blocks.begin(); i != blocks.end(); i++) {
 		NBlock *b = i->second;
@@ -215,7 +215,10 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 		}
 	}
 
-	pthread_mutex_unlock(&mutex);
+//	pthread_mutex_unlock(&mutex);
+
+	// best_b => best_f != INFINITY
+	assert(best_f != INFINITY || !best_b);
 
 	return best_b;
 }
