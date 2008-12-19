@@ -43,14 +43,13 @@ def make_board(in_data):
         width, height = str(width), str(height)
     tiles = "\n".join(tiles)
     path = os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline().split()[1]
-    print path
-#    outfile = open(path, "w")
-#    outfile.write(width+" "+height+"\n")
-#    outfile.write("starting positions for each tile:\n")
-#    outfile.write(tiles+"\n")
-#    outfile.write("goal positions:\n")
-#    outfile.write("\n".join([str(x) for x in range(n)]))
-#    outfile.close()
+    outfile = open(path, "w")
+    outfile.write(width+" "+height+"\n")
+    outfile.write("starting positions for each tile:\n")
+    outfile.write(tiles+"\n")
+    outfile.write("goal positions:\n")
+    outfile.write("\n".join([str(x) for x in range(n)]))
+    outfile.close()
 
 if __name__ == '__main__':
     if "--help" in sys.argv:
