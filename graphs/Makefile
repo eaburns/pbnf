@@ -1,10 +1,11 @@
-all: graphs.pdf
+all: graphs.pdf tiles.pdf
 
-graphs.pdf: graphs.dvi
-	dvipdf $^
+graphs.pdf: graphs.tex
+	rubber --ps --pdf graphs.pdf
 
-graphs.dvi: graphs.tex
-	latex $^
+tiles.pdf: tiles.tex
+	rubber --ps --pdf tiles.tex
 
 clean:
-	rm -f *.pdf *.dvi *.aux *.log
+	rubber --ps --pdf --clean graphs.tex
+	rubber --ps --pdf --clean tiles.tex
