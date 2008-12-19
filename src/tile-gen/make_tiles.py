@@ -12,9 +12,17 @@ def usage():
     print "usage: make_tiles.py [MAX]"
     print "provide tile boards on stdin in the following format:"
     print "\t[num] [tile1, tile2...]"
+    print "assumes board is square or one off from being square"
     sys.exit(1)
 
 width, height, n = None, None, None
+
+def switch_representation(tiles):
+    other = [0]*len(tiles)
+    tiles = [int(tile) for tile in tiles]
+    for tile in tiles:
+        other[tile] = str(tiles.index(tile))
+    return other
 
 def make_board(in_data):
     global width, height, n
@@ -22,7 +30,6 @@ def make_board(in_data):
     num = in_data[0]
     tiles = in_data[1:]
     if n == None:
-        print "test"
         n = len(tiles)
         width = math.sqrt(n)
         if width != int(width):
@@ -32,7 +39,7 @@ def make_board(in_data):
             width = int(width)
             height = width
         width, height = str(width), str(height)
-    tiles = "\n".join(tiles)
+    tiles = "\n".join(switch_representation(tiles))
     outfile = open("board"+num+".tile", "w")
     outfile.write(width+" "+height+"\n")
     outfile.write("starting positions for each tile:\n")
