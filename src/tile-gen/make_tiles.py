@@ -42,7 +42,7 @@ def make_board(in_data):
             width = height
         width, height = str(width), str(height)
     tiles = "\n".join(tiles)
-    path = os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline()
+    path = os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline().split()[1]
     print path
 #    outfile = open(path, "w")
 #    outfile.write(width+" "+height+"\n")
