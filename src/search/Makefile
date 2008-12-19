@@ -79,9 +79,9 @@ all: grid_search tiles_search \
      pbnf_nblock_graph_test \
      tiles_hash_test \
      tiles_read_test \
+     atomic_float_test \
      one_tile_project_test \
-     two_tile_project_test \
-     atomic_float_test
+#    two_tile_project_test
 
 grid_search: $(OBJ) grid_search.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o grid_search $(OBJ) grid_search.cc
@@ -119,9 +119,9 @@ one_tile_project_test: $(OBJ) tiles/one_tile_project_test.o
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o one_tile_project_test \
 	$(OBJ) tiles/one_tile_project_test.o
 
-two_tile_project_test: $(OBJ) tiles/two_tile_project_test.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o two_tile_project_test \
-	$(OBJ) tiles/two_tile_project_test.o
+#two_tile_project_test: $(OBJ) tiles/two_tile_project_test.o
+#	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o two_tile_project_test \
+#	$(OBJ) tiles/two_tile_project_test.o
 
 depend:
 	rm -f .depend
