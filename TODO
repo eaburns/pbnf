@@ -1,12 +1,4 @@
-- (Ethan) Fix sethot()/setcold() bug.
-
-- (Seth) New pseudo code to Rong.
-
-- (Ethan) Fix the tiles abstraction
-
 - (Ethan) Look into the grid-world abstraction
-   
-- (Seth) Generate 3x4 puzzles
 
 - (Seth) Cancel threads in PRA*
 
@@ -31,6 +23,14 @@
 - (Seth) Implement learning for min expansions
 
 --------------------
+
+- (Ethan) Fix the tiles abstraction
+   
+- (Seth) Generate 3x4 puzzles
+
+- (Ethan) Fix sethot()/setcold() bug.
+
+- (Seth) New pseudo code to Rong.
 
 - (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
    
