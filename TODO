@@ -1,132 +1,59 @@
-- (Ethan) Look into the grid-world abstraction
+(Wheeler) rough draft
+  mash Seth and Ethan's papers together
 
-- (Seth) Cancel threads in PRA*
+(Seth and Ethan) fix trylock livelock
+ 
+(Seth) results with 3x4 tiles
+  across all abstractions
+  get intervals small
+ 
+(Ethan) results with new grid abstraction (unit & life)
 
-- (Ethan) Figure out why we suck on tiles
+(Ethan) iterative deepening breadth-first PSDD
 
-- (Ethan) Look into PBNF with 5nblocks/thread and 1 thread... it
+(Rong) Results on planning with unsafe and safe
+   figure out why we don't do well on some problems
+   results on more Intel cores
+   results on Sun
+   
+(Ethan) figure out why we suck on tiles
+   then, worry about general fix like division trick
+
+(Ethan) look into PBNF with 5nblocks/thread and 1 thread... it
    performs very poorly.
 
-- Wted A* for large problems
-
-- (Ethan) Implement 8-way movement in gridworld (need real value costs,
+(Ethan) run everything on Sun
+   
+(Ethan) Implement 8-way movement in gridworld (need real value costs,
    sqrt(2) diagonals)
-   
-- (Ethan/Seth) Read Edelkamp's "External A*"
-   
-- PSDD with some kind of f-range
 
-- (Seth) A* with lock-free datastructures -- maybe this will be great
+(???) Wted A* for large problems
+     
+(Seth) PRA* improvements
+  eg, Cancel threads
+
+(Seth) KBFS improvements
+  no locks, busy waiting
+
+(Seth) Implement learning for min expansions
+
+(Ethan/Seth) Read Edelkamp's "External A*"
+   
+(???) PSDD with some kind of f-range
+
+(Seth) A* with lock-free datastructures -- maybe this will be great
    - Look at tfogal's lock-free hashtable
    - Look at Kumar's lock-free Prio-queue
-   
-- (Seth) Implement learning for min expansions
+      survey, also hurt et al
 
 --------------------
-
-- (Ethan) Fix the tiles abstraction
-   
-- (Seth) Generate 3x4 puzzles
-
-- (Ethan) Fix sethot()/setcold() bug.
-
-- (Seth) New pseudo code to Rong.
-
-- (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
    
 - (Ethan) Create NBlocks lazily in PBNF and PSDD
 
-- plot vs. A*
-
-- (Ethan) only first thread sleeps on better non-free nblock
-    - or maybe no one sleeps?
-
 - (Ethan) colored grid per-thread colors
+
+- (Seth) Another domain (hanoi, pancake [yum], MSA, etc.)
 
 - (Ethan) Look into possible contention on LAMA globals
 
 - (Ethan) Learn a merge tool (Meld?)
-
-============================================================
-
-- (Seth) Get Rong updated algorithm description
-
-- (Ethan) gprof
-
-- (Seth) Implement PRA*
-
-- (Ethan/Seth) Get graphs for Wheeler
-
-- (Ethan) Get a benchmark for speedup by running multiple A* searches
-   in seperate threads.  This should show the max speed up of the
-   comupter without communication. (will help figure out why 4threads
-   is our limit).
-
-- (Seth/Ethan) Write scripts for DB input/output
-
-- (Seth) update algorithm description to reflect livelock fix
-
-- Find a name for our new search: PBNF (Parallel Best Nblock First)
-
-- Find multi-core comupter
-
-- Give Wheeler the Grant Proposal
-
-- (Ethan) Create GridWorld
-
-- (Ethan) Create a projection function for GridWorld
-
-- (Ethan) Implement Parallel Structured Duplicate Detection
-
-- (Ethan) Create a Breadth First Search
-
-- (Seth) Parallel KBFS
-
-- (Ethan) Implement PBNF
-
-- (Seth) Write testing script
-
-- (Seth) Implement parallel A*
-
-- (Ethan) Look into using Wheeler's database code
-
-- (Ethan) Get a benchmark for speedup by running multiple A* searches
-   in seperate threads.  This should show the max speed up of the
-   comupter without communication. (will help figure out why 4threads
-   is our limit).
-
-- (Ethan) Finish Sliding tiles
-   - implement projection
-
-- (Ethan) Find good parameters for PSDD/PBNF
-
-- (Ethan) trylock
-
-- (Ethan) improve safe PBNF
-
-- (Ethan) Use atomic float for checking incumbant costs in PBNF.
-
-- (Ethan) Use a flag to denote the current layer in Breadth-first PSDD
-   (instead of touching all NBlocks to switch layers).
-
-- (Ethan) Implement ``Best-first'' PSDD
-
-- (Ethan) Make the tiles projection function better (with respect to
-   interference scopes).
-
-- (Ethan) Ensure that we always find optimal solutions over all our
-   data... The plotting code does this now.
-
-- (Ethan) Get and merge Wheeler's BiBteX file in /home/rai/group
-
-- (Ethan) Re-read SDD & Edelkamp papers
-   - email Rong
-
-- (Ethan) test on tiles
-
-- (Ethan) track and graph # nodes gen/exp
-
-- (Ethan) start tests on lines grid world boards
-
-- (Ethan) Try m expansions between testing the interference scope.
-          - Doesn't matter
