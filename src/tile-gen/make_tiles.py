@@ -6,16 +6,18 @@
 #
 # sna4 December 2008
 
-import sys, fileinput, math
+import sys, fileinput, math, os
 
 def usage():
     print "usage: make_tiles.py [MAX]"
     print "provide tile boards on stdin in the following format:"
     print "\t[num] [tile1, tile2...]"
     print "assumes board is square or one off from being square"
+    print "ignores the first line, since gen.c gives a pre-solved board first"
     sys.exit(1)
 
 width, height, n = None, None, None
+dir, model, executable = "boards", "random", "/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
 
 def switch_representation(tiles):
     other = [0]*len(tiles)
@@ -31,16 +33,17 @@ def make_board(in_data):
     tiles = in_data[1:]
     if n == None:
         n = len(tiles)
-        width = math.sqrt(n)
-        if width != int(width):
-            width = int(width)
-            height = width+1
+        height = math.sqrt(n)
+        if height != int(height):
+            height = int(height)
+            width = height+1
         else:
-            width = int(width)
-            height = width
+            height = int(height)
+            width = height
         width, height = str(width), str(height)
-    tiles = "\n".join(switch_representation(tiles))
-    outfile = open("board"+num+".tile", "w")
+    tiles = "\n".join(tiles)
+    path = os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline().split()[1]
+    outfile = open(path, "w")
     outfile.write(width+" "+height+"\n")
     outfile.write("starting positions for each tile:\n")
     outfile.write(tiles+"\n")
