@@ -1,53 +1,57 @@
-(Wheeler) rough draft
-  mash Seth and Ethan's papers together
+To Do
+------------------------
 
-(Seth and Ethan) fix trylock livelock
- 
+(Wheeler) rough draft
+ mash Seth and Ethan's papers together
+
+(Rong) fix min-expansions
+       run 3 times at each setting to account for concurrency non-determinism
+
 (Seth) results with 3x4 tiles
-  across all abstractions
-  get intervals small
- 
+ across all abstractions
+ get intervals small
+
 (Ethan) results with new grid abstraction (unit & life)
 
 (Ethan) iterative deepening breadth-first PSDD
 
 (Rong) Results on planning with unsafe and safe
-   figure out why we don't do well on some problems
-   results on more Intel cores
-   results on Sun
-   
+  figure out why we don't do well on some problems
+  port code to 64-bits
+  results on Sun
+
 (Ethan) figure out why we suck on tiles
-   then, worry about general fix like division trick
+  then, worry about general fix like division trick
 
 (Ethan) look into PBNF with 5nblocks/thread and 1 thread... it
-   performs very poorly.
+  performs very poorly.
 
 (Ethan) run everything on Sun
-   
+
 (Ethan) Implement 8-way movement in gridworld (need real value costs,
-   sqrt(2) diagonals)
+  sqrt(2) diagonals)
 
 (???) Wted A* for large problems
-     
+
 (Seth) PRA* improvements
-  eg, Cancel threads
+ eg, Cancel threads
 
 (Seth) KBFS improvements
-  no locks, busy waiting
+ no locks, busy waiting
 
 (Seth) Implement learning for min expansions
 
 (Ethan/Seth) Read Edelkamp's "External A*"
-   
+
 (???) PSDD with some kind of f-range
 
 (Seth) A* with lock-free datastructures -- maybe this will be great
-   - Look at tfogal's lock-free hashtable
-   - Look at Kumar's lock-free Prio-queue
-      survey, also hurt et al
+  - Look at tfogal's lock-free hashtable
+  - Look at Kumar's lock-free Prio-queue
+     survey, also hurt et al
 
 --------------------
-   
+
 - (Ethan) Create NBlocks lazily in PBNF and PSDD
 
 - (Ethan) colored grid per-thread colors
@@ -56,4 +60,4 @@
 
 - (Ethan) Look into possible contention on LAMA globals
 
-- (Ethan) Learn a merge tool (Meld?)
+% EOF
