@@ -70,7 +70,7 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		}
 
 		const State *dup = closed->lookup(s);
-		if (dup && dup->get_f() <= s->get_f()) {
+		if (dup && dup->get_g() <= s->get_g()) {
 			delete s;
 			continue;
 		}
@@ -96,6 +96,12 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 			}
 			unsigned int block = search->project->project(*iter);
 			OpenList *next_open = &graph->get_nblock(block)->open;
+			ClosedList *next_closed = &graph->get_nblock(block)->closed;
+			const State *dup = next_closed->lookup(*iter);
+			if (dup && dup->get_g() <= (*iter)->get_g()) {
+				delete *iter;
+				continue;
+			}
 
 			next_open->add(*iter);
 

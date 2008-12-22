@@ -99,11 +99,18 @@ vector<const State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareO
 			unsigned int block = search->project->project(*iter);
 			NBlock<CompareOnF> *b = graph->get_nblock(block);
 			OpenList *next_open = &b->open;
-
-			if ((*iter)->get_f() <= search->bound.read())
-				next_open->add(*iter);
-			else
+			ClosedList *next_closed = &graph->get_nblock(block)->closed;
+			if ((*iter)->get_f() > search->bound.read()) {
 				delete *iter;
+				continue;
+			}
+			const State *dup = next_closed->lookup(*iter);
+			if (dup && dup->get_g() <= (*iter)->get_g()) {
+				delete *iter;
+				continue;
+			}
+
+			next_open->add(*iter);
 		}
 		delete children;
 

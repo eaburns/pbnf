@@ -103,6 +103,12 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 			unsigned int block = search->project->project(*iter);
 			NBlock *b = graph->get_nblock(block);
 			OpenList *next_open = &b->open[graph->get_next_layer()];
+			ClosedList *next_closed = &graph->get_nblock(block)->closed;
+			const State *dup = next_closed->lookup(*iter);
+			if (dup && dup->get_g() <= (*iter)->get_g()) {
+				delete *iter;
+				continue;
+			}
 
 			next_open->add(*iter);
 		}

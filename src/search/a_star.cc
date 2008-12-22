@@ -45,8 +45,17 @@ vector<const State *> *AStar::search(const State *init)
 		}
 
 		vector<const State *> *children = expand(s);
-		for (unsigned int i = 0; i < children->size(); i += 1)
-			open.add(children->at(i));
+		for (unsigned int i = 0; i < children->size(); i += 1) {
+			const State *c = children->at(i);
+			const State *dup = closed.lookup(c);
+			if (dup && dup->get_g() <= c->get_g()) {
+				delete c;
+				continue;
+			}
+
+			open.add(c);
+
+		}
 		delete children;
 	}
 
