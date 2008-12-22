@@ -21,7 +21,7 @@ using namespace std;
 using namespace PBNF;
 
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
-	: graph(graph), search(search) {}
+	: graph(graph), search(search), set_hot(false) {}
 
 
 PBNFSearch::PBNFThread::~PBNFThread(void) {}
