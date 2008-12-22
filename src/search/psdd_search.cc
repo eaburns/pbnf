@@ -29,7 +29,7 @@ using namespace PSDD;
  * Create a new PSDD Search thread.
  */
 PSDDSearch::PSDDThread::PSDDThread(NBlockGraph *graph, PSDDSearch *search)
-	: graph(graph), search(search) {}
+	: graph(graph), search(search), lowest_out_of_bounds(INFINITY) {}
 
 
 PSDDSearch::PSDDThread::~PSDDThread() {}
@@ -93,6 +93,9 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 		     iter++) {
 
 			if ((*iter)->get_f() > search->bound.read()) {
+				if ((*iter)->get_f() < lowest_out_of_bounds)
+					lowest_out_of_bounds = (*iter)->get_f();
+
 				delete *iter;
 				continue;
 			}
@@ -110,6 +113,11 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 	return path;
 }
 
+float PSDDSearch::PSDDThread::get_lowest_out_of_bounds(void)
+{
+	return lowest_out_of_bounds;
+}
+
 
 /**********************************************************************/
 
@@ -121,7 +129,8 @@ PSDDSearch::PSDDSearch(unsigned int n_threads)
 	: bound(INFINITY),
 	  n_threads(n_threads),
 	  project(NULL),
-	  path(NULL)
+	  path(NULL),
+	  lowest_out_of_bounds(INFINITY)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -134,7 +143,8 @@ PSDDSearch::PSDDSearch(unsigned int n_threads, float bound)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
-	  path(NULL)
+	  path(NULL),
+	  lowest_out_of_bounds(INFINITY)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -181,19 +191,24 @@ vector<const State *> *PSDDSearch::search(const State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
-	vector<Thread *> threads;
-	vector<Thread *>::iterator iter;
+	vector<PSDDThread *> threads;
+	vector<PSDDThread *>::iterator iter;
 
 	NBlockGraph *graph = new NBlockGraph(project, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
-		Thread *t = new PSDDThread(graph, this);
+		PSDDThread *t = new PSDDThread(graph, this);
 		threads.push_back(t);
 		t->start();
 	}
 
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
+		if ((*iter)->get_lowest_out_of_bounds()
+		    < lowest_out_of_bounds) {
+			lowest_out_of_bounds =
+				(*iter)->get_lowest_out_of_bounds();
+		}
 		delete *iter;
 	}
 
@@ -208,4 +223,9 @@ vector<const State *> *PSDDSearch::search(const State *initial)
 void PSDDSearch::set_bound(float bound)
 {
 	this->bound.set(bound);
+}
+
+float PSDDSearch::get_lowest_out_of_bounds(void)
+{
+	return lowest_out_of_bounds;
 }

@@ -22,6 +22,7 @@
 #include "kbfs.h"
 #include "psdd_search.h"
 #include "bfpsdd_search.h"
+#include "idpsdd_search.h"
 #include "dynamic_bounded_psdd.h"
 #include "pbnf_search.h"
 #include "pastar.h"
@@ -63,6 +64,9 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "bfpsdd-%u-%u", &threads, &nblocks) == 2) {
 		return new BFPSDDSearch(threads);
 	} else if (argc > 1
+		   && sscanf(argv[1], "idpsdd-%u-%u", &threads, &nblocks) == 2) {
+		return new IDPSDDSearch(threads);
+	} else if (argc > 1
 		   && sscanf(argv[1], "dynpsdd-%u-%u-%f",
 			     &threads, &nblocks, &weight) == 3) {
 		return new DynamicBoundedPSDD(threads, weight);
@@ -94,6 +98,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks>-<weight>" << endl
 		     << "\tbfpsdd-<threads>-<nblocks>" << endl
+		     << "\tidpsdd-<threads>-<nblocks>" << endl
 		     << "\tpbnf-<min_expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf2-<delta_f>-<threads>-<nblocks>" << endl

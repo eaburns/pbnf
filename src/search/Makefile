@@ -44,6 +44,7 @@ SRC= \
 	psdd/nblock_graph.cc \
 	psdd_search.cc \
 	bfpsdd_search.cc \
+	idpsdd_search.cc \
 	dynamic_bounded_psdd.cc \
 	pbnf/nblock.cc \
 	pbnf/nblock_graph.cc \
