@@ -76,8 +76,6 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		}
 
 		closed->add(s);
-		if (dup)
-			delete dup;
 
 		if (s->is_goal()) {
 			path = s->get_path();
