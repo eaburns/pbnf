@@ -90,6 +90,7 @@
   \lIf{$\expansions < \minexpansions$}{
     \Return false\;
   }
+  $expansions \leftarrow 0$\;
   \If{$\best(\FreeList) < \block$ {\bf or}
     $\best(\interferenceScope(\block)) < \block$}{
     \If{$\best(\interferenceScope(\block)) < \best(\FreeList)$} {
@@ -136,7 +137,7 @@
   \ForEach{$n' \in \interferenceScope(\block)$}{
     $\sigma_h(n') \leftarrow \sigma_h(n') - 1$\;
     \If{$\isfree(n')$}{
-      \lIf{$\hot(n')$}{$\hot(n') \leftarrow false$\;}
+      \lIf{$\hot(n')$}{$\setcold(n')$}
       $\FreeList \leftarrow \FreeList \cup \{n'\}$\;
       wake all sleeping threads\;
     }
@@ -151,7 +152,7 @@
   \ForEach{$b' \in \interferenceScope(\block)$}{
     $\sigma(b') \leftarrow \sigma(b') - 1$\;
     \If{$\isfree(b')$}{
-      \lIf{$\hot(b')$}{$\hot(b') \leftarrow false$\;}
+      \lIf{$\hot(b')$}{$\setcold(b')$}
       $\FreeList \leftarrow \FreeList \cup \{b'\}$\;
       wake all sleeping threads\;
     }
@@ -167,7 +168,7 @@
   \KwIn{\block -- an nblock}
   \KwOut{The next nblock to search}
 
-  \lIf{\block has no open nodes}{
+  \lIf{\block has no open nodes {\bf or} a block was just set to hot}{
       lock\;
   }
   \lElseIf {trylock fails} {
