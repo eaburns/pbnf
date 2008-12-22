@@ -120,6 +120,8 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 	if (expansions < search->min_expansions)
 		return false;
 
+	expansions = 0;
+
 	double free = graph->next_nblock_f_value();
 	double cur = n->open.peek()->get_f();
 
