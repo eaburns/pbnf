@@ -30,7 +30,7 @@ public:
 protected:
         pthread_mutex_t mutex; //cond and mutex for thread waits
         pthread_cond_t cond;
-        bool exit; //set to true in join()
+        bool do_exit; //set to true in join()
 
 private:
 	friend void *pthread_call_run(void *);

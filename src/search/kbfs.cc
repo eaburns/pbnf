@@ -25,7 +25,7 @@ public:
           wait();
           vector<const State *> *children;
                 
-          while(!exit){
+          while(!do_exit){
             children = k->expand(s);
             for (unsigned int i = 0; i < children->size(); i += 1) {
               const State *c = children->at(i);

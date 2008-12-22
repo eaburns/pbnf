@@ -37,7 +37,7 @@ Thread::Thread(void)
 	next_id += 1;
         pthread_mutex_init(&mutex, NULL);
         pthread_cond_init(&cond, NULL);
-        exit = false;
+        do_exit = false;
         signalled=0;
 }
 
@@ -68,7 +68,7 @@ int Thread::join(void)
 {
         pthread_mutex_lock(&mutex);
         int ret;
-	exit = true;
+	do_exit = true;
 	pthread_cond_signal(&cond);
         signalled++;
         pthread_mutex_unlock(&mutex);
