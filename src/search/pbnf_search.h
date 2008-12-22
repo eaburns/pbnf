@@ -50,6 +50,7 @@ private:
 		unsigned int expansions; /* expansions in 1 NBlock */
 		NBlockGraph *graph;
 		PBNFSearch *search;
+		bool set_hot;
 	};
 
 	unsigned int n_threads;

@@ -113,16 +113,18 @@ NBlockGraph::~NBlockGraph()
  * \note This call will block if there are currently no free nblocks.
  * \param finished If non-NULL, the finished nblock will be released
  *        into the next level's free_list.
+ * \param trylock Set to true if a trylock should be attempted instead
+ *                of a lock.
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock(NBlock *finished)
+NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 {
 	NBlock *n = NULL;
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
-	if (finished && !finished->open.empty()) {
+	if (trylock && finished && !finished->open.empty()) {
 		if (pthread_mutex_trylock(&mutex) == EBUSY)
 			return finished;
 	} else

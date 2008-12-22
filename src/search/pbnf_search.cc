@@ -36,7 +36,8 @@ void PBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		n = graph->next_nblock(n);
+		n = graph->next_nblock(n, !set_hot);
+		set_hot = false;
 		if (n) {
 			expansions = 0;
 			path = search_nblock(n);
@@ -132,8 +133,10 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 		ret = free < cur || scope < cur;
 		if (!ret)
 			graph->wont_release(n);
-		else if (scope < free)
+		else if (scope < free) {
 			graph->set_hot(best_scope);
+			set_hot = true;
+		}
 	} else {
 		ret = free + search->delta_f < cur;
 	}
