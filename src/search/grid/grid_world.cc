@@ -154,7 +154,7 @@ vector<const State*> *GridWorld::expand8(const GridState *s)
 	int x = s->get_x();
 	int y = s->get_y();
 	float g = s->get_g();
-	float cost = this->cost_type == UNIT_COST ? sqrt(2) : y;
+	float cost = this->cost_type == UNIT_COST ? sqrt(2) : y * sqrt(2);
 
 	children = expand4(s);
 
@@ -486,16 +486,14 @@ float GridWorld::ManhattanDist::comupte8(const GridWorld *w,
 	int y = s->get_y();
 	int gx = w->get_goal_x();
 	int gy = w->get_goal_y();
-
-	float dx = fabs(gx - x);
-	float dy = fabs(gy - y);
+	int dx = abs(gx - x);
+	int dy = abs(gy - y);
 
 	if (w->get_cost_type() == GridWorld::UNIT_COST) {
 		float total = dx > dy ? dx : dy;
 		float diag = dx < dy ? dx : dy;
 		return diag * sqrt(2.0) + total - diag;
 	} else {
-		assert(!"Working properly");
 		if (dx > dy) {
 			// I *think* we do an arc with 2 diagonal lines.
 			int max_up = y < gy ? y : gy;

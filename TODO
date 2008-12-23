@@ -26,9 +26,6 @@ To Do
 
 (Ethan) run everything on Sun
 
-(Ethan) Implement 8-way movement in gridworld (need real value costs,
-  sqrt(2) diagonals)
-
 (???) Wted A* for large problems
 
 (Seth) PRA* improvements
