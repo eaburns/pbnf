@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 //	g.print(cout, path);
 
 	if (path) {
-		cout << "cost: " << (int) path->at(0)->get_g() << endl;
+		cout << "cost: " << path->at(0)->get_g() << endl;
 		cout << "length: " << path->size() << endl;
 
 		// Make sure that the heuristic was actually admissible!

@@ -73,11 +73,18 @@ GridWorld::GridWorld(istream &s)
 	if (strcmp(line, "Unit") == 0) {
 		cost_type = UNIT_COST;
 	} else {
+		assert(strcmp(line, "Life") == 0);
 		cost_type = LIFE_COST;
 	}
 
 	// Movement (Four-way/Eight-way)
 	s >> line;
+	if (strcmp(line, "Four-way") == 0) {
+		move_type = FOUR_WAY_MOVES;
+	} else {
+		assert(strcmp(line, "Eight-way") == 0);
+		move_type = EIGHT_WAY_MOVES;
+	}
 
 
 	// NOTE: *our* y-coordinates are the opposite of the ones
@@ -106,6 +113,72 @@ const State *GridWorld::initial_state(void)
 }
 
 /**
+ * Four-way movement expand.
+ */
+vector<const State*> *GridWorld::expand4(const GridState *s)
+{
+	vector<const State*> *children;
+	int x = s->get_x();
+	int y = s->get_y();
+	float g = s->get_g();
+	float cost = this->cost_type == UNIT_COST ? 1 : s->get_y();
+
+	children = new vector<const State*>();
+
+	if (x > 0 && !is_obstacle(x - 1, y)) {
+		children->push_back(new GridState(this, s,
+						  g + cost, x - 1, y));
+	}
+	if (x < width - 1 && !is_obstacle(x + 1, y)) {
+		children->push_back(new GridState(this, s,
+						  g + cost, x + 1, y));
+	}
+	if (y > 0 && !is_obstacle(x, y- 1)) {
+		children->push_back(new GridState(this, s,
+						  g + cost, x, y - 1));
+	}
+	if (y < height - 1 && !is_obstacle(x, y+ 1)) {
+		children->push_back(new GridState(this, s,
+						  g + cost, x, y + 1));
+	}
+
+	return children;
+}
+
+/**
+ * Eight-way movement expand.
+ */
+vector<const State*> *GridWorld::expand8(const GridState *s)
+{
+	vector<const State*> *children;
+	int x = s->get_x();
+	int y = s->get_y();
+	float g = s->get_g();
+	float cost = this->cost_type == UNIT_COST ? sqrt(2) : s->get_y();
+
+	children = expand4(s);
+
+	if (x > 0 && y > 0 && !is_obstacle(x - 1, y - 1)) {
+		children->push_back(new GridState(this, s, g + cost,
+						  x - 1, y - 1));
+	}
+	if (x < width - 1 && y > 0 && !is_obstacle(x + 1, y - 1)) {
+		children->push_back(new GridState(this, s, g + cost,
+						  x + 1, y - 1));
+	}
+	if (x < width - 1 && y < height - 1 && !is_obstacle(x + 1, y + 1)) {
+		children->push_back(new GridState(this, s, g + cost,
+						  x + 1, y + 1));
+	}
+	if (x > 0 && y < height - 1 && !is_obstacle(x - 1, y+ 1)) {
+		children->push_back(new GridState(this, s, g + cost,
+						  x - 1, y + 1));
+	}
+
+	return children;
+}
+
+/**
  * Expand a gridstate.
  * \param state The state to expand.
  * \return A newly allocated vector of newly allocated children
@@ -114,34 +187,17 @@ const State *GridWorld::initial_state(void)
 vector<const State*> *GridWorld::expand(const State *state)
 {
 	const GridState *s = dynamic_cast<const GridState*>(state);
-	vector<const State*> *children;
-	float cost = this->cost_type == UNIT_COST ? 1 : s->get_y();
-
-	children = new vector<const State*>();
 
 #if defined(ENABLE_IMAGES)
 	expanded.inc();
 	expanded_state(s);
 #endif	// ENABLE_IMAGSE
 
-	if (s->get_x() > 0 && !is_obstacle(s->get_x() - 1, s->get_y())) {
-		children->push_back(new GridState(this, state, s->get_g() + cost,
-						  s->get_x() - 1, s->get_y()));
-	}
-	if (s->get_x() < width - 1 && !is_obstacle(s->get_x() + 1, s->get_y())) {
-		children->push_back(new GridState(this, state, s->get_g() + cost,
-						  s->get_x() + 1, s->get_y()));
-	}
-	if (s->get_y() > 0 && !is_obstacle(s->get_x(), s->get_y() - 1)) {
-			children->push_back(new GridState(this, state, s->get_g() + cost,
-						  s->get_x(), s->get_y() - 1));
-	}
-	if (s->get_y() < height - 1 && !is_obstacle(s->get_x(), s->get_y() + 1)) {
-		children->push_back(new GridState(this, state, s->get_g() + cost,
-						  s->get_x(), s->get_y() + 1));
-	}
+	if (move_type == FOUR_WAY_MOVES)
+		return expand4(s);
+	else
+		return expand8(s);
 
-	return children;
 }
 
 /**
@@ -187,6 +243,14 @@ int GridWorld::get_height(void) const
 enum GridWorld::cost_type GridWorld::get_cost_type(void) const
 {
 	return cost_type;
+}
+
+/**
+ * Get the movement type.
+ */
+enum GridWorld::move_type GridWorld::get_move_type(void) const
+{
+	return move_type;
 }
 
 /**
@@ -334,17 +398,21 @@ void GridWorld::export_eps(string file) const
 
 #endif	// ENABLE_IMAGES
 
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+
 GridWorld::ManhattanDist::ManhattanDist(const SearchDomain *d)
 	: Heuristic(d) {}
 
 
 /**
- * Compute the up-and-over path cost.
+ * Compute the up-and-over path cost for four-way movement
  *
  * Move up to the y-value of the goal then across to the goal, *or*
  * move across to the goal then down to the y-value of the goal.
  */
-float GridWorld::ManhattanDist::compute_up_over(int x, int y,
+float GridWorld::ManhattanDist::compute_up_over4(int x, int y,
 						int gx, int gy) const
 {
 	float min_y = y < gy ? y : gy;
@@ -362,7 +430,7 @@ float GridWorld::ManhattanDist::compute_up_over(int x, int y,
 }
 
 /**
- * Compute the up-over-and-down path cost
+ * Compute the up-over-and-down path cost for four-way movement
  *
  * This moves up to y=0, moves across for free to the correct x-value
  * then down to the goal.
@@ -370,25 +438,18 @@ float GridWorld::ManhattanDist::compute_up_over(int x, int y,
  * cost from state to y=0: (y^2 + y) / 2
  * cost from y=0 to goal:  (gy^2 - gy) / 2
  */
-float GridWorld::ManhattanDist::compute_up_over_down(int x, int y,
+float GridWorld::ManhattanDist::compute_up_over_down4(int x, int y,
 						     int gx, int gy) const
 {
 	return ((y * y) + y + (gy * gy) - gy) / 2.0;
 }
 
 /**
- * Compute the Manhattan distance heuristic.
- * \param state The state to comupte the heuristic for.
- * \return The Manhattan distance from the given state to the goal.
+ * Compute the 4-way movement heuristic
  */
-float GridWorld::ManhattanDist::compute(const State *state) const
+float GridWorld::ManhattanDist::comupte4(const GridWorld *w,
+					 const GridState *s) const
 {
-	const GridState *s;
-	const GridWorld *w;
-
-	s = dynamic_cast<const GridState *>(state);
-	w = dynamic_cast<const GridWorld *>(domain);
-
 	int x = s->get_x();
 	int y = s->get_y();
 	int gx = w->get_goal_x();
@@ -400,8 +461,8 @@ float GridWorld::ManhattanDist::compute(const State *state) const
 		return dx + fabs(gy - y);
 
 	} else {		// Life-cost
-		float cost_up_over_down = compute_up_over_down(x, y, gx, gy);
-		float cost_up_over = compute_up_over(x, y, gx, gy);
+		float cost_up_over_down = compute_up_over_down4(x, y, gx, gy);
+		float cost_up_over = compute_up_over4(x, y, gx, gy);
 
 		return cost_up_over_down < cost_up_over
 			? cost_up_over_down
@@ -409,6 +470,44 @@ float GridWorld::ManhattanDist::compute(const State *state) const
 	}
 }
 
+/**
+ * Compute the 4-way movement heuristic
+ */
+float GridWorld::ManhattanDist::comupte8(const GridWorld *w,
+					 const GridState *s) const
+{
+	int x = s->get_x();
+	int y = s->get_y();
+	int gx = w->get_goal_x();
+	int gy = w->get_goal_y();
+
+	float dx = fabs(gx - x);
+	float dy = fabs(gy - y);
+
+	float total = dx > dy ? dx : dy;
+	float diag = dx < dy ? dx : dy;
+
+	return diag * sqrt(2.0) + total - diag;
+}
+
+/**
+ * Compute the Manhattan distance heuristic.
+ * \param state The state to comupte the heuristic for.
+ * \return The Manhattan distance from the given state to the goal.
+ */
+float GridWorld::ManhattanDist::compute(const State *state) const
+{
+	const GridState *s = dynamic_cast<const GridState *>(state);
+	const GridWorld *w = dynamic_cast<const GridWorld *>(domain);
+
+	if (w->get_move_type() == FOUR_WAY_MOVES)
+		return comupte4(w, s);
+	else
+		return comupte8(w, s);
+}
+
+/****************************************************************************/
+/****************************************************************************/
 /****************************************************************************/
 
 /**
@@ -488,6 +587,8 @@ vector<unsigned int> GridWorld::RowModProject::get_neighbors(unsigned int b) con
 	return p;
 }
 
+/****************************************************************************/
+/****************************************************************************/
 /****************************************************************************/
 
 /**
