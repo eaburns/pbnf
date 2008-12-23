@@ -121,7 +121,7 @@ vector<const State*> *GridWorld::expand4(const GridState *s)
 	int x = s->get_x();
 	int y = s->get_y();
 	float g = s->get_g();
-	float cost = this->cost_type == UNIT_COST ? 1 : s->get_y();
+	float cost = this->cost_type == UNIT_COST ? 1 : y;
 
 	children = new vector<const State*>();
 
@@ -154,7 +154,7 @@ vector<const State*> *GridWorld::expand8(const GridState *s)
 	int x = s->get_x();
 	int y = s->get_y();
 	float g = s->get_g();
-	float cost = this->cost_type == UNIT_COST ? sqrt(2) : s->get_y();
+	float cost = this->cost_type == UNIT_COST ? sqrt(2) : y;
 
 	children = expand4(s);
 
@@ -405,6 +405,20 @@ void GridWorld::export_eps(string file) const
 GridWorld::ManhattanDist::ManhattanDist(const SearchDomain *d)
 	: Heuristic(d) {}
 
+/**
+ * Compute the costs between two y values.
+ */
+float GridWorld::ManhattanDist::cost_from(int a, int b) const
+{
+	float last = b;
+
+	if (a > b)
+		last += 1;
+	else if (a < b)
+		last -= 1;
+
+	return (a + last) * (abs(a - b)) / 2.0;
+}
 
 /**
  * Compute the up-and-over path cost for four-way movement
@@ -416,17 +430,9 @@ float GridWorld::ManhattanDist::compute_up_over4(int x, int y,
 						int gx, int gy) const
 {
 	float min_y = y < gy ? y : gy;
-	float max_y = y > gy ? y : gy;
 	float dx = abs(gx - x);
-	float dy = max_y - min_y;
 
-	float last = gy;
-	if (y < gy)
-		last -= 1;
-	else if (y > gy)
-		last += 1;
-
-	return (dx * min_y) + (((y + last) * dy) / 2.0);
+	return (dx * min_y) + cost_from(y, gy);
 }
 
 /**
@@ -484,10 +490,26 @@ float GridWorld::ManhattanDist::comupte8(const GridWorld *w,
 	float dx = fabs(gx - x);
 	float dy = fabs(gy - y);
 
-	float total = dx > dy ? dx : dy;
-	float diag = dx < dy ? dx : dy;
-
-	return diag * sqrt(2.0) + total - diag;
+	if (w->get_cost_type() == GridWorld::UNIT_COST) {
+		float total = dx > dy ? dx : dy;
+		float diag = dx < dy ? dx : dy;
+		return diag * sqrt(2.0) + total - diag;
+	} else {
+		assert(!"Working properly");
+		if (dx > dy) {
+			// I *think* we do an arc with 2 diagonal lines.
+			int max_up = y < gy ? y : gy;
+			int extra = dx - dy;
+			int up = max_up < (extra / 2) ? max_up : (extra / 2);
+			int high_y = (y < gy ? y : gy) - up;
+			int across = extra - (2 * up);
+			return cost_from(y, high_y)
+			       + across * high_y
+			       + cost_from(high_y, gy);
+		} else {
+			return cost_from(y, gy);
+		}
+	}
 }
 
 /**

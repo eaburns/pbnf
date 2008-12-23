@@ -57,6 +57,7 @@ public:
 		ManhattanDist(const SearchDomain *d);
 		float compute(const State *s) const;
 	private:
+		float cost_from(int a, int b) const;
 		float compute_up_over4(int x, int y,
 				       int gx, int gy) const;
 		float compute_up_over_down4(int x, int y,
