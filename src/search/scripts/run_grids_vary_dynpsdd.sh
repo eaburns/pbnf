@@ -1,10 +1,10 @@
 #!/bin/bash
 
-for wt in 1.1 1.5 2.0 2.2
+for wt in 1.1 1.5 2.2
 do
-    for nblocks in 100 625 1600 2500 6400 10000
+    for nblocks in 10 100 625
     do
-	for (( threads=1; threads <= 10; threads++ ))
+	for (( threads=1; threads <= 8; threads++ ))
 	do
 	    ./scripts/run_grids.sh dynpsdd \
 		-t $threads \

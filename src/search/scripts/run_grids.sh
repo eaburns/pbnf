@@ -308,7 +308,7 @@ do
     #
     # Preform the search
     #
-    OUTPUT=$($GRID_SEARCH $FULL_NAME < $INSTANCE)
+    OUTPUT=$($GRID_SEARCH $FULL_NAME < $INSTANCE 2>&1)
     SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9.]\+\|infinity\).*/\1/p")
     SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9.]\+\|infinity\).*/\1/p")
     WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9.]\+\|infinity\).*/\1/p")
@@ -316,8 +316,17 @@ do
     GENERATED=$(echo $OUTPUT | sed -n "s/.*generated: \([0-9.]\+\|infinity\).*/\1/p")
     EXPANDED=$(echo $OUTPUT | sed -n "s/.*expanded: \([0-9.]\+\|infinity\).*/\1/p")
 
-
-    if !(echo $OUTPUT | grep "No Solution" >& /dev/null)
+    if (echo $OUTPUT | grep "bad_alloc" >& /dev/null)
+    then
+	echo "Run Aborted"
+	(flock -e $(ABORTED_LOG); echo $OUT >> $(ABORTED_LOG))
+	SOL_COST="infinity"
+	SOL_LENGTH="infinity"
+	WALL_TIME="infinity"
+	CPU_TIME="infinity"
+	GENERATED="infinity"
+	EXPANDED="infinity"
+    elif !(echo $OUTPUT | grep "No Solution" >& /dev/null)
     then
 	#
 	# The data column
