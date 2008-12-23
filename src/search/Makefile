@@ -6,8 +6,12 @@ MARCH=$(shell uname -m)
 #PROF_FLAGS=-pg
 PROF_FLAGS=
 
+# debug flags
+#DEBUG=
+DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+
 # C/C++ basic compilation flags
-FLAGS=-g -Wall -pipe $(PROF_FLAGS) -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+FLAGS=-Wall -pipe $(PROF_FLAGS) $(DEBUG)
 
 # Comment this out for faster, more memory efficient code.
 #FLAGS+=-DENABLE_IMAGES
