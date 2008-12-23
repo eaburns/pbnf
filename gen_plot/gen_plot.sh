@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Generate plots from an RDB.
+#
 
 GEN_PLOT=/home/rai/eaburns/src/ocaml/ps_plot/gen_plot.unix_unknown
 
