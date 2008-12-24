@@ -19,6 +19,7 @@
 #include "bfpsdd/nblock_graph.h"
 #include "bfpsdd/real_val_nblock_pq.h"
 #include "util/thread.h"
+#include "util/cumulative_ave.h"
 #include "projection.h"
 #include "search.h"
 #include "state.h"
@@ -43,18 +44,22 @@ private:
 	public:
 		BFPSDDThread(BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph,
 			   BFPSDDSearch *search);
-		virtual ~BFPSDDThread();
-		virtual void run(void);
+		~BFPSDDThread();
+		void run(void);
+		float get_ave_exp_per_nblock(void);
 	private:
 		vector<const State *> *search_nblock(BFPSDD::NBlock<CompareOnF> *n);
 		BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
 		BFPSDDSearch *search;
+		unsigned long exp_this_block;
+		CumulativeAverage ave_exp_per_nblock;
 	};
 
 	AtomicFloat bound;
 	unsigned int n_threads;
 	const Projection *project;
 	vector<const State *> *path;
+	BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
 	pthread_mutex_t path_mutex;
 };
 

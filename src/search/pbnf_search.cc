@@ -172,13 +172,19 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	  path(NULL),
 	  bound(INFINITY),
 	  detect_livelocks(detect_livelocks),
+	  graph(NULL),
 	  min_expansions(min_expansions)
+
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
 
 
-PBNFSearch::~PBNFSearch(void) {}
+PBNFSearch::~PBNFSearch(void)
+{
+	if (graph)
+		delete graph;
+}
 
 
 vector<const State *> *PBNFSearch::search(const State *initial)
@@ -188,9 +194,9 @@ vector<const State *> *PBNFSearch::search(const State *initial)
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
 	float sum = 0.0;
-	unsigned int num;
+	unsigned int num = 0;
 
-	NBlockGraph *graph = new NBlockGraph(project, initial);
+	graph = new NBlockGraph(project, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PBNFThread *t = new PBNFThread(graph, this);
@@ -210,8 +216,6 @@ vector<const State *> *PBNFSearch::search(const State *initial)
 		delete *iter;
 	}
 	cout << "expansions-per-nblock: " << sum / num << endl;
-
-	delete graph;
 
 	return path;
 }

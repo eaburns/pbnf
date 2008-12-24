@@ -48,6 +48,8 @@ void PSDDSearch::PSDDThread::run(void)
 		if (!n)		// no solution
 			break;
 
+		exp_this_block = 0;
+
 		path = search_nblock(n);
 
 		if (path) {
@@ -55,9 +57,15 @@ void PSDDSearch::PSDDThread::run(void)
 			graph->set_path_found();
 		}
 
+		ave_exp_per_nblock.add_val(exp_this_block);
+
 	} while(!search->path_found());
 }
 
+float PSDDSearch::PSDDThread::get_ave_exp_per_nblock(void)
+{
+	return ave_exp_per_nblock.read();
+}
 
 /**
  * Search a single NBlock.
@@ -85,6 +93,8 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 			path = s->get_path();
 			break;
 		}
+
+		exp_this_block += 1;
 
 		vector<const State *> *children = search->expand(s);
 		vector<const State *>::iterator iter;
@@ -136,6 +146,7 @@ PSDDSearch::PSDDSearch(unsigned int n_threads)
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
+	  graph(NULL),
 	  lowest_out_of_bounds(INFINITY)
 {
 	pthread_mutex_init(&path_mutex, NULL);
@@ -159,7 +170,11 @@ PSDDSearch::PSDDSearch(unsigned int n_threads, float bound)
 /**
  * Destructor.
  */
-PSDDSearch::~PSDDSearch(void) {}
+PSDDSearch::~PSDDSearch(void)
+{
+	if (graph)
+		delete graph;
+}
 
 
 /**
@@ -199,8 +214,9 @@ vector<const State *> *PSDDSearch::search(const State *initial)
 
 	vector<PSDDThread *> threads;
 	vector<PSDDThread *>::iterator iter;
-
-	NBlockGraph *graph = new NBlockGraph(project, initial);
+	float sum = 0.0;
+	unsigned int num = 0;
+	graph = new NBlockGraph(project, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PSDDThread *t = new PSDDThread(graph, this);
@@ -215,10 +231,16 @@ vector<const State *> *PSDDSearch::search(const State *initial)
 			lowest_out_of_bounds =
 				(*iter)->get_lowest_out_of_bounds();
 		}
+
+		float ave = (*iter)->get_ave_exp_per_nblock();
+		if (ave != 0.0) {
+			sum += ave;
+			num += 1;
+		}
+
 		delete *iter;
 	}
-
-	delete graph;
+	cout << "expansions-per-nblock: " << sum / num << endl;
 
 	return path;
 }

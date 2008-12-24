@@ -64,6 +64,7 @@ private:
 	AtomicFloat bound;
 	bool detect_livelocks;
 
+	NBlockGraph *graph;
 	unsigned int min_expansions;
 };
 

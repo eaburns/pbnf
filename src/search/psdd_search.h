@@ -18,6 +18,7 @@
 #include "psdd/nblock.h"
 #include "psdd/nblock_graph.h"
 #include "util/thread.h"
+#include "util/cumulative_ave.h"
 #include "projection.h"
 #include "search.h"
 #include "state.h"
@@ -46,11 +47,14 @@ private:
 		virtual ~PSDDThread();
 		virtual void run(void);
 		float get_lowest_out_of_bounds(void);
+		float get_ave_exp_per_nblock(void);
 	private:
 		vector<const State *> *search_nblock(NBlock *n);
 		NBlockGraph *graph;
 		PSDDSearch *search;
 		float lowest_out_of_bounds;
+		unsigned long exp_this_block;
+		CumulativeAverage ave_exp_per_nblock;
 	};
 
 	AtomicFloat bound;
@@ -59,6 +63,7 @@ private:
 	vector<const State *> *path;
 	pthread_mutex_t path_mutex;
 
+	NBlockGraph *graph;
 	float lowest_out_of_bounds;
 };
 

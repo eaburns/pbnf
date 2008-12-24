@@ -50,6 +50,7 @@ void BFPSDDSearch::BFPSDDThread::run(void)
 		n = graph->next_nblock(n);
 		if (!n)		// no solution
 			break;
+		exp_this_block = 0;
 
 		path = search_nblock(n);
 
@@ -58,9 +59,15 @@ void BFPSDDSearch::BFPSDDThread::run(void)
 			graph->set_path_found();
 		}
 
+		ave_exp_per_nblock.add_val(exp_this_block);
+
 	} while(!search->path_found());
 }
 
+float BFPSDDSearch::BFPSDDThread::get_ave_exp_per_nblock(void)
+{
+	return ave_exp_per_nblock.read();
+}
 
 /**
  * Search a single NBlock.
@@ -90,6 +97,8 @@ vector<const State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareO
 			path = s->get_path();
 			break;
 		}
+
+		exp_this_block += 1;
 
 		vector<const State *> *children = search->expand(s);
 		vector<const State *>::iterator iter;
@@ -143,7 +152,8 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float bound)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
-	  path(NULL)
+	  path(NULL),
+	  graph(NULL)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -152,7 +162,11 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float bound)
 /**
  * Destructor.
  */
-BFPSDDSearch::~BFPSDDSearch(void) {}
+BFPSDDSearch::~BFPSDDSearch(void)
+{
+	if (graph)
+		delete graph;
+}
 
 
 /**
@@ -190,24 +204,31 @@ vector<const State *> *BFPSDDSearch::search(const State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
-	vector<Thread *> threads;
-	vector<Thread *>::iterator iter;
+	vector<BFPSDDThread *> threads;
+	vector<BFPSDDThread *>::iterator iter;
+	float sum = 0.0;
+	unsigned int num = 0;
 
-	NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF> *graph =
-		new NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF>(project, initial);
+	graph = new NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF>(project, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
-		Thread *t = new BFPSDDThread(graph, this);
+		BFPSDDThread *t = new BFPSDDThread(graph, this);
 		threads.push_back(t);
 		t->start();
 	}
 
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
+
+		float ave = (*iter)->get_ave_exp_per_nblock();
+		if (ave != 0.0) {
+			sum += ave;
+			num += 1;
+		}
+
 		delete *iter;
 	}
-
-	delete graph;
+	cout << "expansions-per-nblock: " << sum / num << endl;
 
 	return path;
 }
