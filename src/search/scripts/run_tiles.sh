@@ -44,7 +44,6 @@ set -- `getopt "d:m:n:t:w:r:c:" "$@"`
 while [ ! -z "$1" ]
 do
     case "$1" in
-	-a) ALGORITHM=$2 ; shift ;;
 	-d) DELTA_F=$2 ; shift ;;
 	-m) MIN_EXPANSIONS=$2 ; shift ;;
 	-t) THREADS=$2 ; shift ;;

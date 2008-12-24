@@ -31,6 +31,7 @@ then   # Script needs at least one command-line argument.
 [-d <dimensions>] \
 [-p <prob>] \
 [-c <costs>] \
+[-v <moves>] \
 [-o <obstacles>] \
 [-n <nblocks>] \
 [-t <threads>] \
@@ -43,14 +44,14 @@ fi
 #
 # Parse arugments
 #
-set -- `getopt "o:c:d:m:n:p:t:w:" "$@"`
+set -- `getopt "o:c:d:m:n:p:t:w:v:" "$@"`
 while [ ! -z "$1" ]
 do
     case "$1" in
-	-a) ALGORITHM=$2 ; shift ;;
 	-d) WIDTH=$(echo $2 | cut -dx -f1) ;
 	    HEIGHT=$(echo $2 | cut -dx -f2) ;;
 	-m) MIN_EXPANSIONS=$2 ; shift ;;
+	-v) MOVES=$2 ; shift ;;
 	-n) NBLOCKS=$2 ; shift ;;
 	-p) PROB=$2 ; shift ;;
 	-p) PROB=$2 ; shift ;;
