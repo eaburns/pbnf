@@ -49,10 +49,11 @@ private:
 		vector<const State *> *search_nblock(NBlock *n);
 		bool should_switch(NBlock *n);
 
-		unsigned int expansions; /* expansions in 1 NBlock */
+		unsigned int expansions; /* for testing switch */
 		NBlockGraph *graph;
 		PBNFSearch *search;
 		bool set_hot;
+		unsigned long exp_this_block;
 		CumulativeAverage ave_exp_per_nblock;
 	};
 

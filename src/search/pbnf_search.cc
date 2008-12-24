@@ -40,12 +40,13 @@ void PBNFSearch::PBNFThread::run(void)
 		set_hot = false;
 		if (n) {
 			expansions = 0;
+			exp_this_block = 0;
 			path = search_nblock(n);
 
 			if (path)
 				search->set_path(path);
+			ave_exp_per_nblock.add_val(exp_this_block);
 		}
-		ave_exp_per_nblock.add_val(expansions);
 	} while (n);
 
 	graph->set_done();
@@ -91,6 +92,7 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		}
 
 		expansions += 1;
+		exp_this_block += 1;
 
 		vector<const State *> *children = search->expand(s);
 		vector<const State *>::iterator iter;
@@ -186,6 +188,7 @@ vector<const State *> *PBNFSearch::search(const State *initial)
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
 	float sum = 0.0;
+	unsigned int num;
 
 	NBlockGraph *graph = new NBlockGraph(project, initial);
 
@@ -197,10 +200,16 @@ vector<const State *> *PBNFSearch::search(const State *initial)
 
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
-		sum += (*iter)->get_ave_exp_per_nblock();
+
+		float ave = (*iter)->get_ave_exp_per_nblock();
+		if (ave != 0.0) {
+			sum += ave;
+			num += 1;
+		}
+
 		delete *iter;
 	}
-	cout << "expansions-per-nblock: " << sum / n_threads << endl;
+	cout << "expansions-per-nblock: " << sum / num << endl;
 
 	delete graph;
 
