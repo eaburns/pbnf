@@ -17,6 +17,7 @@
 #include "pbnf/nblock.h"
 #include "util/thread.h"
 #include "util/atomic_float.h"
+#include "util/cumulative_ave.h"
 #include "projection.h"
 #include "search.h"
 #include "state.h"
@@ -29,7 +30,7 @@ using namespace PBNF;
 class PBNFSearch : public Search {
 public:
 	PBNFSearch(unsigned int n_threads, unsigned int min_expansions,
-		   float delta_f, bool detect_livelocks);
+		   bool detect_livelocks);
 
 	virtual ~PBNFSearch(void);
 
@@ -41,8 +42,9 @@ private:
 	class PBNFThread : public Thread {
 	public:
 		PBNFThread(NBlockGraph *graph, PBNFSearch *search);
-		virtual ~PBNFThread(void);
-		virtual void run(void);
+		~PBNFThread(void);
+		void run(void);
+		float get_ave_exp_per_nblock(void);
 	private:
 		vector<const State *> *search_nblock(NBlock *n);
 		bool should_switch(NBlock *n);
@@ -51,6 +53,7 @@ private:
 		NBlockGraph *graph;
 		PBNFSearch *search;
 		bool set_hot;
+		CumulativeAverage ave_exp_per_nblock;
 	};
 
 	unsigned int n_threads;
@@ -61,7 +64,6 @@ private:
 	bool detect_livelocks;
 
 	unsigned int min_expansions;
-	float delta_f;
 };
 
 #endif	/* !_PBNF_SEARCH_H_ */

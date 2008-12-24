@@ -13,7 +13,7 @@ ALGORITHM=""
 RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
 GRID_SEARCH="./grid_search.bin"
 DATA_ROOT="/home/rai/group/data/grid_instances"
-RUNS_ROOT="/home/rai/eaburns/data/grid"
+RUNS_ROOT="/home/rai/eaburns/tmp/data/grid"
 OBSTACLES="uniform"
 COSTS="Unit"
 MOVES="Four-way"
@@ -346,8 +346,14 @@ do
 	echo -e "#pair  \"total nodes expanded\"\t\"$EXPANDED\""
 	echo -e "#pair  \"total nodes generated\"\t\"$GENERATED\""
 	echo -e "#pair  \"wall finish time\"\t\"NULL\""
-	echo -e "#pair  \"wall finish date\"\t\"$(date)\""
-	echo -e "#end data file format 4") >> $OUT
+	echo -e "#pair  \"wall finish date\"\t\"$(date)\"") >> $OUT
+
+    if (echo $OUTPUT | grep "expansions-per-nblock:" >& /dev/null)
+    then
+	EXP_PER_NBLOCK=$(echo $OUTPUT | sed -n "s/.*expansions-per-nblock: \([0-9.]\+\|infinity\).*/\1/p")
+	echo -e "#pair  \"exp_per_nblock\"\t\"$EXP_PER_NBLOCK\"" >> $OUT
+    fi
+    echo -e "#end data file format 4" >> $OUT
 
 
     # Put the file in the AI group

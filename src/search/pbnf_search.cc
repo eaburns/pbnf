@@ -45,11 +45,19 @@ void PBNFSearch::PBNFThread::run(void)
 			if (path)
 				search->set_path(path);
 		}
+		ave_exp_per_nblock.add_val(expansions);
 	} while (n);
 
 	graph->set_done();
 }
 
+/**
+ * Get the average number of expansions per-nblock.
+ */
+float PBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
+{
+	return ave_exp_per_nblock.read();
+}
 
 /**
  * Search a single NBlock.
@@ -142,7 +150,7 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 			set_hot = true;
 		}
 	} else {
-		ret = free + search->delta_f < cur;
+		ret = free < cur;
 	}
 
 	return ret;
@@ -150,19 +158,19 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 
 /************************************************************/
+/************************************************************/
+/************************************************************/
 
 
 PBNFSearch::PBNFSearch(unsigned int n_threads,
 		       unsigned int min_expansions,
-		       float delta_f,
 		       bool detect_livelocks)
 	: n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  bound(INFINITY),
 	  detect_livelocks(detect_livelocks),
-	  min_expansions(min_expansions),
-	  delta_f(0.0)
+	  min_expansions(min_expansions)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -175,21 +183,24 @@ vector<const State *> *PBNFSearch::search(const State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
-	vector<Thread *> threads;
-	vector<Thread *>::iterator iter;
+	vector<PBNFThread *> threads;
+	vector<PBNFThread *>::iterator iter;
+	float sum = 0.0;
 
 	NBlockGraph *graph = new NBlockGraph(project, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
-		Thread *t = new PBNFThread(graph, this);
+		PBNFThread *t = new PBNFThread(graph, this);
 		threads.push_back(t);
 		t->start();
 	}
 
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
+		sum += (*iter)->get_ave_exp_per_nblock();
 		delete *iter;
 	}
+	cout << "expansions-per-nblock: " << sum / n_threads << endl;
 
 	delete graph;
 

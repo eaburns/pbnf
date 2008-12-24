@@ -40,6 +40,7 @@ SRC= \
 	util/timer.cc \
 	util/timeout.cc \
 	util/atomic_float.cc \
+	util/cumulative_ave.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	tiles/tiles_state.cc \
