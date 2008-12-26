@@ -79,8 +79,7 @@ void CompletionCounter::wait(void)
 {
 	pthread_mutex_lock(&mutex);
 	while (counter < max)
-	  {}//pthread_cond_wait(&cond, &mutex);
-	//doing busy wait now
+		pthread_cond_wait(&cond, &mutex);
 	pthread_mutex_unlock(&mutex);
 }
 
