@@ -18,11 +18,15 @@ using namespace std;
 CompletionCounter::CompletionCounter(unsigned int max)
 	: counter(0), max(max)
 {
+	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&cond, NULL);
 }
 
 CompletionCounter::CompletionCounter(void)
 	: counter(0), max(0)
 {
+	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&cond, NULL);
 }
 
 /**
@@ -30,31 +34,44 @@ CompletionCounter::CompletionCounter(void)
  */
 void CompletionCounter::set_max(unsigned int max)
 {
-	this->max = AtomicInt(max);
+	pthread_mutex_lock(&mutex);
+	this->max = max;
+	pthread_mutex_unlock(&mutex);
 }
 
 unsigned int CompletionCounter::get_count()
 {
 	unsigned int ret;
-	ret = counter.read();
+	pthread_mutex_lock(&mutex);
+	ret = counter;
+	pthread_mutex_unlock(&mutex);
         return ret;
 }
 
 bool CompletionCounter::is_complete()
 {
 	bool ret;
-	ret = counter.read() >= max.read();
+	pthread_mutex_lock(&mutex);
+	ret = counter >= max;
+	pthread_mutex_unlock(&mutex);
         return ret;
 }
 
 void CompletionCounter::complete(void)
 {
-	counter.add(1);
+	cout << "completing" << endl;
+	pthread_mutex_lock(&mutex);
+	counter += 1;
+	cout << "completed " << counter << " of " << max << endl;
+	//pthread_cond_signal(&cond);
+	pthread_mutex_unlock(&mutex);
 }
 
 void CompletionCounter::uncomplete(void)
 {
-	counter.sub(1);
+	pthread_mutex_lock(&mutex);
+	counter -= 1;
+	pthread_mutex_unlock(&mutex);
 }
 
 /**
@@ -62,9 +79,11 @@ void CompletionCounter::uncomplete(void)
  */
 void CompletionCounter::wait(void)
 {
-	while (counter.read() < max.read())
+	pthread_mutex_lock(&mutex);
+	while (counter < max)
 	  {}//pthread_cond_wait(&cond, &mutex);
 	//doing busy wait now
+	pthread_mutex_unlock(&mutex);
 }
 
 /**
@@ -72,5 +91,7 @@ void CompletionCounter::wait(void)
  */
 void CompletionCounter::reset(void)
 {
-	counter = AtomicInt(0);
+	pthread_mutex_lock(&mutex);
+	counter = 0;
+	pthread_mutex_unlock(&mutex);
 }
