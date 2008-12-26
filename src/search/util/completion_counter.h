@@ -12,6 +12,7 @@
 #define _COMPLETION_COUNTER_H_
 
 #include <pthread.h>
+#include "atomic_int.h"
 
 class CompletionCounter {
 public:
@@ -28,10 +29,8 @@ public:
         bool is_complete(void);
 
 private:
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
-	unsigned int counter;
-	unsigned int max;
+	AtomicInt counter;
+	AtomicInt max;
 };
 
 #endif	/* !_COMPLETION_COUNTER_H_ */
