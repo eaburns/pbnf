@@ -26,8 +26,8 @@ public:
 	KBFS(unsigned int);
 	virtual vector<const State *> *search(const State *);
 private:
-	SynchPQOList<CompareOnF> open;
-	SynchClosedList closed;
+	PQOList<CompareOnF> open;
+	ClosedList closed;
         friend class KBFSThread;
         CompletionCounter cc;
         const unsigned int n_threads;

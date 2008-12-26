@@ -18,16 +18,17 @@ public:
 	KBFSThread(KBFS *k) : k(k) {}
 	KBFSThread(const State *s, KBFS *k) : s(s), k(k) {}
 
-	~KBFSThread() {}
+	~KBFSThread() {
+          delete children;
+	}
 
 	virtual void run(void){
           k->cc.complete();
           wait();
-          vector<const State *> *children;
                 
           while(!do_exit){
             children = k->expand(s);
-            for (unsigned int i = 0; i < children->size(); i += 1) {
+            /*for (unsigned int i = 0; i < children->size(); i += 1) {
               const State *c = children->at(i);
               if (k->closed.lookup(c) != NULL) {
                 delete c;
@@ -35,16 +36,16 @@ public:
               }
               k->closed.add(c);
               k->open.add(c);
-            }
+	    }*/
             k->cc.complete();
             wait();
           }
-          delete children;
         }
 
 private:
 	const State *s;
 	KBFS *k;
+        vector<const State *> *children;
         friend class KBFS;
 };
 
@@ -90,6 +91,16 @@ vector<const State *> *KBFS::search(const State *init)
                 cc.set_max(worker);
 
                 for(i=0; i<worker; i++){
+		    for (unsigned int j = 0; 
+			 j < threads[i]->children->size(); j += 1) {
+		      const State *c = threads[i]->children->at(j);
+		      if (closed.lookup(c) != NULL) {
+			delete c;
+			continue;
+		      }
+		      closed.add(c);
+		      open.add(c);
+		    }
                     threads[i]->signal();
                 }
                 cc.wait();
