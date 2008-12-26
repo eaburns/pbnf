@@ -59,9 +59,11 @@ bool CompletionCounter::is_complete()
 
 void CompletionCounter::complete(void)
 {
+	cout << "completing" << endl;
 	pthread_mutex_lock(&mutex);
 	counter += 1;
-	pthread_cond_signal(&cond);
+	cout << "completed " << counter << " of " << max << endl;
+	//pthread_cond_signal(&cond);
 	pthread_mutex_unlock(&mutex);
 }
 
