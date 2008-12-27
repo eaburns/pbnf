@@ -28,15 +28,6 @@ public:
                 
           while(!do_exit){
             children = k->expand(s);
-            /*for (unsigned int i = 0; i < children->size(); i += 1) {
-              const State *c = children->at(i);
-              if (k->closed.lookup(c) != NULL) {
-                delete c;
-                continue;
-              }
-              k->closed.add(c);
-              k->open.add(c);
-	    }*/
             k->cc.complete();
             wait();
           }
@@ -91,6 +82,10 @@ vector<const State *> *KBFS::search(const State *init)
                 cc.set_max(worker);
 
                 for(i=0; i<worker; i++){
+                    threads[i]->signal();
+                }
+                cc.wait();
+		for(i=0; i<worker; i++){
 		    for (unsigned int j = 0; 
 			 j < threads[i]->children->size(); j += 1) {
 		      const State *c = threads[i]->children->at(j);
@@ -101,9 +96,7 @@ vector<const State *> *KBFS::search(const State *init)
 		      closed.add(c);
 		      open.add(c);
 		    }
-                    threads[i]->signal();
-                }
-                cc.wait();
+		}
  	}
 
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
