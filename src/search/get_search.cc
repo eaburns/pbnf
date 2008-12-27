@@ -8,10 +8,10 @@
  * \date 2008-11-13
  */
 
-#include <math.h>
 #include <string.h>
 #include <stdlib.h>
 
+#include <limits>
 #include <iostream>
 
 #include "a_star.h"
@@ -33,7 +33,7 @@
 using namespace std;
 
 unsigned int threads = 1;
-float cost_bound = INFINITY;
+float cost_bound = numeric_limits<float>::infinity();
 unsigned int nblocks = 1;
 float weight = 1.0;
 

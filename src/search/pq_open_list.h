@@ -11,7 +11,7 @@
 #if !defined(_PQ_OPEN_LIST_H_)
 #define _PQ_OPEN_LIST_H_
 
-#include <math.h>
+#include <limits>
 
 #include <queue>
 
@@ -82,7 +82,7 @@ const State *PQOpenList<PQCompare>::take(void)
 	pq.pop();
 
 	if (pq.empty())
-		set_best_f(INFINITY);
+		set_best_f(numeric_limits<float>::infinity());
 	else
 		set_best_f(pq.top()->get_f());
 
@@ -128,7 +128,7 @@ template<class PQCompare>
 float PQOpenList<PQCompare>::get_best_val(void)
 {
 	if (pq.empty())
-		return INFINITY;
+		return numeric_limits<float>::infinity();
 
 	return comp.get_value(pq.top());
 }

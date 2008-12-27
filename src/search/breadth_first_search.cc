@@ -9,15 +9,18 @@
  */
 
 #include <assert.h>
-#include <math.h>		// INFINITY
+
+#include <limits>
 
 #include "breadth_first_search.h"
 #include "state.h"
 #include "closed_list.h"
 #include "queue_open_list.h"
 
+using namespace std;
+
 BreadthFirstSearch::BreadthFirstSearch(void)
-	: bound(INFINITY) {}
+	: bound(numeric_limits<float>::infinity()) {}
 
 BreadthFirstSearch::BreadthFirstSearch(float bound)
 	: bound(bound) {}

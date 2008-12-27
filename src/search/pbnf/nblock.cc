@@ -9,8 +9,8 @@
  */
 
 #include <assert.h>
-#include <math.h>
 
+#include <limits>
 #include <set>
 
 #include "nblock.h"
@@ -65,7 +65,7 @@ void NBlock::print(ostream &o)
 	float best_f;
 	set<NBlock *>::const_iterator iter;
 
-	best_f = open.empty() ? INFINITY : open.peek()->get_f();
+	best_f = open.empty() ? numeric_limits<float>::infinity() : open.peek()->get_f();
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;
