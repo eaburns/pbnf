@@ -81,7 +81,7 @@ void PRAStar::PRAStarThread::run(void){
           if (s == NULL){
             break;
           }
-	  const State *dup = closed->lookup(s);
+	  const State *dup = closed.lookup(s);
 	  if (dup) {
 	    delete s;
 	    continue;
