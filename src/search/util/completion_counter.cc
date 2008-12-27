@@ -62,7 +62,7 @@ void CompletionCounter::uncomplete(void)
  */
 void CompletionCounter::wait(void)
 {
-	while (counter < max){}
+	while (counter.read() < max.read()){}
 }
 
 /**
