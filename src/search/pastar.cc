@@ -19,7 +19,7 @@ public:
   PAStarThread(PAStar *p, pthread_cond_t* con, pthread_mutex_t* mut, CompletionCounter* cc) : p(p), con(con), mut(mut), cc(cc) {}
 
   virtual void run(void){
-    vector<const State *> *children;
+    vector<const State *> *children = NULL;
     
     while(!p->has_path()){
       pthread_mutex_lock(mut);
@@ -34,6 +34,7 @@ public:
         }
         if (p->done==true){
           pthread_mutex_unlock(mut);
+	  if (children)
           delete children;
           return;
         }
