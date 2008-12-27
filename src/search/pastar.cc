@@ -42,7 +42,7 @@ public:
       const State *s = p->open.take();
       pthread_mutex_unlock(mut);
 
-      const State *dup = closed.lookup(s);
+      const State *dup = p->closed.lookup(s);
       if (dup) {
 	delete s;
 	continue;
