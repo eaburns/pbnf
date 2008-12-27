@@ -75,6 +75,12 @@ vector<const State *> *KBFS::search(const State *init)
                       path = s->get_path();
                       break;
                     }
+		    const State *dup = closed->lookup(s);
+		    if (dup) {
+		      delete s;
+		      worker--;
+		      continue;
+		    }
                     threads[worker]->s = s;
                 }
 

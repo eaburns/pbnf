@@ -42,6 +42,12 @@ public:
       const State *s = p->open.take();
       pthread_mutex_unlock(mut);
 
+      const State *dup = closed->lookup(s);
+      if (dup) {
+	delete s;
+	continue;
+      }
+
       if (s->is_goal()) {
         p->set_path(s->get_path());
         pthread_mutex_lock(mut);

@@ -19,46 +19,53 @@
 
 using namespace std;
 
-PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, pthread_cond_t* con, pthread_mutex_t* mut, CompletionCounter* cc)
+PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, CompletionCounter* cc)
                                     : p(p),
                                       threads(threads),
-                                      con(con),
-                                      mut(mut),
                                       cc(cc) {
         completed = false;
+        pthread_mutex_init(&mutex, NULL);
 }
 
 
 PRAStar::PRAStarThread::~PRAStarThread(void) {}
 
 void PRAStar::PRAStarThread::add(const State* s){
-        pthread_mutex_lock(mut);
+        pthread_mutex_lock(&mutex);
         if (open.empty() && completed){
           cc->uncomplete();
           completed = false;
         }
-        open.add(s);
-        closed.add(s);
-        pthread_cond_broadcast(con);
-        pthread_mutex_unlock(mut);
+        q->push_back(s);
+        pthread_mutex_unlock(&mutex);
 }
 
 const State *PRAStar::PRAStarThread::take(void){
-        pthread_mutex_lock(mut);
-        if (open.empty()){
+        if (open.empty() && q->empty()){
           cc->complete();
           completed = true;
           if (cc->is_complete()){
-            p->done = true;
-            pthread_mutex_unlock(mut);
+            p->set_done();
             return NULL;
           }
-          while (open.empty() && !p->done){
-            pthread_cond_wait(con, mut);
+          while (open.empty() && !p->is_done()){
           }
         }
+	if (pthread_mutex_trylock(&mutex) == 0){
+	  for (unsigned int i = 0; 
+	       i < q->size(); i += 1) {
+	    const State *c = q->at(i);
+	    if (closed.lookup(c) != NULL) {
+	      delete c;
+	      continue;
+	    }
+	    closed.add(c);
+	    open.add(c);
+	  }
+	  q->clear();
+	  pthread_mutex_unlock(&mutex);
+	}
         const State *ret = open.take();
-        pthread_mutex_unlock(mut);
         return ret;
 }
 
@@ -67,29 +74,27 @@ const State *PRAStar::PRAStarThread::take(void){
  */
 void PRAStar::PRAStarThread::run(void){
         vector<const State *> *children;
+	q = new vector<const State *>();
 
         while(!p->has_path()){
           const State *s = take();
           if (s == NULL){
             break;
           }
+	  const State *dup = closed->lookup(s);
+	  if (dup) {
+	    delete s;
+	    continue;
+	  }
 
           if (s->is_goal()) {
             p->set_path(s->get_path());
-            pthread_mutex_lock(mut);
-            p->done = true;
-            pthread_cond_broadcast(con);
-            pthread_mutex_unlock(mut);
             break;
           }
           
           children = p->expand(s);
           for (unsigned int i = 0; i < children->size(); i += 1) {
             const State *c = children->at(i);
-            if (threads->at(c->hash()%p->n_threads)->closed.lookup(c) != NULL) {
-              delete c;
-              continue;
-            }
             threads->at(c->hash()%p->n_threads)->add(c);
           }
         }
@@ -109,11 +114,28 @@ PRAStar::PRAStar(unsigned int n_threads)
 
 PRAStar::~PRAStar(void) {}
 
+void PRAStar::set_done()
+{
+        pthread_mutex_lock(&mutex);
+        done = true;
+        pthread_mutex_unlock(&mutex);
+}
+
+bool PRAStar::is_done()
+{
+        bool ret;
+        pthread_mutex_lock(&mutex);
+        ret = done;
+        pthread_mutex_unlock(&mutex);
+        return ret;
+}
+
 void PRAStar::set_path(vector<const State *> *path)
 {
         pthread_mutex_lock(&mutex);
         if (this->path == NULL){
           this->path = path;
+	  done = true;
         }
         pthread_mutex_unlock(&mutex);
 }
@@ -132,17 +154,11 @@ vector<const State *> *PRAStar::search(const State *init)
         vector<PRAStarThread *> threads;
         vector<PRAStarThread *>::iterator iter;
         pthread_mutex_init(&mutex, NULL);
-        pthread_cond_init(&cond, NULL);
 
         CompletionCounter cc = CompletionCounter(n_threads);
-        pthread_cond_t c;
-        pthread_mutex_t m;
-        pthread_mutex_init(&m, NULL);
-        pthread_cond_init(&c, NULL);
 
         for (unsigned int i = 0; i < n_threads; i += 1) {
-          PRAStarThread *t = new PRAStarThread(this, &threads, &c, &m, &cc);
-          t->id = i;
+          PRAStarThread *t = new PRAStarThread(this, &threads, &cc);
           threads.push_back(t);
         }
 

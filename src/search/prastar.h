@@ -31,13 +31,15 @@ public:
         virtual ~PRAStar(void);
 
         virtual vector<const State *> *search(const State *init);
+        void set_done();
+        bool is_done();
         void set_path(vector<const State *> *path);
         bool has_path();
 
 private:
         class PRAStarThread : public Thread {
         public:
-                PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, pthread_cond_t* con, pthread_mutex_t* mut, CompletionCounter* cc);
+                PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, CompletionCounter* cc);
                 virtual ~PRAStarThread(void);
                 virtual void run(void);
                 void add(const State* s);
@@ -46,14 +48,14 @@ private:
         private:
                 PRAStar *p;
                 vector<PRAStarThread *> *threads;
-                pthread_cond_t* con;
+		vector<const State *> *q;
                 pthread_mutex_t* mut;
+                pthread_mutex_t mutex;
                 bool completed;
                 CompletionCounter *cc;
                 friend class PRAStar;
-                SynchPQOList<CompareOnF> open;
-                SynchClosedList closed;
-                unsigned int id;
+                PQOpenList<CompareOnF> open;
+                ClosedList closed;
         };
 
         bool done;
