@@ -8,8 +8,7 @@
  * \date 2008-10-20
  */
 
-#include <math.h>
-
+#include <limits>
 #include <queue>
 
 #include "queue_open_list.h"
@@ -29,7 +28,7 @@ const State *QueueOpenList::take(void)
 
 	q.pop();
 	if (q.empty())
-		set_best_f(INFINITY);
+		set_best_f(numeric_limits<float>::infinity());
 	else
 		set_best_f(q.front()->get_f());
 

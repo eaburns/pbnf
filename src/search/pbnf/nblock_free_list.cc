@@ -9,8 +9,8 @@
  */
 
 #include <assert.h>
-#include <math.h>
 
+#include <limits>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -47,7 +47,7 @@ NBlock *NBlockFreeList::take(void)
 	heap.pop_back();
 
 	if (heap.empty())
-		best.set(INFINITY);
+		best.set(numeric_limits<float>::infinity());
 	else
 		best.set(heap.front()->open.peek()->get_f());
 

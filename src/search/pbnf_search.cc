@@ -9,8 +9,8 @@
  */
 
 #include <assert.h>
-#include <math.h>
 
+#include <limits>
 #include <vector>
 
 #include "pbnf_search.h"
@@ -170,7 +170,7 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	: n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
-	  bound(INFINITY),
+	  bound(numeric_limits<float>::infinity()),
 	  detect_livelocks(detect_livelocks),
 	  graph(NULL),
 	  min_expansions(min_expansions)

@@ -10,9 +10,9 @@
 
 #include <assert.h>
 #include <pthread.h>
-#include <math.h>
 #include <errno.h>
 
+#include <limits>
 #include <iostream>
 #include <list>
 #include <map>
@@ -144,7 +144,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 			double cur_f = finished->open.get_best_f();
 			double new_f;
 			if (free_list.empty())
-				new_f = INFINITY;
+				new_f = numeric_limits<float>::infinity();
 			else
 				new_f = free_list.best_f();
 			if (cur_f <= new_f) {
@@ -202,7 +202,7 @@ out:
 NBlock *NBlockGraph::best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
-	double best_f = INFINITY;
+	double best_f = numeric_limits<float>::infinity();
 	map<unsigned int, NBlock*>::iterator i;
 
 //	pthread_mutex_lock(&mutex);
@@ -219,8 +219,8 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 
 //	pthread_mutex_unlock(&mutex);
 
-	// best_b => best_f != INFINITY
-	assert(best_f != INFINITY || !best_b);
+	// best_b => best_f != numeric_limits<float>::infinity();
+	assert(best_f != numeric_limits<float>::infinity() || !best_b);
 
 	return best_b;
 }

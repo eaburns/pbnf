@@ -10,8 +10,8 @@
 
 
 #include <pthread.h>
-#include <math.h>
 
+#include <limits>
 #include <iostream>
 #include <vector>
 
@@ -136,7 +136,7 @@ vector<const State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareO
  * Create a new Parallel Structured Duplicate Detection search.
  */
 BFPSDDSearch::BFPSDDSearch(unsigned int n_threads)
-	: bound(INFINITY),
+	: bound(numeric_limits<float>::infinity()),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL)

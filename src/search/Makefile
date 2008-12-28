@@ -65,6 +65,9 @@ ifeq ($(MARCH), sparc64)
 FLAGS+=-mcpu=v9
 OBJ+=util/sparc64_atomic_asm.o
 OBJ+=util/sparc64_atomic_int.o
+else ifeq ($(MARCH), sun4v)
+OBJ+=util/sparc64_atomic_asm.o
+OBJ+=util/sparc64_atomic_int.o
 else ifeq ($(MARCH), i386)
 OBJ+=util/i386_atomic_int.o
 else ifeq ($(MARCH), x86_64)

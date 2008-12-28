@@ -9,8 +9,8 @@
  */
 
 #include <pthread.h>
-#include <math.h>
 
+#include <limits>
 #include <iostream>
 #include <vector>
 
@@ -29,7 +29,7 @@ using namespace PSDD;
  * Create a new PSDD Search thread.
  */
 PSDDSearch::PSDDThread::PSDDThread(NBlockGraph *graph, PSDDSearch *search)
-	: graph(graph), search(search), lowest_out_of_bounds(INFINITY) {}
+	: graph(graph), search(search), lowest_out_of_bounds(numeric_limits<float>::infinity()) {}
 
 
 PSDDSearch::PSDDThread::~PSDDThread() {}
@@ -142,12 +142,12 @@ float PSDDSearch::PSDDThread::get_lowest_out_of_bounds(void)
  * Create a new Parallel Structured Duplicate Detection search.
  */
 PSDDSearch::PSDDSearch(unsigned int n_threads)
-	: bound(INFINITY),
+	: bound(numeric_limits<float>::infinity()),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  graph(NULL),
-	  lowest_out_of_bounds(INFINITY)
+	  lowest_out_of_bounds(numeric_limits<float>::infinity())
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -161,7 +161,7 @@ PSDDSearch::PSDDSearch(unsigned int n_threads, float bound)
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
-	  lowest_out_of_bounds(INFINITY)
+	  lowest_out_of_bounds(numeric_limits<float>::infinity())
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
