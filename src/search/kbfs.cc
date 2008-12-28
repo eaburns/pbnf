@@ -65,8 +65,6 @@ vector<const State *> *KBFS::search(const State *init)
         cc.wait();
 
  	open.add(init);
- 	closed.add(init);
-
 
  	while (!open.empty() && !path) {
          	for (worker=0; (worker<n_threads) && !open.empty(); worker++) {
@@ -76,11 +74,14 @@ vector<const State *> *KBFS::search(const State *init)
                       break;
                     }
 		    const State *dup = closed.lookup(s);
-		    if (dup) {
+		    if (dup && dup->get_g() < s->get_g()) {
 		      delete s;
 		      worker--;
 		      continue;
 		    }
+
+		    closed.add(s);
+
                     threads[worker]->s = s;
                 }
 
@@ -99,7 +100,6 @@ vector<const State *> *KBFS::search(const State *init)
 			delete c;
 			continue;
 		      }
-		      closed.add(c);
 		      open.add(c);
 		    }
 		}

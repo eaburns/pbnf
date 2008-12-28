@@ -28,7 +28,9 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
 }
 
 
-PRAStar::PRAStarThread::~PRAStarThread(void) {}
+PRAStar::PRAStarThread::~PRAStarThread(void) {
+        delete q;
+}
 
 void PRAStar::PRAStarThread::add(const State* s){
         pthread_mutex_lock(&mutex);
@@ -43,28 +45,32 @@ void PRAStar::PRAStarThread::add(const State* s){
 const State *PRAStar::PRAStarThread::take(void){
         if (open.empty() && q->empty()){
           cc->complete();
+	  pthread_mutex_lock(&mutex);
           completed = true;
+	  pthread_mutex_unlock(&mutex);
           if (cc->is_complete()){
             p->set_done();
             return NULL;
           }
-          while (open.empty() && !p->is_done()){
+          while (open.empty() && q->empty() && !p->is_done()){
           }
         }
-	if (pthread_mutex_trylock(&mutex) == 0){
-	  for (unsigned int i = 0; 
-	       i < q->size(); i += 1) {
-	    const State *c = q->at(i);
-	    if (closed.lookup(c) != NULL) {
-	      delete c;
-	      continue;
+	do{
+	  if (pthread_mutex_trylock(&mutex) == 0){
+	    for (unsigned int i = 0; 
+		 i < q->size(); i += 1) {
+	      const State *c = q->at(i);
+	      if (closed.lookup(c) != NULL) {
+		delete c;
+		continue;
+	      }
+	      open.add(c);
 	    }
-	    closed.add(c);
-	    open.add(c);
+	    q->clear();
+	    pthread_mutex_unlock(&mutex);
 	  }
-	  q->clear();
-	  pthread_mutex_unlock(&mutex);
 	}
+	while (open.empty());
         const State *ret = open.take();
         return ret;
 }
@@ -82,10 +88,12 @@ void PRAStar::PRAStarThread::run(void){
             break;
           }
 	  const State *dup = closed.lookup(s);
-	  if (dup) {
+	  if (dup && dup->get_g() < s->get_g()) {
 	    delete s;
 	    continue;
 	  }
+
+	  closed.add(s);
 
           if (s->is_goal()) {
             p->set_path(s->get_path());
@@ -163,7 +171,6 @@ vector<const State *> *PRAStar::search(const State *init)
         }
 
         threads.at(init->hash()%n_threads)->open.add(init);
-        threads.at(init->hash()%n_threads)->closed.add(init);
 
         for (iter = threads.begin(); iter != threads.end(); iter++) {
           (*iter)->start();

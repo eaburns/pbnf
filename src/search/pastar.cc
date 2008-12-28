@@ -35,7 +35,7 @@ public:
         if (p->done==true){
           pthread_mutex_unlock(mut);
 	  if (children)
-          delete children;
+	    delete children;
           return;
         }
         cc->uncomplete();
@@ -44,10 +44,12 @@ public:
       pthread_mutex_unlock(mut);
 
       const State *dup = p->closed.lookup(s);
-      if (dup) {
+      if (dup && dup->get_g() < s->get_g()) {
 	delete s;
 	continue;
       }
+
+      p->closed.add(s);
 
       if (s->is_goal()) {
         p->set_path(s->get_path());
@@ -67,7 +69,6 @@ public:
           continue;
         }
         added = true;
-        p->closed.add(c);
         p->open.add(c);
       }
       if (added){
@@ -118,7 +119,6 @@ bool PAStar::has_path()
 vector<const State *> *PAStar::search(const State *init)
 {
  	open.add(init);
- 	closed.add(init);
         pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
 
@@ -140,8 +140,6 @@ vector<const State *> *PAStar::search(const State *init)
 		(*iter)->join();
 		delete *iter;
 	}
-
- 	closed.delete_all_states();
 
  	return path;
 }
