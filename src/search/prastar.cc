@@ -70,8 +70,14 @@ const State *PRAStar::PRAStarThread::take(void){
 	    pthread_mutex_unlock(&mutex);
 	  }
 	}
-	while (open.empty());
-        const State *ret = open.take();
+	while (open.empty() && !p->is_done());
+	const State *ret;
+	if (!open.empty()){
+	  ret = open.take();
+	}
+	else{
+	  ret = NULL;
+	}
         return ret;
 }
 
