@@ -72,7 +72,7 @@ const State *PRAStar::PRAStarThread::take(void){
 	}
 	while (open.empty() && !p->is_done());
 	const State *ret;
-	if (!open.empty()){
+	if (!open.empty() && !p->is_done()){
 	  ret = open.take();
 	}
 	else{
