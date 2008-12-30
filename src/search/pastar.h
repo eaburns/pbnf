@@ -31,7 +31,6 @@ public:
 private:
 	SynchPQOList<CompareOnF> open;
 	SynchClosedList closed;
-	pthread_cond_t cond;
         bool done;
 	pthread_mutex_t mutex;
         friend class PAStarThread;
