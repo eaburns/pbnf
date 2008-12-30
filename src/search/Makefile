@@ -1,4 +1,5 @@
 CXX=g++
+CC=gcc
 
 MARCH=$(shell uname -m)
 
@@ -149,7 +150,7 @@ depend:
 
 .PHONY: objdirs
 objdirs:
-	$(foreach file, $(SRC), $(shell test -e $(OBJDIR)/$(dir $(file)) || mkdir -p $(OBJDIR)/$(dir $(file))))
+	$(foreach file, $(SRC), $(shell test -d $(OBJDIR)/$(dir $(file)) || mkdir -p $(OBJDIR)/$(dir $(file))))
 
 .PHONY: clean
  clean:
