@@ -147,7 +147,8 @@ PSDDSearch::PSDDSearch(unsigned int n_threads)
 	  project(NULL),
 	  path(NULL),
 	  graph(NULL),
-	  lowest_out_of_bounds(numeric_limits<float>::infinity())
+	  lowest_out_of_bounds(numeric_limits<float>::infinity()),
+	  print(true)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -161,6 +162,7 @@ PSDDSearch::PSDDSearch(unsigned int n_threads, float bound)
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
+	  graph(NULL),
 	  lowest_out_of_bounds(numeric_limits<float>::infinity())
 {
 	pthread_mutex_init(&path_mutex, NULL);
@@ -216,7 +218,10 @@ vector<const State *> *PSDDSearch::search(const State *initial)
 	vector<PSDDThread *>::iterator iter;
 	float sum = 0.0;
 	unsigned int num = 0;
-	graph = new NBlockGraph(project, initial);
+	if (!graph)
+		graph = new NBlockGraph(project, initial);
+	else
+		graph->reset();
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PSDDThread *t = new PSDDThread(graph, this);
@@ -240,7 +245,8 @@ vector<const State *> *PSDDSearch::search(const State *initial)
 
 		delete *iter;
 	}
-	cout << "expansions-per-nblock: " << sum / num << endl;
+	if (print)
+		cout << "expansions-per-nblock: " << sum / num << endl;
 
 	return path;
 }
@@ -256,4 +262,15 @@ void PSDDSearch::set_bound(float bound)
 float PSDDSearch::get_lowest_out_of_bounds(void)
 {
 	return lowest_out_of_bounds;
+}
+
+void PSDDSearch::reset(void)
+{
+	lowest_out_of_bounds = numeric_limits<float>::infinity();
+	path = NULL;
+}
+
+void PSDDSearch::do_not_print(void)
+{
+	print = false;
 }

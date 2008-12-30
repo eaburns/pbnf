@@ -32,10 +32,13 @@ public:
 	PSDDSearch(unsigned int n_threads, float bound);
 	virtual ~PSDDSearch(void);
 
-	virtual vector<const State *> *search(const State *s);
+	vector<const State *> *search(const State *s);
+	vector<const State *> *search(const State *s, NBlockGraph *g);
 
 	void set_bound(float bound);
 	float get_lowest_out_of_bounds(void);
+	void do_not_print(void);
+	void reset(void);
 private:
 
 	void set_path(vector<const State *> *path);
@@ -65,6 +68,7 @@ private:
 
 	NBlockGraph *graph;
 	float lowest_out_of_bounds;
+	bool print;
 };
 
 #endif	/* !_PSDD_H_ */

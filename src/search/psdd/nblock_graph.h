@@ -47,6 +47,8 @@ namespace PSDD {
 		enum layer get_next_layer(void) const;
 		enum layer get_cur_layer(void) const;
 
+		void reset(void);
+
 	private:
 		void __print(ostream &o);
 		void update_scope_sigmas(unsigned int y, int delta);

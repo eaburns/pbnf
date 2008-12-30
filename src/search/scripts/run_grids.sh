@@ -10,7 +10,7 @@ HEIGHT=1200
 ALGORITHM=""
 
 # constants
-RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
+RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path"
 GRID_SEARCH="./grid_search.bin"
 DATA_ROOT="/home/rai/group/data/grid_instances"
 RUNS_ROOT="/home/rai/eaburns/data/grid"

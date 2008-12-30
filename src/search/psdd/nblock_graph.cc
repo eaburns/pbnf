@@ -311,3 +311,27 @@ enum NBlockGraph::layer NBlockGraph::get_cur_layer(void) const
 {
 	return layer;
 }
+
+/**
+ * Remove all old states.
+ */
+void NBlockGraph::reset(void)
+{
+	map<unsigned int, NBlock *>::iterator iter;
+
+	for (iter = blocks.begin(); iter != blocks.end(); iter++) {
+		NBlock *n = iter->second;
+		n->closed.delete_all_states();
+		n->open[0].delete_all_states();
+		n->open[1].delete_all_states();
+		n->inuse = false;
+		n->sigma = 0;
+	}
+
+	free_list[0].clear();
+	free_list[1].clear();
+	num_sigma_zero = num_nblocks;
+	layer = NBlockGraph::LAYERA;
+	path_found = false;
+	nblocks_assigned = 0;
+}

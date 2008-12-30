@@ -20,8 +20,9 @@ vector<const State *> *IDPSDDSearch::search(const State *init)
 	vector <const State *> *path = NULL;
 	float old_bound, bound = init->get_f();
 
+	PSDDSearch psdd(n_threads, bound);
+	psdd.do_not_print();
 	do {
-		PSDDSearch psdd(n_threads, bound);
 //		cout << "bound: " << bound << endl;
 
 		path = psdd.search(init->clone());
@@ -29,6 +30,8 @@ vector<const State *> *IDPSDDSearch::search(const State *init)
 		set_generated(get_generated() + psdd.get_generated());
 		old_bound = bound;
 		bound = psdd.get_lowest_out_of_bounds();
+		psdd.reset();
+		psdd.set_bound(bound);
 	} while ((!path || path->at(0)->get_f() > old_bound) && bound != -1);
 
 	delete init;
