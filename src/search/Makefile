@@ -16,6 +16,8 @@ FLAGS=-Wall -pipe $(PROF_FLAGS) $(DEBUG)
 # Comment this out for faster, more memory efficient code.
 #FLAGS+=-DENABLE_IMAGES
 
+OBJDIR=objs.$(MARCH)
+
 SRC= \
 	get_search.cc \
 	state.cc \
@@ -59,19 +61,19 @@ SRC= \
 	pastar.cc \
 	prastar.cc
 
-OBJ=$(SRC:.cc=.o)
+OBJ=$(addprefix $(OBJDIR)/, $(SRC:.cc=.o))
 
 ifeq ($(MARCH), sparc64)
 FLAGS+=-mcpu=v9
-OBJ+=util/sparc64_atomic_asm.o
-OBJ+=util/sparc64_atomic_int.o
+OBJ+=$(OBJDIR)/util/sparc64_atomic_asm.o
+OBJ+=$(OBJDIR)/util/sparc64_atomic_int.o
 else ifeq ($(MARCH), sun4v)
-OBJ+=util/sparc64_atomic_asm.o
-OBJ+=util/sparc64_atomic_int.o
+OBJ+=$(OBJDIR)/util/sparc64_atomic_asm.o
+OBJ+=$(OBJDIR)/util/sparc64_atomic_int.o
 else ifeq ($(MARCH), i386)
-OBJ+=util/i386_atomic_int.o
+OBJ+=$(OBJDIR)/util/i386_atomic_int.o
 else ifeq ($(MARCH), x86_64)
-OBJ+=util/x86_64_atomic_int.o
+OBJ+=$(OBJDIR)/util/x86_64_atomic_int.o
 else
 $(error Unknown machine type)
 endif
@@ -81,56 +83,65 @@ ASFLAGS+=$(FLAGS)
 CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
 LDFLAGS=-lpthread $(PROF_FLAGS)
 
-all: grid_search tiles_search \
-     thread_test \
-     atomic_int_test \
-     psdd_nblock_graph_test \
-     pbnf_nblock_graph_test \
-     tiles_hash_test \
-     tiles_read_test \
-     atomic_float_test \
-     one_tile_project_test \
-#    two_tile_project_test
+PROGS=$(addsuffix .$(MARCH), \
+	grid_search \
+	tiles_search \
+	thread_test \
+	atomic_int_test \
+	psdd_nblock_graph_test \
+	pbnf_nblock_graph_test \
+	tiles_hash_test \
+	tiles_read_test \
+	atomic_float_test \
+	one_tile_project_test \
+	two_tile_project_test)
 
-grid_search: $(OBJ) grid_search.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o grid_search $(OBJ) grid_search.cc
+all: $(PROGS)
 
-tiles_search: $(OBJ) tiles_search.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o tiles_search $(OBJ) tiles_search.cc
+grid_search.$(MARCH): $(OBJ) grid_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) grid_search.cc
 
-thread_test: $(OBJ) util/thread_test.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o thread_test $(OBJ) util/thread_test.cc
+tiles_search.$(MARCH): $(OBJ) tiles_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles_search.cc
 
-atomic_int_test: $(OBJ) util/atomic_int_test.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o atomic_int_test $(OBJ) util/atomic_int_test.cc
+thread_test.$(MARCH): $(OBJ) util/thread_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/thread_test.cc
 
-psdd_nblock_graph_test: $(OBJ) psdd/nblock_graph_test.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o psdd_nblock_graph_test \
-	$(OBJ) psdd/nblock_graph_test.cc
+atomic_int_test.$(MARCH): $(OBJ) util/atomic_int_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/atomic_int_test.cc
 
-pbnf_nblock_graph_test: $(OBJ) pbnf/nblock_graph_test.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o pbnf_nblock_graph_test \
-	$(OBJ) pbnf/nblock_graph_test.cc
+psdd_nblock_graph_test.$(MARCH): $(OBJ) psdd/nblock_graph_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) psdd/nblock_graph_test.cc
 
-tiles_hash_test: $(OBJ) tiles/tiles_hash_test.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o tiles_hash_test \
-	$(OBJ) tiles/tiles_hash_test.o
+pbnf_nblock_graph_test.$(MARCH): $(OBJ) pbnf/nblock_graph_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) pbnf/nblock_graph_test.cc
 
-tiles_read_test: $(OBJ) tiles/tiles_read_test.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o tiles_read_test \
-	$(OBJ) tiles/tiles_read_test.o
+tiles_hash_test.$(MARCH): $(OBJ) tiles/tiles_hash_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/tiles_hash_test.cc
 
-atomic_float_test: $(OBJ) util/atomic_float_test.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o atomic_float_test \
-	$(OBJ) util/atomic_float_test.o
+tiles_read_test.$(MARCH): $(OBJ) tiles/tiles_read_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/tiles_read_test.cc
 
-one_tile_project_test: $(OBJ) tiles/one_tile_project_test.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o one_tile_project_test \
-	$(OBJ) tiles/one_tile_project_test.o
+atomic_float_test.$(MARCH): $(OBJ) util/atomic_float_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/atomic_float_test.cc
 
-#two_tile_project_test: $(OBJ) tiles/two_tile_project_test.o
-#	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o two_tile_project_test \
-#	$(OBJ) tiles/two_tile_project_test.o
+one_tile_project_test.$(MARCH): $(OBJ) tiles/one_tile_project_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/one_tile_project_test.cc
+
+two_tile_project_test.$(MARCH): $(OBJ) tiles/two_tile_project_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/two_tile_project_test.cc
+
+$(OBJDIR)/%.o: %.cc
+	@test -d $(dir $@) || mkdir $(dir $@)
+	$(COMPILE.cc) $< -o $@
+
+$(OBJDIR)/%.o: %.c
+	@test -d $(dir $@) || mkdir $(dir $@)
+	$(COMPILE.c) $< -o $@
+
+$(OBJDIR)/%.o: %.S
+	@test -d $(dir $@) || mkdir $(dir $@)
+	$(COMPILE.S) $< -o $@
 
 depend:
 	rm -f .depend
@@ -139,17 +150,7 @@ depend:
 	rm -f .depend.bak
 
 clean:
-	find . -name \*.o -exec rm -f '{}' \;
-	rm -f grid_search
-	rm -f tiles_search
-	rm -f thread_test
-	rm -f atomic_int_test
-	rm -f psdd_nblock_graph_test
-	rm -f pbnf_nblock_graph_test
-	rm -f tiles_hash_test
-	rm -f tiles_read_test
-	rm -f atomic_float_test
-	rm -f one_tile_project_test
-	rm -f two_tile_project_test
+	rm -fr $(OBJDIR)
+	rm -f $(PROGS)
 
 -include .depend
