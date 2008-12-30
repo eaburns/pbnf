@@ -96,7 +96,7 @@ PROGS=$(addsuffix .$(MARCH), \
 	one_tile_project_test \
 	two_tile_project_test)
 
-all: $(PROGS)
+all: objdirs $(PROGS)
 
 grid_search.$(MARCH): $(OBJ) grid_search.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) grid_search.cc
@@ -132,24 +132,27 @@ two_tile_project_test.$(MARCH): $(OBJ) tiles/two_tile_project_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/two_tile_project_test.cc
 
 $(OBJDIR)/%.o: %.cc
-	@test -d $(dir $@) || mkdir $(dir $@)
 	$(COMPILE.cc) $< -o $@
 
 $(OBJDIR)/%.o: %.c
-	@test -d $(dir $@) || mkdir $(dir $@)
 	$(COMPILE.c) $< -o $@
 
 $(OBJDIR)/%.o: %.S
-	@test -d $(dir $@) || mkdir $(dir $@)
 	$(COMPILE.S) $< -o $@
 
+.PHONY: depend
 depend:
 	rm -f .depend
 	touch .depend
 	(find . -name \*.cc; find . -name \*.h) | xargs makedepend -f.depend -Y
 	rm -f .depend.bak
 
-clean:
+.PHONY: objdirs
+objdirs:
+	$(foreach file, $(SRC), $(shell test -e $(OBJDIR)/$(dir $(file)) || mkdir -p $(OBJDIR)/$(dir $(file))))
+
+.PHONY: clean
+ clean:
 	rm -fr $(OBJDIR)
 	rm -f $(PROGS)
 
