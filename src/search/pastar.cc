@@ -16,7 +16,7 @@ class PAStarThread : public Thread {
 public:
   PAStarThread() {}
   PAStarThread(PAStar *p) : p(p) {}
-  PAStarThread(PAStar *p, pthread_cond_t* con, pthread_mutex_t* mut, CompletionCounter* cc) : p(p), con(con), mut(mut), cc(cc) {}
+  PAStarThread(PAStar *p, pthread_mutex_t* mut, CompletionCounter* cc) : p(p), mut(mut), cc(cc) {}
 
   virtual void run(void){
     vector<const State *> *children = NULL;
@@ -75,7 +75,6 @@ public:
   
 private:
   PAStar *p;
-  pthread_cond_t* con;
   pthread_mutex_t* mut;
   friend class PAStar;
   CompletionCounter *cc;
@@ -129,19 +128,16 @@ vector<const State *> *PAStar::search(const State *init)
 {
  	open.add(init);
         pthread_mutex_init(&mutex, NULL);
-	pthread_cond_init(&cond, NULL);
 
         CompletionCounter cc = CompletionCounter(n_threads);
-	pthread_cond_t c;
 	pthread_mutex_t m;
         pthread_mutex_init(&m, NULL);
-	pthread_cond_init(&c, NULL);
 
         unsigned int worker;
         vector<PAStarThread *> threads;
 	vector<PAStarThread *>::iterator iter;
         for (worker=0; worker<n_threads; worker++) {
-		PAStarThread *t = new PAStarThread(this, &c, &m, &cc);
+		PAStarThread *t = new PAStarThread(this, &m, &cc);
 		threads.push_back(t);
 		t->start();
         }
