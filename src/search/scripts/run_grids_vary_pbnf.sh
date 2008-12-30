@@ -6,11 +6,12 @@ do
     do
 	for (( threads=1; threads <= 8; threads++ ))
 	do
-	    ./scripts/run_grids.sh pbnf \
+	    ./scripts/run_grids.sh \
 		-m $min \
 		-t $threads \
 		-n $nblocks \
-                $@
+                $@ \
+		pbnf
 	done
     done
 done

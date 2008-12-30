@@ -10,10 +10,16 @@ HEIGHT=1200
 ALGORITHM=""
 
 # constants
-RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path"
-GRID_SEARCH="./grid_search.bin"
+if [[ $(uname -m) == "sun4v" ]]; then
+	RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.SunOS"
+	GRID_SEARCH="./grid_search.sun4v.bin"
+	RUNS_ROOT="/home/rai/eaburns/data/legion/grid"
+else
+	RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
+	GRID_SEARCH="./grid_search.bin"
+	RUNS_ROOT="/home/rai/eaburns/data/grid"
+fi
 DATA_ROOT="/home/rai/group/data/grid_instances"
-RUNS_ROOT="/home/rai/eaburns/data/grid"
 OBSTACLES="uniform"
 COSTS="Unit"
 MOVES="Four-way"
@@ -97,21 +103,21 @@ function paths ()
 {
     ARGS=""
 
-    ARGS+="obstacles=$OBSTACLES "
+    ARGS="${ARGS}obstacles=$OBSTACLES "
 
     # This is Jordan's fault.
     if [[ "$OBSTACLES" == "lines" ]]
     then
-	ARGS+="type=instance "
+	ARGS="${ARGS}:type=instance "
     fi
 
-    ARGS+="costs=$COSTS "
-    ARGS+="moves=$MOVES "
-    ARGS+="prob=$PROB "
-    ARGS+="width=$WIDTH "
-    ARGS+="height=$HEIGHT "
+    ARGS="${ARGS}costs=$COSTS "
+    ARGS="${ARGS}moves=$MOVES "
+    ARGS="${ARGS}prob=$PROB "
+    ARGS="${ARGS}width=$WIDTH "
+    ARGS="${ARGS}height=$HEIGHT "
 
-    ARGS+="num=*"
+    ARGS="${ARGS}num=*"
     $RDB_GET_PATH $DATA_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
 }
 
@@ -122,37 +128,37 @@ function paths ()
 function run_file ()
 {
     ARGS=""
-    ARGS+="type=run "
-    ARGS+="alg=$ALGORITHM "
+    ARGS="${ARGS}type=run "
+    ARGS="${ARGS}alg=$ALGORITHM "
 
     if alg_on_list $USES_MIN_EXPANSIONS
     then
-	ARGS+="min-expansions=$MIN_EXPANSIONS "
+	ARGS="${ARGS}min-expansions=$MIN_EXPANSIONS "
     fi
 
     if alg_on_list $USES_THREADS
     then
-	ARGS+="threads=$THREADS "
+	ARGS="${ARGS}threads=$THREADS "
     fi
 
     if alg_on_list $USES_NBLOCKS
     then
-	ARGS+="nblocks=$NBLOCKS "
+	ARGS="${ARGS}nblocks=$NBLOCKS "
     fi
 
     if alg_on_list $USES_WEIGHT
     then 
-	ARGS+="wt=$WEIGHT "
+	ARGS="${ARGS}wt=$WEIGHT "
     fi
 
-    ARGS+="obstacles=$OBSTACLES "
-    ARGS+="costs=$COSTS "
-    ARGS+="moves=$MOVES "
-    ARGS+="prob=$PROB "
-    ARGS+="width=$WIDTH "
-    ARGS+="height=$HEIGHT "
+    ARGS="${ARGS}obstacles=$OBSTACLES "
+    ARGS="${ARGS}costs=$COSTS "
+    ARGS="${ARGS}moves=$MOVES "
+    ARGS="${ARGS}prob=$PROB "
+    ARGS="${ARGS}width=$WIDTH "
+    ARGS="${ARGS}height=$HEIGHT "
 
-    ARGS+="num=$1"
+    ARGS="${ARGS}num=$1"
     $RDB_GET_PATH $RUNS_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
 }
 
@@ -167,22 +173,22 @@ function full_algo_name ()
 
     if alg_on_list $USES_MIN_EXPANSIONS
     then
-	FULL_NAME+="-$MIN_EXPANSIONS"
+	FULL_NAME="${FULL_NAME}-$MIN_EXPANSIONS"
     fi
 	
     if alg_on_list $USES_THREADS
     then
-	FULL_NAME+="-$THREADS"
+	FULL_NAME="${FULL_NAME}-$THREADS"
     fi
 
     if alg_on_list $USES_NBLOCKS
     then
-	FULL_NAME+="-$NBLOCKS"
+	FULL_NAME="${FULL_NAME}-$NBLOCKS"
     fi
 
     if alg_on_list $USES_WEIGHT
     then
-	FULL_NAME+="-$WEIGHT"
+	FULL_NAME="${FULL_NAME}-$WEIGHT"
     fi
 
     echo $FULL_NAME
