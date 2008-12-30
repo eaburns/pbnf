@@ -24,6 +24,8 @@ class PAStar : public Search {
 public:
 	PAStar(unsigned int);
 	virtual vector<const State *> *search(const State *);
+        void set_done();
+        bool is_done();
         void set_path(vector<const State *> *path);
         bool has_path();
 private:
