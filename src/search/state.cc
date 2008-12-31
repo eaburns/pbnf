@@ -44,6 +44,14 @@ float State::get_g(void) const
 }
 
 /**
+ * Set the g value for this state.
+ */
+void State::set_g(float g)
+{
+	this->g = g;
+}
+
+/**
  * Get the estimated cost to go.
  * \return h
  */
