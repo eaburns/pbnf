@@ -177,7 +177,7 @@ void PQOpenList<PQCompare>::resort(State *s)
 
 	for (iter = heap.begin(); iter != heap.end(); iter++)
 		if (*iter == s) {
-			make_heap(heap.begin(), ++iter, comp);
+			push_heap(heap.begin(), ++iter, comp);
 			return;
 		}
 
