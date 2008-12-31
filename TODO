@@ -19,8 +19,6 @@ To Do
   port code to 64-bits
   results on Sun
 
-(Ethan) check if IDPSDD uses >= or just > for pruning
-
 (Ethan) figure out why we suck on tiles
   then, worry about general fix like division trick
 
