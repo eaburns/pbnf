@@ -3,7 +3,11 @@ To Do
 
 (Wheeler) rough draft
  mash Seth and Ethan's papers together
+   
+(Seth) Update PRA*, PA*, KBFS to close states at generation
 
+(Ethan) BFPSDD, PSDD close states as appropriate (possibly during generation)
+   
 (Seth) results with 3x4 tiles
  across all abstractions
  get intervals small
@@ -15,24 +19,28 @@ To Do
   port code to 64-bits
   results on Sun
 
-(Ethan) fix IDPSDD... done, but it still is slow!
+(Ethan) check if IDPSDD uses >= or just > for pruning
 
 (Ethan) figure out why we suck on tiles
   then, worry about general fix like division trick
 
 (Ethan) look into PBNF with 5nblocks/thread and 1 thread... it
   performs very poorly.
+   
+(Ethan) Re-run data with algs new usage of closed list
 
 (Ethan) run everything on Sun
-
-(???) Wted A* for large problems
 
 (Seth) PRA* improvements
  eg, Cancel threads
 
 (Seth) Implement learning for min expansions
 
-(???) PSDD with some kind of f-range or min expansions (% or #) per nblock
+(Ethan) with some kind of f-range or min expansions (% or _#_) per nblock
+   
+(Seth) little bibliography: list of papers and why they do not perform well.
+
+(???) Wted A* for large problems
 
 (Seth) A* with lock-free datastructures -- maybe this will be great
   - Look at tfogal's lock-free hashtable
