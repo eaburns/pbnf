@@ -23,8 +23,8 @@ class SynchClosedList : public ClosedList {
 public:
 	SynchClosedList(void);
 
-	void add(const State *);
-	const State *lookup(const State *);
+	void add(State *);
+	State *lookup(State *);
 	void delete_all_states(void);
 
 private:

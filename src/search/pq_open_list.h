@@ -22,7 +22,7 @@ using namespace std;
 
 class CompareOnF {
 public:
-	bool operator()(const State *a, const State *b) const {
+	bool operator()(State *a, State *b) const {
 		float fa = a->get_f();
 		float fb = b->get_f();
 
@@ -32,7 +32,7 @@ public:
 		return fa > fb;
 	}
 
-	float get_value(const State *s) const {
+	float get_value(State *s) const {
 		return s->get_f();
 	}
 };
@@ -47,14 +47,14 @@ public:
 template<class PQCompare>
 class PQOpenList : public OpenList {
 public:
-	virtual void add(const State *s);
-	virtual const State *take(void);
-	virtual const State *peek(void);
+	virtual void add(State *s);
+	virtual State *take(void);
+	virtual State *peek(void);
 	virtual bool empty(void);
 	virtual void delete_all_states(void);
 	virtual float get_best_val(void);
 private:
-	priority_queue<const State *, vector<const State *>, PQCompare> pq;
+	priority_queue<State *, vector<State *>, PQCompare> pq;
 	PQCompare comp;
 };
 
@@ -63,7 +63,7 @@ private:
  * \param s The state to add.
  */
 template<class PQCompare>
-void PQOpenList<PQCompare>::add(const State *s)
+void PQOpenList<PQCompare>::add(State *s)
 {
 	pq.push(s);
 	set_best_f(pq.top()->get_f());
@@ -74,9 +74,9 @@ void PQOpenList<PQCompare>::add(const State *s)
  * \return The front of the priority queue.
  */
 template<class PQCompare>
-const State *PQOpenList<PQCompare>::take(void)
+State *PQOpenList<PQCompare>::take(void)
 {
-	const State *s;
+	State *s;
 
 	s = pq.top();
 	pq.pop();
@@ -93,7 +93,7 @@ const State *PQOpenList<PQCompare>::take(void)
  * Peek at the top element.
  */
 template<class PQCompare>
-const State *PQOpenList<PQCompare>::peek(void)
+State *PQOpenList<PQCompare>::peek(void)
 {
 	return pq.top();
 }
@@ -115,7 +115,7 @@ template<class PQCompare>
 void PQOpenList<PQCompare>::delete_all_states(void)
 {
 	while (!pq.empty()) {
-		const State *s = pq.top();
+		State *s = pq.top();
 		pq.pop();
 		delete s;
 	}

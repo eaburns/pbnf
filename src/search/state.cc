@@ -12,7 +12,7 @@
 
 #include "state.h"
 
-State::State(SearchDomain *d, const State *parent, float g)
+State::State(SearchDomain *d, State *parent, float g)
 	: parent(parent), domain(d), g(g), h(-1) {}
 
 State::~State() {}
@@ -58,7 +58,7 @@ float State::get_h(void) const
  * \return A newly allocated vector of the children states.  This must
  *         be deleted by the caller.
  */
-vector<const State*> *State::expand(void) const
+vector<State*> *State::expand(void)
 {
 
 	return domain->expand(this);
@@ -72,10 +72,10 @@ vector<const State*> *State::expand(void) const
  *         of the states from the search, so those states can be
  *         deleted separately.
  */
-vector<const State *> *State::get_path(void) const
+vector<State *> *State::get_path(void)
 {
-	vector<const State *> *path = new vector<const State *>;
-	const State *p;
+	vector<State *> *path = new vector<State *>;
+	State *p;
 	State *copy, *last = NULL;
 
 	for (p = this; p; p = p->parent) {
@@ -95,7 +95,7 @@ vector<const State *> *State::get_path(void) const
 /**
  * Get the parent of this state.
  */
-const State *State::get_parent(void) const
+State *State::get_parent(void) const
 {
 	return parent;
 }

@@ -45,7 +45,7 @@ void TilesState::compute_hash(void)
 }
 
 
-TilesState::TilesState(SearchDomain *d, const State *parent, float g,
+TilesState::TilesState(SearchDomain *d, State *parent, float g,
 		       float h, vector<unsigned int> tiles,
 		       unsigned int blank)
 	: State(d, parent, g),
@@ -57,7 +57,7 @@ TilesState::TilesState(SearchDomain *d, const State *parent, float g,
 }
 
 
-TilesState::TilesState(SearchDomain *d, const State *parent, float g,
+TilesState::TilesState(SearchDomain *d, State *parent, float g,
 		       vector<unsigned int> tiles, unsigned int blank)
 	: State(d, parent, g),
 	  tiles(tiles),
@@ -73,7 +73,7 @@ TilesState::TilesState(SearchDomain *d, const State *parent, float g,
 /**
  * Test if the tiles are in order.
  */
-bool TilesState::is_goal(void) const
+bool TilesState::is_goal(void)
 {
 	Tiles * t= dynamic_cast<Tiles*>(domain);
 
@@ -113,9 +113,9 @@ void TilesState::print(ostream &o) const
 /**
  * Test if two states are the same configuration.
  */
-bool TilesState::equals(const State *s) const
+bool TilesState::equals(State *s) const
 {
-	const TilesState *other = dynamic_cast<const TilesState *>(s);
+	TilesState *other = dynamic_cast<TilesState *>(s);
 
 	for (unsigned int i = 0; i < tiles.size(); i += 1)
 		if (tiles[i] != other->tiles[i])

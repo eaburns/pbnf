@@ -28,7 +28,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	vector<const State *> *path;
+	vector<State *> *path;
 	Search *search = get_search(argc, argv);
 	GridWorld g(cin);
 	Timer timer;
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
 		// Make sure that the heuristic was actually admissible!
 		for (unsigned int i = path->size() - 1; i >= 0; i -= 1) {
-			const State *s = path->at(i);
+			State *s = path->at(i);
 			float togo = path->at(0)->get_g() - s->get_g();
 			assert(s->get_h() <= togo);
 			if (i > 0)

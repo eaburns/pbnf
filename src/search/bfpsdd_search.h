@@ -32,12 +32,12 @@ public:
 	BFPSDDSearch(unsigned int n_threads, float bound);
 	virtual ~BFPSDDSearch(void);
 
-	virtual vector<const State *> *search(const State *s);
+	virtual vector<State *> *search(State *s);
 
 	void set_bound(float bound);
 private:
 
-	void set_path(vector<const State *> *path);
+	void set_path(vector<State *> *path);
 	bool path_found(void) const;
 
 	class BFPSDDThread : public Thread {
@@ -48,7 +48,7 @@ private:
 		void run(void);
 		float get_ave_exp_per_nblock(void);
 	private:
-		vector<const State *> *search_nblock(BFPSDD::NBlock<CompareOnF> *n);
+		vector<State *> *search_nblock(BFPSDD::NBlock<CompareOnF> *n);
 		BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
 		BFPSDDSearch *search;
 		unsigned long exp_this_block;
@@ -58,7 +58,7 @@ private:
 	AtomicFloat bound;
 	unsigned int n_threads;
 	const Projection *project;
-	vector<const State *> *path;
+	vector<State *> *path;
 	BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
 	pthread_mutex_t path_mutex;
 };

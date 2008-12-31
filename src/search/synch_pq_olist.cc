@@ -16,16 +16,16 @@ SynchPQOList::SynchPQOList(void) {
 	pthread_mutex_init(&mutex, NULL);
 }
 
-void SynchPQOList::add(const State *s)
+void SynchPQOList::add(State *s)
 {
 	pthread_mutex_lock(&mutex);
 	PQOpenList::add(s);
 	pthread_mutex_unlock(&mutex);
 }
 
-const State *SynchPQOList::take(void)
+State *SynchPQOList::take(void)
 {
-	const State *ret;
+	State *ret;
 
 	pthread_mutex_lock(&mutex);
 	ret = PQOpenList::take();
@@ -34,9 +34,9 @@ const State *SynchPQOList::take(void)
 	return ret;
 }
 
-const State *SynchPQOList::peek(void)
+State *SynchPQOList::peek(void)
 {
-	const State *ret;
+	State *ret;
 
 	pthread_mutex_lock(&mutex);
 	ret = PQOpenList::peek();

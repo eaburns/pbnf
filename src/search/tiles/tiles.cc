@@ -120,7 +120,7 @@ Tiles::~Tiles(void)
  * This will be NULL if the puzzle was constructed with the 2-argument
  * width-by-height constructor.
  */
-const State *Tiles::initial_state(void)
+State *Tiles::initial_state(void)
 {
 	return new TilesState(this, NULL, 0, initial, initial_blank);
 }
@@ -145,18 +145,18 @@ vector<unsigned int> Tiles::child(const vector<unsigned int> *tiles,
 /**
  * Expand a state, giving its children.
  */
-vector<const State *> *Tiles::expand(const State *s)
+vector<State *> *Tiles::expand(State *s)
 {
 	const unsigned int cost = 1;
-	const TilesState *t = dynamic_cast<const TilesState *>(s);
-	vector<const State *> *children = new vector<const State *>;
+	TilesState *t = dynamic_cast<TilesState *>(s);
+	vector<State *> *children = new vector<State *>;
 	const vector<unsigned int> *tiles = t->get_tiles();
 	unsigned int blank = t->get_blank();
 	unsigned int col = blank % width;
 	unsigned int row = blank / width;
 
-	const TilesState *gp =
-		dynamic_cast<const TilesState *>(s->get_parent());
+	TilesState *gp =
+		dynamic_cast<TilesState *>(s->get_parent());
 
 	if (col > 0 && (!gp || gp->get_blank() != blank -1)) {
 		children->push_back(new TilesState(this, s, s->get_g() + cost,
@@ -189,7 +189,7 @@ vector<const State *> *Tiles::expand(const State *s)
 /**
  * Test if the given state is the goal state.
  */
-bool Tiles::is_goal(const State *s) const
+bool Tiles::is_goal(State *s) const
 {
 	return s->equals(goal);
 }
@@ -280,15 +280,15 @@ Tiles::ManhattanDist::~ManhattanDist(void)
 /**
  * Compute the incremental Manhattan distance of a state.
  */
-float Tiles::ManhattanDist::compute(const State *state) const
+float Tiles::ManhattanDist::compute(State *state) const
 {
 	float ret = 0.0;
-	const TilesState *s = dynamic_cast<const TilesState *>(state);
-	const State *p = s->get_parent();
+	TilesState *s = dynamic_cast<TilesState *>(state);
+	State *p = s->get_parent();
 
 	if (p) {
-		const TilesState *ptile =
-			dynamic_cast<const TilesState *>(p);
+		TilesState *ptile =
+			dynamic_cast<TilesState *>(p);
 		ret = compute_incr(s, ptile);
 //		assert(ret == compute_full(s));
 	} else
@@ -302,7 +302,7 @@ float Tiles::ManhattanDist::compute(const State *state) const
 /**
  * Compute the full manhattan distance of the given state.
  */
-float Tiles::ManhattanDist::compute_full(const TilesState *s) const
+float Tiles::ManhattanDist::compute_full(TilesState *s) const
 {
 	unsigned int dist = 0;
 	const vector<unsigned int> *tiles = s->get_tiles();
@@ -318,8 +318,8 @@ float Tiles::ManhattanDist::compute_full(const TilesState *s) const
  * Compute the incremental manhattan distance of the given state using
  * the heuristic value of the parent's state.
  */
-float Tiles::ManhattanDist::compute_incr(const TilesState *s,
-					 const TilesState *p) const
+float Tiles::ManhattanDist::compute_incr(TilesState *s,
+					 TilesState *p) const
 {
 	unsigned int new_b = s->get_blank();
 	unsigned int par_b = p->get_blank();
@@ -363,9 +363,9 @@ Tiles::OneTileProject::~OneTileProject(void)
 	// nothing
 }
 
-unsigned int Tiles::OneTileProject::project(const State *s) const
+unsigned int Tiles::OneTileProject::project(State *s) const
 {
-	const TilesState *ts = dynamic_cast<const TilesState *>(s);
+	TilesState *ts = dynamic_cast<TilesState *>(s);
 	const vector<unsigned int> *tiles = ts->get_tiles();
 	unsigned int size = tiles->size();
 	unsigned int blank;
@@ -494,9 +494,9 @@ Tiles::TwoTileProject::~TwoTileProject(void)
 	// nothing
 }
 
-unsigned int Tiles::TwoTileProject::project(const State *s) const
+unsigned int Tiles::TwoTileProject::project(State *s) const
 {
-	const TilesState *ts = dynamic_cast<const TilesState *>(s);
+	TilesState *ts = dynamic_cast<TilesState *>(s);
 	const vector<unsigned int> *tiles = ts->get_tiles();
 	unsigned int size = tiles->size();
 	unsigned int blank;

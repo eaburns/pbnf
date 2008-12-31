@@ -19,7 +19,7 @@ public:
 	WeightedHeuristic(const SearchDomain *d, const Heuristic *h, float w);
 	virtual ~WeightedHeuristic(void);
 
-	virtual float compute(const State *s) const;
+	virtual float compute(State *s) const;
 private:
 	float weight;
 	const Heuristic *heuristic;

@@ -14,7 +14,7 @@
 #include "state.h"
 #include "closed_list.h"
 
-ClosedList::Bucket::Bucket(const State *data, ClosedList::Bucket *next)
+ClosedList::Bucket::Bucket(State *data, ClosedList::Bucket *next)
 {
 	this->data = data;
 	this->next = next;
@@ -30,7 +30,7 @@ ClosedList::Bucket::~Bucket(void)
 		delete next;
 }
 
-const State *ClosedList::Bucket::lookup(const State *s)
+State *ClosedList::Bucket::lookup(State *s)
 {
 	if (s->hash() == data->hash())
 		return data;
@@ -42,7 +42,7 @@ const State *ClosedList::Bucket::lookup(const State *s)
 	return next->lookup(s);
 }
 
-ClosedList::Bucket *ClosedList::Bucket::add(const State *s)
+ClosedList::Bucket *ClosedList::Bucket::add(State *s)
 {
 	if (s->hash() < data->hash())
 		return new Bucket(s, this);
@@ -99,7 +99,7 @@ void ClosedList::new_table(void)
  * Add to the closed list.
  * \param s The state to add.
  */
-void ClosedList::add(const State *s)
+void ClosedList::add(State *s)
 {
 	new_table();
 	if (fill + 1 >= size / 3)
@@ -137,7 +137,7 @@ void ClosedList::resize(void)
 /**
  * Get the table index for the given state.
  */
-unsigned long ClosedList::get_ind(const State *s)
+unsigned long ClosedList::get_ind(State *s)
 {
 	return s->hash() % size;
 }
@@ -145,7 +145,7 @@ unsigned long ClosedList::get_ind(const State *s)
 /**
  * Add a state to the table.
  */
-void ClosedList::do_add(const State *s)
+void ClosedList::do_add(State *s)
 {
 	Bucket *old = table[get_ind(s)];
 	if (!old)
@@ -160,7 +160,7 @@ void ClosedList::do_add(const State *s)
  * \param c The state to look up.
  * \return The state if it was found, NULL on error.
  */
-const State *ClosedList::lookup(const State *c)
+State *ClosedList::lookup(State *c)
 {
 	if (!table)
 		return NULL;

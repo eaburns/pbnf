@@ -23,12 +23,12 @@ using namespace std;
 
 int main(void)
 {
-	map<unsigned int, const State *> seen; // check for duplicate hashes
+	map<unsigned int, State *> seen; // check for duplicate hashes
 	QueueOpenList open;
 	ClosedList closed;
 	Tiles dom(cin);
 	Tiles::ManhattanDist m(&dom);
-	const State *s;
+	State *s;
 	dom.set_heuristic(&m);
 
 	vector<unsigned int> vec(9);
@@ -68,8 +68,8 @@ int main(void)
 			seen[s->hash()] = s;
 		}
 
-		vector<const State *> *children = s->expand();
-		vector<const State *>::iterator iter;
+		vector<State *> *children = s->expand();
+		vector<State *>::iterator iter;
 
 		for (iter = children->begin();
 		     iter != children->end();

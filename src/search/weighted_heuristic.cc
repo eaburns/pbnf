@@ -20,7 +20,7 @@ WeightedHeuristic::WeightedHeuristic(const SearchDomain *d,
 WeightedHeuristic::~WeightedHeuristic(void) {}
 
 
-float WeightedHeuristic::compute(const State *s) const
+float WeightedHeuristic::compute(State *s) const
 {
 	return weight * heuristic->compute(s);
 }

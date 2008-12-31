@@ -107,7 +107,7 @@ GridWorld::GridWorld(istream &s)
  * \return A new state (that must be deleted by the caller) that
  *         represents the initial state.
  */
-const State *GridWorld::initial_state(void)
+State *GridWorld::initial_state(void)
 {
 	return new GridState(this, NULL, 0, start_x, start_y);
 }
@@ -115,15 +115,15 @@ const State *GridWorld::initial_state(void)
 /**
  * Four-way movement expand.
  */
-vector<const State*> *GridWorld::expand4(const GridState *s)
+vector<State*> *GridWorld::expand4(GridState *s)
 {
-	vector<const State*> *children;
+	vector<State*> *children;
 	int x = s->get_x();
 	int y = s->get_y();
 	float g = s->get_g();
 	float cost = this->cost_type == UNIT_COST ? 1 : y;
 
-	children = new vector<const State*>();
+	children = new vector<State*>();
 
 	if (x > 0 && !is_obstacle(x - 1, y)) {
 		children->push_back(new GridState(this, s,
@@ -148,9 +148,9 @@ vector<const State*> *GridWorld::expand4(const GridState *s)
 /**
  * Eight-way movement expand.
  */
-vector<const State*> *GridWorld::expand8(const GridState *s)
+vector<State*> *GridWorld::expand8(GridState *s)
 {
-	vector<const State*> *children;
+	vector<State*> *children;
 	int x = s->get_x();
 	int y = s->get_y();
 	float g = s->get_g();
@@ -184,9 +184,9 @@ vector<const State*> *GridWorld::expand8(const GridState *s)
  * \return A newly allocated vector of newly allocated children
  *         states.  All of this must be deleted by the caller.
  */
-vector<const State*> *GridWorld::expand(const State *state)
+vector<State*> *GridWorld::expand(State *state)
 {
-	const GridState *s = dynamic_cast<const GridState*>(state);
+	GridState *s = dynamic_cast<GridState*>(state);
 
 #if defined(ENABLE_IMAGES)
 	expanded.inc();
@@ -271,7 +271,7 @@ bool GridWorld::is_obstacle(int x, int y) const
  * \param path An optional parameter that is a vector of states that
  *             form a path in the world.  If given, this path will be displayed.
  */
-void GridWorld::print(ostream &o, const vector<const State *> *path = NULL) const
+void GridWorld::print(ostream &o, const vector<State *> *path = NULL) const
 {
 	o << height << " " << width << endl;
 	o << "Board:" << endl;
@@ -299,13 +299,13 @@ void GridWorld::print(ostream &o, const vector<const State *> *path = NULL) cons
  * \param x The x-coordinate to test.
  * \param y The y-coordinate to test.
  */
-bool GridWorld::on_path(const vector<const State *> *path, int x, int y) const
+bool GridWorld::on_path(const vector<State *> *path, int x, int y) const
 {
 	if (!path)
 		return false;
 
 	for (unsigned int i = 0; i < path->size(); i += 1) {
-		const GridState *s = dynamic_cast<const GridState *>(path->at(i));
+		GridState *s = dynamic_cast<GridState *>(path->at(i));
 		if (s->get_x() == x && s->get_y() == y)
 			return true;
 	}
@@ -321,7 +321,7 @@ bool GridWorld::on_path(const vector<const State *> *path, int x, int y) const
  * a display of when each state was expanded.
  * \param s The state that was expanded.
  */
-void GridWorld::expanded_state(const GridState *s)
+void GridWorld::expanded_state(GridState *s)
 {
 	int index = s->get_y() * width + s->get_x();
 
@@ -454,7 +454,7 @@ float GridWorld::ManhattanDist::compute_up_over_down4(int x, int y,
  * Compute the 4-way movement heuristic
  */
 float GridWorld::ManhattanDist::comupte4(const GridWorld *w,
-					 const GridState *s) const
+					 GridState *s) const
 {
 	int x = s->get_x();
 	int y = s->get_y();
@@ -480,7 +480,7 @@ float GridWorld::ManhattanDist::comupte4(const GridWorld *w,
  * Compute the 4-way movement heuristic
  */
 float GridWorld::ManhattanDist::comupte8(const GridWorld *w,
-					 const GridState *s) const
+					 GridState *s) const
 {
 	int x = s->get_x();
 	int y = s->get_y();
@@ -515,9 +515,9 @@ float GridWorld::ManhattanDist::comupte8(const GridWorld *w,
  * \param state The state to comupte the heuristic for.
  * \return The Manhattan distance from the given state to the goal.
  */
-float GridWorld::ManhattanDist::compute(const State *state) const
+float GridWorld::ManhattanDist::compute(State *state) const
 {
-	const GridState *s = dynamic_cast<const GridState *>(state);
+	GridState *s = dynamic_cast<GridState *>(state);
 	const GridWorld *w = dynamic_cast<const GridWorld *>(domain);
 
 	if (w->get_move_type() == FOUR_WAY_MOVES)
@@ -552,11 +552,11 @@ GridWorld::RowModProject::RowModProject(const SearchDomain *d,
  */
 GridWorld::RowModProject::~RowModProject() {}
 
-unsigned int GridWorld::RowModProject::project(const State *s) const
+unsigned int GridWorld::RowModProject::project(State *s) const
 {
-	const GridState *g;
+	GridState *g;
 
-	g = dynamic_cast<const GridState *>(s);
+	g = dynamic_cast<GridState *>(s);
 
 	return g->get_y() % mod_val;
 }
@@ -654,11 +654,11 @@ unsigned int GridWorld::CoarseProject::get_id(unsigned int x, unsigned int y) co
 	return (y * cols) + x;
 }
 
-unsigned int GridWorld::CoarseProject::project(const State *s) const
+unsigned int GridWorld::CoarseProject::project(State *s) const
 {
-	const GridState *g;
+	GridState *g;
 
-	g = dynamic_cast<const GridState *>(s);
+	g = dynamic_cast<GridState *>(s);
 
 	unsigned int id =  get_id(g->get_x() / cols_div, g->get_y() / rows_div);
 	assert(id < (rows * cols));

@@ -26,14 +26,14 @@ public:
 	Search(void);
 	virtual ~Search() {}
 
-	virtual vector<const State *> *search(const State *) = 0;
+	virtual vector<State *> *search(State *) = 0;
 
 	void clear_counts(void);
 	unsigned long get_expanded(void) const;
 	unsigned long get_generated(void) const;
 
 protected:
-	vector<const State *> *expand(const State *);
+	vector<State *> *expand(State *);
 
 	void set_expanded(unsigned long e);
 	void set_generated(unsigned long g);

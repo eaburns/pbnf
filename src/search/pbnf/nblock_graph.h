@@ -30,7 +30,7 @@ using namespace std;
 namespace PBNF {
 	class NBlockGraph {
 	public:
-		NBlockGraph(const Projection *p, const State *init);
+		NBlockGraph(const Projection *p, State *init);
 
 		~NBlockGraph();
 
@@ -45,7 +45,7 @@ namespace PBNF {
 		void set_hot(NBlock *b);
 
 	private:
-		void cpp_is_a_bad_language(const Projection *p, const State *initial);
+		void cpp_is_a_bad_language(const Projection *p, State *initial);
 		void __set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);

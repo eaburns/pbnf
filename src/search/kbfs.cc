@@ -16,7 +16,7 @@ class KBFSThread : public Thread {
 public:
 	KBFSThread(){}
 	KBFSThread(KBFS *k) : k(k) {}
-	KBFSThread(const State *s, KBFS *k) : s(s), k(k) {}
+	KBFSThread(State *s, KBFS *k) : s(s), k(k) {}
 
 	~KBFSThread() {
           delete children;
@@ -34,9 +34,9 @@ public:
         }
 
 private:
-	const State *s;
+	State *s;
 	KBFS *k;
-        vector<const State *> *children;
+        vector<State *> *children;
         friend class KBFS;
 };
 
@@ -51,9 +51,9 @@ KBFS::KBFS(unsigned int n_threads)
 /**
  * Perform a KBFS search.
  */
-vector<const State *> *KBFS::search(const State *init)
+vector<State *> *KBFS::search(State *init)
 {
- 	vector<const State *> *path = NULL;
+ 	vector<State *> *path = NULL;
         unsigned int worker, i;
         vector<KBFSThread *> threads;
 	vector<KBFSThread *>::iterator iter;
@@ -68,12 +68,12 @@ vector<const State *> *KBFS::search(const State *init)
 
  	while (!open.empty() && !path) {
          	for (worker=0; (worker<n_threads) && !open.empty(); worker++) {
-                    const State *s = open.take();
+                    State *s = open.take();
                     if (s->is_goal()) {
                       path = s->get_path();
                       break;
                     }
-		    const State *dup = closed.lookup(s);
+		    State *dup = closed.lookup(s);
 		    if (dup && dup->get_g() < s->get_g()) {
 		      delete s;
 		      worker--;
@@ -95,7 +95,7 @@ vector<const State *> *KBFS::search(const State *init)
 		for(i=0; i<worker; i++){
 		    for (unsigned int j = 0; 
 			 j < threads[i]->children->size(); j += 1) {
-		      const State *c = threads[i]->children->at(j);
+		      State *c = threads[i]->children->at(j);
 		      if (closed.lookup(c) != NULL) {
 			delete c;
 			continue;

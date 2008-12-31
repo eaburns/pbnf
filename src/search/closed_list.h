@@ -23,26 +23,26 @@ public:
 	ClosedList(void);
 	ClosedList(unsigned long size);
 	~ClosedList(void);
-	void add(const State *);
-	const State *lookup(const State *);
+	void add(State *);
+	State *lookup(State *);
 	void delete_all_states(void);
 
 private:
 	void init(unsigned long size);
 	void new_table(void);
 	void resize(void);
-	void do_add(const State *s);
-	unsigned long get_ind(const State *s);
+	void do_add(State *s);
+	unsigned long get_ind(State *s);
 
 	class Bucket {
 	public:
-		Bucket(const State *data, Bucket *next);
+		Bucket(State *data, Bucket *next);
 		~Bucket(void);
 
-		const State *lookup(const State *s);
-		Bucket *add(const State *s);
+		State *lookup(State *s);
+		Bucket *add(State *s);
 
-		const State *data;
+		State *data;
 		Bucket *next;
 		unsigned int size;
 	};

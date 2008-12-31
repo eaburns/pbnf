@@ -26,7 +26,7 @@ class DivMergeProject : public Projection {
 public:
 	DivMergeProject(unsigned int div, Projection *p);
 
-	unsigned int project(const State *s);
+	unsigned int project(State *s);
 
 	unsigned int get_num_nblocks(void);
 

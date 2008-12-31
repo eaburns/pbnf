@@ -15,9 +15,9 @@
 
 using namespace std;
 
-vector<const State *> *IDAStar::search(const State *init)
+vector<State *> *IDAStar::search(State *init)
 {
-	vector<const State *> *path = NULL;
+	vector<State *> *path = NULL;
 	float old_bound, bound = init->get_f();
 
 	do {

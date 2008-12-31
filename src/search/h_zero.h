@@ -21,7 +21,7 @@ class State;
 class HZero : public Heuristic {
 public:
 	HZero(const SearchDomain *d);
-	virtual float compute(const State *s) const;
+	virtual float compute(State *s) const;
 };
 
 

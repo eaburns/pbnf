@@ -22,9 +22,9 @@ class OpenList {
 public:
 	virtual ~OpenList();
 
-	virtual void add(const State *s) = 0;
-	virtual const State *take(void) = 0;
-	virtual const State *peek(void) = 0;
+	virtual void add(State *s) = 0;
+	virtual State *take(void) = 0;
+	virtual State *peek(void) = 0;
 	virtual bool empty(void) = 0;
 	virtual void delete_all_states(void) = 0;
 

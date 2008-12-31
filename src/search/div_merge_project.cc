@@ -17,7 +17,7 @@ using namespace std;
 DivMergeProject::DivMergeProject(unsigned int div, Projeciton *p)
 	: div(div), projection(p) {}
 
-unsigned int DivMergeProject::project(const State *s)
+unsigned int DivMergeProject::project(State *s)
 {
 	return projection->project(s) / div;
 }

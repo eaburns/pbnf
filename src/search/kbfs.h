@@ -24,7 +24,7 @@
 class KBFS : public Search {
 public:
 	KBFS(unsigned int);
-	virtual vector<const State *> *search(const State *);
+	virtual vector<State *> *search(State *);
 private:
 	PQOpenList<CompareOnF> open;
 	ClosedList closed;

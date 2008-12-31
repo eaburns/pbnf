@@ -25,11 +25,11 @@ class CostBoundDFS : public Search {
 public:
 	CostBoundDFS(float bound);
 
-	virtual vector<const State *> *search(const State *);
+	virtual vector<State *> *search(State *);
 
 	float get_min_pruned(void) const;
 private:
-	bool is_cycle(const State *) const;
+	bool is_cycle(State *) const;
 
 	float bound;
 	float min_pruned;

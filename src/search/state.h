@@ -22,27 +22,27 @@ using namespace std;
  */
 class State {
 public:
-	State(SearchDomain *d, const State *parent, float g);
+	State(SearchDomain *d, State *parent, float g);
 
 	virtual ~State();
 
 	virtual SearchDomain *get_domain(void) const;
 
 	virtual uint64_t hash(void) const = 0;
-	virtual bool is_goal(void) const = 0;
+	virtual bool is_goal(void) = 0;
 	virtual State *clone(void) const = 0;
 	virtual void print(ostream &o) const = 0;
-	virtual bool equals(const State *s) const = 0;
+	virtual bool equals(State *s) const = 0;
 
-	virtual vector<const State*> *expand(void) const;
+	virtual vector<State*> *expand(void);
 
 	virtual float get_f(void) const;
 	virtual float get_g(void) const;
 	virtual float get_h(void) const;
-	virtual const State *get_parent(void) const;
-	virtual vector<const State *> *get_path(void) const;
+	virtual State *get_parent(void) const;
+	virtual vector<State *> *get_path(void);
 //protected:
-	const State *parent;
+	State *parent;
 	SearchDomain *domain;
 	float g;
 	float h;

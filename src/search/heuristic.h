@@ -22,7 +22,7 @@ public:
 	Heuristic(const SearchDomain *d);
 	virtual ~Heuristic();
 
-	virtual float compute(const State *s) const = 0;
+	virtual float compute(State *s) const = 0;
 protected:
 	const SearchDomain *domain;
 };

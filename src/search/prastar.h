@@ -30,10 +30,10 @@ public:
 
         virtual ~PRAStar(void);
 
-        virtual vector<const State *> *search(const State *init);
+        virtual vector<State *> *search(State *init);
         void set_done();
         bool is_done();
-        void set_path(vector<const State *> *path);
+        void set_path(vector<State *> *path);
         bool has_path();
 
 private:
@@ -42,13 +42,13 @@ private:
                 PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, CompletionCounter* cc);
                 virtual ~PRAStarThread(void);
                 virtual void run(void);
-                void add(const State* s);
-                const State *take(void);
+                void add(State* s);
+                State *take(void);
 
         private:
                 PRAStar *p;
                 vector<PRAStarThread *> *threads;
-		vector<const State *> *q;
+		vector<State *> *q;
                 pthread_mutex_t* mut;
                 pthread_mutex_t mutex;
                 bool completed;
@@ -62,7 +62,7 @@ private:
         pthread_cond_t cond;
         pthread_mutex_t mutex;
         const unsigned int n_threads;
-        vector<const State *> *path;
+        vector<State *> *path;
 };
 
 #endif	/* !_PRASTAR_H_ */

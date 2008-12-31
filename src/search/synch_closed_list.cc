@@ -16,17 +16,17 @@ SynchClosedList::SynchClosedList(void) {
 	pthread_mutex_init(&mutex, NULL);
 }
 
-void SynchClosedList::add(const State *s)
+void SynchClosedList::add(State *s)
 {
 	pthread_mutex_lock(&mutex);
 	ClosedList::add(s);
 	pthread_mutex_unlock(&mutex);
 }
 
-const State *SynchClosedList::lookup(const State *c)
+State *SynchClosedList::lookup(State *c)
 {
         pthread_mutex_lock(&mutex);
-	const State *s = ClosedList::lookup(c);
+	State *s = ClosedList::lookup(c);
         pthread_mutex_unlock(&mutex);
         return s;
 }
