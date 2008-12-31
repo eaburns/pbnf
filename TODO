@@ -8,16 +8,14 @@ To Do
  across all abstractions
  get intervals small
 
-(Ethan) make Rong an account on legion
-
-(Ethan) results with new grid abstraction (unit & life)
+(Ethan) results with new grid abstraction (unit, life, four-way, eight-way)
 
 (Rong) Results on planning with unsafe and safe
   figure out why we don't do well on some problems
   port code to 64-bits
   results on Sun
 
-(Ethan) fix IDPSDD
+(Ethan) fix IDPSDD... done, but it still is slow!
 
 (Ethan) figure out why we suck on tiles
   then, worry about general fix like division trick
