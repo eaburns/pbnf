@@ -20,13 +20,14 @@ using namespace std;
 
 class QueueOpenList : public OpenList {
 public:
-	virtual void add(const State *s);
-	virtual const State *take(void);
-	virtual const State *peek(void);
-	virtual bool empty(void);
-	virtual void delete_all_states(void);
+	void add(State *s);
+	State *take(void);
+	State *peek(void);
+	bool empty(void);
+	void delete_all_states(void);
+	void prune(void);
 private:
-	queue<const State *> q;
+	queue<State *> q;
 };
 
 #endif	/* !_QUEUE_OPEN_LIST_H_ */

@@ -18,10 +18,10 @@ CostBoundDFS::CostBoundDFS(float bound) : bound(bound), min_pruned(-1) {}
 /**
  * A cost bounded DFS.
  */
-vector<const State *> *CostBoundDFS::search(const State *init)
+vector<State *> *CostBoundDFS::search(State *init)
 {
-	vector<const State *> *path = NULL;
-	vector<const State *> *children;
+	vector<State *> *path = NULL;
+	vector<State *> *children;
 
 	if (init->get_f() > bound) {
 		if (min_pruned == -1 || init->get_f() < min_pruned)
@@ -72,9 +72,9 @@ float CostBoundDFS::get_min_pruned(void) const
  * \param s The state.
  * \return True if this state is on the path to itself.
  */
-bool CostBoundDFS::is_cycle(const State *s) const
+bool CostBoundDFS::is_cycle(State *s) const
 {
-	const State *p;
+	State *p;
 
 	for (p = s->get_parent(); p; p = p->get_parent())
 		if (p->equals(s))

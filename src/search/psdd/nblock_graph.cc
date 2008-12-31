@@ -30,7 +30,7 @@ using namespace PSDD;
  * Create a new NBlock graph.
  * \param p The projection function.
  */
-NBlockGraph::NBlockGraph(const Projection *p, const State *initial)
+NBlockGraph::NBlockGraph(const Projection *p, State *initial)
 {
 	map<unsigned int, NBlock *>::iterator iter;
 	unsigned int init_nblock = p->project(initial);

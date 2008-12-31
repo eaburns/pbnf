@@ -26,7 +26,7 @@ public:
 
 	virtual ~BreadthFirstSearch(void);
 
-	virtual vector<const State *> *search(const State *);
+	virtual vector<State *> *search(State *);
 
 private:
 	float bound;

@@ -22,7 +22,7 @@ class MultiAStar : public Search {
 public:
 	MultiAStar(unsigned int n_threads);
 	virtual ~MultiAStar(void);
-	virtual vector<const State *> *search(const State *);
+	virtual vector<State *> *search(State *);
 
 private:
 	unsigned int n_threads;

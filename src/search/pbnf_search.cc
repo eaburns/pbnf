@@ -32,7 +32,7 @@ PBNFSearch::PBNFThread::~PBNFThread(void) {}
  */
 void PBNFSearch::PBNFThread::run(void)
 {
-	vector<const State *> *path;
+	vector<State *> *path;
 	NBlock *n = NULL;
 
 	do {
@@ -63,28 +63,19 @@ float PBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
 /**
  * Search a single NBlock.
  */
-vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
+vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 {
-	vector<const State *> *path = NULL;
+	vector<State *> *path = NULL;
 	OpenList *open = &n->open;
-	ClosedList *closed = &n->closed;
+//	ClosedList *closed = &n->closed;
 
 	while (!open->empty() && !should_switch(n)) {
-		const State *s = open->take();
+		State *s = open->take();
 
 		if (s->get_f() >= search->bound.read()) {
-			delete s;
-			open->delete_all_states();
+			open->prune();
 			break;
 		}
-
-		const State *dup = closed->lookup(s);
-		if (dup && dup->get_g() <= s->get_g()) {
-			delete s;
-			continue;
-		}
-
-		closed->add(s);
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -94,8 +85,8 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		expansions += 1;
 		exp_this_block += 1;
 
-		vector<const State *> *children = search->expand(s);
-		vector<const State *>::iterator iter;
+		vector<State *> *children = search->expand(s);
+		vector<State *>::iterator iter;
 
  		for (iter = children->begin(); iter != children->end(); iter++) {
 			if ((*iter)->get_f() >= search->bound.read()) {
@@ -103,16 +94,28 @@ vector<const State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 				continue;
 			}
 			unsigned int block = search->project->project(*iter);
-			OpenList *next_open = &graph->get_nblock(block)->open;
+			PQOpenList<CompareOnF> *next_open = &graph->get_nblock(block)->open;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
-			const State *dup = next_closed->lookup(*iter);
-			if (dup && dup->get_g() <= (*iter)->get_g()) {
+			State *dup = next_closed->lookup(*iter);
+			if (dup) {
+				if (dup->get_g() > (*iter)->get_g()) {
+					dup->update((*iter)->get_parent(),
+						    (*iter)->get_g());
+					if (dup->is_open())
+						next_open->resort(dup);
+					else
+						next_open->add(dup);
+				}
 				delete *iter;
-				continue;
+			} else {
+				next_closed->add(*iter);
+				if ((*iter)->is_goal()) {
+					path = (*iter)->get_path();
+					delete children;
+					return path;
+				}
+				next_open->add(*iter);
 			}
-
-			next_open->add(*iter);
-
 		}
 		delete children;
 	}
@@ -187,7 +190,7 @@ PBNFSearch::~PBNFSearch(void)
 }
 
 
-vector<const State *> *PBNFSearch::search(const State *initial)
+vector<State *> *PBNFSearch::search(State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
@@ -224,7 +227,7 @@ vector<const State *> *PBNFSearch::search(const State *initial)
 /**
  * Set an incumbant solution.
  */
-void PBNFSearch::set_path(vector<const State *> *path)
+void PBNFSearch::set_path(vector<State *> *path)
 {
 	pthread_mutex_lock(&path_mutex);
 	assert(path->at(0)->get_g() == path->at(0)->get_f());

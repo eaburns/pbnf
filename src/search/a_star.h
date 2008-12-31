@@ -20,7 +20,7 @@
 class AStar : public Search {
 public:
 	virtual ~AStar(void);
-	virtual vector<const State *> *search(const State *);
+	virtual vector<State *> *search(State *);
 };
 
 #endif	/* !_A_STAR_H_ */

@@ -27,17 +27,17 @@ BreadthFirstSearch::BreadthFirstSearch(float bound)
 
 BreadthFirstSearch::~BreadthFirstSearch(void) {}
 
-vector<const State *> *BreadthFirstSearch::search(const State *init)
+vector<State *> *BreadthFirstSearch::search(State *init)
 {
-	vector<const State *> *path = NULL;
+	vector<State *> *path = NULL;
 	QueueOpenList open;
 	ClosedList closed;
 
 	open.add(init);
 
 	while (!open.empty() && !path) {
-		const State *s = open.take();
-		const State *dup = closed.lookup(s);
+		State *s = open.take();
+		State *dup = closed.lookup(s);
 
 		if (s->get_f() > bound) {
 			cout << "Deleting out of bound" << endl;
@@ -57,7 +57,7 @@ vector<const State *> *BreadthFirstSearch::search(const State *init)
 			break;
 		}
 
-		vector<const State *> *children = expand(s);
+		vector<State *> *children = expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			open.add(children->at(i));
 		}

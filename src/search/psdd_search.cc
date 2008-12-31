@@ -40,7 +40,7 @@ PSDDSearch::PSDDThread::~PSDDThread() {}
  */
 void PSDDSearch::PSDDThread::run(void)
 {
-	vector<const State *> *path;
+	vector<State *> *path;
 	NBlock *n = NULL;
 
 	do {
@@ -72,15 +72,15 @@ float PSDDSearch::PSDDThread::get_ave_exp_per_nblock(void)
  * \param n The NBlock.
  * \return NULL, or a path to a goal.
  */
-vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
+vector<State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 {
-	vector<const State *> *path = NULL;
+	vector<State *> *path = NULL;
 	OpenList *cur_open = &n->open[graph->get_cur_layer()];
 	ClosedList *closed = &n->closed;
 
 	while (!cur_open->empty()) {
-		const State *s = cur_open->take();
-		const State *dup = closed->lookup(s);
+		State *s = cur_open->take();
+		State *dup = closed->lookup(s);
 
 		if (dup) {
 			delete s;
@@ -96,8 +96,8 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 
 		exp_this_block += 1;
 
-		vector<const State *> *children = search->expand(s);
-		vector<const State *>::iterator iter;
+		vector<State *> *children = search->expand(s);
+		vector<State *>::iterator iter;
 		for (iter = children->begin();
 		     iter != children->end();
 		     iter++) {
@@ -114,7 +114,7 @@ vector<const State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 			NBlock *b = graph->get_nblock(block);
 			OpenList *next_open = &b->open[graph->get_next_layer()];
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
-			const State *dup = next_closed->lookup(*iter);
+			State *dup = next_closed->lookup(*iter);
 			if (dup && dup->get_g() <= (*iter)->get_g()) {
 				delete *iter;
 				continue;
@@ -182,11 +182,11 @@ PSDDSearch::~PSDDSearch(void)
 /**
  * Set the path to the goal.
  */
-void PSDDSearch::set_path(vector<const State *> *p)
+void PSDDSearch::set_path(vector<State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
 	if (path) {
-		vector<const State *>::iterator iter;
+		vector<State *>::iterator iter;
 
 		for (iter = p->begin(); iter != p->end(); iter++)
 			delete *iter;
@@ -210,7 +210,7 @@ bool PSDDSearch::path_found(void) const
 /**
  * Perform the search.
  */
-vector<const State *> *PSDDSearch::search(const State *initial)
+vector<State *> *PSDDSearch::search(State *initial)
 {
 	project = initial->get_domain()->get_projection();
 

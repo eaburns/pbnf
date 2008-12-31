@@ -19,8 +19,8 @@ public:
   PAStarThread(PAStar *p, pthread_mutex_t* mut, CompletionCounter* cc) : p(p), mut(mut), cc(cc) {}
 
   virtual void run(void){
-    vector<const State *> *children = NULL;
-    const State *s;
+    vector<State *> *children = NULL;
+    State *s;
     
     while(!p->has_path()){
       pthread_mutex_lock(mut);
@@ -44,7 +44,7 @@ public:
 	continue;
       }
 
-      const State *dup = p->closed.lookup(s);
+      State *dup = p->closed.lookup(s);
       if (dup && dup->get_g() < s->get_g()) {
 	delete s;
 	continue;
@@ -59,7 +59,7 @@ public:
 
       children = p->expand(s);
       for (unsigned int i = 0; i < children->size(); i += 1) {
-        const State *c = children->at(i);
+        State *c = children->at(i);
         if (p->closed.lookup(c) != NULL) {
           delete c;
           continue;
@@ -101,7 +101,7 @@ bool PAStar::is_done()
         return ret;
 }
 
-void PAStar::set_path(vector<const State *> *path)
+void PAStar::set_path(vector<State *> *path)
 {
         pthread_mutex_lock(&mutex);
         if (this->path == NULL){
@@ -124,7 +124,7 @@ bool PAStar::has_path()
 /**
  * Perform a Parallel A* search.
  */
-vector<const State *> *PAStar::search(const State *init)
+vector<State *> *PAStar::search(State *init)
 {
  	open.add(init);
         pthread_mutex_init(&mutex, NULL);

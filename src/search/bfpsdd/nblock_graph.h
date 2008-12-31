@@ -35,7 +35,7 @@ namespace BFPSDD {
 	public:
 		enum layer { LAYERA = 0, LAYERB };
 
-		NBlockGraph(const Projection *p, const State *init);
+		NBlockGraph(const Projection *p, State *init);
 
 		~NBlockGraph();
 
@@ -96,7 +96,7 @@ namespace BFPSDD {
  */
 	template<class NBlockPQ, class StateCompare>
 		NBlockGraph<NBlockPQ, StateCompare>::NBlockGraph(const Projection *p,
-								 const State *initial)
+								 State *initial)
 	{
 		typename map<unsigned int, NBlock<StateCompare> *>::iterator iter;
 		unsigned int init_nblock = p->project(initial);

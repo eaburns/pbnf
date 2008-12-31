@@ -30,8 +30,8 @@ public:
 	Tiles(unsigned int width, unsigned int height);
 	virtual ~Tiles(void);
 
-	virtual const State *initial_state(void);
-	virtual vector<const State *> *expand(const State *s);
+	virtual State *initial_state(void);
+	virtual vector<State *> *expand(State *s);
 
 	void print(ostream &o) const;
 	unsigned int get_width(void) const;
@@ -41,12 +41,12 @@ public:
 	public:
 		ManhattanDist(const SearchDomain *d);
 		virtual ~ManhattanDist(void);
-		virtual float compute(const State *s) const;
+		virtual float compute(State *s) const;
 	private:
 		void init(const SearchDomain *d);
-		float compute_full(const TilesState *s) const;
-		float compute_incr(const TilesState *s,
-				   const TilesState *p) const;
+		float compute_full(TilesState *s) const;
+		float compute_incr(TilesState *s,
+				   TilesState *p) const;
 		int lookup_dist(unsigned int num, unsigned int pos) const;
 
 		unsigned int width;
@@ -59,7 +59,7 @@ public:
 	public:
 		OneTileProject(const SearchDomain *d);
 		virtual ~OneTileProject(void);
-		virtual unsigned int project(const State *s) const;
+		virtual unsigned int project(State *s) const;
 		virtual unsigned int get_num_nblocks(void) const;
 		virtual vector<unsigned int> get_successors(unsigned int b) const;
 		virtual vector<unsigned int> get_predecessors(unsigned int b) const;
@@ -88,7 +88,7 @@ public:
 	public:
 		TwoTileProject(const SearchDomain *d);
 		virtual ~TwoTileProject(void);
-		virtual unsigned int project(const State *s) const;
+		virtual unsigned int project(State *s) const;
 		virtual unsigned int get_num_nblocks(void) const;
 		virtual vector<unsigned int> get_successors(unsigned int b) const;
 		virtual vector<unsigned int> get_predecessors(unsigned int b) const;
@@ -116,7 +116,7 @@ public:
 		const Tiles* tiles;
 	};
 
-	bool is_goal(const State *s) const;
+	bool is_goal(State *s) const;
 
 	const vector<unsigned int> *get_ones(void) const;
 
@@ -127,7 +127,7 @@ private:
 	unsigned int height;
 	vector<unsigned int> initial;
 	unsigned int initial_blank;
-	const TilesState *goal;
+	TilesState *goal;
 
 	/* Korf's crazy table of the number of ones in the binary
 	 * representation on an integer. */

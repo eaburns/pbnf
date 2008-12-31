@@ -32,7 +32,7 @@ PRAStar::PRAStarThread::~PRAStarThread(void) {
         delete q;
 }
 
-void PRAStar::PRAStarThread::add(const State* s){
+void PRAStar::PRAStarThread::add(State* s){
         pthread_mutex_lock(&mutex);
         if (open.empty() && completed){
           cc->uncomplete();
@@ -42,7 +42,7 @@ void PRAStar::PRAStarThread::add(const State* s){
         pthread_mutex_unlock(&mutex);
 }
 
-const State *PRAStar::PRAStarThread::take(void){
+State *PRAStar::PRAStarThread::take(void){
         if (open.empty() && q->empty()){
           cc->complete();
 	  pthread_mutex_lock(&mutex);
@@ -59,7 +59,7 @@ const State *PRAStar::PRAStarThread::take(void){
 	  if (pthread_mutex_trylock(&mutex) == 0){
 	    for (unsigned int i = 0; 
 		 i < q->size(); i += 1) {
-	      const State *c = q->at(i);
+	      State *c = q->at(i);
 	      if (closed.lookup(c) != NULL) {
 		delete c;
 		continue;
@@ -71,7 +71,7 @@ const State *PRAStar::PRAStarThread::take(void){
 	  }
 	}
 	while (open.empty() && !p->is_done());
-	const State *ret;
+	State *ret;
 	if (!open.empty() && !p->is_done()){
 	  ret = open.take();
 	}
@@ -85,15 +85,15 @@ const State *PRAStar::PRAStarThread::take(void){
  * Run the search thread.
  */
 void PRAStar::PRAStarThread::run(void){
-        vector<const State *> *children;
-	q = new vector<const State *>();
+        vector<State *> *children;
+	q = new vector<State *>();
 
         while(!p->has_path()){
-          const State *s = take();
+          State *s = take();
           if (s == NULL){
             break;
           }
-	  const State *dup = closed.lookup(s);
+	  State *dup = closed.lookup(s);
 	  if (dup && dup->get_g() < s->get_g()) {
 	    delete s;
 	    continue;
@@ -108,7 +108,7 @@ void PRAStar::PRAStarThread::run(void){
           
           children = p->expand(s);
           for (unsigned int i = 0; i < children->size(); i += 1) {
-            const State *c = children->at(i);
+            State *c = children->at(i);
             threads->at(c->hash()%p->n_threads)->add(c);
           }
         }
@@ -144,7 +144,7 @@ bool PRAStar::is_done()
         return ret;
 }
 
-void PRAStar::set_path(vector<const State *> *path)
+void PRAStar::set_path(vector<State *> *path)
 {
         pthread_mutex_lock(&mutex);
         if (this->path == NULL){
@@ -163,7 +163,7 @@ bool PRAStar::has_path()
         return ret;
 }
 
-vector<const State *> *PRAStar::search(const State *init)
+vector<State *> *PRAStar::search(State *init)
 {
         vector<PRAStarThread *> threads;
         vector<PRAStarThread *>::iterator iter;

@@ -23,9 +23,9 @@ class SynchPQOList : public PQOpenList<PQCompare> {
 public:
 	SynchPQOList(void);
 
-	virtual void add(const State *s);
-	virtual const State *take(void);
-	virtual const State *peek(void);
+	virtual void add(State *s);
+	virtual State *take(void);
+	virtual State *peek(void);
 	virtual bool empty(void);
 	virtual void delete_all_states(void);
 	virtual float get_best_val(void);
@@ -39,7 +39,7 @@ SynchPQOList<PQCompare>::SynchPQOList(void) {
 }
 
 template<class PQCompare>
-void SynchPQOList<PQCompare>::add(const State *s)
+void SynchPQOList<PQCompare>::add(State *s)
 {
 	pthread_mutex_lock(&mutex);
 	PQOpenList<PQCompare>::add(s);
@@ -47,9 +47,9 @@ void SynchPQOList<PQCompare>::add(const State *s)
 }
 
 template<class PQCompare>
-const State *SynchPQOList<PQCompare>::take(void)
+State *SynchPQOList<PQCompare>::take(void)
 {
-	const State *ret;
+	State *ret;
 
 	pthread_mutex_lock(&mutex);
 	ret = PQOpenList<PQCompare>::take();
@@ -59,9 +59,9 @@ const State *SynchPQOList<PQCompare>::take(void)
 }
 
 template<class PQCompare>
-const State *SynchPQOList<PQCompare>::peek(void)
+State *SynchPQOList<PQCompare>::peek(void)
 {
-	const State *ret;
+	State *ret;
 
 	pthread_mutex_lock(&mutex);
 	ret = PQOpenList<PQCompare>::peek();

@@ -32,14 +32,14 @@ DynamicBoundedPSDD::~DynamicBoundedPSDD(void) {}
  * Perform two searches.  First, a weighted A* to get a bound, then a
  * PSDD search using the weighted solution cost as the bound.
  */
-vector<const State *> *DynamicBoundedPSDD::search(const State *init)
+vector<State *> *DynamicBoundedPSDD::search(State *init)
 {
 	SearchDomain *d = init->get_domain();
 	const Heuristic *h = d->get_heuristic();
 	WeightedHeuristic wh(d, h, weight);
 	AStar astar;
 	PSDDSearch psdd(n_threads);
-	vector<const State *> *path;
+	vector<State *> *path;
 
 	cerr << "Starting wA*" << endl;
 

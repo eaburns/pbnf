@@ -23,10 +23,10 @@
 class PAStar : public Search {
 public:
 	PAStar(unsigned int);
-	virtual vector<const State *> *search(const State *);
+	virtual vector<State *> *search(State *);
         void set_done();
         bool is_done();
-        void set_path(vector<const State *> *path);
+        void set_path(vector<State *> *path);
         bool has_path();
 private:
 	SynchPQOList<CompareOnF> open;
@@ -35,7 +35,7 @@ private:
 	pthread_mutex_t mutex;
         friend class PAStarThread;
         const unsigned int n_threads;
-        vector<const State *> *path;
+        vector<State *> *path;
 };
 
 #endif	/* !_PASTAR_H_ */

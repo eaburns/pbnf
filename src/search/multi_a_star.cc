@@ -21,10 +21,10 @@ MultiAStar::~MultiAStar(void) {}
 
 class MultiAStarThread : public Thread {
 public:
-	MultiAStarThread(const State *init)
+	MultiAStarThread(State *init)
 		: init(init), path(NULL) {}
 
-	vector<const State *> *get_path(void) {
+	vector<State *> *get_path(void) {
 		return path;
 	}
 
@@ -42,14 +42,14 @@ public:
 
 private:
 	AStar search;
-	const State *init;
-	vector<const State *> *path;
+	State *init;
+	vector<State *> *path;
 };
 
-vector<const State *> *MultiAStar::search(const State *init)
+vector<State *> *MultiAStar::search(State *init)
 {
 	vector<MultiAStarThread *> threads;
-	vector<const State *> *path = NULL;
+	vector<State *> *path = NULL;
 
 	for (unsigned int i = 0; i < n_threads; i += 1)
 		threads.push_back(new MultiAStarThread(init));

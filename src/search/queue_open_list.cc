@@ -16,16 +16,18 @@
 
 using namespace std;
 
-void QueueOpenList::add(const State *s)
+void QueueOpenList::add(State *s)
 {
+	s->set_open(true);
 	q.push(s);
 	set_best_f(q.front()->get_f());
 }
 
-const State *QueueOpenList::take(void)
+State *QueueOpenList::take(void)
 {
-	const State *s = q.front();
+	State *s = q.front();
 
+	s->set_open(false);
 	q.pop();
 	if (q.empty())
 		set_best_f(numeric_limits<float>::infinity());
@@ -36,7 +38,7 @@ const State *QueueOpenList::take(void)
 	return s;
 }
 
-const State *QueueOpenList::peek(void)
+State *QueueOpenList::peek(void)
 {
 	return q.front();
 }
@@ -48,11 +50,17 @@ bool QueueOpenList::empty(void)
 
 void QueueOpenList::delete_all_states(void)
 {
-	const State *s;
+	State *s;
 
 	while (!q.empty()) {
 		s = q.front();
 		q.pop();
 		delete s;
 	}
+}
+
+void QueueOpenList::prune(void)
+{
+	while (!q.empty())
+		q.pop();
 }

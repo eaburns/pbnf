@@ -23,9 +23,9 @@ Search::Search(void) : expanded(0), generated(0) {}
  * \return A newly allocated vector of the children states.  This must
  *         be deleted by the caller.
  */
-vector<const State *> *Search::expand(const State *s)
+vector<State *> *Search::expand(State *s)
 {
-	vector<const State *> *children;
+	vector<State *> *children;
 
 	children = s->expand();
 	expanded.inc();

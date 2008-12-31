@@ -20,7 +20,7 @@ using namespace std;
 
 class IDAStar : public Search {
 public:
-	virtual vector<const State *> *search(const State *);
+	virtual vector<State *> *search(State *);
 };
 
 #endif	/* !_IDA_STAR_H_ */

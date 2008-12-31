@@ -20,18 +20,18 @@ using namespace std;
 
 class TilesState : public State {
 public:
-	TilesState(SearchDomain *d, const State *parent, float g,
+	TilesState(SearchDomain *d, State *parent, float g,
 		   vector<unsigned int> tiles, unsigned int blank);
 
-	TilesState(SearchDomain *d, const State *parent, float g,
+	TilesState(SearchDomain *d, State *parent, float g,
 		   float h, vector<unsigned int> tiles,
 		   unsigned int blank);
 
-	virtual bool is_goal(void) const;
+	virtual bool is_goal(void);
 	virtual uint64_t hash(void) const;
 	virtual State *clone(void) const;
 	virtual void print(ostream &o) const;
-	virtual bool equals(const State *s) const;
+	virtual bool equals(State *s) const;
 
 	const vector<unsigned int> *get_tiles(void) const;
 	unsigned int get_blank(void) const;

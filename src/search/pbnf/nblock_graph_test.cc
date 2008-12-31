@@ -30,9 +30,9 @@ int main(void)
 	GridWorld::RowModProject p(&w, w.get_height());
 	NBlockGraph g(&p, w.initial_state());
 	NBlock *n;
-	const State *s;
-	vector<const State *> *children;
-	vector<const State *>::iterator iter;
+	State *s;
+	vector<State *> *children;
+	vector<State *>::iterator iter;
 
 	g.print(cout);
 

@@ -43,7 +43,7 @@ BFPSDDSearch::BFPSDDThread::~BFPSDDThread() {}
  */
 void BFPSDDSearch::BFPSDDThread::run(void)
 {
-	vector<const State *> *path;
+	vector<State *> *path;
 	NBlock<CompareOnF> *n = NULL;
 
 	do {
@@ -74,9 +74,9 @@ float BFPSDDSearch::BFPSDDThread::get_ave_exp_per_nblock(void)
  * \param n The NBlock.
  * \return NULL, or a path to a goal.
  */
-vector<const State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n)
+vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n)
 {
-	vector<const State *> *path = NULL;
+	vector<State *> *path = NULL;
 	PQOpenList<CompareOnF> *cur_open = &n->open;
 	ClosedList *closed = &n->closed;
 
@@ -84,8 +84,8 @@ vector<const State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareO
 		if (cur_open->get_best_val() > graph->get_layer_value())
 			break;
 
-		const State *s = cur_open->take();
-		const State *dup = closed->lookup(s);
+		State *s = cur_open->take();
+		State *dup = closed->lookup(s);
 		if (dup) {
 			delete s;
 			continue;
@@ -100,8 +100,8 @@ vector<const State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareO
 
 		exp_this_block += 1;
 
-		vector<const State *> *children = search->expand(s);
-		vector<const State *>::iterator iter;
+		vector<State *> *children = search->expand(s);
+		vector<State *>::iterator iter;
 		for (iter = children->begin();
 		     iter != children->end();
 		     iter++) {
@@ -113,7 +113,7 @@ vector<const State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareO
 				delete *iter;
 				continue;
 			}
-			const State *dup = next_closed->lookup(*iter);
+			State *dup = next_closed->lookup(*iter);
 			if (dup && dup->get_g() <= (*iter)->get_g()) {
 				delete *iter;
 				continue;
@@ -172,11 +172,11 @@ BFPSDDSearch::~BFPSDDSearch(void)
 /**
  * Set the path to the goal.
  */
-void BFPSDDSearch::set_path(vector<const State *> *p)
+void BFPSDDSearch::set_path(vector<State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
 	if (path) {
-		vector<const State *>::iterator iter;
+		vector<State *>::iterator iter;
 
 		for (iter = p->begin(); iter != p->end(); iter++)
 			delete *iter;
@@ -200,7 +200,7 @@ bool BFPSDDSearch::path_found(void) const
 /**
  * Perform the search.
  */
-vector<const State *> *BFPSDDSearch::search(const State *initial)
+vector<State *> *BFPSDDSearch::search(State *initial)
 {
 	project = initial->get_domain()->get_projection();
 

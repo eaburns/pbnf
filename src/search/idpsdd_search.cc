@@ -15,9 +15,9 @@
 IDPSDDSearch::IDPSDDSearch(unsigned int n_threads)
 	: n_threads(n_threads) {}
 
-vector<const State *> *IDPSDDSearch::search(const State *init)
+vector<State *> *IDPSDDSearch::search(State *init)
 {
-	vector <const State *> *path = NULL;
+	vector <State *> *path = NULL;
 	float old_bound, bound = init->get_f();
 
 	PSDDSearch psdd(n_threads, bound);

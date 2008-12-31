@@ -28,7 +28,7 @@ public:
 	 * Project a state, returning an integer that represents the
 	 * NBlock that the state projects into.
 	 */
-	virtual unsigned int project(const State *s) const = 0;
+	virtual unsigned int project(State *s) const = 0;
 
 	/**
 	 * Get the number of NBlocks that will be used in this

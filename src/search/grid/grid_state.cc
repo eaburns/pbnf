@@ -24,7 +24,7 @@ using namespace std;
  * \param x The x-coordinate of this state.
  * \param y The y-coordinate of this state.
  */
-GridState::GridState(GridWorld *d, const State *parent, float g, int x, int y)
+GridState::GridState(GridWorld *d, State *parent, float g, int x, int y)
 	: State(d, parent, g), x(x), y(y)
 {
 	this->h = domain->get_heuristic()->compute(this);
@@ -34,7 +34,7 @@ GridState::GridState(GridWorld *d, const State *parent, float g, int x, int y)
  * Test if this state is the goal.
  * \return True if this is a goal, false if not.
  */
-bool GridState::is_goal(void) const
+bool GridState::is_goal(void)
 {
 	const GridWorld *d;
 
@@ -80,11 +80,11 @@ void GridState::print(ostream &o) const
 /**
  * GridState equality.
  */
-bool GridState::equals(const State *state) const
+bool GridState::equals(State *state) const
 {
-	const GridState *s;
+	GridState *s;
 
-	s = dynamic_cast<const GridState *>(state);
+	s = dynamic_cast<GridState *>(state);
 
 	return s->x == x && s->y == y;
 }

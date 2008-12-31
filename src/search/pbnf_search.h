@@ -34,10 +34,10 @@ public:
 
 	virtual ~PBNFSearch(void);
 
-	virtual vector<const State *> *search(const State *initial);
+	virtual vector<State *> *search(State *initial);
 
 private:
-	void set_path(vector<const State *> *path);
+	void set_path(vector<State *> *path);
 
 	class PBNFThread : public Thread {
 	public:
@@ -46,7 +46,7 @@ private:
 		void run(void);
 		float get_ave_exp_per_nblock(void);
 	private:
-		vector<const State *> *search_nblock(NBlock *n);
+		vector<State *> *search_nblock(NBlock *n);
 		bool should_switch(NBlock *n);
 
 		unsigned int expansions; /* for testing switch */
@@ -60,7 +60,7 @@ private:
 	unsigned int n_threads;
 	const Projection *project;
 	pthread_mutex_t path_mutex;
-	vector<const State *> *path;
+	vector<State *> *path;
 	AtomicFloat bound;
 	bool detect_livelocks;
 

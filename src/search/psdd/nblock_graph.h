@@ -33,7 +33,7 @@ namespace PSDD {
 	public:
 		enum layer { LAYERA = 0, LAYERB };
 
-		NBlockGraph(const Projection *p, const State *init);
+		NBlockGraph(const Projection *p, State *init);
 
 		~NBlockGraph();
 

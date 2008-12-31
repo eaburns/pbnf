@@ -11,9 +11,10 @@
 #if !defined(_PQ_OPEN_LIST_H_)
 #define _PQ_OPEN_LIST_H_
 
-#include <limits>
+#include <assert.h>
 
-#include <queue>
+#include <limits>
+#include <algorithm>
 
 #include "state.h"
 #include "open_list.h"
@@ -22,7 +23,7 @@ using namespace std;
 
 class CompareOnF {
 public:
-	bool operator()(const State *a, const State *b) const {
+	bool operator()(State *a, State *b) const {
 		float fa = a->get_f();
 		float fb = b->get_f();
 
@@ -32,7 +33,7 @@ public:
 		return fa > fb;
 	}
 
-	float get_value(const State *s) const {
+	float get_value(State *s) const {
 		return s->get_f();
 	}
 };
@@ -47,26 +48,41 @@ public:
 template<class PQCompare>
 class PQOpenList : public OpenList {
 public:
-	virtual void add(const State *s);
-	virtual const State *take(void);
-	virtual const State *peek(void);
-	virtual bool empty(void);
-	virtual void delete_all_states(void);
-	virtual float get_best_val(void);
+	PQOpenList(void);
+	void add(State *s);
+	State *take(void);
+	State *peek(void);
+	bool empty(void);
+	void delete_all_states(void);
+	float get_best_val(void);
+	void prune(void);
+
+	void resort(State *s);
 private:
-	priority_queue<const State *, vector<const State *>, PQCompare> pq;
+	vector<State *> heap;
 	PQCompare comp;
 };
+
+/**
+ * Create a new PQ open list.
+ */
+template<class PQCompare>
+PQOpenList<PQCompare>::PQOpenList(void)
+{
+	make_heap(heap.begin(), heap.end(), comp);
+}
 
 /**
  * Add a state to the OpenList.
  * \param s The state to add.
  */
 template<class PQCompare>
-void PQOpenList<PQCompare>::add(const State *s)
+void PQOpenList<PQCompare>::add(State *s)
 {
-	pq.push(s);
-	set_best_f(pq.top()->get_f());
+	s->set_open(true);
+	heap.push_back(s);
+	push_heap(heap.begin(), heap.end(), comp);
+	set_best_f(heap.front()->get_f());
 }
 
 /**
@@ -74,17 +90,19 @@ void PQOpenList<PQCompare>::add(const State *s)
  * \return The front of the priority queue.
  */
 template<class PQCompare>
-const State *PQOpenList<PQCompare>::take(void)
+State *PQOpenList<PQCompare>::take(void)
 {
-	const State *s;
+	State *s;
 
-	s = pq.top();
-	pq.pop();
+	s = heap.front();
+	s->set_open(false);
+	pop_heap(heap.begin(), heap.end(), comp);
+	heap.pop_back();
 
-	if (pq.empty())
+	if (heap.empty())
 		set_best_f(numeric_limits<float>::infinity());
 	else
-		set_best_f(pq.top()->get_f());
+		set_best_f(heap.front()->get_f());
 
 	return s;
 }
@@ -93,9 +111,9 @@ const State *PQOpenList<PQCompare>::take(void)
  * Peek at the top element.
  */
 template<class PQCompare>
-const State *PQOpenList<PQCompare>::peek(void)
+State *PQOpenList<PQCompare>::peek(void)
 {
-	return pq.top();
+	return heap.front();
 }
 
 /**
@@ -105,7 +123,7 @@ const State *PQOpenList<PQCompare>::peek(void)
 template<class PQCompare>
 bool PQOpenList<PQCompare>::empty(void)
 {
-	return pq.empty();
+	return heap.empty();
 }
 
 /**
@@ -114,11 +132,26 @@ bool PQOpenList<PQCompare>::empty(void)
 template<class PQCompare>
 void PQOpenList<PQCompare>::delete_all_states(void)
 {
-	while (!pq.empty()) {
-		const State *s = pq.top();
-		pq.pop();
-		delete s;
-	}
+	vector<State *>::iterator iter;
+
+	for (iter = heap.begin(); iter != heap.end(); iter++)
+		delete *iter;
+
+	heap.clear();
+}
+
+/**
+ * Prune all of the states.
+ */
+template<class PQCompare>
+void PQOpenList<PQCompare>::prune(void)
+{
+	vector<State *>::iterator iter;
+
+	for (iter = heap.begin(); iter != heap.end(); iter++)
+		(*iter)->set_open(false);
+
+	heap.clear();
 }
 
 /**
@@ -127,10 +160,28 @@ void PQOpenList<PQCompare>::delete_all_states(void)
 template<class PQCompare>
 float PQOpenList<PQCompare>::get_best_val(void)
 {
-	if (pq.empty())
+	if (heap.empty())
 		return numeric_limits<float>::infinity();
 
-	return comp.get_value(pq.top());
+	return comp.get_value(heap.front());
+}
+
+/**
+ * Ensure that the heap propert holds.  This should be called after
+ * updating states which are open.
+ */
+template<class PQCompare>
+void PQOpenList<PQCompare>::resort(State *s)
+{
+	vector<State *>::iterator iter;
+
+	for (iter = heap.begin(); iter != heap.end(); iter++)
+		if (*iter == s) {
+			push_heap(heap.begin(), ++iter, comp);
+			return;
+		}
+
+	assert("should not reach here" == NULL);
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */

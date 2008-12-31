@@ -97,7 +97,8 @@ PROGS=$(addsuffix .$(MARCH), \
 	tiles_read_test \
 	atomic_float_test \
 	one_tile_project_test \
-	two_tile_project_test)
+	two_tile_project_test \
+	pq_open_list_test)
 
 all: objdirs $(PROGS)
 
@@ -133,6 +134,9 @@ one_tile_project_test.$(MARCH): $(OBJ) tiles/one_tile_project_test.cc
 
 two_tile_project_test.$(MARCH): $(OBJ) tiles/two_tile_project_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/two_tile_project_test.cc
+
+pq_open_list_test.$(MARCH): $(OBJ) pq_open_list_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) pq_open_list_test.cc
 
 $(OBJDIR)/%.o: %.cc
 	$(COMPILE.cc) $< -o $@

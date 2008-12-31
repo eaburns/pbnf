@@ -21,13 +21,13 @@ using namespace std;
 
 class GridState : public State {
 public:
-	GridState(GridWorld *d, const State *parent, float g, int x, int y);
+	GridState(GridWorld *d, State *parent, float g, int x, int y);
 
-	virtual bool is_goal(void) const;
+	virtual bool is_goal(void);
 	virtual uint64_t hash(void) const;
 	virtual State *clone(void) const;
 	virtual void print(ostream &o) const;
-	virtual bool equals(const State *s) const;
+	virtual bool equals(State *s) const;
 
 	virtual int get_x(void) const;
 	virtual int get_y(void) const;

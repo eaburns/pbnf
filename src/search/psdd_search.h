@@ -32,8 +32,8 @@ public:
 	PSDDSearch(unsigned int n_threads, float bound);
 	virtual ~PSDDSearch(void);
 
-	vector<const State *> *search(const State *s);
-	vector<const State *> *search(const State *s, NBlockGraph *g);
+	vector<State *> *search(State *s);
+	vector<State *> *search(State *s, NBlockGraph *g);
 
 	void set_bound(float bound);
 	float get_lowest_out_of_bounds(void);
@@ -41,7 +41,7 @@ public:
 	void reset(void);
 private:
 
-	void set_path(vector<const State *> *path);
+	void set_path(vector<State *> *path);
 	bool path_found(void) const;
 
 	class PSDDThread : public Thread {
@@ -52,7 +52,7 @@ private:
 		float get_lowest_out_of_bounds(void);
 		float get_ave_exp_per_nblock(void);
 	private:
-		vector<const State *> *search_nblock(NBlock *n);
+		vector<State *> *search_nblock(NBlock *n);
 		NBlockGraph *graph;
 		PSDDSearch *search;
 		float lowest_out_of_bounds;
@@ -63,7 +63,7 @@ private:
 	AtomicFloat bound;
 	unsigned int n_threads;
 	const Projection *project;
-	vector<const State *> *path;
+	vector<State *> *path;
 	pthread_mutex_t path_mutex;
 
 	NBlockGraph *graph;
