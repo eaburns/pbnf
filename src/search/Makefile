@@ -73,6 +73,8 @@ OBJ+=$(OBJDIR)/util/sparc64_atomic_asm.o
 OBJ+=$(OBJDIR)/util/sparc64_atomic_int.o
 else ifeq ($(MARCH), i386)
 OBJ+=$(OBJDIR)/util/i386_atomic_int.o
+else ifeq ($(MARCH), i686)
+OBJ+=$(OBJDIR)/util/i386_atomic_int.o
 else ifeq ($(MARCH), x86_64)
 OBJ+=$(OBJDIR)/util/x86_64_atomic_int.o
 else
