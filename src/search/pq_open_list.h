@@ -74,6 +74,7 @@ PQOpenList<PQCompare>::PQOpenList(void)
 template<class PQCompare>
 void PQOpenList<PQCompare>::add(State *s)
 {
+	s->set_open(true);
 	heap.push_back(s);
 	push_heap(heap.begin(), heap.end(), comp);
 	set_best_f(heap.front()->get_f());
@@ -89,6 +90,7 @@ State *PQOpenList<PQCompare>::take(void)
 	State *s;
 
 	s = heap.front();
+	s->set_open(false);
 	pop_heap(heap.begin(), heap.end(), comp);
 	heap.pop_back();
 

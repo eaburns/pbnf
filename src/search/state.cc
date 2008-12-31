@@ -13,7 +13,7 @@
 #include "state.h"
 
 State::State(SearchDomain *d, State *parent, float g)
-	: parent(parent), domain(d), g(g), h(-1) {}
+	: parent(parent), domain(d), g(g), h(-1), open(false) {}
 
 State::~State() {}
 
@@ -98,4 +98,20 @@ vector<State *> *State::get_path(void)
 State *State::get_parent(void) const
 {
 	return parent;
+}
+
+/**
+ * Set the open status of the state.
+ */
+void State::set_open(bool b)
+{
+	open = b;
+}
+
+/**
+ * Test if the state is open.
+ */
+bool State::is_open(void) const
+{
+	return open;
 }

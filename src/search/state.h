@@ -36,16 +36,19 @@ public:
 
 	virtual vector<State*> *expand(void);
 
-	virtual float get_f(void) const;
-	virtual float get_g(void) const;
-	virtual float get_h(void) const;
-	virtual State *get_parent(void) const;
-	virtual vector<State *> *get_path(void);
+	float get_f(void) const;
+	float get_g(void) const;
+	float get_h(void) const;
+	State *get_parent(void) const;
+	vector<State *> *get_path(void);
+	void set_open(bool b);
+	bool is_open(void) const;
 //protected:
 	State *parent;
 	SearchDomain *domain;
 	float g;
 	float h;
+	bool open;
 };
 
 #endif	/* !_STATE_H_ */
