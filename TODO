@@ -4,12 +4,11 @@ To Do
 (Wheeler) rough draft
  mash Seth and Ethan's papers together
 
-(Rong) fix min-expansions
-       run 3 times at each setting to account for concurrency non-determinism
-
 (Seth) results with 3x4 tiles
  across all abstractions
  get intervals small
+
+(Ethan) make Rong an account on legion
 
 (Ethan) results with new grid abstraction (unit & life)
 
@@ -17,6 +16,8 @@ To Do
   figure out why we don't do well on some problems
   port code to 64-bits
   results on Sun
+
+(Ethan) fix IDPSDD
 
 (Ethan) figure out why we suck on tiles
   then, worry about general fix like division trick
@@ -31,23 +32,24 @@ To Do
 (Seth) PRA* improvements
  eg, Cancel threads
 
-(Seth) KBFS improvements
- no locks, busy waiting
-
 (Seth) Implement learning for min expansions
 
-(Ethan/Seth) Read Edelkamp's "External A*"
-
-(???) PSDD with some kind of f-range
+(???) PSDD with some kind of f-range or min expansions (% or #) per nblock
 
 (Seth) A* with lock-free datastructures -- maybe this will be great
   - Look at tfogal's lock-free hashtable
   - Look at Kumar's lock-free Prio-queue
      survey, also hurt et al
 
+(Ethan/Seth) Read Edelkamp's "External A*"
+
 --------------------
 
 - (Ethan) Create NBlocks lazily in PBNF and PSDD
+
+- (Ethan) code tweaks
+  - don't generate parent
+  - detect duplicates in open list (without issues freeing path)
 
 - (Ethan) colored grid per-thread colors
 

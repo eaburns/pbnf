@@ -16,21 +16,22 @@ class PAStarThread : public Thread {
 public:
   PAStarThread() {}
   PAStarThread(PAStar *p) : p(p) {}
-  PAStarThread(PAStar *p, pthread_cond_t* con, pthread_mutex_t* mut, CompletionCounter* cc) : p(p), con(con), mut(mut), cc(cc) {}
+  PAStarThread(PAStar *p, pthread_mutex_t* mut, CompletionCounter* cc) : p(p), mut(mut), cc(cc) {}
 
   virtual void run(void){
     vector<const State *> *children = NULL;
+    const State *s;
     
     while(!p->has_path()){
       pthread_mutex_lock(mut);
-      while (p->open.empty()){
-        cc->complete();
+      if(!p->open.empty()){
+	s = p->open.take();
+	pthread_mutex_unlock(mut);
+      }
+      else{
+	cc->complete();
         if (cc->is_complete()){
-          p->done = true;
-          pthread_cond_broadcast(con);
-        }
-        else{
-          pthread_cond_wait(con, mut);
+          p->set_done();
         }
         if (p->done==true){
           pthread_mutex_unlock(mut);
@@ -39,9 +40,9 @@ public:
           return;
         }
         cc->uncomplete();
+	pthread_mutex_unlock(mut);
+	continue;
       }
-      const State *s = p->open.take();
-      pthread_mutex_unlock(mut);
 
       const State *dup = p->closed.lookup(s);
       if (dup && dup->get_g() < s->get_g()) {
@@ -53,28 +54,19 @@ public:
 
       if (s->is_goal()) {
         p->set_path(s->get_path());
-        pthread_mutex_lock(mut);
-        p->done = true;
-        pthread_cond_broadcast(con);
-        pthread_mutex_unlock(mut);
         break;
       }
 
       children = p->expand(s);
-      bool added = false;
       for (unsigned int i = 0; i < children->size(); i += 1) {
         const State *c = children->at(i);
         if (p->closed.lookup(c) != NULL) {
           delete c;
           continue;
         }
-        added = true;
+	pthread_mutex_lock(mut);
         p->open.add(c);
-      }
-      if (added){
-        pthread_mutex_lock(mut);
-        pthread_cond_broadcast(con);
-        pthread_mutex_unlock(mut);
+	pthread_mutex_unlock(mut);
       }
     }
     
@@ -83,7 +75,6 @@ public:
   
 private:
   PAStar *p;
-  pthread_cond_t* con;
   pthread_mutex_t* mut;
   friend class PAStar;
   CompletionCounter *cc;
@@ -94,11 +85,28 @@ PAStar::PAStar(unsigned int n_threads) : n_threads(n_threads), path(NULL){
   done = false;
 }
 
+void PAStar::set_done()
+{
+        pthread_mutex_lock(&mutex);
+        done = true;
+        pthread_mutex_unlock(&mutex);
+}
+
+bool PAStar::is_done()
+{
+        bool ret;
+        pthread_mutex_lock(&mutex);
+ 	ret = done;
+        pthread_mutex_unlock(&mutex);
+        return ret;
+}
+
 void PAStar::set_path(vector<const State *> *path)
 {
         pthread_mutex_lock(&mutex);
         if (this->path == NULL){
           this->path = path;
+	  done = true;
         }
         pthread_mutex_unlock(&mutex);
 }
@@ -120,19 +128,16 @@ vector<const State *> *PAStar::search(const State *init)
 {
  	open.add(init);
         pthread_mutex_init(&mutex, NULL);
-	pthread_cond_init(&cond, NULL);
 
         CompletionCounter cc = CompletionCounter(n_threads);
-	pthread_cond_t c;
 	pthread_mutex_t m;
         pthread_mutex_init(&m, NULL);
-	pthread_cond_init(&c, NULL);
 
         unsigned int worker;
         vector<PAStarThread *> threads;
 	vector<PAStarThread *>::iterator iter;
         for (worker=0; worker<n_threads; worker++) {
-		PAStarThread *t = new PAStarThread(this, &c, &m, &cc);
+		PAStarThread *t = new PAStarThread(this, &m, &cc);
 		threads.push_back(t);
 		t->start();
         }
