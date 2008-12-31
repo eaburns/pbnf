@@ -11,6 +11,8 @@
 #if !defined(_PQ_OPEN_LIST_H_)
 #define _PQ_OPEN_LIST_H_
 
+#include <assert.h>
+
 #include <limits>
 #include <algorithm>
 
@@ -54,7 +56,7 @@ public:
 	void delete_all_states(void);
 	float get_best_val(void);
 
-	void resort(void);
+	void resort(State *s);
 private:
 	vector<State *> heap;
 	PQCompare comp;
@@ -154,9 +156,17 @@ float PQOpenList<PQCompare>::get_best_val(void)
  * updating states which are open.
  */
 template<class PQCompare>
-void PQOpenList<PQCompare>::resort(void)
+void PQOpenList<PQCompare>::resort(State *s)
 {
-	make_heap(heap.begin(), heap.end(), comp);
+	vector<State *>::iterator iter;
+
+	for (iter = heap.begin(); iter != heap.end(); iter++)
+		if (*iter == s) {
+			make_heap(heap.begin(), ++iter, comp);
+			return;
+		}
+
+	assert("should not reach here" == NULL);
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */

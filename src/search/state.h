@@ -38,7 +38,7 @@ public:
 
 	float get_f(void) const;
 	float get_g(void) const;
-	void set_g(float g);
+	void update(State *parent, float g);
 	float get_h(void) const;
 	State *get_parent(void) const;
 	vector<State *> *get_path(void);

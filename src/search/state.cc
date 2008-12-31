@@ -46,8 +46,9 @@ float State::get_g(void) const
 /**
  * Set the g value for this state.
  */
-void State::set_g(float g)
+void State::update(State *parent, float g)
 {
+	this->parent = parent;
 	this->g = g;
 }
 
