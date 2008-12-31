@@ -63,6 +63,8 @@ private:
         pthread_mutex_t mutex;
         const unsigned int n_threads;
         vector<State *> *path;
+	vector<PRAStarThread *> threads;
+	vector<PRAStarThread *>::iterator iter;
 };
 
 #endif	/* !_PRASTAR_H_ */

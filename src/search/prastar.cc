@@ -147,7 +147,8 @@ bool PRAStar::is_done()
 void PRAStar::set_path(vector<State *> *path)
 {
         pthread_mutex_lock(&mutex);
-        if (this->path == NULL){
+        if (this->path == NULL || 
+	    this->path->back()->get_g() > path->back()->get_g()){
           this->path = path;
 	  done = true;
         }
@@ -165,8 +166,6 @@ bool PRAStar::has_path()
 
 vector<State *> *PRAStar::search(State *init)
 {
-        vector<PRAStarThread *> threads;
-        vector<PRAStarThread *>::iterator iter;
         pthread_mutex_init(&mutex, NULL);
 
         CompletionCounter cc = CompletionCounter(n_threads);
