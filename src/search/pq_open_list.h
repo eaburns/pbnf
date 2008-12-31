@@ -12,8 +12,7 @@
 #define _PQ_OPEN_LIST_H_
 
 #include <limits>
-
-#include <queue>
+#include <algorithm>
 
 #include "state.h"
 #include "open_list.h"
@@ -47,16 +46,26 @@ public:
 template<class PQCompare>
 class PQOpenList : public OpenList {
 public:
-	virtual void add(State *s);
-	virtual State *take(void);
-	virtual State *peek(void);
-	virtual bool empty(void);
-	virtual void delete_all_states(void);
-	virtual float get_best_val(void);
+	PQOpenList(void);
+	void add(State *s);
+	State *take(void);
+	State *peek(void);
+	bool empty(void);
+	void delete_all_states(void);
+	float get_best_val(void);
 private:
-	priority_queue<State *, vector<State *>, PQCompare> pq;
+	vector<State *> heap;
 	PQCompare comp;
 };
+
+/**
+ * Create a new PQ open list.
+ */
+template<class PQCompare>
+PQOpenList<PQCompare>::PQOpenList(void)
+{
+	make_heap(heap.begin(), heap.end(), comp);
+}
 
 /**
  * Add a state to the OpenList.
@@ -65,8 +74,9 @@ private:
 template<class PQCompare>
 void PQOpenList<PQCompare>::add(State *s)
 {
-	pq.push(s);
-	set_best_f(pq.top()->get_f());
+	heap.push_back(s);
+	push_heap(heap.begin(), heap.end(), comp);
+	set_best_f(heap.front()->get_f());
 }
 
 /**
@@ -78,13 +88,14 @@ State *PQOpenList<PQCompare>::take(void)
 {
 	State *s;
 
-	s = pq.top();
-	pq.pop();
+	s = heap.front();
+	pop_heap(heap.begin(), heap.end(), comp);
+	heap.pop_back();
 
-	if (pq.empty())
+	if (heap.empty())
 		set_best_f(numeric_limits<float>::infinity());
 	else
-		set_best_f(pq.top()->get_f());
+		set_best_f(heap.front()->get_f());
 
 	return s;
 }
@@ -95,7 +106,7 @@ State *PQOpenList<PQCompare>::take(void)
 template<class PQCompare>
 State *PQOpenList<PQCompare>::peek(void)
 {
-	return pq.top();
+	return heap.front();
 }
 
 /**
@@ -105,7 +116,7 @@ State *PQOpenList<PQCompare>::peek(void)
 template<class PQCompare>
 bool PQOpenList<PQCompare>::empty(void)
 {
-	return pq.empty();
+	return heap.empty();
 }
 
 /**
@@ -114,11 +125,12 @@ bool PQOpenList<PQCompare>::empty(void)
 template<class PQCompare>
 void PQOpenList<PQCompare>::delete_all_states(void)
 {
-	while (!pq.empty()) {
-		State *s = pq.top();
-		pq.pop();
-		delete s;
-	}
+	vector<State *>::iterator iter;
+
+	for (iter = heap.begin(); iter != heap.end(); iter++)
+		delete *iter;
+
+	heap.clear();
 }
 
 /**
@@ -127,10 +139,10 @@ void PQOpenList<PQCompare>::delete_all_states(void)
 template<class PQCompare>
 float PQOpenList<PQCompare>::get_best_val(void)
 {
-	if (pq.empty())
+	if (heap.empty())
 		return numeric_limits<float>::infinity();
 
-	return comp.get_value(pq.top());
+	return comp.get_value(heap.front());
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */
