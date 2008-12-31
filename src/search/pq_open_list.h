@@ -53,6 +53,8 @@ public:
 	bool empty(void);
 	void delete_all_states(void);
 	float get_best_val(void);
+
+	void resort(void);
 private:
 	vector<State *> heap;
 	PQCompare comp;
@@ -145,6 +147,16 @@ float PQOpenList<PQCompare>::get_best_val(void)
 		return numeric_limits<float>::infinity();
 
 	return comp.get_value(heap.front());
+}
+
+/**
+ * Ensure that the heap propert holds.  This should be called after
+ * updating states which are open.
+ */
+template<class PQCompare>
+void PQOpenList<PQCompare>::resort(void)
+{
+	make_heap(heap.begin(), heap.end(), comp);
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */
