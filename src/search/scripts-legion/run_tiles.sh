@@ -4,45 +4,35 @@
 THREADS=1
 NBLOCKS=1
 WEIGHT=1.0
-PROB=0.35
-WIDTH=2000
-HEIGHT=1200
+MIN_EXPANSIONS=1
+DELTA_F=0
+ROWS=3
+COLS=3
 ALGORITHM=""
 
 # constants
-if [[ $(uname -m) == "sun4v" ]]; then
-	RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.SunOS"
-	GRID_SEARCH="./grid_search.sun4v.bin"
-	RUNS_ROOT="/home/rai/eaburns/data/legion/grid"
-else
-	RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
-	GRID_SEARCH="./grid_search.bin"
-	RUNS_ROOT="/home/rai/eaburns/data/grid"
-fi
-DATA_ROOT="/home/rai/group/data/grid_instances"
-OBSTACLES="uniform"
-COSTS="Unit"
-MOVES="Four-way"
+RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
+SEARCH_PROG="./tiles_search.bin"
+DATA_ROOT="/home/rai/group/data/tiles_instances"
+RUNS_ROOT="/home/rai/eaburns/data/tiles"
 
-USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd prastar"
+USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2"
 USES_MIN_EXPANSIONS="safepbnf pbnf"
+USES_DELTA_F="safepbnf2 pbnf2"
 
 if [ "$#" -eq 0 ]
 then   # Script needs at least one command-line argument.
     echo -e "Usage:"
     echo -e "\
- run_grid.sh \
-[-d <dimensions>] \
-[-p <prob>] \
-[-c <costs>] \
-[-v <moves>] \
-[-o <obstacles>] \
-[-n <nblocks>] \
+ run_tiles.sh \
 [-t <threads>] \
 [-w <weight>] \
+[-d <delta_f>] \
 [-m <min_expansions>] \
+[-r <rows>] \
+[-c <columns>] \
 <algorithm>"
     exit 1
 fi  
@@ -50,21 +40,16 @@ fi
 #
 # Parse arugments
 #
-set -- `getopt "o:c:d:m:n:p:t:w:v:" "$@"`
+set -- `getopt "d:m:n:t:w:r:c:" "$@"`
 while [ ! -z "$1" ]
 do
     case "$1" in
-	-d) WIDTH=$(echo $2 | cut -dx -f1) ;
-	    HEIGHT=$(echo $2 | cut -dx -f2) ;;
+	-d) DELTA_F=$2 ; shift ;;
 	-m) MIN_EXPANSIONS=$2 ; shift ;;
-	-v) MOVES=$2 ; shift ;;
-	-n) NBLOCKS=$2 ; shift ;;
-	-p) PROB=$2 ; shift ;;
-	-p) PROB=$2 ; shift ;;
-	-c) COSTS=$2 ; shift ;;
-	-o) OBSTACLES=$2 ; shift ;;
 	-t) THREADS=$2 ; shift ;;
 	-w) WEIGHT=$2 ; shift ;;
+	-r) ROWS=$2 ; shift ;;
+	-c) COLS=$2 ; shift ;;
 	*) break ;;
     esac
     shift
@@ -102,22 +87,11 @@ function alg_on_list {
 function paths ()
 {
     ARGS=""
+    ARGS+="model=random "
+    ARGS+="rows=$ROWS "
+    ARGS+="cols=$COLS "
 
-    ARGS="${ARGS}obstacles=$OBSTACLES "
-
-    # This is Jordan's fault.
-    if [[ "$OBSTACLES" == "lines" ]]
-    then
-	ARGS="${ARGS}:type=instance "
-    fi
-
-    ARGS="${ARGS}costs=$COSTS "
-    ARGS="${ARGS}moves=$MOVES "
-    ARGS="${ARGS}prob=$PROB "
-    ARGS="${ARGS}width=$WIDTH "
-    ARGS="${ARGS}height=$HEIGHT "
-
-    ARGS="${ARGS}num=*"
+    ARGS+="num=*"
     $RDB_GET_PATH $DATA_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
 }
 
@@ -128,67 +102,69 @@ function paths ()
 function run_file ()
 {
     ARGS=""
-    ARGS="${ARGS}type=run "
-    ARGS="${ARGS}alg=$ALGORITHM "
+    ARGS+="type=run "
+    ARGS+="alg=$ALGORITHM "
+
+    if alg_on_list $USES_DELTA_F
+    then
+	ARGS+="delta-f=$DELTA_F "
+    fi
 
     if alg_on_list $USES_MIN_EXPANSIONS
     then
-	ARGS="${ARGS}min-expansions=$MIN_EXPANSIONS "
+	ARGS+="min-expansions=$MIN_EXPANSIONS "
     fi
 
     if alg_on_list $USES_THREADS
     then
-	ARGS="${ARGS}threads=$THREADS "
-    fi
-
-    if alg_on_list $USES_NBLOCKS
-    then
-	ARGS="${ARGS}nblocks=$NBLOCKS "
+	ARGS+="threads=$THREADS "
     fi
 
     if alg_on_list $USES_WEIGHT
     then 
-	ARGS="${ARGS}wt=$WEIGHT "
+	ARGS+="wt=$WEIGHT "
     fi
 
-    ARGS="${ARGS}obstacles=$OBSTACLES "
-    ARGS="${ARGS}costs=$COSTS "
-    ARGS="${ARGS}moves=$MOVES "
-    ARGS="${ARGS}prob=$PROB "
-    ARGS="${ARGS}width=$WIDTH "
-    ARGS="${ARGS}height=$HEIGHT "
+    ARGS+="model=random "
+    ARGS+="rows=$ROWS "
+    ARGS+="cols=$COLS "
 
-    ARGS="${ARGS}num=$1"
+    ARGS+="num=$1"
     $RDB_GET_PATH $RUNS_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
 }
 
 
 #
 # Get the full name of the search algorithm (possibly including
-# threads, nblocks, and weights).
+# threads, nblocks/thread, and weights).
 #
 function full_algo_name ()
 {
     FULL_NAME="$1"
 
+    if alg_on_list $USES_DELTA_F
+    then
+	FULL_NAME+="-$DELTA_F"
+    fi
+
     if alg_on_list $USES_MIN_EXPANSIONS
     then
-	FULL_NAME="${FULL_NAME}-$MIN_EXPANSIONS"
+	FULL_NAME+="-$MIN_EXPANSIONS"
     fi
 	
     if alg_on_list $USES_THREADS
     then
-	FULL_NAME="${FULL_NAME}-$THREADS"
+	FULL_NAME+="-$THREADS"
     fi
 
     if alg_on_list $USES_NBLOCKS
     then
-	FULL_NAME="${FULL_NAME}-$NBLOCKS"
+	FULL_NAME+="-$NBLOCKS"
     fi
 
     if alg_on_list $USES_WEIGHT
     then
-	FULL_NAME="${FULL_NAME}-$WEIGHT"
+	FULL_NAME+="-$WEIGHT"
     fi
 
     echo $FULL_NAME
@@ -279,8 +255,13 @@ do
     (echo -e "#start data file format 4"
 	echo -e "#pair  \"wall start date\"\t\"$(date)\""
 	echo -e "#pair  \"wall start time\"\t\"NULL\""
-	echo -e "#pair  \"machine id\"\t\"$(hostname)-$(uname -m)-$(uname -s)-$(uname -r)\""
+	echo -e "#pair  \"machine id\"\t\"$(hostname -f)-$(uname -m)-$(uname -s)-$(uname -r)\""
 	echo -e "#pair  \"alg\"\t\"$ALGORITHM\""
+
+	if alg_on_list $USES_DELTA_F
+	then
+	    echo -e "#pair  \"delta-f\"\t\"$DELTA_F\""
+	fi
 
 	if alg_on_list $USES_MIN_EXPANSIONS
 	then
@@ -292,65 +273,28 @@ do
 	    echo -e "#pair  \"threads\"\t\"$THREADS\""
 	fi
 
-	if alg_on_list $USES_NBLOCKS
-	then
-	    echo -e "#pair  \"nblocks\"\t\"$NBLOCKS\""
-	fi
-
 	if alg_on_list $USES_WEIGHT
 	then 
 	    echo -e "#pair  \"wt\"\t\"$WEIGHT\""
 	fi
 
 #    echo -e "#pair  \"type\"\t\"instances\""
-	echo -e "#pair  \"obstacles\"\t\"$OBSTACLES\""
-	echo -e "#pair  \"costs\"\t\"$COSTS\""
-	echo -e "#pair  \"moves\"\t\"$MOVES\""
-	echo -e "#pair  \"prob\"\t\"$PROB\""
-	echo -e "#pair  \"width\"\t\"$WIDTH\""
-	echo -e "#pair  \"height\"\t\"$HEIGHT\""
+	echo -e "#pair  \"model\"\t\"random\""
+	echo -e "#pair  \"rows\"\t\"$ROWS\""
+	echo -e "#pair  \"cols\"\t\"$COLS\""
 	echo -e "#pair  \"num\"\t\"$NUM\"") > $OUT
 
 
     #
     # Preform the search
     #
-    OUTPUT=$($GRID_SEARCH $FULL_NAME < $INSTANCE 2>&1)
-    if [[ $(echo $OUTPUT | sed -n "s/.*cost: \(infinity\).*/\1/p") == "infinity" ]]; then
-	SOL_COST="infinity"
-    else
-	    SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9][0-9.]*\).*/\1/p")
-    fi
-
-    if [[ $(echo $OUTPUT | sed -n "s/.*length: \(infinity\).*/\1/p") == "infinity" ]]; then
-	    SOL_LENGTH="infinity"
-    else
-	    SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9][0-9.]*\).*/\1/p")
-    fi
-
-    if [[ $(echo $OUTPUT | sed -n "s/.*wall_time: \(infinity\).*/\1/p") == "infinity" ]]; then
-	    WALL_TIME="infinity"
-    else
-	    WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9][0-9.]*\).*/\1/p")
-    fi
-
-    if [[ $(echo $OUTPUT | sed -n "s/.*CPU_time: \(infinity\).*/\1/p") == "infinity" ]]; then
-	    CPU_TIME="infinity"
-    else
-	    CPU_TIME=$(echo $OUTPUT | sed -n "s/.*CPU_time: \([0-9][0-9.]*\).*/\1/p")
-    fi
-
-    if [[ $(echo $OUTPUT | sed -n "s/.*generated: \(infinity\).*/\1/p") == "infinity" ]]; then
-	    GENERATED="infinity"
-    else
-	    GENERATED=$(echo $OUTPUT | sed -n "s/.*generated: \([0-9][0-9.]*\).*/\1/p")
-    fi
-
-    if [[ $(echo $OUTPUT | sed -n "s/.*expanded: \(infinity\).*/\1/p") == "infinity" ]]; then
-	    EXPANDED="infinity"
-    else
-	    EXPANDED=$(echo $OUTPUT | sed -n "s/.*expanded: \([0-9][0-9.]*\).*/\1/p")
-    fi
+    OUTPUT=$($SEARCH_PROG $FULL_NAME < $INSTANCE 2>&1)
+    SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9.]\+\|infinity\).*/\1/p")
+    SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9.]\+\|infinity\).*/\1/p")
+    WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9.]\+\|infinity\).*/\1/p")
+    CPU_TIME=$(echo $OUTPUT | sed -n "s/.*CPU_time: \([0-9.]\+\|infinity\).*/\1/p")
+    GENERATED=$(echo $OUTPUT | sed -n "s/.*generated: \([0-9.]\+\|infinity\).*/\1/p")
+    EXPANDED=$(echo $OUTPUT | sed -n "s/.*expanded: \([0-9.]\+\|infinity\).*/\1/p")
 
     if (echo $OUTPUT | grep "bad_alloc" >& /dev/null)
     then
@@ -389,7 +333,6 @@ do
 	echo -e "#pair  \"exp_per_nblock\"\t\"$EXP_PER_NBLOCK\"" >> $OUT
     fi
     echo -e "#end data file format 4" >> $OUT
-
 
     # Put the file in the AI group
     chgrp ai $OUT

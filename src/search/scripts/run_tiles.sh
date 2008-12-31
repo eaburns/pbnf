@@ -11,10 +11,17 @@ COLS=3
 ALGORITHM=""
 
 # constants
-RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
+if [[ $(uname -m) == "sun4v" ]]; then
+	RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.SunOS"
+	SEARCH_PROG="./grid_search.sun4v.bin"
+	RUNS_ROOT="/home/rai/eaburns/data/legion/tiles"
+else
+	RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
+	SEARCH_PROG="./grid_search.bin"
+	RUNS_ROOT="/home/rai/eaburns/data/tiles"
+fi
 SEARCH_PROG="./tiles_search.bin"
 DATA_ROOT="/home/rai/group/data/tiles_instances"
-RUNS_ROOT="/home/rai/eaburns/data/tiles"
 
 USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2"
 USES_WEIGHT="dynpsdd"
@@ -87,11 +94,11 @@ function alg_on_list {
 function paths ()
 {
     ARGS=""
-    ARGS+="model=random "
-    ARGS+="rows=$ROWS "
-    ARGS+="cols=$COLS "
+    ARGS="${ARGS}model=random "
+    ARGS="${ARGS}rows=$ROWS "
+    ARGS="${ARGS}cols=$COLS "
 
-    ARGS+="num=*"
+    ARGS="${ARGS}num=*"
     $RDB_GET_PATH $DATA_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
 }
 
@@ -102,34 +109,34 @@ function paths ()
 function run_file ()
 {
     ARGS=""
-    ARGS+="type=run "
-    ARGS+="alg=$ALGORITHM "
+    ARGS="${ARGS}type=run "
+    ARGS="${ARGS}alg=$ALGORITHM "
 
     if alg_on_list $USES_DELTA_F
     then
-	ARGS+="delta-f=$DELTA_F "
+	ARGS="${ARGS}delta-f=$DELTA_F "
     fi
 
     if alg_on_list $USES_MIN_EXPANSIONS
     then
-	ARGS+="min-expansions=$MIN_EXPANSIONS "
+	ARGS="${ARGS}min-expansions=$MIN_EXPANSIONS "
     fi
 
     if alg_on_list $USES_THREADS
     then
-	ARGS+="threads=$THREADS "
+	ARGS="${ARGS}threads=$THREADS "
     fi
 
     if alg_on_list $USES_WEIGHT
     then 
-	ARGS+="wt=$WEIGHT "
+	ARGS="${ARGS}wt=$WEIGHT "
     fi
 
-    ARGS+="model=random "
-    ARGS+="rows=$ROWS "
-    ARGS+="cols=$COLS "
+    ARGS="${ARGS}model=random "
+    ARGS="${ARGS}rows=$ROWS "
+    ARGS="${ARGS}cols=$COLS "
 
-    ARGS+="num=$1"
+    ARGS="${ARGS}num=$1"
     $RDB_GET_PATH $RUNS_ROOT $ARGS | grep path | sed -n "s/path:\ //p"
 }
 
@@ -144,27 +151,27 @@ function full_algo_name ()
 
     if alg_on_list $USES_DELTA_F
     then
-	FULL_NAME+="-$DELTA_F"
+	FULL_NAME="${FULL_NAME}-$DELTA_F"
     fi
 
     if alg_on_list $USES_MIN_EXPANSIONS
     then
-	FULL_NAME+="-$MIN_EXPANSIONS"
+	FULL_NAME="${FULL_NAME}-$MIN_EXPANSIONS"
     fi
 	
     if alg_on_list $USES_THREADS
     then
-	FULL_NAME+="-$THREADS"
+	FULL_NAME="${FULL_NAME}-$THREADS"
     fi
 
     if alg_on_list $USES_NBLOCKS
     then
-	FULL_NAME+="-$NBLOCKS"
+	FULL_NAME="${FULL_NAME}-$NBLOCKS"
     fi
 
     if alg_on_list $USES_WEIGHT
     then
-	FULL_NAME+="-$WEIGHT"
+	FULL_NAME="${FULL_NAME}-$WEIGHT"
     fi
 
     echo $FULL_NAME
@@ -289,13 +296,41 @@ do
     # Preform the search
     #
     OUTPUT=$($SEARCH_PROG $FULL_NAME < $INSTANCE 2>&1)
-    SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9.]\+\|infinity\).*/\1/p")
-    SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9.]\+\|infinity\).*/\1/p")
-    WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9.]\+\|infinity\).*/\1/p")
-    CPU_TIME=$(echo $OUTPUT | sed -n "s/.*CPU_time: \([0-9.]\+\|infinity\).*/\1/p")
-    GENERATED=$(echo $OUTPUT | sed -n "s/.*generated: \([0-9.]\+\|infinity\).*/\1/p")
-    EXPANDED=$(echo $OUTPUT | sed -n "s/.*expanded: \([0-9.]\+\|infinity\).*/\1/p")
+    if [[ $(echo $OUTPUT | sed -n "s/.*cost: \(infinity\).*/\1/p") == "infinity" ]]; then
+	SOL_COST="infinity"
+    else
+	    SOL_COST=$(echo $OUTPUT | sed -n "s/.*cost: \([0-9][0-9.]*\).*/\1/p")
+    fi
 
+    if [[ $(echo $OUTPUT | sed -n "s/.*length: \(infinity\).*/\1/p") == "infinity" ]]; then
+	    SOL_LENGTH="infinity"
+    else
+	    SOL_LENGTH=$(echo $OUTPUT | sed -n "s/.*length: \([0-9][0-9.]*\).*/\1/p")
+    fi
+
+    if [[ $(echo $OUTPUT | sed -n "s/.*wall_time: \(infinity\).*/\1/p") == "infinity" ]]; then
+	    WALL_TIME="infinity"
+    else
+	    WALL_TIME=$(echo $OUTPUT | sed -n "s/.*wall_time: \([0-9][0-9.]*\).*/\1/p")
+    fi
+
+    if [[ $(echo $OUTPUT | sed -n "s/.*CPU_time: \(infinity\).*/\1/p") == "infinity" ]]; then
+	    CPU_TIME="infinity"
+    else
+	    CPU_TIME=$(echo $OUTPUT | sed -n "s/.*CPU_time: \([0-9][0-9.]*\).*/\1/p")
+    fi
+
+    if [[ $(echo $OUTPUT | sed -n "s/.*generated: \(infinity\).*/\1/p") == "infinity" ]]; then
+	    GENERATED="infinity"
+    else
+	    GENERATED=$(echo $OUTPUT | sed -n "s/.*generated: \([0-9][0-9.]*\).*/\1/p")
+    fi
+
+    if [[ $(echo $OUTPUT | sed -n "s/.*expanded: \(infinity\).*/\1/p") == "infinity" ]]; then
+	    EXPANDED="infinity"
+    else
+	    EXPANDED=$(echo $OUTPUT | sed -n "s/.*expanded: \([0-9][0-9.]*\).*/\1/p")
+    fi
     if (echo $OUTPUT | grep "bad_alloc" >& /dev/null)
     then
 	echo "Run Aborted"
