@@ -97,8 +97,7 @@ PROGS=$(addsuffix .$(MARCH), \
 	tiles_read_test \
 	atomic_float_test \
 	one_tile_project_test \
-	two_tile_project_test \
-	pq_open_list_test)
+	two_tile_project_test)
 
 all: objdirs $(PROGS)
 
