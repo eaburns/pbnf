@@ -55,6 +55,7 @@ public:
 	bool empty(void);
 	void delete_all_states(void);
 	float get_best_val(void);
+	void prune(void);
 
 	void resort(State *s);
 private:
@@ -135,6 +136,20 @@ void PQOpenList<PQCompare>::delete_all_states(void)
 
 	for (iter = heap.begin(); iter != heap.end(); iter++)
 		delete *iter;
+
+	heap.clear();
+}
+
+/**
+ * Prune all of the states.
+ */
+template<class PQCompare>
+void PQOpenList<PQCompare>::prune(void)
+{
+	vector<State *>::iterator iter;
+
+	for (iter = heap.begin(); iter != heap.end(); iter++)
+		(*iter)->set_open(false);
 
 	heap.clear();
 }

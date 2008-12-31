@@ -58,3 +58,9 @@ void QueueOpenList::delete_all_states(void)
 		delete s;
 	}
 }
+
+void QueueOpenList::prune(void)
+{
+	while (!q.empty())
+		q.pop();
+}

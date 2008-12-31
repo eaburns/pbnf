@@ -67,24 +67,15 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 {
 	vector<State *> *path = NULL;
 	OpenList *open = &n->open;
-	ClosedList *closed = &n->closed;
+//	ClosedList *closed = &n->closed;
 
 	while (!open->empty() && !should_switch(n)) {
 		State *s = open->take();
 
 		if (s->get_f() >= search->bound.read()) {
-			delete s;
-			open->delete_all_states();
+			open->prune();
 			break;
 		}
-
-		State *dup = closed->lookup(s);
-		if (dup && dup->get_g() <= s->get_g()) {
-			delete s;
-			continue;
-		}
-
-		closed->add(s);
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -103,16 +94,28 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 				continue;
 			}
 			unsigned int block = search->project->project(*iter);
-			OpenList *next_open = &graph->get_nblock(block)->open;
+			PQOpenList<CompareOnF> *next_open = &graph->get_nblock(block)->open;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
 			State *dup = next_closed->lookup(*iter);
-			if (dup && dup->get_g() <= (*iter)->get_g()) {
+			if (dup) {
+				if (dup->get_g() > (*iter)->get_g()) {
+					dup->update((*iter)->get_parent(),
+						    (*iter)->get_g());
+					if (dup->is_open())
+						next_open->resort(dup);
+					else
+						next_open->add(dup);
+				}
 				delete *iter;
-				continue;
+			} else {
+				next_closed->add(*iter);
+				if ((*iter)->is_goal()) {
+					path = (*iter)->get_path();
+					delete children;
+					return path;
+				}
+				next_open->add(*iter);
 			}
-
-			next_open->add(*iter);
-
 		}
 		delete children;
 	}

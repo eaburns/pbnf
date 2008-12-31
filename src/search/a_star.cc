@@ -30,14 +30,6 @@ vector<State *> *AStar::search(State *init)
 
 	while (!open.empty() && !path) {
 		State *s = open.take();
-		State *dup = closed.lookup(s);
-
-		if (dup) {
-			delete s;
-			continue;
-		}
-
-		closed.add(s);
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -48,19 +40,25 @@ vector<State *> *AStar::search(State *init)
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
 			State *dup = closed.lookup(c);
-			if (dup && dup->get_g() <= c->get_g()) {
+			if (dup) {
+				if (dup->get_g() > c->get_g()) {
+					dup->update(c->get_parent(), c->get_g());
+					if (dup->is_open())
+						open.resort(dup);
+					else
+						open.add(dup);
+				}
 				delete c;
-				continue;
+			} else {
+				open.add(c);
+				closed.add(c);
 			}
-
-			open.add(c);
 
 		}
 		delete children;
 	}
 
 	closed.delete_all_states();
-	open.delete_all_states();
 
 	return path;
 }

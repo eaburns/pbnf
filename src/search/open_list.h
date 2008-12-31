@@ -27,6 +27,7 @@ public:
 	virtual State *peek(void) = 0;
 	virtual bool empty(void) = 0;
 	virtual void delete_all_states(void) = 0;
+	virtual void prune(void) = 0;
 
 	double get_best_f(void);
 protected:
