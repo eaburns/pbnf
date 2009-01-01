@@ -13,6 +13,8 @@ To Do
  get intervals small
 
 (Ethan) results with new grid abstraction (unit, life, four-way, eight-way)
+   (Ethan) BFPSDD with >625 nblocks
+   (Ethan) SAFEPBNF with > 180 min expansions
 
 (Rong) Results on planning with unsafe and safe
   figure out why we don't do well on some problems
