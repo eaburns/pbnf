@@ -7,7 +7,8 @@ WEIGHT=1.0
 MIN_EXPANSIONS=1
 DELTA_F=0
 ROWS=3
-COLS=3
+COLS=4
+ABSTRACTION="two-tiles"
 ALGORITHM=""
 
 # constants
@@ -111,6 +112,11 @@ function run_file ()
     ARGS=""
     ARGS="${ARGS}type=run "
     ARGS="${ARGS}alg=$ALGORITHM "
+
+    if alg_on_list $USES_NBLOCKS
+    then
+	ARGS="${ARGS}abstraction=${ABSTRACTION} "
+    fi
 
     if alg_on_list $USES_DELTA_F
     then

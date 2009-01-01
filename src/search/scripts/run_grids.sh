@@ -369,6 +369,11 @@ do
 	#
 	echo -e "#cols  \"sol cost\"\t\"sol length\"\t\"nodes expanded\"\t\"nodes generated\"\t\"wall time\"" >> $OUT
 	echo -e "$SOL_COST\t$SOL_LENGTH\t$EXPANDED\t$GENERATED\t$WALL_TIME" >> $OUT
+    elif (echo $OUTPUT | grep "\"\"" >& /dev/null)
+    then
+	echo "BAD RUN, output:"
+	echo $OUTPUT
+	exit
     fi
 
     #
