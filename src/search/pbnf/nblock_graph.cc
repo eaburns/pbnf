@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file nblock_graph.cc
  *

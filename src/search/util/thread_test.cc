@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file thread_test.cc
  *

@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file dynamic_bounded_psdd.cc
  *

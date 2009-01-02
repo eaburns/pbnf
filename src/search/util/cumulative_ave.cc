@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file cumulative_ave.cc
  *

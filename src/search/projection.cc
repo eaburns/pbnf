@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file projection.cc
  *

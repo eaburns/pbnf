@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file synch_pq_olist.cc
  *

@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file two_tile_project_test.cc
  *

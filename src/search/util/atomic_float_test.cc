@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file atomic_float_test.cc
  *

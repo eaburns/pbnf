@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file real_val_nblock_pq.h
  *

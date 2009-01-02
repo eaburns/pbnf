@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file closed_list.cc
  *

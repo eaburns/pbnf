@@ -1,4 +1,4 @@
-/**
+/*
  * \file atomic_int_test.cc
  *
  * \author Ethan Burns

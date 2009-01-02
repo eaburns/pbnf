@@ -1,4 +1,3 @@
-#include "util/completion_counter.h"
 #include "util/thread.h"
 #include <iostream>
 

@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file atomic_float.h
  *

@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file multi_a_star.cc
  *

@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file cost_bound_dfs.h
  *

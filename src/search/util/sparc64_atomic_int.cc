@@ -1,4 +1,4 @@
-/**
+/*
  * \file sparc64_atomic_int.cc
  *
  * \author Ethan Burns

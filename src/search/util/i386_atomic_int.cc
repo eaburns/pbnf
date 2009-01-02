@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file i386_atomic_int.cc
  *

@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file synch_closed_list.h
  *

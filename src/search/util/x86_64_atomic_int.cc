@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file x86_64_atomic_int.cc
  *

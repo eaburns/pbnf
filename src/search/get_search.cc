@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file get_search.cc
  *

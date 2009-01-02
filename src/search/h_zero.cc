@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file h_zero.cc
  *

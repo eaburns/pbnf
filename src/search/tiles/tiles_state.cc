@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file tiles_state.cc
  *

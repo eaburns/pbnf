@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file tiles_read_test.cc
  *

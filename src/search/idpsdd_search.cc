@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file idpsdd_search.cc
  *

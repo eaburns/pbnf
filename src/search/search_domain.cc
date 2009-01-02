@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file search_domain.cc
  *

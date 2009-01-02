@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file pq_open_list.h
  *

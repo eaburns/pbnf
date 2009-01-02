@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file queue_open_list.cc
  *

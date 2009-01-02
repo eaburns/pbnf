@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file div_merge_project.cc
  *

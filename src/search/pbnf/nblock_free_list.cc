@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file nblock_free_list.cc
  *

@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file one_tile_project_test.cc
  *

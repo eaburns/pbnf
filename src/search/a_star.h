@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file a_star.h
  *

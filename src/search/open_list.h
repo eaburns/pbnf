@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file open_list.h
  *

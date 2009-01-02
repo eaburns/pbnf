@@ -1,4 +1,3 @@
-/* -*- mode:linux -*- */
 /**
  * \file breadth_first_search.cc
  *
