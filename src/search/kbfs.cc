@@ -73,12 +73,6 @@ vector<State *> *KBFS::search(State *init)
                       path = s->get_path();
                       break;
                     }
-		    State *dup = closed.lookup(s);
-		    if (dup && dup->get_g() < s->get_g()) {
-		      delete s;
-		      worker--;
-		      continue;
-		    }
 
 		    closed.add(s);
 
@@ -96,11 +90,21 @@ vector<State *> *KBFS::search(State *init)
 		    for (unsigned int j = 0; 
 			 j < threads[i]->children->size(); j += 1) {
 		      State *c = threads[i]->children->at(j);
-		      if (closed.lookup(c) != NULL) {
-			delete c;
-			continue;
-		      }
-		      open.add(c);
+		      State *dup = closed.lookup(c);
+			if (dup){
+			  if (dup->get_g() > c->get_g()) {
+			    dup->update(c->get_parent(), c->get_g());
+			    if (dup->is_open())
+			      open.resort(dup);
+			    else
+			      open.add(dup);
+			  }
+			  delete c;
+			}
+			else{
+			  open.add(c);
+			  closed.add(c);
+			}
 		    }
 		}
  	}

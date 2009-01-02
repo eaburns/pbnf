@@ -60,11 +60,21 @@ State *PRAStar::PRAStarThread::take(void){
 	    for (unsigned int i = 0; 
 		 i < q->size(); i += 1) {
 	      State *c = q->at(i);
-	      if (closed.lookup(c) != NULL) {
+	      State *dup = closed.lookup(c);
+	      if (dup){
+		if (dup->get_g() > c->get_g()) {
+		  dup->update(c->get_parent(), c->get_g());
+		  if (dup->is_open())
+		    open.resort(dup);
+		  else
+		    open.add(dup);
+		}
 		delete c;
-		continue;
 	      }
-	      open.add(c);
+	      else{
+		open.add(c);
+		closed.add(c);
+	      }
 	    }
 	    q->clear();
 	    pthread_mutex_unlock(&mutex);
@@ -93,11 +103,6 @@ void PRAStar::PRAStarThread::run(void){
           if (s == NULL){
             break;
           }
-	  State *dup = closed.lookup(s);
-	  if (dup && dup->get_g() < s->get_g()) {
-	    delete s;
-	    continue;
-	  }
 
 	  closed.add(s);
 
