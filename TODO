@@ -10,7 +10,7 @@ To Do
  across all abstractions
  get intervals small
 
-(Ethan) results with new grid abstraction (unit, life, four-way, eight-way)
+(Ethan) results with new closed-list change
 
 (Rong) Results on planning with unsafe and safe
   figure out why we don't do well on some problems
