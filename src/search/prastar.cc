@@ -43,7 +43,10 @@ void PRAStar::PRAStarThread::add(State* s){
 }
 
 State *PRAStar::PRAStarThread::take(void){
-        if (open.empty() && q->empty()){
+        pthread_mutex_lock(&mutex);
+	bool q_empty = q->empty();
+	pthread_mutex_unlock(&mutex);
+	if (open.empty() && q_empty){
           cc->complete();
 	  pthread_mutex_lock(&mutex);
           completed = true;
@@ -52,7 +55,13 @@ State *PRAStar::PRAStarThread::take(void){
             p->set_done();
             return NULL;
           }
-          while (open.empty() && q->empty() && !p->is_done()){
+	  pthread_mutex_lock(&mutex);
+	  q_empty = q->empty();
+	  pthread_mutex_unlock(&mutex);
+          while (open.empty() && q_empty && !p->is_done()){
+	    pthread_mutex_lock(&mutex);
+	    q_empty = q->empty();
+	    pthread_mutex_unlock(&mutex);
           }
         }
 	do{
@@ -98,10 +107,10 @@ void PRAStar::PRAStarThread::run(void){
         vector<State *> *children;
 	q = new vector<State *>();
 
-        while(!p->has_path()){
+        while(!p->is_done()){
           State *s = take();
           if (s == NULL){
-            break;
+            continue;
           }
 
 	  closed.add(s);
