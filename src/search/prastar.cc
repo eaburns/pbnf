@@ -4,8 +4,8 @@
  *
  *
  *
- * \author Ethan Burns
- * \date 2008-10-29
+ * \author Seth Lemons
+ * \date 2008-11-02
  */
 
 #include <assert.h>
