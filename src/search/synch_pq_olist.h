@@ -28,7 +28,10 @@ public:
 	virtual State *peek(void);
 	virtual bool empty(void);
 	virtual void delete_all_states(void);
+	virtual void prune(void);
 	virtual float get_best_val(void);
+
+	virtual void resort(State *s);
 private:
 	pthread_mutex_t mutex;
 };
@@ -91,6 +94,14 @@ void SynchPQOList<PQCompare>::delete_all_states(void)
 }
 
 template<class PQCompare>
+void SynchPQOList<PQCompare>::prune(void)
+{
+	pthread_mutex_lock(&mutex);
+	PQOpenList<PQCompare>::prune();
+	pthread_mutex_unlock(&mutex);
+}
+
+template<class PQCompare>
 float SynchPQOList<PQCompare>::get_best_val(void)
 {
 	float ret;
@@ -100,6 +111,14 @@ float SynchPQOList<PQCompare>::get_best_val(void)
 	pthread_mutex_unlock(&mutex);
 
 	return ret;
+}
+
+template<class PQCompare>
+void SynchPQOList<PQCompare>::resort(State *s)
+{
+	pthread_mutex_lock(&mutex);
+	PQOpenList<PQCompare>::resort(s);
+	pthread_mutex_unlock(&mutex);
 }
 
 #endif	/* !_SYNCH_PQ_OLIST_H_ */

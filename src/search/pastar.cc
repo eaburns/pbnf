@@ -44,12 +44,6 @@ public:
 	continue;
       }
 
-      State *dup = p->closed.lookup(s);
-      if (dup && dup->get_g() < s->get_g()) {
-	delete s;
-	continue;
-      }
-
       p->closed.add(s);
 
       if (s->is_goal()) {
@@ -60,13 +54,25 @@ public:
       children = p->expand(s);
       for (unsigned int i = 0; i < children->size(); i += 1) {
         State *c = children->at(i);
-        if (p->closed.lookup(c) != NULL) {
-          delete c;
-          continue;
-        }
-	pthread_mutex_lock(mut);
-        p->open.add(c);
-	pthread_mutex_unlock(mut);
+        State *dup = p->closed.lookup(c);
+	if (dup){
+	  pthread_mutex_lock(mut);
+	  if (dup->get_g() > c->get_g()) {
+	    dup->update(c->get_parent(), c->get_g());
+	    if (dup->is_open())
+	      p->open.resort(dup);
+	    else
+	      p->open.add(dup);
+	  }
+	  pthread_mutex_unlock(mut);
+	  delete c;
+	}
+	else{
+	  //pthread_mutex_lock(mut);
+	  p->open.add(c);
+	  p->closed.add(c);
+	  //pthread_mutex_unlock(mut);
+	}
       }
     }
     
