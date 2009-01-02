@@ -1,9 +1,9 @@
 #!/bin/bash
 
-for min in 5 60 100 120 180
+for min in 5 60 100 120 180 200 256
 #for min in 10 30 60 80
 do
-    for nblocks in 100 625 1600 2500 6400 10000
+    for nblocks in 625 1600 2500 6400
     do
 	for (( threads=1; threads <= 8; threads++ ))
 	do

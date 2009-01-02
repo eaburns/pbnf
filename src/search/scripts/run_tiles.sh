@@ -14,14 +14,13 @@ ALGORITHM=""
 # constants
 if [[ $(uname -m) == "sun4v" ]]; then
 	RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.SunOS"
-	SEARCH_PROG="./grid_search.sun4v.bin"
+	SEARCH_PROG="./tiles_search.sun4v.bin"
 	RUNS_ROOT="/home/rai/eaburns/data/legion/tiles"
 else
 	RDB_GET_PATH="/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
-	SEARCH_PROG="./grid_search.bin"
+	SEARCH_PROG="./tiles_search.x86_64.bin"
 	RUNS_ROOT="/home/rai/eaburns/data/tiles"
 fi
-SEARCH_PROG="./tiles_search.bin"
 DATA_ROOT="/home/rai/group/data/tiles_instances"
 
 USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2"
@@ -302,6 +301,12 @@ do
     # Preform the search
     #
     OUTPUT=$($SEARCH_PROG $FULL_NAME < $INSTANCE 2>&1)
+    if [[ $? -ne "0" ]]; then
+	echo "Run failed:"
+	echo $OUTPUT
+	rm $OUT
+	continue
+    fi
     if [[ $(echo $OUTPUT | sed -n "s/.*cost: \(infinity\).*/\1/p") == "infinity" ]]; then
 	SOL_COST="infinity"
     else
@@ -340,7 +345,6 @@ do
     if (echo $OUTPUT | grep "bad_alloc" >& /dev/null)
     then
 	echo "Run Aborted"
-	(flock -e $(ABORTED_LOG); echo $OUT >> $(ABORTED_LOG))
 	SOL_COST="infinity"
 	SOL_LENGTH="infinity"
 	WALL_TIME="infinity"

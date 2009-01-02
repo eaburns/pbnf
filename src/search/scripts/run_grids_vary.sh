@@ -10,4 +10,5 @@ ulimit -v 5000000
 ./scripts/run_grids_vary_kbfs.sh $@
 ./scripts/run_grids_vary_psdd.sh $@
 ./scripts/run_grids_vary_dynpsdd.sh $@
+#./scripts/run_grids_vary_prastar.sh $@
 #./scripts/run_grids_vary_multiastar $@
