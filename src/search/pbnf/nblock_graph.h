@@ -76,9 +76,6 @@ namespace PBNF {
 		 */
 		unsigned int nblocks_assigned;
 		unsigned int nblocks_assigned_max;
-
-		AtomicInt fails;
-		AtomicInt successes;
 	};
 } /* PBNF */
 

@@ -102,10 +102,6 @@ NBlockGraph::~NBlockGraph()
 
 	for (iter = blocks.begin(); iter != blocks.end(); iter++)
 		delete iter->second;
-
-	cout << "fails: " << fails.read() << endl;
-	cout << "successes: " << successes.read() << endl;
-	cout << "% failed: " << (float) fails.read() / (float) (fails.read() + successes.read()) << endl;
 }
 
 
@@ -128,20 +124,10 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 	// Take the lock, but if someone else already has it, just
 	// keep going.
 	if (trylock && finished && !finished->open.empty()) {
-		if (pthread_mutex_trylock(&mutex) == EBUSY) {
-			fails.inc();
+		if (pthread_mutex_trylock(&mutex) == EBUSY)
 			return finished;
-		} else {
-			successes.inc();
-		}
-	} else {
-		if (pthread_mutex_trylock(&mutex) == EBUSY) {
-			fails.inc();
-			pthread_mutex_lock(&mutex);
-		} else {
-			successes.inc();
-		}
-	}
+	} else
+		pthread_mutex_lock(&mutex);
 
 
 	if (finished) {		// Release an NBlock
@@ -376,13 +362,7 @@ void NBlockGraph::set_hot(NBlock *b)
 	set<NBlock*>::iterator i;
 	float f = b->open.get_best_f();
 
-	if (pthread_mutex_trylock(&mutex) == EBUSY) {
-		fails.inc();
-		pthread_mutex_lock(&mutex);
-	} else {
-		successes.inc();
-	}
-
+	pthread_mutex_lock(&mutex);
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b != *i);
@@ -431,12 +411,7 @@ void NBlockGraph::wont_release(NBlock *b)
 {
 	set<NBlock *>::iterator iter;
 
-	if (pthread_mutex_trylock(&mutex) == EBUSY) {
-		fails.inc();
-		pthread_mutex_lock(&mutex);
-	} else {
-		successes.inc();
-	}
+	pthread_mutex_lock(&mutex);
 
 	for (iter = b->interferes.begin();
 	     iter != b->interferes.end();
