@@ -46,6 +46,7 @@ namespace BFPSDD {
 		NBlock<StateCompare>::NBlock(unsigned int id)
 		: id(id),
 		sigma(0),
+		closed(1000),
 		inuse(false) {}
 
 
