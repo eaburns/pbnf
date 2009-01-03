@@ -77,20 +77,12 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 {
 	vector<State *> *path = NULL;
 	PQOpenList<CompareOnF> *cur_open = &n->open;
-	ClosedList *closed = &n->closed;
 
 	while (!cur_open->empty()) {
 		if (cur_open->get_best_val() > graph->get_layer_value())
 			break;
 
 		State *s = cur_open->take();
-		State *dup = closed->lookup(s);
-		if (dup) {
-			delete s;
-			continue;
-		}
-
-		closed->add(s);
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -113,12 +105,23 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 				continue;
 			}
 			State *dup = next_closed->lookup(*iter);
-			if (dup && dup->get_g() <= (*iter)->get_g()) {
+			if (dup) {
+				if (dup->get_g() > (*iter)->get_g()) {
+					dup->update((*iter)->get_parent(),
+						    (*iter)->get_g());
+					if (!dup->is_open())
+						next_open->add(dup);
+				}
 				delete *iter;
-				continue;
+			} else {
+				next_closed->add(*iter);
+				if ((*iter)->is_goal()) {
+					path = (*iter)->get_path();
+					delete children;
+					return path;
+				}
+				next_open->add(*iter);
 			}
-
-			next_open->add(*iter);
 		}
 		delete children;
 

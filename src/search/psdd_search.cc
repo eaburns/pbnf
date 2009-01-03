@@ -75,18 +75,9 @@ vector<State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 {
 	vector<State *> *path = NULL;
 	OpenList *cur_open = &n->open[graph->get_cur_layer()];
-	ClosedList *closed = &n->closed;
 
 	while (!cur_open->empty()) {
 		State *s = cur_open->take();
-		State *dup = closed->lookup(s);
-
-		if (dup) {
-			delete s;
-			continue;
-		}
-
-		closed->add(s);
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -114,12 +105,23 @@ vector<State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 			OpenList *next_open = &b->open[graph->get_next_layer()];
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
 			State *dup = next_closed->lookup(*iter);
-			if (dup && dup->get_g() <= (*iter)->get_g()) {
+			if (dup) {
+				if (dup->get_g() > (*iter)->get_g()) {
+					dup->update((*iter)->get_parent(),
+						    (*iter)->get_g());
+					if (!dup->is_open())
+						next_open->add(dup);
+				}
 				delete *iter;
-				continue;
+			} else {
+				next_closed->add(*iter);
+				if ((*iter)->is_goal()) {
+					path = (*iter)->get_path();
+					delete children;
+					return path;
+				}
+				next_open->add(*iter);
 			}
-
-			next_open->add(*iter);
 		}
 		delete children;
 
