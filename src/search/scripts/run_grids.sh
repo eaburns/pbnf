@@ -318,6 +318,7 @@ do
     OUTPUT=$($GRID_SEARCH $FULL_NAME < $INSTANCE 2>&1)
     if [[ $? -ne "0" ]]; then
 	echo "Run failed:"
+        echo "failed: $OUT" >> ~/aborted.log
 	echo $OUTPUT
 	rm $OUT
 	continue
@@ -361,6 +362,7 @@ do
     if (echo $OUTPUT | grep "bad_alloc" >& /dev/null)
     then
 	echo "Run Aborted"
+        echo "aborted: $OUT" >> ~/aborted.log
 	SOL_COST="infinity"
 	SOL_LENGTH="infinity"
 	WALL_TIME="infinity"
@@ -377,6 +379,7 @@ do
     elif (echo $OUTPUT | grep "\"\"" >& /dev/null)
     then
 	echo "BAD RUN, output:"
+        echo "bad: $OUT" >> ~/aborted.log
 	echo $OUTPUT
 	exit
     fi

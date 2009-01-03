@@ -304,6 +304,7 @@ do
     if [[ $? -ne "0" ]]; then
 	echo "Run failed:"
 	echo $OUTPUT
+	echo "failed: $OUT" >> ~/aborted.log
 	rm $OUT
 	continue
     fi
@@ -345,6 +346,7 @@ do
     if (echo $OUTPUT | grep "bad_alloc" >& /dev/null)
     then
 	echo "Run Aborted"
+	echo "aborted: $OUT" >> ~/aborted.log
 	SOL_COST="infinity"
 	SOL_LENGTH="infinity"
 	WALL_TIME="infinity"
