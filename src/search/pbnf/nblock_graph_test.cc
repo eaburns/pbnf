@@ -37,7 +37,7 @@ int main(void)
 
 	cout << "------------------------------------------------------------" << endl;
 	cout << endl << endl << endl << endl;
-	n = g.next_nblock(NULL, false);
+	n = g.next_nblock(NULL, false, false);
 	cout << "Got NBlock:" << endl;
 	n->print(cout);
 	cout << endl << endl << endl << endl;
@@ -58,7 +58,7 @@ int main(void)
 	}
 	cout << "------------------------------------------------------------" << endl;
 	cout << endl << endl << endl << endl;
-	n = g.next_nblock(n, false);
+	n = g.next_nblock(n, false, false);
 	cout << "Got NBlock:" << endl;
 	n->print(cout);
 	cout << endl << endl << endl << endl;

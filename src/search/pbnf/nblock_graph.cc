@@ -21,6 +21,7 @@
 #include "../pq_open_list.h"
 #include "../open_list.h"
 #include "../projection.h"
+#include "../pbnf_search.h"
 #include "nblock.h"
 #include "nblock_graph.h"
 
@@ -117,15 +118,22 @@ NBlockGraph::~NBlockGraph()
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
+NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, bool dynamic_m)
 {
 	NBlock *n = NULL;
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
 	if (trylock && finished && !finished->open.empty()) {
-		if (pthread_mutex_trylock(&mutex) == EBUSY)
+		if (pthread_mutex_trylock(&mutex) == EBUSY){
+			if(dynamic_m){
+				PBNFSearch::inc_m();
+			}
 			return finished;
+		}
+		else if(dynamic_m){
+			PBNFSearch::dec_m();
+		}
 	} else
 		pthread_mutex_lock(&mutex);
 
@@ -357,12 +365,22 @@ bool NBlockGraph::is_free(NBlock *b)
 /**
  * Mark an NBlock as hot, we want this one.
  */
-void NBlockGraph::set_hot(NBlock *b)
+void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 {
 	set<NBlock*>::iterator i;
 	float f = b->open.get_best_f();
 
-	pthread_mutex_lock(&mutex);
+	if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
+		if(dynamic_m){
+			PBNFSearch::inc_m();
+		}
+		pthread_mutex_lock(&mutex);
+	}
+	else{
+		if(dynamic_m){
+			PBNFSearch::dec_m();
+		}
+	}
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b != *i);
@@ -407,11 +425,19 @@ void NBlockGraph::set_cold(NBlock *b)
  * We won't release block b, so set all hot blocks in its interference
  * scope back to cold.
  */
-void NBlockGraph::wont_release(NBlock *b)
+void NBlockGraph::wont_release(NBlock *b, bool dynamic_m)
 {
 	set<NBlock *>::iterator iter;
 
-	pthread_mutex_lock(&mutex);
+	if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
+		if(dynamic_m){
+			PBNFSearch::inc_m();
+		}
+		pthread_mutex_lock(&mutex);
+	}
+	else if(dynamic_m){
+		PBNFSearch::dec_m();
+	}
 
 	for (iter = b->interferes.begin();
 	     iter != b->interferes.end();

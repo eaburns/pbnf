@@ -8,9 +8,11 @@
  */
 
 #include <assert.h>
+#include <math.h>
 
 #include <limits>
 #include <vector>
+#include <algorithm>
 
 #include "pbnf_search.h"
 #include "search.h"
@@ -18,6 +20,8 @@
 
 using namespace std;
 using namespace PBNF;
+
+AtomicInt PBNFSearch::min_expansions(2);
 
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
 	: graph(graph), search(search), set_hot(false) {}
@@ -35,7 +39,7 @@ void PBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		n = graph->next_nblock(n, !set_hot);
+		n = graph->next_nblock(n, !set_hot, search->dynamic_m);
 		set_hot = false;
 		if (n) {
 			expansions = 0;
@@ -134,7 +138,7 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (expansions < search->min_expansions)
+	if (expansions < search->min_expansions.read())
 		return false;
 
 	expansions = 0;
@@ -148,9 +152,9 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 		ret = free < cur || scope < cur;
 		if (!ret)
-			graph->wont_release(n);
+			graph->wont_release(n, search->dynamic_m);
 		else if (scope < free) {
-			graph->set_hot(best_scope);
+			graph->set_hot(best_scope, search->dynamic_m);
 			set_hot = true;
 		}
 	} else {
@@ -174,11 +178,18 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	  path(NULL),
 	  bound(numeric_limits<float>::infinity()),
 	  detect_livelocks(detect_livelocks),
-	  graph(NULL),
-	  min_expansions(min_expansions)
+	  graph(NULL)
 
 {
 	pthread_mutex_init(&path_mutex, NULL);
+	if (min_expansions == 0){
+		dynamic_m = true;
+		PBNFSearch::min_expansions = AtomicInt(2);
+	}
+	else{
+		dynamic_m = false;
+		PBNFSearch::min_expansions = AtomicInt(min_expansions);
+	}
 }
 
 
@@ -235,4 +246,24 @@ void PBNFSearch::set_path(vector<State *> *path)
 		bound.set(path->at(0)->get_g());
 	}
 	pthread_mutex_unlock(&path_mutex);
+}
+
+void PBNFSearch::inc_m()
+{
+        unsigned int old = PBNFSearch::min_expansions.read();
+	unsigned int o, n;
+	//cout << "inc_m" << endl;
+	//cout << old << endl;
+	do { o = old; n = pow(o, 2); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
+	} while (old != o);
+}
+
+void PBNFSearch::dec_m()
+{
+        unsigned int old = PBNFSearch::min_expansions.read();
+	unsigned int o, n;
+	//cout << "dec_m" << endl;
+	//cout << old << endl;
+	do { o = old; n = max(o / 1.1, 2.0); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
+	} while (old != o);
 }

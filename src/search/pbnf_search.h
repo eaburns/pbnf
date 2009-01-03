@@ -35,6 +35,9 @@ public:
 
 	virtual vector<State *> *search(State *initial);
 
+	static void inc_m();
+	static void dec_m();
+
 private:
 	void set_path(vector<State *> *path);
 
@@ -62,9 +65,10 @@ private:
 	vector<State *> *path;
 	AtomicFloat bound;
 	bool detect_livelocks;
+	bool dynamic_m;
 
 	NBlockGraph *graph;
-	unsigned int min_expansions;
+	static AtomicInt min_expansions;
 };
 
 #endif	/* !_PBNF_SEARCH_H_ */
