@@ -34,8 +34,8 @@ NBlock::NBlock(unsigned int id)
  */
 NBlock::~NBlock(void)
 {
-	open[0].delete_all_states();
-	open[1].delete_all_states();
+//	open[0].delete_all_states();
+//	open[1].delete_all_states();
 	closed.delete_all_states();
 }
 

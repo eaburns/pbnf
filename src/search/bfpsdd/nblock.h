@@ -56,7 +56,6 @@ namespace BFPSDD {
 	template <class StateCompare>
 		NBlock<StateCompare>::~NBlock(void)
 	{
-		open.delete_all_states();
 		closed.delete_all_states();
 	}
 

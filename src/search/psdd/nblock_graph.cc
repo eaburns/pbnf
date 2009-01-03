@@ -43,6 +43,7 @@ NBlockGraph::NBlockGraph(const Projection *p, State *initial)
 		NBlock *n = new NBlock(i);
 		if (i == init_nblock) {
 			n->open[layer].add(initial);
+			n->closed.add(initial);
 
 			free_list[layer].push_back(n);
 		}

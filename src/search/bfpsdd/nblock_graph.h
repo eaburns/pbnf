@@ -107,6 +107,7 @@ namespace BFPSDD {
 			NBlock<StateCompare> *n = new NBlock<StateCompare>(i);
 			if (i == init_nblock) {
 				n->open.add(initial);
+				n->closed.add(initial);
 				free_list.push_back(n);
 				layer_value = n->open.get_best_val();
 			}
