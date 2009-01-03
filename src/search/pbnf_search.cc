@@ -250,20 +250,22 @@ void PBNFSearch::set_path(vector<State *> *path)
 
 void PBNFSearch::inc_m()
 {
-        unsigned int old = PBNFSearch::min_expansions.read();
-	unsigned int o, n;
-	//cout << "inc_m" << endl;
+        //unsigned int old = PBNFSearch::min_expansions.read();
+	//unsigned int o, n;
+	cout << "inc_m" << endl;
+	//if (PBNFSearch::min_expansions.read() > 2)
 	//cout << old << endl;
-	do { o = old; n = pow(o, 2); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
-	} while (old != o);
+	//do { o = old; n = pow(o, 2); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
+	//} while (old != o);
 }
 
 void PBNFSearch::dec_m()
 {
-        unsigned int old = PBNFSearch::min_expansions.read();
-	unsigned int o, n;
-	//cout << "dec_m" << endl;
+        //unsigned int old = PBNFSearch::min_expansions.read();
+	//unsigned int o, n;
+	cout << "dec_m" << endl;
+	//if (PBNFSearch::min_expansions.read() > 2)
 	//cout << old << endl;
-	do { o = old; n = max(o / 1.1, 2.0); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
-	} while (old != o);
+	//do { o = old; n = max((int)o-1, 2); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
+	//} while (old != o);
 }

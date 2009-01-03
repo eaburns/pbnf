@@ -134,9 +134,16 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, bool dynamic_m)
 		else if(dynamic_m){
 			PBNFSearch::dec_m();
 		}
-	} else
+	} else if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
+		if(dynamic_m){
+			PBNFSearch::inc_m();
+		}
 		pthread_mutex_lock(&mutex);
-
+	}
+	else if(dynamic_m){
+		PBNFSearch::dec_m();
+	}
+	
 
 	if (finished) {		// Release an NBlock
 		if (finished->sigma != 0) {
