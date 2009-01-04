@@ -150,7 +150,7 @@ $(OBJDIR)/%.o: %.S
 depend:
 	rm -f .depend
 	touch .depend
-	(find . -name \*.cc; find . -name \*.h) | xargs makedepend -f.depend -Y
+	(find . -name \*.cc -printf "%f\n"; find . -name \*.h -printf "%f\n") | xargs makedepend -f.depend -Y -p$(OBJDIR)/
 	rm -f .depend.bak
 
 .PHONY: objdirs
