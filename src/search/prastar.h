@@ -50,7 +50,6 @@ private:
                 PRAStar *p;
                 vector<PRAStarThread *> *threads;
 		vector<State *> q;
-                pthread_mutex_t* mut;
                 pthread_mutex_t mutex;
                 bool completed;
                 CompletionCounter *cc;

@@ -103,7 +103,6 @@ void PRAStar::PRAStarThread::flush_queue(void)
 }
 
 State *PRAStar::PRAStarThread::take(void){
-
 	while (open.empty() || !q_empty) {
 		flush_queue();
 		if (cc->is_complete()){
@@ -141,6 +140,7 @@ void PRAStar::PRAStarThread::run(void){
 			threads->at(c->hash()%p->n_threads)->add(c);
 		}
         }
+	assert(p->has_path());
 
 	if (children)
 		delete children;
