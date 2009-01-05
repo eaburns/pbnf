@@ -98,6 +98,7 @@ public:
 		vector<unsigned int> get_neighbors(unsigned int b) const;
 		unsigned int cols, cols_div;
 		unsigned int rows, rows_div;
+		enum move_type move_type;
 	};
 
 private:

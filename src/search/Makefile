@@ -8,8 +8,8 @@ MARCH=$(shell uname -m)
 PROF_FLAGS=
 
 # debug flags
-#DEBUG=-O3
-DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+DEBUG=-O3
+#DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 
 # C/C++ basic compilation flags
 FLAGS=-Wall -Werror -pipe $(PROF_FLAGS) $(DEBUG)
@@ -150,7 +150,7 @@ $(OBJDIR)/%.o: %.S
 depend:
 	rm -f .depend
 	touch .depend
-	(find . -name \*.cc; find . -name \*.h) | xargs makedepend -f.depend -Y
+	(find . -name \*.cc -printf "%f\n"; find . -name \*.h -printf "%f\n") | xargs makedepend -f.depend -Y -p$(OBJDIR)/
 	rm -f .depend.bak
 
 .PHONY: objdirs

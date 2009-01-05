@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for nblocks in 625 1600 2500 6400
+for nblocks in 625 1600 2500
 do
     for (( threads=1; threads <= 8; threads++ ))
     do

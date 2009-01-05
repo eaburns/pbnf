@@ -23,9 +23,9 @@ else
 fi
 DATA_ROOT="/home/rai/group/data/tiles_instances"
 
-USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2"
+USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2 idpsdd"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2 idpsdd"
 USES_MIN_EXPANSIONS="safepbnf pbnf"
 USES_DELTA_F="safepbnf2 pbnf2"
 
@@ -304,6 +304,7 @@ do
     if [[ $? -ne "0" ]]; then
 	echo "Run failed:"
 	echo $OUTPUT
+	echo "failed: $OUT" >> ~/aborted.log
 	rm $OUT
 	continue
     fi
@@ -345,6 +346,7 @@ do
     if (echo $OUTPUT | grep "bad_alloc" >& /dev/null)
     then
 	echo "Run Aborted"
+	echo "aborted: $OUT" >> ~/aborted.log
 	SOL_COST="infinity"
 	SOL_LENGTH="infinity"
 	WALL_TIME="infinity"

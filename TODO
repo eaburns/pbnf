@@ -27,10 +27,7 @@ To Do
 
 (Ethan) run everything on Sun
 
-(Seth) PRA* improvements
- eg, Cancel threads
-
-(Seth) Implement learning for min expansions
+(Seth) Implement other types of learning for min expansions???
 
 (Ethan) with some kind of f-range or min expansions (% or _#_) per nblock
    
