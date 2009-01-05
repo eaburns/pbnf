@@ -59,8 +59,9 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
 	} else if (argc > 1
-		   && sscanf(argv[1], "bfpsdd-%u-%u", &threads, &nblocks) == 2) {
-		return new BFPSDDSearch(threads);
+		   && sscanf(argv[1], "bfpsdd-%u-%u-%u", &min_expansions,
+			     &threads, &nblocks) == 3) {
+		return new BFPSDDSearch(threads, min_expansions);
 	} else if (argc > 1
 		   && sscanf(argv[1], "idpsdd-%u-%u", &threads, &nblocks) == 2) {
 		return new IDPSDDSearch(threads);
@@ -88,7 +89,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tprastar-<threads>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks>-<weight>" << endl
-		     << "\tbfpsdd-<threads>-<nblocks>" << endl
+		     << "\tbfpsdd-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tidpsdd-<threads>-<nblocks>" << endl
 		     << "\tpbnf-<min_expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl

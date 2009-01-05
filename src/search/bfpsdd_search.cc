@@ -47,20 +47,27 @@ void BFPSDDSearch::BFPSDDThread::run(void)
 
 	do {
 		n = graph->next_nblock(n);
-		if (!n)		// no solution
-			break;
-		exp_this_block = 0;
 
-		path = search_nblock(n);
-
-		if (path) {
-			search->set_path(path);
+		if (search->path_found() && graph->get_layer_value() >= search->bound.read()) {
 			graph->set_path_found();
+			break;
 		}
 
-		ave_exp_per_nblock.add_val(exp_this_block);
+		if (n) {
+			exp_this_block = 0;
+			path = search_nblock(n);
 
-	} while(!search->path_found());
+			if (path)
+				search->set_path(path);
+			ave_exp_per_nblock.add_val(exp_this_block);
+		}
+
+		if (search->path_found() && graph->get_layer_value() >= search->bound.read()) {
+			graph->set_path_found();
+			break;
+		}
+
+	} while(n);
 }
 
 float BFPSDDSearch::BFPSDDThread::get_ave_exp_per_nblock(void)
@@ -79,8 +86,14 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 	PQOpenList<CompareOnF> *cur_open = &n->open;
 
 	while (!cur_open->empty()) {
-		if (cur_open->get_best_val() > graph->get_layer_value())
+		if (exp_this_block > search->min_expansions
+		    && cur_open->get_best_val() > graph->get_layer_value())
 			break;
+
+		if (cur_open->get_best_val() > search->bound.read()) {
+			cur_open->prune();
+			break;
+		}
 
 		State *s = cur_open->take();
 
@@ -137,11 +150,13 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 /**
  * Create a new Parallel Structured Duplicate Detection search.
  */
-BFPSDDSearch::BFPSDDSearch(unsigned int n_threads)
+BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions)
 	: bound(numeric_limits<float>::infinity()),
 	  n_threads(n_threads),
 	  project(NULL),
-	  path(NULL)
+	  path(NULL),
+	  graph(NULL),
+	  min_expansions(min_expansions)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -150,12 +165,13 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads)
  * Create a new Parallel Structured Duplicate Detection search with a
  * given bound.
  */
-BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float bound)
+BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions, float bound)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
-	  graph(NULL)
+	  graph(NULL),
+	  min_expansions(min_expansions)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -177,15 +193,10 @@ BFPSDDSearch::~BFPSDDSearch(void)
 void BFPSDDSearch::set_path(vector<State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
-	if (path) {
-		vector<State *>::iterator iter;
-
-		for (iter = p->begin(); iter != p->end(); iter++)
-			delete *iter;
-
-		delete p;
-	} else {
-		path = p;
+	assert(p->at(0)->get_g() == p->at(0)->get_f());
+	if (p && bound.read() > p->at(0)->get_g()) {
+		this->path = p;
+		bound.set(p->at(0)->get_g());
 	}
 	pthread_mutex_unlock(&path_mutex);
 }
