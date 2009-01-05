@@ -4,13 +4,9 @@ To Do
 (Wheeler) rough draft
  mash Seth and Ethan's papers together
 
-(Ethan) BFPSDD, PSDD close states as appropriate (possibly during generation)
-   
 (Seth) results with 3x4 tiles
  across all abstractions
  get intervals small
-
-(Ethan) results with new closed-list change
 
 (Rong) Results on planning with unsafe and safe
   figure out why we don't do well on some problems
@@ -23,8 +19,6 @@ To Do
 (Ethan) look into PBNF with 5nblocks/thread and 1 thread... it
   performs very poorly.
    
-(Ethan) Re-run data with algs new usage of closed list
-
 (Ethan) run everything on Sun
 
 (Seth) Implement other types of learning for min expansions???
