@@ -13,18 +13,16 @@ To Do
   port code to 64-bits
   results on Sun
 
+(Ethan) run everything and plot everything on everything
+
 (Ethan) figure out why we suck on tiles
   then, worry about general fix like division trick
 
 (Ethan) look into PBNF with 5nblocks/thread and 1 thread... it
   performs very poorly.
    
-(Ethan) run everything on Sun
-
 (Seth) Implement other types of learning for min expansions???
 
-(Ethan) with some kind of f-range or min expansions (% or _#_) per nblock
-   
 (Seth) little bibliography: list of papers and why they do not perform well.
 
 (???) Wted A* for large problems
