@@ -4,28 +4,29 @@ To Do
 (Wheeler) rough draft
  mash Seth and Ethan's papers together
 
-(Seth) results with 3x4 tiles
- across all abstractions
- get intervals small
+(Seth) Optimal PRA*
 
-(Rong) Results on planning with unsafe and safe
-  figure out why we don't do well on some problems
-  port code to 64-bits
-  results on Sun
+(Seth) 3 6x6 puzzles
+
+(Ethan) BFPSDD Debugging
+
+(Ethan) Why does IDPSDD not work
+
+(Ethan) weighted PBNF
 
 (Ethan) run everything and plot everything on everything
 
 (Ethan) figure out why we suck on tiles
   then, worry about general fix like division trick
 
-(Ethan) look into PBNF with 5nblocks/thread and 1 thread... it
-  performs very poorly.
-   
 (Seth) Implement other types of learning for min expansions???
 
 (Seth) little bibliography: list of papers and why they do not perform well.
 
 (???) Wted A* for large problems
+
+(Seth) Maybe look at using the projection function to hash states in
+   PRA* instead of using the normal hash function.
 
 (Seth) A* with lock-free datastructures -- maybe this will be great
   - Look at tfogal's lock-free hashtable
