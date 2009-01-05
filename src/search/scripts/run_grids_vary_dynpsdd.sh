@@ -2,7 +2,7 @@
 
 for wt in 1.1 1.5 2.2
 do
-    for nblocks in 10 100 625
+    for nblocks in 10 100 625 1600 2500 6400
     do
 	for (( threads=1; threads <= 8; threads++ ))
 	do

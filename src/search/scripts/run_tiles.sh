@@ -8,7 +8,7 @@ MIN_EXPANSIONS=1
 DELTA_F=0
 ROWS=3
 COLS=4
-ABSTRACTION="two-tiles"
+ABSTRACTION="one-tile"
 ALGORITHM=""
 
 # constants

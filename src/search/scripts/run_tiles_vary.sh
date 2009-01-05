@@ -12,7 +12,7 @@ ulimit -v 15000000
 
 # use IDPSDD, there is no way PSDD can do a tiles puzzle well.
 #./scripts/run_tiles_vary_psdd.sh $@
-./scripts/run_tiles_vary_idpsdd.sh $@
+#./scripts/run_tiles_vary_idpsdd.sh $@
 
 # this is *way* slow on tiles
 #./scripts/run_tiles_vary_dynpsdd.sh $@
