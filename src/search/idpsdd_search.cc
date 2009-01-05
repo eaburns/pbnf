@@ -22,7 +22,7 @@ vector<State *> *IDPSDDSearch::search(State *init)
 	PSDDSearch psdd(n_threads, bound);
 	psdd.do_not_print();
 	do {
-//		cout << "bound: " << bound << endl;
+		cout << "bound: " << bound << endl;
 
 		path = psdd.search(init->clone());
 		set_expanded(get_expanded() + psdd.get_expanded());

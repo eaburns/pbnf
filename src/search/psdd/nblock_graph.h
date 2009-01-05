@@ -46,7 +46,7 @@ namespace PSDD {
 		enum layer get_next_layer(void) const;
 		enum layer get_cur_layer(void) const;
 
-		void reset(void);
+		void reset(const Projection *p, State *s);
 
 	private:
 		void __print(ostream &o);

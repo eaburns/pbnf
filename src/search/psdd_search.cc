@@ -222,7 +222,7 @@ vector<State *> *PSDDSearch::search(State *initial)
 	if (!graph)
 		graph = new NBlockGraph(project, initial);
 	else
-		graph->reset();
+		graph->reset(project, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PSDDThread *t = new PSDDThread(graph, this);

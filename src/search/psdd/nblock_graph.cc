@@ -315,18 +315,9 @@ enum NBlockGraph::layer NBlockGraph::get_cur_layer(void) const
 /**
  * Remove all old states.
  */
-void NBlockGraph::reset(void)
+void NBlockGraph::reset(const Projection *p, State *initial)
 {
-	map<unsigned int, NBlock *>::iterator iter;
-
-	for (iter = blocks.begin(); iter != blocks.end(); iter++) {
-		NBlock *n = iter->second;
-		n->closed.delete_all_states();
-		n->open[0].delete_all_states();
-		n->open[1].delete_all_states();
-		n->inuse = false;
-		n->sigma = 0;
-	}
+	unsigned int init_nblock = p->project(initial);
 
 	free_list[0].clear();
 	free_list[1].clear();
@@ -334,4 +325,20 @@ void NBlockGraph::reset(void)
 	layer = NBlockGraph::LAYERA;
 	path_found = false;
 	nblocks_assigned = 0;
+
+	for (unsigned int i = 0; i < num_nblocks; i += 1) {
+		NBlock *n = blocks[i];
+		n->closed.delete_all_states();
+		n->open[0].delete_all_states();
+		n->open[1].delete_all_states();
+		n->inuse = false;
+		n->sigma = 0;
+		if (i == init_nblock) {
+			n->open[layer].add(initial);
+			n->closed.add(initial);
+
+			free_list[layer].push_back(n);
+		}
+
+	}
 }
