@@ -137,6 +137,10 @@ two_tile_project_test.$(MARCH): $(OBJ) tiles/two_tile_project_test.cc
 pq_open_list_test.$(MARCH): $(OBJ) pq_open_list_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) pq_open_list_test.cc
 
+create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
+	cp grid_search.$(MARCH) grid_search.$(MARCH).bin
+	cp tiles_search.$(MARCH) tiles_search.$(MARCH).bin
+
 $(OBJDIR)/%.o: %.cc
 	$(COMPILE.cc) $< -o $@
 
