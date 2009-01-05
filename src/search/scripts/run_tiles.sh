@@ -26,7 +26,7 @@ DATA_ROOT="/home/rai/group/data/tiles_instances"
 USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2 idpsdd"
 USES_WEIGHT="dynpsdd"
 USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2 idpsdd"
-USES_MIN_EXPANSIONS="safepbnf pbnf"
+USES_MIN_EXPANSIONS="safepbnf pbnf bfpsdd"
 USES_DELTA_F="safepbnf2 pbnf2"
 
 if [ "$#" -eq 0 ]
