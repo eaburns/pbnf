@@ -22,8 +22,9 @@ using namespace std;
 using namespace PBNF;
 
 #define MIN_M 32
+#define MAX_INT std::numeric_limits<int>::max()
 
-AtomicInt PBNFSearch::min_expansions(2);
+AtomicInt PBNFSearch::min_expansions(MIN_M);
 
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
 	: graph(graph), search(search), set_hot(false) {}
@@ -257,7 +258,7 @@ void PBNFSearch::inc_m()
 	//cout << "inc_m" << endl;
 	//if (PBNFSearch::min_expansions.read() > MIN_M)
 	//cout << old << endl;
-	do { o = old; n = o * 2; old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
+	do { o = old; n = min((unsigned int)(o * 2), (unsigned int)((MAX_INT/2)-1)); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
 	} while (old != o);
 }
 
@@ -268,6 +269,6 @@ void PBNFSearch::dec_m()
 	//cout << "dec_m" << endl;
 	//if (PBNFSearch::min_expansions.read() > MIN_M)
 	//cout << old << endl;
-	do { o = old; n = max((int)(o*.8), MIN_M); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
+	do { o = old; n = max((unsigned int)(o*.8), (unsigned int)MIN_M); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
 	} while (old != o);
 }
