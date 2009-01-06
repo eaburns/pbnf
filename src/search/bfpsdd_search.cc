@@ -48,11 +48,6 @@ void BFPSDDSearch::BFPSDDThread::run(void)
 	do {
 		n = graph->next_nblock(n);
 
-		if (search->path_found() && graph->get_layer_value() >= search->bound.read()) {
-			graph->set_path_found();
-			break;
-		}
-
 		if (n) {
 			exp_this_block = 0;
 			path = search_nblock(n);
@@ -60,11 +55,6 @@ void BFPSDDSearch::BFPSDDThread::run(void)
 			if (path)
 				search->set_path(path);
 			ave_exp_per_nblock.add_val(exp_this_block);
-		}
-
-		if (search->path_found() && graph->get_layer_value() >= search->bound.read()) {
-			graph->set_path_found();
-			break;
 		}
 
 	} while(n);

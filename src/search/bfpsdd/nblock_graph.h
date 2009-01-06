@@ -222,6 +222,9 @@ namespace BFPSDD {
 					free_list.push_back(nblock_pq.take());
 				}
 
+				if (free_list.empty())
+					path_found = true;
+
 				// Wake up everyone...
 				pthread_cond_broadcast(&cond);
 			}
