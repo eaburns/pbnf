@@ -21,6 +21,8 @@
 using namespace std;
 using namespace PBNF;
 
+#define MIN_M 32
+
 AtomicInt PBNFSearch::min_expansions(2);
 
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
@@ -184,7 +186,7 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	pthread_mutex_init(&path_mutex, NULL);
 	if (min_expansions == 0){
 		dynamic_m = true;
-		PBNFSearch::min_expansions = AtomicInt(2);
+		PBNFSearch::min_expansions = AtomicInt(MIN_M);
 	}
 	else{
 		dynamic_m = false;
@@ -250,22 +252,22 @@ void PBNFSearch::set_path(vector<State *> *path)
 
 void PBNFSearch::inc_m()
 {
-        //unsigned int old = PBNFSearch::min_expansions.read();
-	//unsigned int o, n;
-	cout << "inc_m" << endl;
-	//if (PBNFSearch::min_expansions.read() > 2)
+        unsigned int old = PBNFSearch::min_expansions.read();
+	unsigned int o, n;
+	//cout << "inc_m" << endl;
+	//if (PBNFSearch::min_expansions.read() > MIN_M)
 	//cout << old << endl;
-	//do { o = old; n = pow(o, 2); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
-	//} while (old != o);
+	do { o = old; n = o * 2; old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
+	} while (old != o);
 }
 
 void PBNFSearch::dec_m()
 {
-        //unsigned int old = PBNFSearch::min_expansions.read();
-	//unsigned int o, n;
-	cout << "dec_m" << endl;
-	//if (PBNFSearch::min_expansions.read() > 2)
+        unsigned int old = PBNFSearch::min_expansions.read();
+	unsigned int o, n;
+	//cout << "dec_m" << endl;
+	//if (PBNFSearch::min_expansions.read() > MIN_M)
 	//cout << old << endl;
-	//do { o = old; n = max((int)o-1, 2); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
-	//} while (old != o);
+	do { o = old; n = max((int)(o*.8), MIN_M); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
+	} while (old != o);
 }
