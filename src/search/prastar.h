@@ -44,17 +44,19 @@ private:
                 void add(State* s);
                 State *take(void);
 
+
         private:
+                void flush_queue(void);
                 PRAStar *p;
                 vector<PRAStarThread *> *threads;
-		vector<State *> *q;
-                pthread_mutex_t* mut;
+		vector<State *> q;
                 pthread_mutex_t mutex;
                 bool completed;
                 CompletionCounter *cc;
                 friend class PRAStar;
                 PQOpenList<CompareOnF> open;
                 ClosedList closed;
+		bool q_empty;
         };
 
         bool done;

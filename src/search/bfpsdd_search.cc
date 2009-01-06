@@ -47,20 +47,17 @@ void BFPSDDSearch::BFPSDDThread::run(void)
 
 	do {
 		n = graph->next_nblock(n);
-		if (!n)		// no solution
-			break;
-		exp_this_block = 0;
 
-		path = search_nblock(n);
+		if (n) {
+			exp_this_block = 0;
+			path = search_nblock(n);
 
-		if (path) {
-			search->set_path(path);
-			graph->set_path_found();
+			if (path)
+				search->set_path(path);
+			ave_exp_per_nblock.add_val(exp_this_block);
 		}
 
-		ave_exp_per_nblock.add_val(exp_this_block);
-
-	} while(!search->path_found());
+	} while(n);
 }
 
 float BFPSDDSearch::BFPSDDThread::get_ave_exp_per_nblock(void)
@@ -77,20 +74,18 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 {
 	vector<State *> *path = NULL;
 	PQOpenList<CompareOnF> *cur_open = &n->open;
-	ClosedList *closed = &n->closed;
 
 	while (!cur_open->empty()) {
-		if (cur_open->get_best_val() > graph->get_layer_value())
+		if (exp_this_block > search->min_expansions
+		    && cur_open->get_best_val() > graph->get_layer_value())
 			break;
 
-		State *s = cur_open->take();
-		State *dup = closed->lookup(s);
-		if (dup) {
-			delete s;
-			continue;
+		if (cur_open->get_best_val() > search->bound.read()) {
+			cur_open->prune();
+			break;
 		}
 
-		closed->add(s);
+		State *s = cur_open->take();
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -113,12 +108,23 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 				continue;
 			}
 			State *dup = next_closed->lookup(*iter);
-			if (dup && dup->get_g() <= (*iter)->get_g()) {
+			if (dup) {
+				if (dup->get_g() > (*iter)->get_g()) {
+					dup->update((*iter)->get_parent(),
+						    (*iter)->get_g());
+					if (!dup->is_open())
+						next_open->add(dup);
+				}
 				delete *iter;
-				continue;
+			} else {
+				next_closed->add(*iter);
+				if ((*iter)->is_goal()) {
+					path = (*iter)->get_path();
+					delete children;
+					return path;
+				}
+				next_open->add(*iter);
 			}
-
-			next_open->add(*iter);
 		}
 		delete children;
 
@@ -134,11 +140,13 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 /**
  * Create a new Parallel Structured Duplicate Detection search.
  */
-BFPSDDSearch::BFPSDDSearch(unsigned int n_threads)
+BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions)
 	: bound(numeric_limits<float>::infinity()),
 	  n_threads(n_threads),
 	  project(NULL),
-	  path(NULL)
+	  path(NULL),
+	  graph(NULL),
+	  min_expansions(min_expansions)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -147,12 +155,13 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads)
  * Create a new Parallel Structured Duplicate Detection search with a
  * given bound.
  */
-BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float bound)
+BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions, float bound)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
-	  graph(NULL)
+	  graph(NULL),
+	  min_expansions(min_expansions)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -174,15 +183,10 @@ BFPSDDSearch::~BFPSDDSearch(void)
 void BFPSDDSearch::set_path(vector<State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
-	if (path) {
-		vector<State *>::iterator iter;
-
-		for (iter = p->begin(); iter != p->end(); iter++)
-			delete *iter;
-
-		delete p;
-	} else {
-		path = p;
+	assert(p->at(0)->get_g() == p->at(0)->get_f());
+	if (p && bound.read() > p->at(0)->get_g()) {
+		this->path = p;
+		bound.set(p->at(0)->get_g());
 	}
 	pthread_mutex_unlock(&path_mutex);
 }

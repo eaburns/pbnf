@@ -367,8 +367,8 @@ unsigned int Tiles::OneTileProject::project(State *s) const
 	TilesState *ts = dynamic_cast<TilesState *>(s);
 	const vector<unsigned int> *tiles = ts->get_tiles();
 	unsigned int size = tiles->size();
-	unsigned int blank;
-	unsigned int one;
+	unsigned int blank = 0;
+	unsigned int one = 0;
 
 	for (unsigned int i = 0; i < size; i += 1) {
 		if (tiles->at(i) == 0)
@@ -498,9 +498,9 @@ unsigned int Tiles::TwoTileProject::project(State *s) const
 	TilesState *ts = dynamic_cast<TilesState *>(s);
 	const vector<unsigned int> *tiles = ts->get_tiles();
 	unsigned int size = tiles->size();
-	unsigned int blank;
-	unsigned int one;
-	unsigned int two;
+	unsigned int blank = 0;
+	unsigned int one = 0;
+	unsigned int two = 0;
 
 	for (unsigned int i = 0; i < size; i += 1) {
 		if (tiles->at(i) == 0)

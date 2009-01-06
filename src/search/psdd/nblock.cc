@@ -25,6 +25,7 @@ using namespace PSDD;
 NBlock::NBlock(unsigned int id)
 	: id(id),
 	  sigma(0),
+	  closed(1000),
 	  inuse(false) {}
 
 
@@ -34,8 +35,8 @@ NBlock::NBlock(unsigned int id)
  */
 NBlock::~NBlock(void)
 {
-	open[0].delete_all_states();
-	open[1].delete_all_states();
+//	open[0].delete_all_states();
+//	open[1].delete_all_states();
 	closed.delete_all_states();
 }
 

@@ -4,39 +4,25 @@ To Do
 (Wheeler) rough draft
  mash Seth and Ethan's papers together
 
-(Ethan) BFPSDD, PSDD close states as appropriate (possibly during generation)
-   
-(Seth) results with 3x4 tiles
- across all abstractions
- get intervals small
+(Seth) Optimal PRA*
 
-(Ethan) results with new closed-list change
+(Seth) 3 6x6 puzzles
 
-(Rong) Results on planning with unsafe and safe
-  figure out why we don't do well on some problems
-  port code to 64-bits
-  results on Sun
+(Ethan) weighted PBNF
+
+(Ethan) run everything and plot everything on everything
 
 (Ethan) figure out why we suck on tiles
   then, worry about general fix like division trick
 
-(Ethan) look into PBNF with 5nblocks/thread and 1 thread... it
-  performs very poorly.
-   
-(Ethan) Re-run data with algs new usage of closed list
+(Seth) Implement other types of learning for min expansions???
 
-(Ethan) run everything on Sun
-
-(Seth) PRA* improvements
- eg, Cancel threads
-
-(Seth) Implement learning for min expansions
-
-(Ethan) with some kind of f-range or min expansions (% or _#_) per nblock
-   
 (Seth) little bibliography: list of papers and why they do not perform well.
 
 (???) Wted A* for large problems
+
+(Seth) Maybe look at using the projection function to hash states in
+   PRA* instead of using the normal hash function.
 
 (Seth) A* with lock-free datastructures -- maybe this will be great
   - Look at tfogal's lock-free hashtable

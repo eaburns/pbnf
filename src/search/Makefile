@@ -12,7 +12,7 @@ DEBUG=-O3
 #DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 
 # C/C++ basic compilation flags
-FLAGS=-Wall -pipe $(PROF_FLAGS) $(DEBUG)
+FLAGS=-Wall -Werror -pipe $(PROF_FLAGS) $(DEBUG)
 
 # Comment this out for faster, more memory efficient code.
 #FLAGS+=-DENABLE_IMAGES
@@ -137,6 +137,10 @@ two_tile_project_test.$(MARCH): $(OBJ) tiles/two_tile_project_test.cc
 pq_open_list_test.$(MARCH): $(OBJ) pq_open_list_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) pq_open_list_test.cc
 
+create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
+	cp grid_search.$(MARCH) grid_search.$(MARCH).bin
+	cp tiles_search.$(MARCH) tiles_search.$(MARCH).bin
+
 $(OBJDIR)/%.o: %.cc
 	$(COMPILE.cc) $< -o $@
 
@@ -150,7 +154,7 @@ $(OBJDIR)/%.o: %.S
 depend:
 	rm -f .depend
 	touch .depend
-	(find . -name \*.cc; find . -name \*.h) | xargs makedepend -f.depend -Y
+	(find . -name \*.cc -printf "%f\n"; find . -name \*.h -printf "%f\n") | xargs makedepend -f.depend -Y -p$(OBJDIR)/
 	rm -f .depend.bak
 
 .PHONY: objdirs

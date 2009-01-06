@@ -79,9 +79,11 @@ ClosedList::~ClosedList(void)
 	if (!table)
 		return;
 
-	for (unsigned int i = 0; i < size; i += 1)
+	for (unsigned int i = 0; i < size; i += 1) {
 		if (table[i])
 			delete table[i];
+		table[i] = NULL;
+	}
 	free(table);
 }
 
@@ -180,7 +182,9 @@ void ClosedList::delete_all_states(void)
 	if (!table)
 		return;
 
-	for (unsigned int i = 0; i < size; i += 1)
+	for (unsigned int i = 0; i < size; i += 1) {
 		for (b = table[i]; b; b = b->next)
 			delete b->data;
+		table[i] = NULL;
+	}
 }

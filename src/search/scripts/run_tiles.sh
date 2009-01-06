@@ -6,9 +6,11 @@ NBLOCKS=1
 WEIGHT=1.0
 MIN_EXPANSIONS=1
 DELTA_F=0
-ROWS=3
+ROWS=4
 COLS=4
-ABSTRACTION="two-tiles"
+ABSTRACTION="one-tile"
+#MODEL="random"
+MODEL="korf_25_easy"
 ALGORITHM=""
 
 # constants
@@ -23,10 +25,10 @@ else
 fi
 DATA_ROOT="/home/rai/group/data/tiles_instances"
 
-USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2"
+USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2 idpsdd"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2"
-USES_MIN_EXPANSIONS="safepbnf pbnf"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2 idpsdd"
+USES_MIN_EXPANSIONS="safepbnf pbnf bfpsdd"
 USES_DELTA_F="safepbnf2 pbnf2"
 
 if [ "$#" -eq 0 ]
@@ -94,7 +96,7 @@ function alg_on_list {
 function paths ()
 {
     ARGS=""
-    ARGS="${ARGS}model=random "
+    ARGS="${ARGS}model=$MODEL "
     ARGS="${ARGS}rows=$ROWS "
     ARGS="${ARGS}cols=$COLS "
 
@@ -137,7 +139,7 @@ function run_file ()
 	ARGS="${ARGS}wt=$WEIGHT "
     fi
 
-    ARGS="${ARGS}model=random "
+    ARGS="${ARGS}model=$MODEL "
     ARGS="${ARGS}rows=$ROWS "
     ARGS="${ARGS}cols=$COLS "
 
@@ -291,7 +293,7 @@ do
 	fi
 
 #    echo -e "#pair  \"type\"\t\"instances\""
-	echo -e "#pair  \"model\"\t\"random\""
+	echo -e "#pair  \"model\"\t\"$MODEL\""
 	echo -e "#pair  \"rows\"\t\"$ROWS\""
 	echo -e "#pair  \"cols\"\t\"$COLS\""
 	echo -e "#pair  \"num\"\t\"$NUM\"") > $OUT
@@ -304,6 +306,7 @@ do
     if [[ $? -ne "0" ]]; then
 	echo "Run failed:"
 	echo $OUTPUT
+	echo "failed: $OUT" >> ~/aborted.log
 	rm $OUT
 	continue
     fi
@@ -345,6 +348,7 @@ do
     if (echo $OUTPUT | grep "bad_alloc" >& /dev/null)
     then
 	echo "Run Aborted"
+	echo "aborted: $OUT" >> ~/aborted.log
 	SOL_COST="infinity"
 	SOL_LENGTH="infinity"
 	WALL_TIME="infinity"

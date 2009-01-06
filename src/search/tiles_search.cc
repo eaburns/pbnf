@@ -13,6 +13,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <iostream>
 #include <vector>
@@ -40,8 +41,8 @@ int main(int argc, char *argv[])
 	int denom = g.get_height() / ((int) ratio * threads);
 	unsigned int nblocks = g.get_height() / denom;
 */
-//	Tiles::OneTileProject project(&g);
-	Tiles::TwoTileProject project(&g);
+	Tiles::OneTileProject project(&g);
+//	Tiles::TwoTileProject project(&g);
 	g.set_projection(&project);
 
 //	HZero hzero(&g);
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
 //	g.print(cout, path);
 
 	if (path) {
-		cout << "cost: " << (int) path->at(0)->get_g() << endl;
+		printf("cost: %f\n", path->at(0)->get_g());
 		cout << "length: " << path->size() << endl;
 
 		// Make sure that the heuristic was actually admissible!

@@ -633,6 +633,7 @@ GridWorld::CoarseProject::CoarseProject(const SearchDomain *d,
 	this->rows = rows;
 	this->cols_div = g->width / cols;
 	this->rows_div = g->height / rows;
+	this->move_type = g->move_type;
 
 /*
 	cerr << "Creating coarse projection, cols="
@@ -717,6 +718,17 @@ vector<unsigned int> GridWorld::CoarseProject::get_neighbors(unsigned int b) con
 		p.push_back(get_id(x, y - 1));
 	if (y < rows - 1)
 		p.push_back(get_id(x, y + 1));
+
+	if (move_type == GridWorld::EIGHT_WAY_MOVES) {
+		if (x > 0 && y > 0)
+			p.push_back(get_id(x - 1, y - 1));
+		if (x < cols - 1 && y > 0)
+			p.push_back(get_id(x + 1, y - 1));
+		if (x < cols - 1 && y < rows - 1)
+			p.push_back(get_id(x + 1, y + 1));
+		if (x > 0 && y < rows - 1)
+			p.push_back(get_id(x - 1, y + 1));
+	}
 
 	return p;
 }
