@@ -6,9 +6,11 @@ NBLOCKS=1
 WEIGHT=1.0
 MIN_EXPANSIONS=1
 DELTA_F=0
-ROWS=3
+ROWS=4
 COLS=4
 ABSTRACTION="one-tile"
+#MODEL="random"
+MODEL="korf_25_easy"
 ALGORITHM=""
 
 # constants
@@ -94,7 +96,7 @@ function alg_on_list {
 function paths ()
 {
     ARGS=""
-    ARGS="${ARGS}model=random "
+    ARGS="${ARGS}model=$MODEL "
     ARGS="${ARGS}rows=$ROWS "
     ARGS="${ARGS}cols=$COLS "
 
@@ -137,7 +139,7 @@ function run_file ()
 	ARGS="${ARGS}wt=$WEIGHT "
     fi
 
-    ARGS="${ARGS}model=random "
+    ARGS="${ARGS}model=$MODEL "
     ARGS="${ARGS}rows=$ROWS "
     ARGS="${ARGS}cols=$COLS "
 
@@ -291,7 +293,7 @@ do
 	fi
 
 #    echo -e "#pair  \"type\"\t\"instances\""
-	echo -e "#pair  \"model\"\t\"random\""
+	echo -e "#pair  \"model\"\t\"$MODEL\""
 	echo -e "#pair  \"rows\"\t\"$ROWS\""
 	echo -e "#pair  \"cols\"\t\"$COLS\""
 	echo -e "#pair  \"num\"\t\"$NUM\"") > $OUT
