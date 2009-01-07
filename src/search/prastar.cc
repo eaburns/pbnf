@@ -213,7 +213,7 @@ vector<State *> *PRAStar::search(State *init)
 		threads.push_back(t);
         }
 
-        threads.at(init->hash()%n_threads)->open.add(init);
+        threads.at(project->project(init)%n_threads)->open.add(init);
 
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->start();
