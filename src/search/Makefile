@@ -8,8 +8,8 @@ MARCH=$(shell uname -m)
 PROF_FLAGS=
 
 # debug flags
-DEBUG=-O3
-#DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+#DEBUG=-O3
+DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 
 # C/C++ basic compilation flags
 FLAGS=-Wall -Werror -pipe $(PROF_FLAGS) $(DEBUG)

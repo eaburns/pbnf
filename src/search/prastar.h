@@ -16,6 +16,7 @@
 #include "search.h"
 #include "pbnf/nblock_graph.h"
 #include "pbnf/nblock.h"
+#include "util/atomic_int.h"
 #include "util/thread.h"
 #include "synch_pq_olist.h"
 #include "synch_closed_list.h"
@@ -63,6 +64,8 @@ private:
         pthread_cond_t cond;
         pthread_mutex_t mutex;
         const unsigned int n_threads;
+	AtomicInt bound;
+	const Projection *project;
         vector<State *> *path;
 	vector<PRAStarThread *> threads;
 	vector<PRAStarThread *>::iterator iter;

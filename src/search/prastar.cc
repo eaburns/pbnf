@@ -12,8 +12,10 @@
 #include <errno.h>
 
 #include <vector>
+#include <limits>
 
 #include "prastar.h"
+#include "projection.h"
 #include "search.h"
 #include "state.h"
 
@@ -129,18 +131,20 @@ void PRAStar::PRAStarThread::run(void){
 		if (s == NULL)
 			continue;
 
+		if (s->get_f() >= p->bound.read()) {
+			open.prune();
+			continue;
+		}
 		if (s->is_goal()) {
 			p->set_path(s->get_path());
-			break;
 		}
 
 		children = p->expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
-			threads->at(c->hash()%p->n_threads)->add(c);
+			threads->at(p->project->project(c)%p->n_threads)->add(c);
 		}
         }
-	assert(p->has_path());
 
 	if (children)
 		delete children;
@@ -153,7 +157,9 @@ void PRAStar::PRAStarThread::run(void){
 
 PRAStar::PRAStar(unsigned int n_threads) 
 	: n_threads(n_threads),
-	  path(NULL) {
+	  bound(AtomicInt(numeric_limits<float>::infinity())),
+	  project(NULL),
+	  path(NULL){
         done = false;
 }
 
@@ -179,9 +185,9 @@ void PRAStar::set_path(vector<State *> *path)
 {
         pthread_mutex_lock(&mutex);
         if (this->path == NULL || 
-	    this->path->back()->get_g() > path->back()->get_g()){
+	    this->path->at(0)->get_g() > path->at(0)->get_g()){
 		this->path = path;
-		done = true;
+		bound.set(path->at(0)->get_g());
         }
         pthread_mutex_unlock(&mutex);
 }
@@ -198,6 +204,7 @@ bool PRAStar::has_path()
 vector<State *> *PRAStar::search(State *init)
 {
         pthread_mutex_init(&mutex, NULL);
+	project = init->get_domain()->get_projection();
 
         CompletionCounter cc = CompletionCounter(n_threads);
 
@@ -206,7 +213,7 @@ vector<State *> *PRAStar::search(State *init)
 		threads.push_back(t);
         }
 
-        threads.at(init->hash()%n_threads)->open.add(init);
+        threads.at(project->project(init)%n_threads)->open.add(init);
 
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->start();
