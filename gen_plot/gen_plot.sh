@@ -81,7 +81,6 @@ $GEN_PLOT \
     -ykey wall_ttime -ylabel time-seconds \
     -title time-$COSTS-$MOVES-$WIDTH-$HEIGHT-0$PROB \
     -astar \
-    -namedalg safepbnf safepbnf-80min-625nblocks "min-expansions=60 nblocks=625" \
-    -namedalg safepbnf safepbnf-80min-625nblocks "min-expansions=60 nblocks=1600" \
-    -namedalg safepbnf safepbnf-80min-625nblocks "min-expansions=60 nblocks=2500"
+    -namedalg safepbnf safepbnf-60min-2500nblocks "min-expansions=60 nblocks=2500" \
+    -namedalg bfpsdd bfpsdd-50min-2500nblocks "min-expansions=50 nblocks=2500"
 fi
