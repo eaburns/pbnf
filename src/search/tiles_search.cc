@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 	int denom = g.get_height() / ((int) ratio * threads);
 	unsigned int nblocks = g.get_height() / denom;
 */
-	Tiles::OneTileProject project(&g);
-//	Tiles::TwoTileProject project(&g);
+//	Tiles::OneTileProject project(&g);
+	Tiles::TwoTileProject project(&g);
 	g.set_projection(&project);
 
 //	HZero hzero(&g);

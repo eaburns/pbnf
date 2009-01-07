@@ -43,7 +43,7 @@ fi
 #
 # Sliding Tiles
 #
-if $(`which true`)
+if $(`which false`)
 then
 COLS=4
 ROWS=3
@@ -57,4 +57,31 @@ $GEN_PLOT \
     -title time-$COLS-$ROWS \
     -namedalg safepbnf safepbnf-80min "min-expansions=80" \
     -alg bfpsdd ""
+fi
+
+#
+# Legion unit grid four-way runs
+#
+if $(`which true`)
+then
+MOVES=Four-way
+COSTS=Unit
+WIDTH=2000
+HEIGHT=1200
+PROB=35
+$GEN_PLOT \
+    -root /home/rai/eaburns/data/legion/grid type=run \
+    obstacles=uniform \
+    moves=$MOVES \
+    costs=$COSTS \
+    width=$WIDTH \
+    height=$HEIGHT \
+    prob=0.$PROB \
+    -xkey threads \
+    -ykey wall_ttime -ylabel time-seconds \
+    -title time-$COSTS-$MOVES-$WIDTH-$HEIGHT-0$PROB \
+    -astar \
+    -namedalg safepbnf safepbnf-80min-625nblocks "min-expansions=60 nblocks=625" \
+    -namedalg safepbnf safepbnf-80min-625nblocks "min-expansions=60 nblocks=1600" \
+    -namedalg safepbnf safepbnf-80min-625nblocks "min-expansions=60 nblocks=2500"
 fi
