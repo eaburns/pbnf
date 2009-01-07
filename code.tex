@@ -45,4 +45,23 @@
   {\bf 20.}  \> \} \\
   {\bf 21.}  \Until{there are no more open nodes on any $n$block}
   \ecode
+
+\begin{figure}
+\bncode
+1. while there is an {\it block}\ with open nodes \\
+2. \> lock; $b \leftarrow$ best free $n$block; unlock \\
+3. \> while $b$ is no worse than the best free \nblock\ or \\
+4. \> \> \> we've done fewer than $m$ expansions \\
+5. \> \> $n \leftarrow$ best open node in $b$ \\
+6. \> \> if $f(n) > f({\it incumbent})$, prune all open nodes in $b$ \\
+7. \> \> else if $n$ is a goal \\
+8. \> \> \> if $f($n$) < f(\myit{incumbent})$ \\
+9. \> \> \> \> lock; $\myit{incumbent} \leftarrow n$; unlock \\
+10. \> \> else \\
+11. \> \> \> for each child $c$ of $n$ \\
+12. \> \> \> \> insert $c$ in open list of of appropriate \nblock \\
+\ecode
+\caption{A sketch of basic PBNF search.}
+\label{alg:pbnfsearch}
+\end{figure}
 \end{document}
