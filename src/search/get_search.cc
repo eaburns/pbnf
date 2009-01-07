@@ -53,7 +53,7 @@ Search *get_search(int argc, char *argv[])
 		return new KBFS(threads);
 	} else if (argc > 1 && sscanf(argv[1], "pastar-%u", &threads) == 1) {
 		return new PAStar(threads);
-	} else if (argc > 1 && sscanf(argv[1], "prastar-%u", &threads) == 1) {
+	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
@@ -86,7 +86,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tcostbounddfs-<cost>" << endl
 		     << "\tkbfs-<threads>" << endl
 		     << "\tpastar-<threads>" << endl
-		     << "\tprastar-<threads>" << endl
+		     << "\tprastar-<threads>-<nblocks>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<threads>-<nblocks>-<weight>" << endl
 		     << "\tbfpsdd-<min-expansions>-<threads>-<nblocks>" << endl
