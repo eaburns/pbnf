@@ -8,9 +8,10 @@ MIN_EXPANSIONS=1
 DELTA_F=0
 ROWS=4
 COLS=4
-ABSTRACTION="two-tile"
+#ABSTRACTION="two-tile"
+ABSTRACTION="one-tile"
 #MODEL="random"
-MODEL="korf_25_easy"
+MODEL="korf_easy"
 ALGORITHM=""
 
 # constants
@@ -27,7 +28,7 @@ DATA_ROOT="/home/rai/group/data/tiles_instances"
 
 USES_THREADS="prastar kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd pbnf2 safepbnf2 idpsdd"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2 idpsdd"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd pbnf2 safepbnf2 idpsdd prastar"
 USES_MIN_EXPANSIONS="safepbnf pbnf bfpsdd"
 USES_DELTA_F="safepbnf2 pbnf2"
 

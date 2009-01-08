@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for min in 64
+for min in 64 128 256
 do
     for (( threads=1; threads <= 8; threads++ ))
     do

@@ -26,7 +26,7 @@ MOVES="Four-way"
 
 USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd prastar"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd prastar"
 USES_MIN_EXPANSIONS="safepbnf pbnf bfpsdd"
 
 if [ "$#" -eq 0 ]
