@@ -8,8 +8,8 @@ MARCH=$(shell uname -m)
 PROF_FLAGS=
 
 # debug flags
-DEBUG=-O3
-#DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+#DEBUG=-O3
+DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 
 # C/C++ basic compilation flags
 FLAGS=-Wall -Werror -pipe $(PROF_FLAGS) $(DEBUG)
@@ -37,6 +37,7 @@ SRC= \
 	h_zero.cc \
 	weighted_heuristic.cc \
 	projection.cc \
+	div_merge_project.cc \
 	util/eps.cc \
 	util/thread.cc \
 	util/completion_counter.cc \
@@ -96,6 +97,7 @@ PROGS=$(addsuffix .$(MARCH), \
 	tiles_hash_test \
 	tiles_read_test \
 	atomic_float_test \
+	div_merge_project_test \
 	one_tile_project_test \
 	two_tile_project_test)
 
@@ -127,6 +129,9 @@ tiles_read_test.$(MARCH): $(OBJ) tiles/tiles_read_test.cc
 
 atomic_float_test.$(MARCH): $(OBJ) util/atomic_float_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/atomic_float_test.cc
+
+div_merge_project_test.$(MARCH): $(OBJ) tiles/div_merge_project_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/div_merge_project_test.cc
 
 one_tile_project_test.$(MARCH): $(OBJ) tiles/one_tile_project_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/one_tile_project_test.cc

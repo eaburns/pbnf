@@ -25,13 +25,13 @@ class DivMergeProject : public Projection {
 public:
 	DivMergeProject(unsigned int div, Projection *p);
 
-	unsigned int project(State *s);
+	unsigned int project(State *s) const;
 
-	unsigned int get_num_nblocks(void);
+	unsigned int get_num_nblocks(void) const;
 
-	vector<unsigned int> get_successors(unsigned int b);
+	vector<unsigned int> get_successors(unsigned int b) const;
 
-	vector<unsigned int> get_predecessors(unsigned int b);
+	vector<unsigned int> get_predecessors(unsigned int b) const;
 private:
 	unsigned int div;
 	Projection *projection;
