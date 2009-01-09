@@ -118,6 +118,7 @@ public:
 	bool is_goal(State *s) const;
 
 	const vector<unsigned int> *get_ones(void) const;
+	const vector<uint64_t> *get_fact_ary(void) const;
 
 private:
 	vector<unsigned int> child(const vector<unsigned int> *tiles,
@@ -131,7 +132,7 @@ private:
 	/* Korf's crazy table of the number of ones in the binary
 	 * representation on an integer. */
 	vector<unsigned int> ones;
-
+	vector<uint64_t> fact_ary;
 };
 
 #endif	/* !_TILES_H_ */

@@ -87,6 +87,12 @@ Tiles::Tiles(istream &in)
 		g[pos] = i;
 	}
 
+	/* precompute factorials. */
+	fact_ary.resize((width * height) + 1);
+	fact_ary[0] = 1;
+	for (unsigned int i = 1; i < (width * height) + 1; i += 1)
+		fact_ary[i] = fact_ary[i - 1] * i;
+
 	goal = new TilesState(this, NULL, 0, 0, g, g_blank);
 }
 
@@ -94,6 +100,12 @@ const vector<unsigned int> *Tiles::get_ones() const
 {
 	return &ones;
 }
+
+const vector<uint64_t> *Tiles::get_fact_ary() const
+{
+	return &fact_ary;
+}
+
 
 /**
  * Create an arbitrary puzzle.  You can't use the starting state of

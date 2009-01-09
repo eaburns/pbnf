@@ -18,19 +18,12 @@
 
 using namespace std;
 
-uint64_t fact(uint64_t i)
-{
-	if (i == 0 || i == 1)
-		return 1;
-	else
-		return i * fact(i - 1);
-}
-
 void TilesState::compute_hash(void)
 {
 	unsigned int bits = 0;
 	const Tiles *t = dynamic_cast<const Tiles *>(domain);
 	const vector<unsigned int> *ones = t->get_ones();
+	const vector<uint64_t> *fact_ary = t->get_fact_ary();
 
 	hash_val = 0;
 	for (int i = tiles.size() - 1; i >= 0; i -= 1) {
@@ -38,7 +31,7 @@ void TilesState::compute_hash(void)
 		unsigned int mask = ~((~0) << k);
 		unsigned int v = mask & bits;
 		unsigned int d = k - ones->at(v);
-		hash_val += d * fact(i);
+		hash_val += d * fact_ary->at(i);
 		bits |= 1 << k;
 	}
 }
