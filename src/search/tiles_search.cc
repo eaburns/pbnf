@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 	Tiles::ManhattanDist manhattan(&g);
 	g.set_heuristic(&manhattan);
 
-	timeout(600);
+	//timeout(600);
 	timer.start();
 	path = search->search(g.initial_state());
 	timer.stop();
