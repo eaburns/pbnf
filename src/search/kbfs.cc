@@ -41,7 +41,8 @@ private:
 
 
 KBFS::KBFS(unsigned int n_threads)
-	: n_threads(n_threads)
+	: n_threads(n_threads),
+	  bound(numeric_limits<float>::infinity())
 {
 	cc = CompletionCounter(n_threads);
 }
@@ -65,13 +66,24 @@ vector<State *> *KBFS::search(State *init)
 
  	open.add(init);
 
- 	while (!open.empty() && !path) {
+ 	while (!open.empty()) {
          	for (worker=0; (worker<n_threads) && !open.empty(); worker++) {
                     State *s = open.take();
                     if (s->is_goal()) {
-                      path = s->get_path();
-                      break;
+			    if (path == NULL || 
+				path->at(0)->get_g() > path->at(0)->get_g()){
+				    path = s->get_path();
+				    bound.set(path->at(0)->get_g());
+			    }
+			    worker--;
+			    continue;
                     }
+
+		    if (s->get_f() >= bound.read()) {
+			    worker--;
+			    closed.add(s);
+			    continue;
+		    }
 
 		    closed.add(s);
 
