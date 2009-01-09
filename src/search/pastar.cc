@@ -21,7 +21,7 @@ public:
     vector<State *> *children = NULL;
     State *s;
     
-    while(!p->has_path()){
+    while(!p->is_done()){
       pthread_mutex_lock(mut);
       if(!p->open.empty()){
 	s = p->open.take();
@@ -29,6 +29,7 @@ public:
       }
       else{
 	cc->complete();
+	cout << "completed " << cc->get_count() << endl;
         if (cc->is_complete()){
           p->set_done();
         }
@@ -38,16 +39,25 @@ public:
 	    delete children;
           return;
         }
+	pthread_mutex_unlock(mut);
+	while(p->open.empty() && !p->is_done()){
+	}
+	pthread_mutex_lock(mut);
         cc->uncomplete();
 	pthread_mutex_unlock(mut);
+	cout << "uncompleted " << cc->get_count() << endl;
 	continue;
       }
 
-      p->closed.add(s);
+      if (s->get_f() >= p->bound.read()) {
+	      p->open.prune();
+	      cout << "pruned" << endl;
+	      continue;
+      }
 
       if (s->is_goal()) {
         p->set_path(s->get_path());
-        break;
+	cout << "solution found" << endl;
       }
 
       children = p->expand(s);
@@ -67,10 +77,8 @@ public:
 	  delete c;
 	}
 	else{
-	  //pthread_mutex_lock(mut);
 	  p->open.add(c);
 	  p->closed.add(c);
-	  //pthread_mutex_unlock(mut);
 	}
       }
     }
@@ -86,7 +94,9 @@ private:
 };
 
 
-PAStar::PAStar(unsigned int n_threads) : n_threads(n_threads), path(NULL){
+PAStar::PAStar(unsigned int n_threads) : n_threads(n_threads),
+					 path(NULL),
+					 bound(numeric_limits<float>::infinity()){
   done = false;
 }
 
@@ -109,9 +119,10 @@ bool PAStar::is_done()
 void PAStar::set_path(vector<State *> *path)
 {
         pthread_mutex_lock(&mutex);
-        if (this->path == NULL){
-          this->path = path;
-	  done = true;
+        if (this->path == NULL || 
+	    this->path->at(0)->get_g() > path->at(0)->get_g()){
+		this->path = path;
+		bound.set(path->at(0)->get_g());
         }
         pthread_mutex_unlock(&mutex);
 }

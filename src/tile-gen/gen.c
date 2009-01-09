@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define SIZE 12
+int size = 0;
 
 int counter = 0;
 
@@ -11,7 +11,7 @@ void permuteRecursive(int *dir, int *flag, int index)
 	int ground = 1;
 	int revOrd = 0;
 
-	for (i = 0; i < SIZE; i++) {
+	for (i = 0; i < size; i++) {
 		if(flag[i] == 0) {
 			ground = 0;
 			flag[i] = 1;
@@ -22,13 +22,13 @@ void permuteRecursive(int *dir, int *flag, int index)
 		}
 	}
 	if (ground) {
-		for (i = 0; i < SIZE - 1; i++) 
-			for (j = i + 1; j < SIZE; j++) 
+		for (i = 0; i < size - 1; i++) 
+			for (j = i + 1; j < size; j++) 
 				if (dir[i] > dir[j] && dir[j] != 0)
 					revOrd++;
 		if (revOrd % 2 == 0) {
 			printf("%d", ++counter);    
-			for (i = 0; i < SIZE; i++)
+			for (i = 0; i < size; i++)
 				printf(" %d", dir[i]); 
 			printf("\n"); 
 		}
@@ -37,8 +37,8 @@ void permuteRecursive(int *dir, int *flag, int index)
 
 void permute()
 {
-	int *dir = (int *) calloc (SIZE, sizeof(int));
-	int *flag = (int *) calloc (SIZE, sizeof(int));
+	int *dir = (int *) calloc (size, sizeof(int));
+	int *flag = (int *) calloc (size, sizeof(int));
 	permuteRecursive(dir, flag, 0);
 	free(dir);
 	free(flag);
@@ -46,6 +46,7 @@ void permute()
 
 main (int argc, char *argv[])
 {
+	size = atoi(argv[1]);
 	permute();
 }
 

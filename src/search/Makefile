@@ -97,7 +97,6 @@ PROGS=$(addsuffix .$(MARCH), \
 	tiles_hash_test \
 	tiles_read_test \
 	atomic_float_test \
-	div_merge_project_test \
 	one_tile_project_test \
 	two_tile_project_test)
 

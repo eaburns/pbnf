@@ -4,8 +4,6 @@ To Do
 (Wheeler) rough draft
  mash Seth and Ethan's papers together
 
-(Seth) Optimal PRA*
-
 (Seth) 3 6x6 puzzles
 
 (Ethan) weighted PBNF
@@ -20,9 +18,6 @@ To Do
 (Seth) little bibliography: list of papers and why they do not perform well.
 
 (???) Wted A* for large problems
-
-(Seth) Maybe look at using the projection function to hash states in
-   PRA* instead of using the normal hash function.
 
 (Seth) A* with lock-free datastructures -- maybe this will be great
   - Look at tfogal's lock-free hashtable

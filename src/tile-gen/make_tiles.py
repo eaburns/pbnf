@@ -42,7 +42,8 @@ def make_board(in_data):
             width = height
         width, height = str(width), str(height)
     tiles = "\n".join(tiles)
-    path = os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline().split()[1]
+    path = width+"x"+height+".tile"
+    #path=os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline().split()[1]
     outfile = open(path, "w")
     outfile.write(width+" "+height+"\n")
     outfile.write("starting positions for each tile:\n")
@@ -57,9 +58,10 @@ if __name__ == '__main__':
     else:
         if len(sys.argv) > 1:
             max = int(sys.argv[1])
-            sys.argv = sys.argv[:0]
         else:
             max = sys.maxint/2
+        
+        sys.argv = []
         made = 0
         for line in fileinput.input():
             made += 1

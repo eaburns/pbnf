@@ -21,7 +21,7 @@ MOVES=Four-way
 COSTS=Unit
 WIDTH=2000
 HEIGHT=1200
-PROB=25
+PROB=35
 $GEN_PLOT \
     -root /home/rai/eaburns/data/grid.old type=run \
     obstacles=uniform \
