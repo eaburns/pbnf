@@ -80,7 +80,7 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 		    && cur_open->get_best_val() > graph->get_layer_value())
 			break;
 
-		if (cur_open->get_best_val() > search->bound.read()) {
+		if (cur_open->get_best_val() >= search->bound.read()) {
 			cur_open->prune();
 			break;
 		}
@@ -101,9 +101,9 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 		     iter++) {
 			unsigned int block = search->project->project(*iter);
 			NBlock<CompareOnF> *b = graph->get_nblock(block);
-			OpenList *next_open = &b->open;
+			PQOpenList<CompareOnF> *next_open = &b->open;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
-			if ((*iter)->get_f() > search->bound.read()) {
+			if ((*iter)->get_f() >= search->bound.read()) {
 				delete *iter;
 				continue;
 			}
@@ -112,7 +112,9 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 				if (dup->get_g() > (*iter)->get_g()) {
 					dup->update((*iter)->get_parent(),
 						    (*iter)->get_g());
-					if (!dup->is_open())
+					if (dup->is_open())
+						next_open->resort(dup);
+					else
 						next_open->add(dup);
 				}
 				delete *iter;
@@ -183,8 +185,8 @@ BFPSDDSearch::~BFPSDDSearch(void)
 void BFPSDDSearch::set_path(vector<State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
-	assert(p->at(0)->get_g() == p->at(0)->get_f());
-	if (p && bound.read() > p->at(0)->get_g()) {
+	assert(!p || p->at(0)->get_g() == p->at(0)->get_f());
+	if (p && bound.read() >= p->at(0)->get_g()) {
 		this->path = p;
 		bound.set(p->at(0)->get_g());
 	}
