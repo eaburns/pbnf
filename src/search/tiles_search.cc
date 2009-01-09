@@ -25,6 +25,7 @@
 #include "tiles/tiles.h"
 #include "util/timer.h"
 #include "util/timeout.h"
+#include "div_merge_project.h"
 
 using namespace std;
 
@@ -42,7 +43,8 @@ int main(int argc, char *argv[])
 	unsigned int nblocks = g.get_height() / denom;
 */
 	Tiles::OneTileProject project(&g);
-//	Tiles::TwoTileProject project(&g);
+//	Tiles::TwoTileProject __project(&g);
+//	DivMergeProject project(4, &__project);
 	g.set_projection(&project);
 
 //	HZero hzero(&g);
