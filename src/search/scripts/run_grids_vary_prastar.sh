@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 for nblocks in 625 1600 2500 6400
 do
