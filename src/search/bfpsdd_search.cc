@@ -214,7 +214,7 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 	float sum = 0.0;
 	unsigned int num = 0;
 
-	graph = new NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF>(project, initial);
+	graph = new NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF>(project, n_threads, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		BFPSDDThread *t = new BFPSDDThread(graph, this);
