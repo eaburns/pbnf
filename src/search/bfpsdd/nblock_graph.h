@@ -223,7 +223,7 @@ namespace BFPSDD {
 				layer_value = nblock_pq.top()->open.get_best_val();
 				unsigned int added = 0;
 				while (!nblock_pq.empty()
-				       && (added < 8*nthreads
+				       && (added < 4*nthreads
 					   || nblock_pq.top()->open.get_best_val() == layer_value)) {
 					added += 1;
 					free_list.push_back(nblock_pq.take());
