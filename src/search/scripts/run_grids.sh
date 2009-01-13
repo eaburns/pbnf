@@ -24,10 +24,10 @@ OBSTACLES="uniform"
 COSTS="Unit"
 MOVES="Four-way"
 
-USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd prastar"
+USES_THREADS="kbfs pastar psdd dynpsdd pbnf safepbnf multiastar bfpsdd prastar bfpsdd_nthreads idpsdd"
 USES_WEIGHT="dynpsdd"
-USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd prastar"
-USES_MIN_EXPANSIONS="safepbnf pbnf bfpsdd"
+USES_NBLOCKS="psdd dynpsdd pbnf safepbnf bfpsdd prastar bfpsdd_nthreads idpsdd"
+USES_MIN_EXPANSIONS="safepbnf pbnf bfpsdd bfpsdd_nthreads"
 
 if [ "$#" -eq 0 ]
 then   # Script needs at least one command-line argument.

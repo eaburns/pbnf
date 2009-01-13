@@ -43,7 +43,13 @@ vector<unsigned int> DivMergeProject::get_successors(unsigned int b) const
 		}
 	}
 
-	return vector<unsigned int>(s.begin(), s.end());
+	vector<unsigned int> ret;
+	set<unsigned int>::const_iterator iter;
+
+	for (iter = s.begin(); iter != s.end(); iter++)
+		ret.push_back(*iter);
+	
+	return ret;
 }
 
 vector<unsigned int> DivMergeProject::get_predecessors(unsigned int b) const
@@ -61,6 +67,12 @@ vector<unsigned int> DivMergeProject::get_predecessors(unsigned int b) const
 		}
 	}
 
-	return vector<unsigned int>(s.begin(), s.end());
+	vector<unsigned int> ret;
+	set<unsigned int>::const_iterator iter;
+
+	for (iter = s.begin(); iter != s.end(); iter++)
+		ret.push_back(*iter);
+	
+	return ret;
 }
 

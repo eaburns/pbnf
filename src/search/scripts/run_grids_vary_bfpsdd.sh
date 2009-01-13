@@ -12,7 +12,7 @@ do
 		-n $nblocks \
 		-m $min \
 		$@ \
-		bfpsdd
+		bfpsdd_nthreads
 	done
     done
 done

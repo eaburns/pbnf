@@ -153,7 +153,7 @@ vector<State*> *GridWorld::expand8(GridState *s)
 	int x = s->get_x();
 	int y = s->get_y();
 	float g = s->get_g();
-	float cost = this->cost_type == UNIT_COST ? sqrt(2) : y * sqrt(2);
+	float cost = this->cost_type == UNIT_COST ? sqrt(2.0) : y * sqrt(2.0);
 
 	children = expand4(s);
 
@@ -460,10 +460,10 @@ float GridWorld::ManhattanDist::comupte4(const GridWorld *w,
 	int gx = w->get_goal_x();
 	int gy = w->get_goal_y();
 
-	float dx = fabs(gx - x);
+	float dx = fabs((double) gx - x);
 
 	if (w->get_cost_type() == GridWorld::UNIT_COST) {
-		return dx + fabs(gy - y);
+		return dx + fabs((double) gy - y);
 
 	} else {		// Life-cost
 		float cost_up_over_down = compute_up_over_down4(x, y, gx, gy);

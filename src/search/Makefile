@@ -1,21 +1,4 @@
-CXX=g++
-CC=gcc
-
 MARCH=$(shell uname -m)
-
-# profiler flags
-#PROF_FLAGS=-pg
-PROF_FLAGS=
-
-# debug flags
-#DEBUG=-O3
-DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
-
-# C/C++ basic compilation flags
-FLAGS=-Wall -Werror -pipe $(PROF_FLAGS) $(DEBUG)
-
-# Comment this out for faster, more memory efficient code.
-#FLAGS+=-DENABLE_IMAGES
 
 OBJDIR=objs.$(MARCH)
 
@@ -82,10 +65,33 @@ else
 $(error Unknown machine type)
 endif
 
+############################################################
+# Compiler specific flags
+ifeq ($(MARCH), sun4v) # Sun compilers
+CC=cc
+CXX=CC
+#DEBUG=-g -xO0   # use the dbx debugger
+DEBUG=
+FLAGS=-mt $(DEBUG)
+ASFLAGS=-xc99=%none
+CFLAGS=-xc99=%none
+LDFLAGS=-lpthread
+else                   # GNU compilers
+PROFILE=
+#PROFILE=-pg
+DEBUG=-O3
+#DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+FLAGS=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
+CXXFLAGS+=-Wnon-virtual-dtor 
+LDFLAGS=-lpthread $(PROFILE)
+endif
+############################################################
+
+#FLAGS+=-DENABLE_IMAGES
+
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
-CXXFLAGS+=-Wnon-virtual-dtor $(FLAGS)
-LDFLAGS=-lpthread $(PROF_FLAGS)
+CXXFLAGS+=$(FLAGS)
 
 PROGS=$(addsuffix .$(MARCH), \
 	grid_search \

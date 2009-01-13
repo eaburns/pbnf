@@ -122,8 +122,12 @@ int Thread::start(void)
 {
 	int ret;
 	char buf[LINE_MAX];
+	pthread_attr_t attr;
 
-	ret = pthread_create(&pthread_id, NULL, pthread_call_run, this);
+	pthread_attr_init(&attr);
+	//pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+
+	ret = pthread_create(&pthread_id, &attr, pthread_call_run, this);
 	if (ret < 0) {
 		strerror_r(ret, buf, LINE_MAX);
 		cerr << "Error starting thread: " << buf << endl;

@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	GridWorld g(cin);
 	Timer timer;
 
-	unsigned int root = (unsigned int) sqrt(nblocks);
+	unsigned int root = (unsigned int) sqrt((double)nblocks);
 //	GridWorld::RowModProject project(&g, nblocks);
 	GridWorld::CoarseProject project(&g, root, root);
 	g.set_projection(&project);

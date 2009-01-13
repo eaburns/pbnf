@@ -7,8 +7,6 @@
  * \date 2008-12-11
  */
 
-#define _POSIX_C_SOURCE 200112L
-
 #include <math.h>
 
 #include <iostream>
