@@ -27,8 +27,8 @@ using namespace std;
 
 class BFPSDDSearch : public Search {
 public:
-	BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions);
-	BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions, float bound);
+	BFPSDDSearch(unsigned int n_threads, float multiplier, unsigned int min_expansions);
+	BFPSDDSearch(unsigned int n_threads, float multiplier, unsigned int min_expansions, float bound);
 	virtual ~BFPSDDSearch(void);
 
 	virtual vector<State *> *search(State *s);
@@ -61,6 +61,7 @@ private:
 	BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
 	pthread_mutex_t path_mutex;
 	unsigned int min_expansions;
+	float multiplier;
 };
 
 #endif	/* !_BFPSDD_H_ */

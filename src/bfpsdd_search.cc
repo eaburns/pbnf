@@ -142,13 +142,14 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 /**
  * Create a new Parallel Structured Duplicate Detection search.
  */
-BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions)
+BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float mult, unsigned int min_expansions)
 	: bound(numeric_limits<float>::infinity()),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  graph(NULL),
-	  min_expansions(min_expansions)
+	  min_expansions(min_expansions),
+	  multiplier(mult)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -157,13 +158,14 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions)
  * Create a new Parallel Structured Duplicate Detection search with a
  * given bound.
  */
-BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, unsigned int min_expansions, float bound)
+BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float mult, unsigned int min_expansions, float bound)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  graph(NULL),
-	  min_expansions(min_expansions)
+	  min_expansions(min_expansions),
+	  multiplier(mult)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -214,7 +216,7 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 	float sum = 0.0;
 	unsigned int num = 0;
 
-	graph = new NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF>(project, n_threads, initial);
+	graph = new NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF>(project, n_threads, multiplier, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		BFPSDDThread *t = new BFPSDDThread(graph, this);

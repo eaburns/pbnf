@@ -34,7 +34,7 @@ namespace BFPSDD {
 	public:
 		enum layer { LAYERA = 0, LAYERB };
 
-		NBlockGraph(const Projection *p, unsigned int nthreads, State *init);
+		NBlockGraph(const Projection *p, unsigned int nthreads, float multiplier, State *init);
 
 		~NBlockGraph();
 
@@ -86,6 +86,7 @@ namespace BFPSDD {
 		unsigned int nblocks_assigned_max;
 
 		unsigned int nthreads;
+		float multiplier;
 	};
 
 
@@ -98,6 +99,7 @@ namespace BFPSDD {
 	template<class NBlockPQ, class StateCompare>
 		NBlockGraph<NBlockPQ, StateCompare>::NBlockGraph(const Projection *p,
 								 unsigned int nt,
+								 float mult,
 								 State *initial)
 	{
 		typename map<unsigned int, NBlock<StateCompare> *>::iterator iter;
@@ -105,6 +107,7 @@ namespace BFPSDD {
 
 		this->nthreads = nt;
 		num_sigma_zero = num_nblocks = p->get_num_nblocks();
+		this->multiplier = mult;
 		assert(init_nblock < num_nblocks);
 
 		for (unsigned int i = 0; i < num_nblocks; i += 1) {
@@ -223,7 +226,7 @@ namespace BFPSDD {
 				layer_value = nblock_pq.top()->open.get_best_val();
 				unsigned int added = 0;
 				while (!nblock_pq.empty()
-				       && (added < 4*nthreads
+				       && (added < multiplier*nthreads
 					   || nblock_pq.top()->open.get_best_val() == layer_value)) {
 					added += 1;
 					free_list.push_back(nblock_pq.take());

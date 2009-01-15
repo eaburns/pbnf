@@ -39,6 +39,7 @@ float weight = 1.0;
 Search *get_search(int argc, char *argv[])
 {
 	unsigned int min_expansions = 0;
+	float multiplier;
 
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
@@ -59,15 +60,15 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
 	} else if (argc > 1
-		   && sscanf(argv[1], "bfpsdd_nthreads-%u-%u-%u", &min_expansions,
-			     &threads, &nblocks) == 3) {
-		return new BFPSDDSearch(threads, min_expansions);
+		   && sscanf(argv[1], "bfpsdd-%f-%u-%u-%u", &multiplier,
+			     &min_expansions, &threads, &nblocks) == 4) {
+		return new BFPSDDSearch(threads, multiplier, min_expansions);
 	} else if (argc > 1
 		   && sscanf(argv[1], "idpsdd-%u-%u", &threads, &nblocks) == 2) {
 		return new IDPSDDSearch(threads);
 	} else if (argc > 1
-		   && sscanf(argv[1], "dynpsdd-%u-%u-%f",
-			     &threads, &nblocks, &weight) == 3) {
+		   && sscanf(argv[1], "dynpsdd-%f-%u-%u",
+			     &weight, &threads, &nblocks) == 3) {
 		return new DynamicBoundedPSDD(threads, weight);
 	} else if (argc > 1
 		   && sscanf(argv[1], "pbnf-%u-%u-%u",
@@ -88,8 +89,8 @@ Search *get_search(int argc, char *argv[])
 		     << "\tpastar-<threads>" << endl
 		     << "\tprastar-<threads>-<nblocks>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
-		     << "\tdynpsdd-<threads>-<nblocks>-<weight>" << endl
-		     << "\tbfpsdd_nthreads-<min-expansions>-<threads>-<nblocks>" << endl
+		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
+		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tidpsdd-<threads>-<nblocks>" << endl
 		     << "\tpbnf-<min_expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl
