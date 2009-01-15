@@ -16,7 +16,7 @@
 
 using namespace std;
 
-void alarm_action(int sig)
+extern "C" void alarm_action(int sig)
 {
 	cout << "No Solution" << endl
 	     << "cost: infinity" << endl

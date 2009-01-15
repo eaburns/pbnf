@@ -255,9 +255,9 @@ vector<State *> *PSDDSearch::search(State *initial)
 /**
  * Set the bound.
  */
-void PSDDSearch::set_bound(float bound)
+void PSDDSearch::set_bound(float b)
 {
-	this->bound.set(bound);
+	this->bound.set(b);
 }
 
 float PSDDSearch::get_lowest_out_of_bounds(void)

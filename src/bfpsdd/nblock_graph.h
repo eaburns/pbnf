@@ -97,13 +97,13 @@ namespace BFPSDD {
  */
 	template<class NBlockPQ, class StateCompare>
 		NBlockGraph<NBlockPQ, StateCompare>::NBlockGraph(const Projection *p,
-								 unsigned int nthreads,
+								 unsigned int nt,
 								 State *initial)
 	{
 		typename map<unsigned int, NBlock<StateCompare> *>::iterator iter;
 		unsigned int init_nblock = p->project(initial);
 
-		this->nthreads = nthreads;
+		this->nthreads = nt;
 		num_sigma_zero = num_nblocks = p->get_num_nblocks();
 		assert(init_nblock < num_nblocks);
 

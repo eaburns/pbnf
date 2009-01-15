@@ -13,10 +13,10 @@
 #include "state.h"
 #include "closed_list.h"
 
-ClosedList::Bucket::Bucket(State *data, ClosedList::Bucket *next)
+ClosedList::Bucket::Bucket(State *d, ClosedList::Bucket *n)
 {
-	this->data = data;
-	this->next = next;
+	data = d;
+	next = n;
 	if (!next)
 		size = 0;
 	else
@@ -57,10 +57,10 @@ ClosedList::Bucket *ClosedList::Bucket::add(State *s)
 	return this;
 }
 
-void ClosedList::init(unsigned long size)
+void ClosedList::init(unsigned long s)
 {
 	this->table = NULL;
-	this->size = size;
+	this->size = s;
 	fill = 0;
 }
 
@@ -69,9 +69,9 @@ ClosedList::ClosedList(void)
 	init(1000000);
 }
 
-ClosedList::ClosedList(unsigned long size)
+ClosedList::ClosedList(unsigned long s)
 {
-	init(size);
+	init(s);
 }
 
 ClosedList::~ClosedList(void)

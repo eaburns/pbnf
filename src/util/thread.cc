@@ -55,6 +55,14 @@ void *pthread_call_run(void *void_t)
 }
 
 /**
+ * This gets rid of a cast warning with pthread_create
+ */
+extern "C" void *__pthread_call_run(void *void_t)
+{
+	return pthread_call_run(void_t);
+}
+
+/**
  * Virtual destructor... apparently.
  */
 Thread::~Thread(void) {}
@@ -127,7 +135,7 @@ int Thread::start(void)
 	pthread_attr_init(&attr);
 	//pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
 
-	ret = pthread_create(&pthread_id, &attr, pthread_call_run, this);
+	ret = pthread_create(&pthread_id, &attr, __pthread_call_run, this);
 	if (ret < 0) {
 		strerror_r(ret, buf, LINE_MAX);
 		cerr << "Error starting thread: " << buf << endl;

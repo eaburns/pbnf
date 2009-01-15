@@ -241,7 +241,7 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 /**
  * Set the bound.
  */
-void BFPSDDSearch::set_bound(float bound)
+void BFPSDDSearch::set_bound(float b)
 {
-	this->bound.set(bound);
+	this->bound.set(b);
 }

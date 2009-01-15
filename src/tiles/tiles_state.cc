@@ -38,24 +38,24 @@ void TilesState::compute_hash(void)
 
 
 TilesState::TilesState(SearchDomain *d, State *parent, float g,
-		       float h, vector<unsigned int> tiles,
+		       float h_val, vector<unsigned int> tiles,
 		       unsigned int blank)
 	: State(d, parent, g),
 	  tiles(tiles),
 	  blank(blank)
 {
-	this->h = h;
+	this->h = h_val;
 	compute_hash();
 }
 
 
 TilesState::TilesState(SearchDomain *d, State *parent, float g,
-		       vector<unsigned int> tiles, unsigned int blank)
+		       vector<unsigned int> t, unsigned int b)
 	: State(d, parent, g),
-	  tiles(tiles),
-	  blank(blank)
+	  tiles(t),
+	  blank(b)
 {
-	assert(tiles[blank] == 0);
+	assert(t[b] == 0);
 	this->h = domain->get_heuristic()->compute(this);
 	assert(this->h == 0 ? is_goal() : 1);
 	compute_hash();

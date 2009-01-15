@@ -27,9 +27,9 @@ CompletionCounter::CompletionCounter(void)
 /**
  * Set the maximum value.
  */
-void CompletionCounter::set_max(unsigned int max)
+void CompletionCounter::set_max(unsigned int m)
 {
-	this->max = AtomicInt(max);
+	this->max = AtomicInt(m);
 }
 
 unsigned int CompletionCounter::get_count()

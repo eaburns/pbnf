@@ -377,15 +377,15 @@ Tiles::OneTileProject::~OneTileProject(void)
 unsigned int Tiles::OneTileProject::project(State *s) const
 {
 	TilesState *ts = dynamic_cast<TilesState *>(s);
-	const vector<unsigned int> *tiles = ts->get_tiles();
-	unsigned int size = tiles->size();
+	const vector<unsigned int> *t = ts->get_tiles();
+	unsigned int size = t->size();
 	unsigned int blank = 0;
 	unsigned int one = 0;
 
 	for (unsigned int i = 0; i < size; i += 1) {
-		if (tiles->at(i) == 0)
+		if (t->at(i) == 0)
 			blank = i;
-		else if (tiles->at(i) == 1)
+		else if (t->at(i) == 1)
 			one = i;
 	}
 
@@ -508,18 +508,18 @@ Tiles::TwoTileProject::~TwoTileProject(void)
 unsigned int Tiles::TwoTileProject::project(State *s) const
 {
 	TilesState *ts = dynamic_cast<TilesState *>(s);
-	const vector<unsigned int> *tiles = ts->get_tiles();
-	unsigned int size = tiles->size();
+	const vector<unsigned int> *t = ts->get_tiles();
+	unsigned int size = t->size();
 	unsigned int blank = 0;
 	unsigned int one = 0;
 	unsigned int two = 0;
 
 	for (unsigned int i = 0; i < size; i += 1) {
-		if (tiles->at(i) == 0)
+		if (t->at(i) == 0)
 			blank = i;
-		else if (tiles->at(i) == 1)
+		else if (t->at(i) == 1)
 			one = i;
-		else if (tiles->at(i) == 2)
+		else if (t->at(i) == 2)
 			two = i;
 	}
 

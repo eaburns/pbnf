@@ -116,13 +116,13 @@ bool PAStar::is_done()
         return ret;
 }
 
-void PAStar::set_path(vector<State *> *path)
+void PAStar::set_path(vector<State *> *p)
 {
         pthread_mutex_lock(&mutex);
         if (this->path == NULL || 
-	    this->path->at(0)->get_g() > path->at(0)->get_g()){
-		this->path = path;
-		bound.set(path->at(0)->get_g());
+	    this->path->at(0)->get_g() > p->at(0)->get_g()){
+		this->path = p;
+		bound.set(p->at(0)->get_g());
         }
         pthread_mutex_unlock(&mutex);
 }

@@ -174,7 +174,7 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 
 PBNFSearch::PBNFSearch(unsigned int n_threads,
-		       unsigned int min_expansions,
+		       unsigned int min_e,
 		       bool detect_livelocks)
 	: n_threads(n_threads),
 	  project(NULL),
@@ -185,13 +185,13 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 
 {
 	pthread_mutex_init(&path_mutex, NULL);
-	if (min_expansions == 0){
+	if (min_e == 0){
 		dynamic_m = true;
 		PBNFSearch::min_expansions = AtomicInt(MIN_M);
 	}
 	else{
 		dynamic_m = false;
-		PBNFSearch::min_expansions = AtomicInt(min_expansions);
+		PBNFSearch::min_expansions = AtomicInt(min_e);
 	}
 }
 
@@ -240,13 +240,13 @@ vector<State *> *PBNFSearch::search(State *initial)
 /**
  * Set an incumbant solution.
  */
-void PBNFSearch::set_path(vector<State *> *path)
+void PBNFSearch::set_path(vector<State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
-	assert(path->at(0)->get_g() == path->at(0)->get_f());
-	if (path && bound.read() > path->at(0)->get_g()) {
-		this->path = path;
-		bound.set(path->at(0)->get_g());
+	assert(p->at(0)->get_g() == p->at(0)->get_f());
+	if (p && bound.read() > p->at(0)->get_g()) {
+		this->path = p;
+		bound.set(p->at(0)->get_g());
 	}
 	pthread_mutex_unlock(&path_mutex);
 }

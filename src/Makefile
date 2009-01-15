@@ -72,7 +72,7 @@ CC=cc
 CXX=CC
 #DEBUG=-g -xO0   # use the dbx debugger
 DEBUG=
-FLAGS=-mt $(DEBUG)
+FLAGS=-mt -errwarn=%all $(DEBUG)
 ASFLAGS=-xc99=%none
 CFLAGS=-xc99=%none
 LDFLAGS=-lpthread

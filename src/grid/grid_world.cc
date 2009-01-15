@@ -616,27 +616,27 @@ vector<unsigned int> GridWorld::RowModProject::get_neighbors(unsigned int b) con
  * \param mod_val The mod value to use (this will be the number of NBlocks).
  */
 GridWorld::CoarseProject::CoarseProject(const SearchDomain *d,
-					unsigned int cols,
-					unsigned int rows)
+					unsigned int c,
+					unsigned int r)
 {
 	const GridWorld *g;
 
 	g = dynamic_cast<const GridWorld *>(d);
 
-	if (g->width % cols)
-		cols += 1;
+	if (g->width % c)
+		c += 1;
 
-	if (g->height % rows)
-		rows += 1;
+	if (g->height % r)
+		r += 1;
 
-	this->cols = cols;
-	this->rows = rows;
-	this->cols_div = g->width / cols;
-	this->rows_div = g->height / rows;
+	this->cols = c;
+	this->rows = r;
+	this->cols_div = g->width / c;
+	this->rows_div = g->height / r;
 	this->move_type = g->move_type;
 
 /*
-	cerr << "Creating coarse projection, cols="
+	cerr << "Creating coarse projection, c="
 	     << this->cols << ", rows=" << this->rows
 	     << ", cols_div=" << cols_div << ", rows_div=" << rows_div
 	     << endl;

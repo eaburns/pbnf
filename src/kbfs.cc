@@ -40,11 +40,11 @@ private:
 };
 
 
-KBFS::KBFS(unsigned int n_threads)
-	: n_threads(n_threads),
+KBFS::KBFS(unsigned int n_th)
+	: n_threads(n_th),
 	  bound(numeric_limits<float>::infinity())
 {
-	cc = CompletionCounter(n_threads);
+	cc = CompletionCounter(n_th);
 }
 
 
