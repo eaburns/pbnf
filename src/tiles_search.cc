@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 //	g.print(cout, path);
 
 	if (path) {
-		printf("cost: %lu\n", path->at(0)->get_g());
+		printf("cost: %f\n", (double) path->at(0)->get_g() / fp_one);
 		cout << "length: " << path->size() << endl;
 
 		// Make sure that the heuristic was actually admissible!
