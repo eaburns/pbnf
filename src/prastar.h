@@ -64,7 +64,7 @@ private:
         pthread_cond_t cond;
         pthread_mutex_t mutex;
         const unsigned int n_threads;
-	AtomicFloat bound;
+	AtomicInt bound;
 	const Projection *project;
         vector<State *> *path;
 	vector<PRAStarThread *> threads;

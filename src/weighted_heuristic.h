@@ -15,12 +15,12 @@
 
 class WeightedHeuristic : public Heuristic {
 public:
-	WeightedHeuristic(const SearchDomain *d, const Heuristic *h, float w);
+	WeightedHeuristic(const SearchDomain *d, const Heuristic *h, fp_type w);
 	virtual ~WeightedHeuristic(void);
 
-	virtual float compute(State *s) const;
+	virtual fp_type compute(State *s) const;
 private:
-	float weight;
+	fp_type weight;
 	const Heuristic *heuristic;
 };
 

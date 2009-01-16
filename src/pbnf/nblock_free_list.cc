@@ -14,7 +14,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../util/atomic_float.h"
+#include "../util/atomic_int.h"
 #include "../pq_open_list.h"
 #include "nblock.h"
 #include "nblock_free_list.h"
@@ -46,7 +46,7 @@ NBlock *NBlockFreeList::take(void)
 	heap.pop_back();
 
 	if (heap.empty())
-		best.set(numeric_limits<float>::infinity());
+		best.set(numeric_limits<fp_type>::infinity());
 	else
 		best.set(heap.front()->open.peek()->get_f());
 
@@ -73,7 +73,7 @@ void NBlockFreeList::remove(NBlock *b)
 	}
 }
 
-float NBlockFreeList::best_f(void)
+fp_type NBlockFreeList::best_f(void)
 {
 	return best.read();
 }

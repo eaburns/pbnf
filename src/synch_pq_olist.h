@@ -28,7 +28,7 @@ public:
 	virtual bool empty(void);
 	virtual void delete_all_states(void);
 	virtual void prune(void);
-	virtual float get_best_val(void);
+	virtual fp_type get_best_val(void);
 
 	virtual void resort(State *s);
 private:
@@ -101,9 +101,9 @@ void SynchPQOList<PQCompare>::prune(void)
 }
 
 template<class PQCompare>
-float SynchPQOList<PQCompare>::get_best_val(void)
+fp_type SynchPQOList<PQCompare>::get_best_val(void)
 {
-	float ret;
+	fp_type ret;
 
 	pthread_mutex_lock(&mutex);
 	ret = PQOpenList<PQCompare>::get_best_val();

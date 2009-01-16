@@ -119,8 +119,8 @@ vector<State*> *GridWorld::expand4(GridState *s)
 	vector<State*> *children;
 	int x = s->get_x();
 	int y = s->get_y();
-	float g = s->get_g();
-	float cost = this->cost_type == UNIT_COST ? 1 : y;
+	fp_type g = s->get_g();
+	fp_type cost = this->cost_type == UNIT_COST ? fp_one : y * fp_one;
 
 	children = new vector<State*>();
 
@@ -152,8 +152,8 @@ vector<State*> *GridWorld::expand8(GridState *s)
 	vector<State*> *children;
 	int x = s->get_x();
 	int y = s->get_y();
-	float g = s->get_g();
-	float cost = this->cost_type == UNIT_COST ? sqrt(2.0) : y * sqrt(2.0);
+	fp_type g = s->get_g();
+	fp_type cost = this->cost_type == UNIT_COST ? fp_sqrt2 : y * fp_sqrt2;
 
 	children = expand4(s);
 
@@ -345,12 +345,12 @@ void GridWorld::export_eps(string file) const
 	EPS image(width, height);
 
 	if (width < min_size && height < min_size) {
-		float min_side = width < height ? width : height;
+		fp_type min_side = width < height ? width : height;
 		image.set_scale(min_size / min_side);
 	}
 
 	if (width > max_size || height > max_size) {
-		float max_side = width > max_size ? width : height;
+		fp_type max_side = width > max_size ? width : height;
 		image.set_scale(max_size / max_side);
 	}
 
@@ -407,16 +407,16 @@ GridWorld::ManhattanDist::ManhattanDist(const SearchDomain *d)
 /**
  * Compute the costs between two y values.
  */
-float GridWorld::ManhattanDist::cost_from(int a, int b) const
+fp_type GridWorld::ManhattanDist::cost_from(int a, int b) const
 {
-	float last = b;
+	fp_type last = b;
 
 	if (a > b)
 		last += 1;
 	else if (a < b)
 		last -= 1;
 
-	return (a + last) * (abs(a - b)) / 2.0;
+	return (a + last) * (abs(a - b)) / 2;
 }
 
 /**
@@ -425,11 +425,11 @@ float GridWorld::ManhattanDist::cost_from(int a, int b) const
  * Move up to the y-value of the goal then across to the goal, *or*
  * move across to the goal then down to the y-value of the goal.
  */
-float GridWorld::ManhattanDist::compute_up_over4(int x, int y,
+fp_type GridWorld::ManhattanDist::compute_up_over4(int x, int y,
 						int gx, int gy) const
 {
-	float min_y = y < gy ? y : gy;
-	float dx = abs(gx - x);
+	fp_type min_y = y < gy ? y : gy;
+	fp_type dx = abs(gx - x);
 
 	return (dx * min_y) + cost_from(y, gy);
 }
@@ -443,42 +443,42 @@ float GridWorld::ManhattanDist::compute_up_over4(int x, int y,
  * cost from state to y=0: (y^2 + y) / 2
  * cost from y=0 to goal:  (gy^2 - gy) / 2
  */
-float GridWorld::ManhattanDist::compute_up_over_down4(int x, int y,
+fp_type GridWorld::ManhattanDist::compute_up_over_down4(int x, int y,
 						     int gx, int gy) const
 {
-	return ((y * y) + y + (gy * gy) - gy) / 2.0;
+	return ((y * y) + y + (gy * gy) - gy) / 2;
 }
 
 /**
  * Compute the 4-way movement heuristic
  */
-float GridWorld::ManhattanDist::comupte4(const GridWorld *w,
-					 GridState *s) const
+fp_type GridWorld::ManhattanDist::compute4(const GridWorld *w,
+					   GridState *s) const
 {
 	int x = s->get_x();
 	int y = s->get_y();
 	int gx = w->get_goal_x();
 	int gy = w->get_goal_y();
 
-	float dx = fabs((double) gx - x);
+	fp_type dx = abs(gx - x);
 
 	if (w->get_cost_type() == GridWorld::UNIT_COST) {
-		return dx + fabs((double) gy - y);
+		return (dx + abs(gy - y)) * fp_one;
 
 	} else {		// Life-cost
-		float cost_up_over_down = compute_up_over_down4(x, y, gx, gy);
-		float cost_up_over = compute_up_over4(x, y, gx, gy);
+		fp_type cost_up_over_down = compute_up_over_down4(x, y, gx, gy);
+		fp_type cost_up_over = compute_up_over4(x, y, gx, gy);
 
 		return cost_up_over_down < cost_up_over
-			? cost_up_over_down
-			: cost_up_over;
+			? cost_up_over_down * fp_one
+			: cost_up_over * fp_one;
 	}
 }
 
 /**
  * Compute the 4-way movement heuristic
  */
-float GridWorld::ManhattanDist::comupte8(const GridWorld *w,
+fp_type GridWorld::ManhattanDist::compute8(const GridWorld *w,
 					 GridState *s) const
 {
 	int x = s->get_x();
@@ -489,9 +489,9 @@ float GridWorld::ManhattanDist::comupte8(const GridWorld *w,
 	int dy = abs(gy - y);
 
 	if (w->get_cost_type() == GridWorld::UNIT_COST) {
-		float total = dx > dy ? dx : dy;
-		float diag = dx < dy ? dx : dy;
-		return diag * sqrt(2.0) + total - diag;
+		fp_type total = dx > dy ? dx : dy;
+		fp_type diag = dx < dy ? dx : dy;
+		return (diag * fp_sqrt2) + ((total - diag) * fp_one);
 	} else {
 		if (dx > dy) {
 			// I *think* we do an arc with 2 diagonal lines.
@@ -500,29 +500,29 @@ float GridWorld::ManhattanDist::comupte8(const GridWorld *w,
 			int up = max_up < (extra / 2) ? max_up : (extra / 2);
 			int high_y = (y < gy ? y : gy) - up;
 			int across = extra - (2 * up);
-			return cost_from(y, high_y)
-			       + across * high_y
-			       + cost_from(high_y, gy);
+			return (cost_from(y, high_y)
+				+ across * high_y
+				+ cost_from(high_y, gy)) * fp_one;
 		} else {
-			return cost_from(y, gy);
+			return (cost_from(y, gy) * fp_one);
 		}
 	}
 }
 
 /**
  * Compute the Manhattan distance heuristic.
- * \param state The state to comupte the heuristic for.
+ * \param state The state to compute the heuristic for.
  * \return The Manhattan distance from the given state to the goal.
  */
-float GridWorld::ManhattanDist::compute(State *state) const
+fp_type GridWorld::ManhattanDist::compute(State *state) const
 {
 	GridState *s = dynamic_cast<GridState *>(state);
 	const GridWorld *w = dynamic_cast<const GridWorld *>(domain);
 
 	if (w->get_move_type() == FOUR_WAY_MOVES)
-		return comupte4(w, s);
+		return compute4(w, s);
 	else
-		return comupte8(w, s);
+		return compute8(w, s);
 }
 
 /****************************************************************************/

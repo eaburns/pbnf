@@ -1,5 +1,5 @@
 /**
- * \file atomic_float.cc
+ * \file atomic_int.cc
  *
  *
  *
@@ -9,23 +9,25 @@
 
 #include <assert.h>
 
+#include "fixed_point.h"
+
 #include "atomic_int.h"
 #include "atomic_float.h"
 
 union cast_union {
 	unsigned int l;
-	float f;
+	fp_type f;
 };
 
 AtomicFloat::AtomicFloat(void)
 {
-	assert(sizeof(unsigned int) == sizeof(float));
+	assert(sizeof(unsigned int) == sizeof(fp_type));
 	set(0);
 }
 
 AtomicFloat::AtomicFloat(float v)
 {
-	assert(sizeof(unsigned int) == sizeof(float));
+	assert(sizeof(unsigned int) == sizeof(fp_type));
 	set(v);
 }
 

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 
+#include "util/fixed_point.h"
 #include "search_domain.h"
 
 using namespace std;
@@ -21,7 +22,7 @@ using namespace std;
  */
 class State {
 public:
-	State(SearchDomain *d, State *parent, float g);
+	State(SearchDomain *d, State *parent, fp_type g);
 
 	virtual ~State();
 
@@ -35,10 +36,10 @@ public:
 
 	virtual vector<State*> *expand(void);
 
-	float get_f(void) const;
-	float get_g(void) const;
-	void update(State *parent, float g);
-	float get_h(void) const;
+	fp_type get_f(void) const;
+	fp_type get_g(void) const;
+	void update(State *parent, fp_type g);
+	fp_type get_h(void) const;
 	State *get_parent(void) const;
 	vector<State *> *get_path(void);
 	void set_open(bool b);
@@ -46,8 +47,8 @@ public:
 //protected:
 	State *parent;
 	SearchDomain *domain;
-	float g;
-	float h;
+	fp_type g;
+	fp_type h;
 	bool open;
 };
 

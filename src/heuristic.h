@@ -10,6 +10,8 @@
 #if !defined(_HEURISTIC_H_)
 #define _HEURISTIC_H_
 
+#include "util/fixed_point.h"
+
 class SearchDomain;
 class State;
 
@@ -21,7 +23,7 @@ public:
 	Heuristic(const SearchDomain *d);
 	virtual ~Heuristic();
 
-	virtual float compute(State *s) const = 0;
+	virtual fp_type compute(State *s) const = 0;
 protected:
 	const SearchDomain *domain;
 };

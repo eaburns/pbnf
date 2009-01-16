@@ -45,8 +45,8 @@ bool NBlock::NBlockCompare::operator()(NBlock *a, NBlock *b)
 	assert(!a->open.empty());
 	assert(!b->open.empty());
 
-	float fa = a->open.peek()->get_f();
-	float fb = b->open.peek()->get_f();
+	fp_type fa = a->open.peek()->get_f();
+	fp_type fb = b->open.peek()->get_f();
 
 	if (fa == fb)
 		return a->open.peek()->get_g() < b->open.peek()->get_g();
@@ -60,10 +60,10 @@ bool NBlock::NBlockCompare::operator()(NBlock *a, NBlock *b)
  */
 void NBlock::print(ostream &o)
 {
-	float best_f;
+	fp_type best_f;
 	set<NBlock *>::const_iterator iter;
 
-	best_f = open.empty() ? numeric_limits<float>::infinity() : open.peek()->get_f();
+	best_f = open.empty() ? numeric_limits<fp_type>::infinity() : open.peek()->get_f();
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;

@@ -10,12 +10,14 @@
 #if !defined(_GET_SEARCH_H_)
 #define _GET_SEARCH_H_
 
+#include "util/fixed_point.h"
+
 class Search;
 
 extern unsigned int threads;
-extern float cost_bound;
+extern fp_type cost_bound;
 extern unsigned int nblocks;
-extern float weight;
+extern fp_type weight;
 
 Search *get_search(int argc, char *argv[]);
 

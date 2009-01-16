@@ -29,7 +29,7 @@ State *QueueOpenList::take(void)
 	s->set_open(false);
 	q.pop();
 	if (q.empty())
-		set_best_f(numeric_limits<float>::infinity());
+		set_best_f(numeric_limits<fp_type>::infinity());
 	else
 		set_best_f(q.front()->get_f());
 

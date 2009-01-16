@@ -54,15 +54,15 @@ public:
 	class ManhattanDist : public Heuristic {
 	public:
 		ManhattanDist(const SearchDomain *d);
-		float compute(State *s) const;
+		fp_type compute(State *s) const;
 	private:
-		float cost_from(int a, int b) const;
-		float compute_up_over4(int x, int y,
+		fp_type cost_from(int a, int b) const;
+		fp_type compute_up_over4(int x, int y,
 				       int gx, int gy) const;
-		float compute_up_over_down4(int x, int y,
+		fp_type compute_up_over_down4(int x, int y,
 					    int gx, int gy) const;
-		float comupte4(const GridWorld *w, GridState *s) const;
-		float comupte8(const GridWorld *w, GridState *s) const;
+		fp_type compute4(const GridWorld *w, GridState *s) const;
+		fp_type compute8(const GridWorld *w, GridState *s) const;
 	};
 
 	/*

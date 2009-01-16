@@ -30,7 +30,7 @@ private:
         friend class KBFSThread;
         CompletionCounter cc;
         const unsigned int n_threads;
-	AtomicFloat bound;
+	AtomicInt bound;
 };
 
 #endif	/* !_KBFS_H_ */

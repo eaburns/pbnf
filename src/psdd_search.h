@@ -28,14 +28,14 @@ using namespace PSDD;
 class PSDDSearch : public Search {
 public:
 	PSDDSearch(unsigned int n_threads);
-	PSDDSearch(unsigned int n_threads, float bound);
+	PSDDSearch(unsigned int n_threads, fp_type bound);
 	virtual ~PSDDSearch(void);
 
 	vector<State *> *search(State *s);
 	vector<State *> *search(State *s, NBlockGraph *g);
 
-	void set_bound(float bound);
-	float get_lowest_out_of_bounds(void);
+	void set_bound(fp_type bound);
+	fp_type get_lowest_out_of_bounds(void);
 	void do_not_print(void);
 	void reset(void);
 private:
@@ -48,25 +48,25 @@ private:
 		PSDDThread(NBlockGraph *graph, PSDDSearch *search);
 		virtual ~PSDDThread();
 		virtual void run(void);
-		float get_lowest_out_of_bounds(void);
-		float get_ave_exp_per_nblock(void);
+		fp_type get_lowest_out_of_bounds(void);
+		fp_type get_ave_exp_per_nblock(void);
 	private:
 		vector<State *> *search_nblock(NBlock *n);
 		NBlockGraph *graph;
 		PSDDSearch *search;
-		float lowest_out_of_bounds;
+		fp_type lowest_out_of_bounds;
 		unsigned long exp_this_block;
 		CumulativeAverage ave_exp_per_nblock;
 	};
 
-	AtomicFloat bound;
+	AtomicInt bound;
 	unsigned int n_threads;
 	const Projection *project;
 	vector<State *> *path;
 	pthread_mutex_t path_mutex;
 
 	NBlockGraph *graph;
-	float lowest_out_of_bounds;
+	fp_type lowest_out_of_bounds;
 	bool print;
 };
 

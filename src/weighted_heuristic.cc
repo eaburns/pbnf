@@ -12,14 +12,14 @@
 
 WeightedHeuristic::WeightedHeuristic(const SearchDomain *d,
 				     const Heuristic *h,
-				     float w)
+				     fp_type w)
 	: Heuristic(d), weight(w), heuristic(h) {}
 
 
 WeightedHeuristic::~WeightedHeuristic(void) {}
 
 
-float WeightedHeuristic::compute(State *s) const
+fp_type WeightedHeuristic::compute(State *s) const
 {
 	return weight * heuristic->compute(s);
 }

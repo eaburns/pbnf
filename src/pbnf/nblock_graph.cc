@@ -158,7 +158,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, bool dynamic_m)
 			double cur_f = finished->open.get_best_f();
 			double new_f;
 			if (free_list.empty())
-				new_f = numeric_limits<float>::infinity();
+				new_f = numeric_limits<fp_type>::infinity();
 			else
 				new_f = free_list.best_f();
 			if (cur_f <= new_f) {
@@ -216,7 +216,7 @@ out:
 NBlock *NBlockGraph::best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
-	double best_f = numeric_limits<float>::infinity();
+	double best_f = numeric_limits<fp_type>::infinity();
 	map<unsigned int, NBlock*>::iterator i;
 
 //	pthread_mutex_lock(&mutex);
@@ -233,8 +233,8 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 
 //	pthread_mutex_unlock(&mutex);
 
-	// best_b => best_f != numeric_limits<float>::infinity();
-	assert(best_f != numeric_limits<float>::infinity() || !best_b);
+	// best_b => best_f != numeric_limits<fp_type>::infinity();
+	assert(best_f != numeric_limits<fp_type>::infinity() || !best_b);
 
 	return best_b;
 }
@@ -333,7 +333,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 /**
  * Get the f-value of the next best NBlock.
  */
-float NBlockGraph::next_nblock_f_value(void)
+fp_type NBlockGraph::next_nblock_f_value(void)
 {
 	// this is atomic
 	return free_list.best_f();
@@ -375,7 +375,7 @@ bool NBlockGraph::is_free(NBlock *b)
 void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 {
 	set<NBlock*>::iterator i;
-	float f = b->open.get_best_f();
+	fp_type f = b->open.get_best_f();
 
 	if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
 		if(dynamic_m){

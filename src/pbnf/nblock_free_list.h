@@ -13,7 +13,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../util/atomic_float.h"
+#include "../util/atomic_int.h"
 #include "nblock.h"
 
 using namespace std;
@@ -27,11 +27,11 @@ namespace PBNF {
 		NBlock *take(void);
 		bool empty(void) const;
 		void remove(NBlock *b);
-		float best_f(void);
+		fp_type best_f(void);
 		void print(ostream &o);
 	private:
 		vector<NBlock *> heap;
-		AtomicFloat best;
+		AtomicInt best;
 	};
 }	/* PBNF */
 #endif	/* !_NBLOCK_FREE_LIST_H_ */

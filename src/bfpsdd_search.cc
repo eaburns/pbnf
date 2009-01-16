@@ -60,7 +60,7 @@ void BFPSDDSearch::BFPSDDThread::run(void)
 	} while(n);
 }
 
-float BFPSDDSearch::BFPSDDThread::get_ave_exp_per_nblock(void)
+fp_type BFPSDDSearch::BFPSDDThread::get_ave_exp_per_nblock(void)
 {
 	return ave_exp_per_nblock.read();
 }
@@ -142,8 +142,8 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 /**
  * Create a new Parallel Structured Duplicate Detection search.
  */
-BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float mult, unsigned int min_expansions)
-	: bound(numeric_limits<float>::infinity()),
+BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int min_expansions)
+	: bound(numeric_limits<fp_type>::infinity()),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
@@ -158,7 +158,7 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float mult, unsigned int min_
  * Create a new Parallel Structured Duplicate Detection search with a
  * given bound.
  */
-BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, float mult, unsigned int min_expansions, float bound)
+BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int min_expansions, fp_type bound)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
@@ -213,7 +213,7 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 
 	vector<BFPSDDThread *> threads;
 	vector<BFPSDDThread *>::iterator iter;
-	float sum = 0.0;
+	fp_type sum = 0.0;
 	unsigned int num = 0;
 
 	graph = new NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF>(project, n_threads, multiplier, initial);
@@ -227,7 +227,7 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
-		float ave = (*iter)->get_ave_exp_per_nblock();
+		fp_type ave = (*iter)->get_ave_exp_per_nblock();
 		if (ave != 0.0) {
 			sum += ave;
 			num += 1;
@@ -243,7 +243,7 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 /**
  * Set the bound.
  */
-void BFPSDDSearch::set_bound(float b)
+void BFPSDDSearch::set_bound(fp_type b)
 {
 	this->bound.set(b);
 }

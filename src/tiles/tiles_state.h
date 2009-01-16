@@ -19,11 +19,11 @@ using namespace std;
 
 class TilesState : public State {
 public:
-	TilesState(SearchDomain *d, State *parent, float g,
+	TilesState(SearchDomain *d, State *parent, fp_type g,
 		   vector<unsigned int> tiles, unsigned int blank);
 
-	TilesState(SearchDomain *d, State *parent, float g,
-		   float h, vector<unsigned int> tiles,
+	TilesState(SearchDomain *d, State *parent, fp_type g,
+		   fp_type h, vector<unsigned int> tiles,
 		   unsigned int blank);
 
 	virtual bool is_goal(void);

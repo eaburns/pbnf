@@ -15,13 +15,13 @@
 
 class DynamicBoundedPSDD : public Search {
 public:
-        DynamicBoundedPSDD(unsigned int n_threads, float weight);
+        DynamicBoundedPSDD(unsigned int n_threads, fp_type weight);
 
 	virtual ~DynamicBoundedPSDD(void);
 	virtual vector<State *> *search(State *s);
 private:
 	unsigned int n_threads;
-	float weight;
+	fp_type weight;
 };
 
 #endif	/* !_DYNAMIC_BOUNDED_PSDD_H_ */

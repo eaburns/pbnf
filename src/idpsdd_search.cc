@@ -17,7 +17,7 @@ IDPSDDSearch::IDPSDDSearch(unsigned int n_threads)
 vector<State *> *IDPSDDSearch::search(State *init)
 {
 	vector <State *> *path = NULL;
-	float old_bound, bound = init->get_f();
+	fp_type old_bound, bound = init->get_f();
 
 	PSDDSearch psdd(n_threads, bound);
 	psdd.do_not_print();
@@ -31,7 +31,7 @@ vector<State *> *IDPSDDSearch::search(State *init)
 		bound = psdd.get_lowest_out_of_bounds();
 		psdd.reset();
 		psdd.set_bound(bound);
-	} while ((!path || path->at(0)->get_f() > old_bound) && bound != -1);
+	} while ((!path || path->at(0)->get_f() > old_bound) && bound != 0);
 
 	delete init;
 

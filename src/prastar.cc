@@ -157,7 +157,7 @@ void PRAStar::PRAStarThread::run(void){
 
 PRAStar::PRAStar(unsigned int n_threads) 
 	: n_threads(n_threads),
-	  bound(numeric_limits<float>::infinity()),
+	  bound(numeric_limits<fp_type>::infinity()),
 	  project(NULL),
 	  path(NULL){
         done = false;

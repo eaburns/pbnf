@@ -15,7 +15,7 @@
 #include "pbnf/nblock_graph.h"
 #include "pbnf/nblock.h"
 #include "util/thread.h"
-#include "util/atomic_float.h"
+#include "util/atomic_int.h"
 #include "util/cumulative_ave.h"
 #include "projection.h"
 #include "search.h"
@@ -46,7 +46,7 @@ private:
 		PBNFThread(NBlockGraph *graph, PBNFSearch *search);
 		~PBNFThread(void);
 		void run(void);
-		float get_ave_exp_per_nblock(void);
+		fp_type get_ave_exp_per_nblock(void);
 	private:
 		vector<State *> *search_nblock(NBlock *n);
 		bool should_switch(NBlock *n);
@@ -63,7 +63,7 @@ private:
 	const Projection *project;
 	pthread_mutex_t path_mutex;
 	vector<State *> *path;
-	AtomicFloat bound;
+	AtomicInt bound;
 	bool detect_livelocks;
 	bool dynamic_m;
 

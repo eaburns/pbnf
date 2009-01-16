@@ -37,8 +37,8 @@ void TilesState::compute_hash(void)
 }
 
 
-TilesState::TilesState(SearchDomain *d, State *parent, float g,
-		       float h_val, vector<unsigned int> tiles,
+TilesState::TilesState(SearchDomain *d, State *parent, fp_type g,
+		       fp_type h_val, vector<unsigned int> tiles,
 		       unsigned int blank)
 	: State(d, parent, g),
 	  tiles(tiles),
@@ -49,7 +49,7 @@ TilesState::TilesState(SearchDomain *d, State *parent, float g,
 }
 
 
-TilesState::TilesState(SearchDomain *d, State *parent, float g,
+TilesState::TilesState(SearchDomain *d, State *parent, fp_type g,
 		       vector<unsigned int> t, unsigned int b)
 	: State(d, parent, g),
 	  tiles(t),

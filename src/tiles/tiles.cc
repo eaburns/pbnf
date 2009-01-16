@@ -43,8 +43,8 @@ Tiles::Tiles(istream &in)
 	in >> width;
 
 	// Compute crazy Korf table.
-	ones.resize((int) pow((double) 2.0, (int) (width * height - 1)) + 1);
-	for (unsigned int i = 1; i <= pow((double) 2.0, (int) (width * height - 1)); i += 1) {
+	ones.resize((width * height - 1) * (width * height - 1) + 1);
+	for (unsigned int i = 1; i <= (width * height - 1) * (width * height - 1); i += 1) {
 		unsigned int bits = 0;
 		unsigned int j = i;
 
@@ -291,9 +291,9 @@ Tiles::ManhattanDist::~ManhattanDist(void)
 /**
  * Compute the incremental Manhattan distance of a state.
  */
-float Tiles::ManhattanDist::compute(State *state) const
+fp_type Tiles::ManhattanDist::compute(State *state) const
 {
-	float ret = 0.0;
+	fp_type ret = 0;
 	TilesState *s = dynamic_cast<TilesState *>(state);
 	State *p = s->get_parent();
 
@@ -305,7 +305,7 @@ float Tiles::ManhattanDist::compute(State *state) const
 	} else
 		ret = compute_full(s);
 
-	assert(ret >= 0.0);
+	assert(ret >= 0);
 
 	return ret;
 }
@@ -313,7 +313,7 @@ float Tiles::ManhattanDist::compute(State *state) const
 /**
  * Compute the full manhattan distance of the given state.
  */
-float Tiles::ManhattanDist::compute_full(TilesState *s) const
+fp_type Tiles::ManhattanDist::compute_full(TilesState *s) const
 {
 	unsigned int dist = 0;
 	const vector<unsigned int> *tiles = s->get_tiles();
@@ -329,17 +329,17 @@ float Tiles::ManhattanDist::compute_full(TilesState *s) const
  * Compute the incremental manhattan distance of the given state using
  * the heuristic value of the parent's state.
  */
-float Tiles::ManhattanDist::compute_incr(TilesState *s,
+fp_type Tiles::ManhattanDist::compute_incr(TilesState *s,
 					 TilesState *p) const
 {
 	unsigned int new_b = s->get_blank();
 	unsigned int par_b = p->get_blank();
 	unsigned int tile = p->get_tiles()->at(new_b);
-	float ret = 0.0;
+	fp_type ret = 0;
 
 	ret = p->get_h() + (lookup_dist(tile, par_b)
 			    - lookup_dist(tile, new_b));
-	assert(ret >= 0.0);
+	assert(ret >= 0);
 	return ret;
 }
 

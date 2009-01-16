@@ -34,7 +34,7 @@ namespace BFPSDD {
 	public:
 		enum layer { LAYERA = 0, LAYERB };
 
-		NBlockGraph(const Projection *p, unsigned int nthreads, float multiplier, State *init);
+		NBlockGraph(const Projection *p, unsigned int nthreads, fp_type multiplier, State *init);
 
 		~NBlockGraph();
 
@@ -45,7 +45,7 @@ namespace BFPSDD {
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 
-		float get_layer_value(void) const;
+		fp_type get_layer_value(void) const;
 
 	private:
 		void __print(ostream &o);
@@ -68,7 +68,7 @@ namespace BFPSDD {
 		NBlockPQ nblock_pq;
 
 		/* The value of this layer */
-		float layer_value;
+		fp_type layer_value;
 
 
 		pthread_mutex_t mutex;
@@ -86,7 +86,7 @@ namespace BFPSDD {
 		unsigned int nblocks_assigned_max;
 
 		unsigned int nthreads;
-		float multiplier;
+		fp_type multiplier;
 	};
 
 
@@ -99,7 +99,7 @@ namespace BFPSDD {
 	template<class NBlockPQ, class StateCompare>
 		NBlockGraph<NBlockPQ, StateCompare>::NBlockGraph(const Projection *p,
 								 unsigned int nt,
-								 float mult,
+								 fp_type mult,
 								 State *initial)
 	{
 		typename map<unsigned int, NBlock<StateCompare> *>::iterator iter;
@@ -397,7 +397,7 @@ namespace BFPSDD {
 	}
 
 	template<class NBlockPQ, class StateCompare>
-		float NBlockGraph<NBlockPQ, StateCompare>::get_layer_value(void) const
+		fp_type NBlockGraph<NBlockPQ, StateCompare>::get_layer_value(void) const
 	{
 		return layer_value;
 	}

@@ -28,7 +28,7 @@ using namespace PSDD;
  * Create a new PSDD Search thread.
  */
 PSDDSearch::PSDDThread::PSDDThread(NBlockGraph *graph, PSDDSearch *search)
-	: graph(graph), search(search), lowest_out_of_bounds(numeric_limits<float>::infinity()) {}
+	: graph(graph), search(search), lowest_out_of_bounds(numeric_limits<fp_type>::infinity()) {}
 
 
 PSDDSearch::PSDDThread::~PSDDThread() {}
@@ -61,7 +61,7 @@ void PSDDSearch::PSDDThread::run(void)
 	} while(!search->path_found());
 }
 
-float PSDDSearch::PSDDThread::get_ave_exp_per_nblock(void)
+fp_type PSDDSearch::PSDDThread::get_ave_exp_per_nblock(void)
 {
 	return ave_exp_per_nblock.read();
 }
@@ -130,7 +130,7 @@ vector<State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 	return path;
 }
 
-float PSDDSearch::PSDDThread::get_lowest_out_of_bounds(void)
+fp_type PSDDSearch::PSDDThread::get_lowest_out_of_bounds(void)
 {
 	return lowest_out_of_bounds;
 }
@@ -143,12 +143,12 @@ float PSDDSearch::PSDDThread::get_lowest_out_of_bounds(void)
  * Create a new Parallel Structured Duplicate Detection search.
  */
 PSDDSearch::PSDDSearch(unsigned int n_threads)
-	: bound(numeric_limits<float>::infinity()),
+	: bound(numeric_limits<fp_type>::infinity()),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  graph(NULL),
-	  lowest_out_of_bounds(numeric_limits<float>::infinity()),
+	  lowest_out_of_bounds(numeric_limits<fp_type>::infinity()),
 	  print(true)
 {
 	pthread_mutex_init(&path_mutex, NULL);
@@ -158,13 +158,13 @@ PSDDSearch::PSDDSearch(unsigned int n_threads)
  * Create a new Parallel Structured Duplicate Detection search with a
  * given bound.
  */
-PSDDSearch::PSDDSearch(unsigned int n_threads, float bound)
+PSDDSearch::PSDDSearch(unsigned int n_threads, fp_type bound)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  graph(NULL),
-	  lowest_out_of_bounds(numeric_limits<float>::infinity())
+	  lowest_out_of_bounds(numeric_limits<fp_type>::infinity())
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -217,7 +217,7 @@ vector<State *> *PSDDSearch::search(State *initial)
 
 	vector<PSDDThread *> threads;
 	vector<PSDDThread *>::iterator iter;
-	float sum = 0.0;
+	fp_type sum = 0.0;
 	unsigned int num = 0;
 	if (!graph)
 		graph = new NBlockGraph(project, initial);
@@ -238,7 +238,7 @@ vector<State *> *PSDDSearch::search(State *initial)
 				(*iter)->get_lowest_out_of_bounds();
 		}
 
-		float ave = (*iter)->get_ave_exp_per_nblock();
+		fp_type ave = (*iter)->get_ave_exp_per_nblock();
 		if (ave != 0.0) {
 			sum += ave;
 			num += 1;
@@ -255,19 +255,19 @@ vector<State *> *PSDDSearch::search(State *initial)
 /**
  * Set the bound.
  */
-void PSDDSearch::set_bound(float b)
+void PSDDSearch::set_bound(fp_type b)
 {
 	this->bound.set(b);
 }
 
-float PSDDSearch::get_lowest_out_of_bounds(void)
+fp_type PSDDSearch::get_lowest_out_of_bounds(void)
 {
 	return lowest_out_of_bounds;
 }
 
 void PSDDSearch::reset(void)
 {
-	lowest_out_of_bounds = numeric_limits<float>::infinity();
+	lowest_out_of_bounds = numeric_limits<fp_type>::infinity();
 	path = NULL;
 }
 

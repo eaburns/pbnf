@@ -23,8 +23,8 @@ using namespace std;
 class CompareOnF {
 public:
 	bool operator()(State *a, State *b) const {
-		float fa = a->get_f();
-		float fb = b->get_f();
+		fp_type fa = a->get_f();
+		fp_type fb = b->get_f();
 
 		if (fa == fb)
 			return a->get_g() < b->get_g();
@@ -32,7 +32,7 @@ public:
 		return fa > fb;
 	}
 
-	float get_value(State *s) const {
+	fp_type get_value(State *s) const {
 		return s->get_f();
 	}
 };
@@ -53,7 +53,7 @@ public:
 	State *peek(void);
 	bool empty(void);
 	void delete_all_states(void);
-	float get_best_val(void);
+	fp_type get_best_val(void);
 	void prune(void);
 
 	void resort(State *s);
@@ -99,7 +99,7 @@ State *PQOpenList<PQCompare>::take(void)
 	heap.pop_back();
 
 	if (heap.empty())
-		set_best_f(numeric_limits<float>::infinity());
+		set_best_f(numeric_limits<fp_type>::infinity());
 	else
 		set_best_f(heap.front()->get_f());
 
@@ -157,10 +157,10 @@ void PQOpenList<PQCompare>::prune(void)
  * Get the value of the best node.
  */
 template<class PQCompare>
-float PQOpenList<PQCompare>::get_best_val(void)
+fp_type PQOpenList<PQCompare>::get_best_val(void)
 {
 	if (heap.empty())
-		return numeric_limits<float>::infinity();
+		return numeric_limits<fp_type>::infinity();
 
 	return comp.get_value(heap.front());
 }

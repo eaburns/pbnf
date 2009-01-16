@@ -20,7 +20,7 @@ using namespace std;
 
 class GridState : public State {
 public:
-	GridState(GridWorld *d, State *parent, float g, int x, int y);
+	GridState(GridWorld *d, State *parent, fp_type g, int x, int y);
 
 	virtual bool is_goal(void);
 	virtual uint64_t hash(void) const;

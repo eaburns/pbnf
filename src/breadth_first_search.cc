@@ -19,9 +19,9 @@
 using namespace std;
 
 BreadthFirstSearch::BreadthFirstSearch(void)
-	: bound(numeric_limits<float>::infinity()) {}
+	: bound(numeric_limits<fp_type>::infinity()) {}
 
-BreadthFirstSearch::BreadthFirstSearch(float bound)
+BreadthFirstSearch::BreadthFirstSearch(fp_type bound)
 	: bound(bound) {}
 
 BreadthFirstSearch::~BreadthFirstSearch(void) {}

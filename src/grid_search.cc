@@ -23,6 +23,7 @@
 #include "grid/grid_world.h"
 #include "util/timer.h"
 #include "util/timeout.h"
+#include "util/fixed_point.h"
 
 using namespace std;
 
@@ -52,13 +53,13 @@ int main(int argc, char *argv[])
 //	g.print(cout, path);
 
 	if (path) {
-		printf("cost: %f\n", path->at(0)->get_g());
+		printf("cost: %f\n", (double) path->at(0)->get_g() / fp_one);
 		cout << "length: " << path->size() << endl;
 
 		// Make sure that the heuristic was actually admissible!
 		for (unsigned int i = path->size() - 1; i >= 0; i -= 1) {
 			State *s = path->at(i);
-			float togo = path->at(0)->get_g() - s->get_g();
+			fp_type togo = path->at(0)->get_g() - s->get_g();
 			assert(s->get_h() <= togo);
 			if (i > 0)
 				assert(s->get_h() > 0);

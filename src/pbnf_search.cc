@@ -61,7 +61,7 @@ void PBNFSearch::PBNFThread::run(void)
 /**
  * Get the average number of expansions per-nblock.
  */
-float PBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
+fp_type PBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
 {
 	return ave_exp_per_nblock.read();
 }
@@ -179,7 +179,7 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	: n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
-	  bound(numeric_limits<float>::infinity()),
+	  bound(numeric_limits<fp_type>::infinity()),
 	  detect_livelocks(detect_livelocks),
 	  graph(NULL)
 
@@ -209,7 +209,7 @@ vector<State *> *PBNFSearch::search(State *initial)
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
-	float sum = 0.0;
+	fp_type sum = 0.0;
 	unsigned int num = 0;
 
 	graph = new NBlockGraph(project, initial);
@@ -223,7 +223,7 @@ vector<State *> *PBNFSearch::search(State *initial)
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
-		float ave = (*iter)->get_ave_exp_per_nblock();
+		fp_type ave = (*iter)->get_ave_exp_per_nblock();
 		if (ave != 0.0) {
 			sum += ave;
 			num += 1;

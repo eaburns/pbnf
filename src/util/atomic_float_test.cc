@@ -1,5 +1,5 @@
 /**
- * \file atomic_float_test.cc
+ * \file atomic_int_test.cc
  *
  *
  *

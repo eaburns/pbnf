@@ -35,7 +35,7 @@ private:
         friend class PAStarThread;
         const unsigned int n_threads;
         vector<State *> *path;
-	AtomicFloat bound;
+	AtomicInt bound;
 };
 
 #endif	/* !_PASTAR_H_ */

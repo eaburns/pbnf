@@ -12,7 +12,7 @@
 #include "state.h"
 #include "cost_bound_dfs.h"
 
-CostBoundDFS::CostBoundDFS(float bound) : bound(bound), min_pruned(-1) {}
+CostBoundDFS::CostBoundDFS(fp_type bound) : bound(bound), min_pruned(0) {}
 
 /**
  * A cost bounded DFS.
@@ -23,7 +23,7 @@ vector<State *> *CostBoundDFS::search(State *init)
 	vector<State *> *children;
 
 	if (init->get_f() > bound) {
-		if (min_pruned == -1 || init->get_f() < min_pruned)
+		if (min_pruned == 0 || init->get_f() < min_pruned)
 			min_pruned = init->get_f();
 		delete init;
 		return NULL;
@@ -60,7 +60,7 @@ vector<State *> *CostBoundDFS::search(State *init)
 /**
  * Get the f(n) value of the minimum cost pruned node.
  */
-float CostBoundDFS::get_min_pruned(void) const
+fp_type CostBoundDFS::get_min_pruned(void) const
 {
 	return min_pruned;
 }

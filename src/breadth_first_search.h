@@ -21,14 +21,14 @@ class BreadthFirstSearch : public Search {
 public:
 	BreadthFirstSearch(void);
 
-	BreadthFirstSearch(float bound);
+	BreadthFirstSearch(fp_type bound);
 
 	virtual ~BreadthFirstSearch(void);
 
 	virtual vector<State *> *search(State *);
 
 private:
-	float bound;
+	fp_type bound;
 };
 
 #endif	/* !_BREADTH_FIRST_SEARCH_H_ */

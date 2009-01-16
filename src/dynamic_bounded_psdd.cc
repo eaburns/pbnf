@@ -20,7 +20,7 @@
 using namespace std;
 using namespace PSDD;
 
-DynamicBoundedPSDD::DynamicBoundedPSDD(unsigned int n_threads, float weight)
+DynamicBoundedPSDD::DynamicBoundedPSDD(unsigned int n_threads, fp_type weight)
 	: n_threads(n_threads), weight(weight) {}
 
 

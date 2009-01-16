@@ -10,6 +10,7 @@
 #if !defined(_OPEN_LIST_H_)
 #define _OPEN_LIST_H_
 
+#include "util/fixed_point.h"
 #include "util/atomic_float.h"
 
 #include "state.h"
@@ -32,7 +33,7 @@ public:
 protected:
 	void set_best_f(double f);
 private:
-	AtomicFloat best;
+	AtomicInt best;
 };
 
 #endif	/* !_OPEN_LIST_H_ */

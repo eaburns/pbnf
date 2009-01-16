@@ -17,7 +17,7 @@ using namespace std;
 vector<State *> *IDAStar::search(State *init)
 {
 	vector<State *> *path = NULL;
-	float old_bound, bound = init->get_f();
+	fp_type old_bound, bound = init->get_f();
 
 	do {
 		CostBoundDFS dfs(bound);
@@ -27,7 +27,7 @@ vector<State *> *IDAStar::search(State *init)
 		set_generated(get_generated() + dfs.get_generated());
 		old_bound = bound;
 		bound = dfs.get_min_pruned();
-	} while ((!path || path->at(0)->get_g() > old_bound) && bound != -1);
+	} while ((!path || path->at(0)->get_g() > old_bound) && bound != 0);
 
 	delete init;
 

@@ -22,16 +22,16 @@ using namespace std;
  */
 class CostBoundDFS : public Search {
 public:
-	CostBoundDFS(float bound);
+	CostBoundDFS(fp_type bound);
 
 	virtual vector<State *> *search(State *);
 
-	float get_min_pruned(void) const;
+	fp_type get_min_pruned(void) const;
 private:
 	bool is_cycle(State *) const;
 
-	float bound;
-	float min_pruned;
+	fp_type bound;
+	fp_type min_pruned;
 };
 
 #endif	/* !_COST_BOUND_DFS_H_ */

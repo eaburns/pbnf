@@ -40,11 +40,11 @@ public:
 	public:
 		ManhattanDist(const SearchDomain *d);
 		virtual ~ManhattanDist(void);
-		virtual float compute(State *s) const;
+		virtual fp_type compute(State *s) const;
 	private:
 		void init(const SearchDomain *d);
-		float compute_full(TilesState *s) const;
-		float compute_incr(TilesState *s,
+		fp_type compute_full(TilesState *s) const;
+		fp_type compute_incr(TilesState *s,
 				   TilesState *p) const;
 		int lookup_dist(unsigned int num, unsigned int pos) const;
 

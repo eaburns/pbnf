@@ -11,7 +11,7 @@
 
 HZero::HZero(const SearchDomain *d) : Heuristic(d) {}
 
-float HZero::compute(State *s) const
+fp_type HZero::compute(State *s) const
 {
 	return 0.0;
 }

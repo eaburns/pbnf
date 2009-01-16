@@ -11,7 +11,7 @@
 
 #include "state.h"
 
-State::State(SearchDomain *d, State *parent, float g)
+State::State(SearchDomain *d, State *parent, fp_type g)
 	: parent(parent), domain(d), g(g), h(-1), open(false) {}
 
 State::~State() {}
@@ -28,7 +28,7 @@ SearchDomain *State::get_domain(void) const
  * Get the estimated cost of a path that uses this node.
  * \return g + h
  */
-float State::get_f(void) const
+fp_type State::get_f(void) const
 {
 	return g + h;
 }
@@ -37,7 +37,7 @@ float State::get_f(void) const
  * Get the cost so far of the state.
  * \return g
  */
-float State::get_g(void) const
+fp_type State::get_g(void) const
 {
 	return g;
 }
@@ -45,7 +45,7 @@ float State::get_g(void) const
 /**
  * Set the g value for this state.
  */
-void State::update(State *p, float g_val)
+void State::update(State *p, fp_type g_val)
 {
 	this->parent = p;
 	this->g = g_val;
@@ -55,7 +55,7 @@ void State::update(State *p, float g_val)
  * Get the estimated cost to go.
  * \return h
  */
-float State::get_h(void) const
+fp_type State::get_h(void) const
 {
 	assert(h >= 0.0);
 	return h;

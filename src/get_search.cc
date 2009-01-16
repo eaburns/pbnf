@@ -32,14 +32,14 @@
 using namespace std;
 
 unsigned int threads = 1;
-float cost_bound = numeric_limits<float>::infinity();
+fp_type cost_bound = numeric_limits<fp_type>::infinity();
 unsigned int nblocks = 1;
-float weight = 1.0;
+fp_type weight = 1.0;
 
 Search *get_search(int argc, char *argv[])
 {
 	unsigned int min_expansions = 0;
-	float multiplier;
+	unsigned int multiplier;
 
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
@@ -48,7 +48,7 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && strcmp(argv[1], "bfs") == 0) {
 		return new BreadthFirstSearch();
 	} else if (argc > 1
-		   && sscanf(argv[1], "costbounddfs-%f", &cost_bound) == 1) {
+		   && sscanf(argv[1], "costbounddfs-%lu", &cost_bound) == 1) {
 		return new CostBoundDFS(cost_bound);
 	} else if (argc > 1 && sscanf(argv[1], "kbfs-%u", &threads) == 1) {
 		return new KBFS(threads);
@@ -60,14 +60,14 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
 	} else if (argc > 1
-		   && sscanf(argv[1], "bfpsdd-%f-%u-%u-%u", &multiplier,
+		   && sscanf(argv[1], "bfpsdd-%u-%u-%u-%u", &multiplier,
 			     &min_expansions, &threads, &nblocks) == 4) {
 		return new BFPSDDSearch(threads, multiplier, min_expansions);
 	} else if (argc > 1
 		   && sscanf(argv[1], "idpsdd-%u-%u", &threads, &nblocks) == 2) {
 		return new IDPSDDSearch(threads);
 	} else if (argc > 1
-		   && sscanf(argv[1], "dynpsdd-%f-%u-%u",
+		   && sscanf(argv[1], "dynpsdd-%lu-%u-%u",
 			     &weight, &threads, &nblocks) == 3) {
 		return new DynamicBoundedPSDD(threads, weight);
 	} else if (argc > 1

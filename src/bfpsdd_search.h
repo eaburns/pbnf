@@ -27,13 +27,13 @@ using namespace std;
 
 class BFPSDDSearch : public Search {
 public:
-	BFPSDDSearch(unsigned int n_threads, float multiplier, unsigned int min_expansions);
-	BFPSDDSearch(unsigned int n_threads, float multiplier, unsigned int min_expansions, float bound);
+	BFPSDDSearch(unsigned int n_threads, fp_type multiplier, unsigned int min_expansions);
+	BFPSDDSearch(unsigned int n_threads, fp_type multiplier, unsigned int min_expansions, fp_type bound);
 	virtual ~BFPSDDSearch(void);
 
 	virtual vector<State *> *search(State *s);
 
-	void set_bound(float bound);
+	void set_bound(fp_type bound);
 private:
 
 	void set_path(vector<State *> *path);
@@ -45,7 +45,7 @@ private:
 			   BFPSDDSearch *search);
 		~BFPSDDThread();
 		void run(void);
-		float get_ave_exp_per_nblock(void);
+		fp_type get_ave_exp_per_nblock(void);
 	private:
 		vector<State *> *search_nblock(BFPSDD::NBlock<CompareOnF> *n);
 		BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
@@ -54,14 +54,14 @@ private:
 		CumulativeAverage ave_exp_per_nblock;
 	};
 
-	AtomicFloat bound;
+	AtomicInt bound;
 	unsigned int n_threads;
 	const Projection *project;
 	vector<State *> *path;
 	BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
 	pthread_mutex_t path_mutex;
 	unsigned int min_expansions;
-	float multiplier;
+	fp_type multiplier;
 };
 
 #endif	/* !_BFPSDD_H_ */

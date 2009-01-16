@@ -20,7 +20,7 @@ class State;
 class HZero : public Heuristic {
 public:
 	HZero(const SearchDomain *d);
-	virtual float compute(State *s) const;
+	virtual fp_type compute(State *s) const;
 };
 
 

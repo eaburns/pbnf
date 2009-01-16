@@ -1,5 +1,5 @@
 /**
- * \file atomic_float.h
+ * \file atomic_int.h
  *
  *
  *
@@ -13,7 +13,7 @@
 #include "atomic_int.h"
 
 /**
- * Assumes that an unsigned long is the size of a float.
+ * Assumes that an unsigned long is the size of a fp_type.
  */
 class AtomicFloat {
 public:
