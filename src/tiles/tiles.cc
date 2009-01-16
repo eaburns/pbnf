@@ -38,13 +38,20 @@ Tiles::Tiles(istream &in)
 	unsigned int g_blank = 0;
 	char buff[1024];
 	vector<unsigned int> g;
+	unsigned int pow;
 
 	in >> height;
 	in >> width;
 
+	// We need to compute this power without floats, so pow() and
+	// friends won't do.
+	pow = 1;
+	for (unsigned int i = 0; i < (width * height - 1); i += 1)
+		pow *= 2;
+
 	// Compute crazy Korf table.
-	ones.resize((width * height - 1) * (width * height - 1) + 1);
-	for (unsigned int i = 1; i <= (width * height - 1) * (width * height - 1); i += 1) {
+	ones.resize(pow + 1);
+	for (unsigned int i = 1; i <= pow; i += 1) {
 		unsigned int bits = 0;
 		unsigned int j = i;
 
@@ -158,7 +165,7 @@ vector<unsigned int> Tiles::child(const vector<unsigned int> *tiles,
  */
 vector<State *> *Tiles::expand(State *s)
 {
-	const unsigned int cost = 1;
+	const unsigned int cost = fp_one;
 	TilesState *t = dynamic_cast<TilesState *>(s);
 	vector<State *> *children = new vector<State *>;
 	const vector<unsigned int> *tiles = t->get_tiles();
@@ -263,8 +270,9 @@ void Tiles::ManhattanDist::init(const SearchDomain *d)
 			int col = pos % width;
 			int row = pos / width;
 
-			table[(tile * (width * height)) + pos]= abs(goal_col - col)
-				+ abs(goal_row - row);
+			table[(tile * (width * height)) + pos] =
+				(abs(goal_col - col)
+				 + abs(goal_row - row)) * fp_one;
 		}
 	}
 }
