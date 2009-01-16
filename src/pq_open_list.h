@@ -99,7 +99,7 @@ State *PQOpenList<PQCompare>::take(void)
 	heap.pop_back();
 
 	if (heap.empty())
-		set_best_f(numeric_limits<fp_type>::infinity());
+		set_best_f(fp_infinity);
 	else
 		set_best_f(heap.front()->get_f());
 
@@ -160,7 +160,7 @@ template<class PQCompare>
 fp_type PQOpenList<PQCompare>::get_best_val(void)
 {
 	if (heap.empty())
-		return numeric_limits<fp_type>::infinity();
+		return fp_infinity;
 
 	return comp.get_value(heap.front());
 }

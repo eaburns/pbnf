@@ -19,7 +19,7 @@
 using namespace std;
 
 BreadthFirstSearch::BreadthFirstSearch(void)
-	: bound(numeric_limits<fp_type>::infinity()) {}
+	: bound(fp_infinity) {}
 
 BreadthFirstSearch::BreadthFirstSearch(fp_type bound)
 	: bound(bound) {}

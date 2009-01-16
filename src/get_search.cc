@@ -32,7 +32,7 @@
 using namespace std;
 
 unsigned int threads = 1;
-fp_type cost_bound = numeric_limits<fp_type>::infinity();
+fp_type cost_bound = fp_infinity;
 unsigned int nblocks = 1;
 fp_type weight = 1.0;
 

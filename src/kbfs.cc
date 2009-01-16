@@ -42,7 +42,7 @@ private:
 
 KBFS::KBFS(unsigned int n_th)
 	: n_threads(n_th),
-	  bound(numeric_limits<fp_type>::infinity())
+	  bound(fp_infinity)
 {
 	cc = CompletionCounter(n_th);
 }

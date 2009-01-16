@@ -79,8 +79,8 @@ LDFLAGS=-lpthread
 else                   # GNU compilers
 PROFILE=
 #PROFILE=-pg
-DEBUG=-O3
-#DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+#DEBUG=-O3
+DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 LDFLAGS=-lpthread $(PROFILE)

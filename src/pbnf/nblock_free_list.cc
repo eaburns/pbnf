@@ -46,7 +46,7 @@ NBlock *NBlockFreeList::take(void)
 	heap.pop_back();
 
 	if (heap.empty())
-		best.set(numeric_limits<fp_type>::infinity());
+		best.set(fp_infinity);
 	else
 		best.set(heap.front()->open.peek()->get_f());
 

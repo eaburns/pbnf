@@ -28,7 +28,7 @@ using namespace PSDD;
  * Create a new PSDD Search thread.
  */
 PSDDSearch::PSDDThread::PSDDThread(NBlockGraph *graph, PSDDSearch *search)
-	: graph(graph), search(search), lowest_out_of_bounds(numeric_limits<fp_type>::infinity()) {}
+	: graph(graph), search(search), lowest_out_of_bounds(fp_infinity) {}
 
 
 PSDDSearch::PSDDThread::~PSDDThread() {}
@@ -143,12 +143,12 @@ fp_type PSDDSearch::PSDDThread::get_lowest_out_of_bounds(void)
  * Create a new Parallel Structured Duplicate Detection search.
  */
 PSDDSearch::PSDDSearch(unsigned int n_threads)
-	: bound(numeric_limits<fp_type>::infinity()),
+	: bound(fp_infinity),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  graph(NULL),
-	  lowest_out_of_bounds(numeric_limits<fp_type>::infinity()),
+	  lowest_out_of_bounds(fp_infinity),
 	  print(true)
 {
 	pthread_mutex_init(&path_mutex, NULL);
@@ -164,7 +164,7 @@ PSDDSearch::PSDDSearch(unsigned int n_threads, fp_type bound)
 	  project(NULL),
 	  path(NULL),
 	  graph(NULL),
-	  lowest_out_of_bounds(numeric_limits<fp_type>::infinity())
+	  lowest_out_of_bounds(fp_infinity)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -246,7 +246,10 @@ vector<State *> *PSDDSearch::search(State *initial)
 
 		delete *iter;
 	}
-	if (print)
+
+	if (num == 0)
+		cout << "expansions-per-nblock: -1" << endl;
+	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
 
 	return path;
@@ -267,7 +270,7 @@ fp_type PSDDSearch::get_lowest_out_of_bounds(void)
 
 void PSDDSearch::reset(void)
 {
-	lowest_out_of_bounds = numeric_limits<fp_type>::infinity();
+	lowest_out_of_bounds = fp_infinity;
 	path = NULL;
 }
 

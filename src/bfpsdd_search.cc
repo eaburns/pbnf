@@ -143,7 +143,7 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
  * Create a new Parallel Structured Duplicate Detection search.
  */
 BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int min_expansions)
-	: bound(numeric_limits<fp_type>::infinity()),
+	: bound(fp_infinity),
 	  n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
@@ -235,7 +235,11 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 
 		delete *iter;
 	}
-	cout << "expansions-per-nblock: " << sum / num << endl;
+
+	if (num == 0)
+		cout << "expansions-per-nblock: -1" << endl;
+	else
+		cout << "expansions-per-nblock: " << sum / num << endl;
 
 	return path;
 }

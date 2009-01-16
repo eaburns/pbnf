@@ -29,9 +29,9 @@ public:
 	virtual void delete_all_states(void) = 0;
 	virtual void prune(void) = 0;
 
-	double get_best_f(void);
+	fp_type get_best_f(void);
 protected:
-	void set_best_f(double f);
+	void set_best_f(fp_type f);
 private:
 	AtomicInt best;
 };

@@ -56,6 +56,9 @@ public:
 	 */
 	unsigned long cmp_and_swap(unsigned long o, unsigned long n);
 private:
+
+	/* If this ever gets changed, change the type of fp_type in
+	 * the fixed_point.h file. */
 	volatile unsigned long value;
 };
 

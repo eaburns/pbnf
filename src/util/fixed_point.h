@@ -9,11 +9,16 @@
 
 #include "stdint.h"
 
-/* The type of a fixed point value */
-typedef uint64_t fp_type;
+#include <limits>
+
+/* The type of a fixed point value.  This should never be larger than
+ * the size of the type for the 'value' field in the AtomicInt
+ * class. */
+typedef unsigned long fp_type;
 
 #define fp_sqrt2 14142
 #define fp_one 10000
+#define fp_infinity (numeric_limits<fp_type>::max())
 
 #define fp_weight_on_g(x) (fp_one)
 #define fp_weight_on_h(x) ((fp_type)(fp_one * (x)))

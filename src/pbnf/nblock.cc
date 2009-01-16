@@ -63,7 +63,7 @@ void NBlock::print(ostream &o)
 	fp_type best_f;
 	set<NBlock *>::const_iterator iter;
 
-	best_f = open.empty() ? numeric_limits<fp_type>::infinity() : open.peek()->get_f();
+	best_f = open.empty() ? fp_infinity : open.peek()->get_f();
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;

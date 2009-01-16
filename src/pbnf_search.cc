@@ -146,12 +146,12 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 	expansions = 0;
 
-	double free = graph->next_nblock_f_value();
-	double cur = n->open.peek()->get_f();
+	fp_type free = graph->next_nblock_f_value();
+	fp_type cur = n->open.peek()->get_f();
 
 	if (search->detect_livelocks) {
 		NBlock *best_scope = graph->best_in_scope(n);
-		double scope = best_scope->open.get_best_f();
+		fp_type scope = best_scope->open.get_best_f();
 
 		ret = free < cur || scope < cur;
 		if (!ret)
@@ -179,7 +179,7 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	: n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
-	  bound(numeric_limits<fp_type>::infinity()),
+	  bound(fp_infinity),
 	  detect_livelocks(detect_livelocks),
 	  graph(NULL)
 
@@ -224,14 +224,17 @@ vector<State *> *PBNFSearch::search(State *initial)
 		(*iter)->join();
 
 		fp_type ave = (*iter)->get_ave_exp_per_nblock();
-		if (ave != 0.0) {
+		if (ave != 0) {
 			sum += ave;
 			num += 1;
 		}
 
 		delete *iter;
 	}
-	cout << "expansions-per-nblock: " << sum / num << endl;
+	if (num == 0)
+		cout << "expansions-per-nblock: -1" << endl;
+	else
+		cout << "expansions-per-nblock: " << sum / num << endl;
 
 	return path;
 }

@@ -155,10 +155,10 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, bool dynamic_m)
 		assert(finished->sigma == 0);
 
 		if (!finished->open.empty()) {
-			double cur_f = finished->open.get_best_f();
-			double new_f;
+			fp_type cur_f = finished->open.get_best_f();
+			fp_type new_f;
 			if (free_list.empty())
-				new_f = numeric_limits<fp_type>::infinity();
+				new_f = fp_infinity;
 			else
 				new_f = free_list.best_f();
 			if (cur_f <= new_f) {
@@ -216,7 +216,7 @@ out:
 NBlock *NBlockGraph::best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
-	double best_f = numeric_limits<fp_type>::infinity();
+	fp_type best_f = fp_infinity;
 	map<unsigned int, NBlock*>::iterator i;
 
 //	pthread_mutex_lock(&mutex);
@@ -233,8 +233,8 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 
 //	pthread_mutex_unlock(&mutex);
 
-	// best_b => best_f != numeric_limits<fp_type>::infinity();
-	assert(best_f != numeric_limits<fp_type>::infinity() || !best_b);
+	// best_b => best_f != fp_infinity
+	assert(best_f != fp_infinity || !best_b);
 
 	return best_b;
 }
