@@ -15,9 +15,9 @@ Heuristic::Heuristic(const SearchDomain *d) : domain(d), weight(fp_one) {}
 
 Heuristic::~Heuristic() {}
 
-void Heuristic::set_weight(float weight)
+void Heuristic::set_weight(float wt)
 {
-	weight = fp_one * weight;
+	weight = fp_one * wt;
 }
 
 fp_type Heuristic::get_weight(void) const
