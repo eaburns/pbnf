@@ -34,6 +34,18 @@ fp_type State::get_f(void) const
 }
 
 /**
+ * Get the estimated cost of a path that uses this node.
+ * \return g + wh
+ */
+fp_type State::get_f_prime(void) const
+{
+	// Since we use fixed point, we multiply g by fp_one and h by
+	// (fp_one * weight)
+	return fp_one * g
+		+ domain->get_heuristic()->get_weight() * h;
+}
+
+/**
  * Get the cost so far of the state.
  * \return g
  */

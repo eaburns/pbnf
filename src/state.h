@@ -37,6 +37,7 @@ public:
 	virtual vector<State*> *expand(void);
 
 	fp_type get_f(void) const;
+	fp_type get_f_prime(void) const;
 	fp_type get_g(void) const;
 	void update(State *parent, fp_type g);
 	fp_type get_h(void) const;

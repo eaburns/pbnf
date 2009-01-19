@@ -24,8 +24,11 @@ public:
 	virtual ~Heuristic();
 
 	virtual fp_type compute(State *s) const = 0;
+	void set_weight(float w);
+	fp_type get_weight(void) const;
 protected:
 	const SearchDomain *domain;
+	fp_type weight;
 };
 
 #endif	/* !_HEURISTIC_H_ */

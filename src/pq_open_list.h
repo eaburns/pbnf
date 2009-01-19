@@ -37,6 +37,23 @@ public:
 	}
 };
 
+class CompareOnFPrime {
+public:
+	bool operator()(State *a, State *b) const {
+		fp_type fa = a->get_f_prime();
+		fp_type fb = b->get_f_prime();
+
+		if (fa == fb)
+			return a->get_g() < b->get_g();
+
+		return fa > fb;
+	}
+
+	fp_type get_value(State *s) const {
+		return s->get_f_prime();
+	}
+};
+
 
 /**
  * A priority queue for states based on their f(s) = g(s) + h(s)

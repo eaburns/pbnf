@@ -19,6 +19,3 @@ typedef unsigned long fp_type;
 #define fp_sqrt2 14142
 #define fp_one 10000
 #define fp_infinity (numeric_limits<fp_type>::max())
-
-#define fp_weight_on_g(x) (fp_one)
-#define fp_weight_on_h(x) ((fp_type)(fp_one * (x)))
