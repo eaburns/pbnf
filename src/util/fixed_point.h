@@ -16,6 +16,6 @@
  * class. */
 typedef unsigned long fp_type;
 
-#define fp_sqrt2 14142
-#define fp_one 10000
+#define fp_sqrt2 1414
+#define fp_one 1000
 #define fp_infinity (numeric_limits<fp_type>::max())
