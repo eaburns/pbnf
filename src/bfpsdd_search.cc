@@ -29,7 +29,7 @@ using namespace BFPSDD;
 /**
  * Create a new PSDD Search thread.
  */
-BFPSDDSearch::BFPSDDThread::BFPSDDThread(NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>,CompareOnF> *graph,
+BFPSDDSearch::BFPSDDThread::BFPSDDThread(NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnFPrime>,CompareOnFPrime> *graph,
 	BFPSDDSearch *search)
 	: graph(graph), search(search) {}
 
@@ -43,7 +43,7 @@ BFPSDDSearch::BFPSDDThread::~BFPSDDThread() {}
 void BFPSDDSearch::BFPSDDThread::run(void)
 {
 	vector<State *> *path;
-	NBlock<CompareOnF> *n = NULL;
+	NBlock<CompareOnFPrime> *n = NULL;
 
 	do {
 		n = graph->next_nblock(n);
@@ -70,10 +70,10 @@ fp_type BFPSDDSearch::BFPSDDThread::get_ave_exp_per_nblock(void)
  * \param n The NBlock.
  * \return NULL, or a path to a goal.
  */
-vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n)
+vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnFPrime> *n)
 {
 	vector<State *> *path = NULL;
-	PQOpenList<CompareOnF> *cur_open = &n->open;
+	PQOpenList<CompareOnFPrime> *cur_open = &n->open;
 
 	while (!cur_open->empty()) {
 		if (exp_this_block > search->min_expansions
@@ -100,8 +100,8 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<CompareOnF> *n
 		     iter != children->end();
 		     iter++) {
 			unsigned int block = search->project->project(*iter);
-			NBlock<CompareOnF> *b = graph->get_nblock(block);
-			PQOpenList<CompareOnF> *next_open = &b->open;
+			NBlock<CompareOnFPrime> *b = graph->get_nblock(block);
+			PQOpenList<CompareOnFPrime> *next_open = &b->open;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
 			if ((*iter)->get_f() >= search->bound.read()) {
 				delete *iter;
@@ -216,7 +216,7 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 	fp_type sum = 0.0;
 	unsigned int num = 0;
 
-	graph = new NBlockGraph<RealValNBlockPQ<CompareOnF>, CompareOnF>(project, n_threads, multiplier, initial);
+	graph = new NBlockGraph<RealValNBlockPQ<CompareOnFPrime>, CompareOnFPrime>(project, n_threads, multiplier, initial);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		BFPSDDThread *t = new BFPSDDThread(graph, this);

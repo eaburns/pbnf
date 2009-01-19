@@ -41,14 +41,14 @@ private:
 
 	class BFPSDDThread : public Thread {
 	public:
-		BFPSDDThread(BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph,
+		BFPSDDThread(BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnFPrime>, CompareOnFPrime> *graph,
 			   BFPSDDSearch *search);
 		~BFPSDDThread();
 		void run(void);
 		fp_type get_ave_exp_per_nblock(void);
 	private:
-		vector<State *> *search_nblock(BFPSDD::NBlock<CompareOnF> *n);
-		BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
+		vector<State *> *search_nblock(BFPSDD::NBlock<CompareOnFPrime> *n);
+		BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnFPrime>, CompareOnFPrime> *graph;
 		BFPSDDSearch *search;
 		unsigned long exp_this_block;
 		CumulativeAverage ave_exp_per_nblock;
@@ -58,7 +58,7 @@ private:
 	unsigned int n_threads;
 	const Projection *project;
 	vector<State *> *path;
-	BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnF>, CompareOnF> *graph;
+	BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<CompareOnFPrime>, CompareOnFPrime> *graph;
 	pthread_mutex_t path_mutex;
 	unsigned int min_expansions;
 	fp_type multiplier;
