@@ -28,7 +28,7 @@ DoNextBlock(x) == /\ UNCHANGED<<scope>>
                   /\ IF Free(Acquired \ {acquired[x]}) # {} THEN
                        /\ \E y \in Free(Acquired \ {acquired[x]}) : acquired' = [acquired EXCEPT ![x] = y]
                        /\ state' = [state EXCEPT ![x] = Search]
-                       /\ isHot' = [y \in Nblocks |-> IF y \in CurFree' THEN FALSE ELSE isHot[y]]
+                       /\ isHot' = [y \in Nblocks |-> IF Blocking(y, Busy(Acquired))' = {} THEN FALSE ELSE isHot[y]]
                      ELSE /\ acquired' = [acquired EXCEPT ![x] = None]
                           /\ UNCHANGED<<state, isHot>>
 
