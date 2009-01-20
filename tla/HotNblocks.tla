@@ -28,7 +28,8 @@ DoNextBlock(x) == /\ UNCHANGED<<scope>>
                   /\ IF Free(Acquired \ {acquired[x]}) # {} THEN
                        /\ \E y \in Free(Acquired \ {acquired[x]}) : acquired' = [acquired EXCEPT ![x] = y]
                        /\ state' = [state EXCEPT ![x] = Search]
-                       /\ isHot' = [y \in Nblocks |-> IF Blocking(y, Busy(Acquired))' = {} THEN FALSE ELSE isHot[y]]
+                       /\ isHot' = [y \in Nblocks |-> IF y \in Acquired' \/ Blocking(y, Busy(Acquired))' = {} THEN FALSE
+                                                      ELSE isHot[y]]
                      ELSE /\ acquired' = [acquired EXCEPT ![x] = None]
                           /\ UNCHANGED<<state, isHot>>
 
@@ -55,7 +56,7 @@ Next == \E x \in Procs : (DoNextBlock(x) \/ DoSearch(x))
 Fairness == \A x \in Procs : WF_Vars(DoNextBlock(x) \/ DoSearch(x))
 Prog == Init /\ [][Next]_Vars /\ Fairness
 ------------------------------------------------------------
-HotNblocks == \A x \in Nblocks : isHot[x] ~> x \in CurFree
+HotNblocks == \A x \in Nblocks : isHot[x] ~> x \in CurFree \/ x \in Acquired
 
 NoCollisions == \A x,y \in Procs : x # y => \/ acquired[x] = None /\ acquired[y] = None
                                             \/ /\ acquired[x] # acquired[y]
