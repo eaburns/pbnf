@@ -47,8 +47,9 @@ Init == /\ state = [x \in Procs |-> NextBlock]
         /\ TypeInv
         /\ \A x \in Nblocks : /\ x \notin scope[x]
                               \* This is just so that TLC won't have to search too many initial states.
-                              /\ IF x > 0 /\ x < NNblocks - 1 THEN \E i,j \in Nblocks : i < x /\ x < j /\ i \in scope[x] /\ j \in scope[x]
-                                 ELSE IF x = 0 THEN scope[x] = {x + 1} ELSE scope[x] = {x - 1}
+                              /\ IF x > 0 /\ x < NNblocks - 1 THEN /\ \E i,j \in Nblocks : i < x /\ x < j /\ scope[x] = {i, j}
+                                 ELSE IF x = 0 THEN \E i \in Nblocks : i > x /\ scope[x] = {i}
+                                      ELSE \E i \in Nblocks : i < x /\ scope[x] = {i}
 
 Next == \E x \in Procs : (DoNextBlock(x) \/ DoSearch(x))
 Fairness == \A x \in Procs : WF_Vars(DoNextBlock(x) \/ DoSearch(x))
