@@ -46,7 +46,9 @@ Init == /\ state = [x \in Procs |-> NextBlock]
         /\ isHot = [x \in Nblocks |-> FALSE]
         /\ TypeInv
         /\ \A x \in Nblocks : /\ x \notin scope[x]
-                              /\ Cardinality(scope[x]) <= 2
+                              \* This is just so that TLC won't have to search too many initial states.
+                              /\ IF x > 0 /\ x < NNblocks - 1 THEN \E i,j \in Nblocks : i < x /\ x < j /\ i \in scope[x] /\ j \in scope[x]
+                                 ELSE IF x = 0 THEN scope[x] = {x + 1} ELSE scope[x] = {x - 1}
 
 Next == \E x \in Procs : (DoNextBlock(x) \/ DoSearch(x))
 Fairness == \A x \in Procs : WF_Vars(DoNextBlock(x) \/ DoSearch(x))
