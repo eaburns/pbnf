@@ -6,74 +6,60 @@
  */
 
 #include <assert.h>
+#include <atomic.h>
+#include <stdint.h>
 
 #include "atomic_int.h"
-
-extern "C" {
-	extern int compare_and_swap(volatile unsigned long *addr, unsigned long *o, unsigned long n);
-}
 
 AtomicInt::AtomicInt(void)
 	: value(0)
 {
 }
 
-AtomicInt::AtomicInt(unsigned long val)
+AtomicInt::AtomicInt(uint64_t val)
 	: value(val)
 {
-	assert(sizeof(uint32_t) == sizeof(unsigned long));
 }
 
-unsigned long AtomicInt::read(void) const
+uint64_t AtomicInt::read(void) const
 {
 	return value;
 }
 
-void AtomicInt::set(unsigned long i)
+void AtomicInt::set(uint64_t i)
 {
 	value = i;
 }
 
-void AtomicInt::add(unsigned long i)
+void AtomicInt::add(uint64_t i)
 {
-	unsigned long old = value;
-
-	while (!compare_and_swap(&value, &old, old + i))
-		;
+	assert(((int64_t)i) > 0);
+	atomic_add_64(&value, i);
 }
 
-void AtomicInt::sub(unsigned long i)
+void AtomicInt::sub(uint64_t i)
 {
-	unsigned long old = value;
-
-	while (!compare_and_swap(&value, &old, old - i))
-		;
+	assert(((int64_t)i) > 0);
+	atomic_add_64(&value, -((int64_t)i));
 }
 
 void AtomicInt::inc(void)
 {
-	add(1);
+	atomic_inc_64(&value);
 }
 
 void AtomicInt::dec(void)
 {
-	sub(1);
+	atomic_dec_64(&value);
 }
 
-unsigned long AtomicInt::swap(unsigned long n)
+uint64_t AtomicInt::swap(uint64_t n)
 {
-	unsigned long old = value;
-
-	while(!compare_and_swap(&value, &old, n))
-		;
-
-	return old;
+	return atomic_swap_64(&value, n);
 }
 
-unsigned long AtomicInt::cmp_and_swap(unsigned long o, unsigned long n)
+uint64_t AtomicInt::cmp_and_swap(uint64_t o, uint64_t n)
 {
-	compare_and_swap(&value, &o, n);
-
-	return o;
+	return atomic_cas_64(&value, o, n);
 }
 

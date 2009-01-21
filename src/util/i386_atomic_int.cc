@@ -13,72 +13,67 @@
 
 #include "atomic_int.h"
 
-#define LOCK_PREFIX    "lock;"
+// defined in cmpxchg_i386.s
+extern "C" int cmpxchg_64(volatile uint64_t *v, uint64_t o, uint64_t n);
 
 AtomicInt::AtomicInt(void)
 	: value(0) {}
 
-AtomicInt::AtomicInt(unsigned long val)
+AtomicInt::AtomicInt(uint64_t val)
 	: value(val)
 {
-	assert(sizeof(uint32_t) == sizeof(unsigned long));
 }
 
-unsigned long AtomicInt::read(void) const
+uint64_t AtomicInt::read(void) const
 {
 	return value;
 }
 
-void AtomicInt::set(unsigned long i)
+void AtomicInt::set(uint64_t i)
 {
 	value = i;
 }
 
-void AtomicInt::add(unsigned long i)
+void AtomicInt::add(uint64_t i)
 {
-	__asm__ __volatile__(LOCK_PREFIX "addl %1,%0"
-			     :"=m"(value)
-			     :"ir"(i), "m"(value));
+	uint64_t old = value;
+
+	while (!cmpxchg_64(&value, old, value + i))
+		old = value;
 }
 
-void AtomicInt::sub(unsigned long i)
+void AtomicInt::sub(uint64_t i)
 {
-	__asm__ __volatile__(LOCK_PREFIX "subl %1,%0"
-			     :"=m"(value)
-			     :"ir"(i), "m"(value));
+	uint64_t old = value;
+
+	while (!cmpxchg_64(&value, old, value - i))
+		old = value;
 }
 
 void AtomicInt::inc(void)
 {
-	__asm__ __volatile__(LOCK_PREFIX "incl %0"
-			     :"=m"(value)
-			     :"m"(value));
+	add(1);
 }
 
 void AtomicInt::dec(void)
 {
-	__asm__ __volatile__(LOCK_PREFIX "decl %0"
-			     :"=m"(value)
-			     :"m"(value));
+	sub(1);
 }
 
-unsigned long AtomicInt::swap(unsigned long n)
+uint64_t AtomicInt::swap(uint64_t n)
 {
-	__asm__ __volatile__("xchgl %0,%1"
-			     : "=r" (n)
-			     : "m" (value), "0" (n)
-			     : "memory");
+	unsigned long old = value;
 
-	return n;
+	while(!cmpxchg_64(&value, old, n))
+		old = value;
+
+	return old;
 }
 
-unsigned long AtomicInt::cmp_and_swap(unsigned long o, unsigned long n)
+uint64_t AtomicInt::cmp_and_swap(uint64_t o, uint64_t n)
 {
-	unsigned long prev;
-
-	__asm__ __volatile__("cmpxchgl %1,%2"
-			     : "=a"(prev)
-			     : "r"(n), "m"(value), "0"(o)
-			     : "memory");
-	return prev;
+	if (cmpxchg_64(&value, o, n))
+		return o;
+	else
+		return value;
 }

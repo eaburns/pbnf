@@ -53,14 +53,16 @@ FLAGS+=-mcpu=v9
 OBJ+=$(OBJDIR)/util/sparc64_atomic_asm.o
 OBJ+=$(OBJDIR)/util/sparc64_atomic_int.o
 else ifeq ($(MARCH), sun4v)
-OBJ+=$(OBJDIR)/util/sparc64_atomic_asm.o
 OBJ+=$(OBJDIR)/util/sparc64_atomic_int.o
 else ifeq ($(MARCH), i386)
 OBJ+=$(OBJDIR)/util/i386_atomic_int.o
+OBJ+=$(OBJDIR)/util/cmpxchg_i386.o
 else ifeq ($(MARCH), i686)
 OBJ+=$(OBJDIR)/util/i386_atomic_int.o
+OBJ+=$(OBJDIR)/util/cmpxchg_i386.o
 else ifeq ($(MARCH), x86_64)
 OBJ+=$(OBJDIR)/util/x86_64_atomic_int.o
+CXXFLAGS+=-D_64_BIT_LONG
 else
 $(error Unknown machine type)
 endif
@@ -71,19 +73,19 @@ ifeq ($(MARCH), sun4v) # Sun compilers
 CC=cc
 CXX=CC
 #DEBUG=-g -xO0   # use the dbx debugger
-DEBUG=
-FLAGS=-mt -errwarn=%all $(DEBUG)
-ASFLAGS=-xc99=%none
-CFLAGS=-xc99=%none
-LDFLAGS=-lpthread
+DEBUG+=
+FLAGS+=-mt -errwarn=%all $(DEBUG)
+ASFLAGS+=-xc99=%none
+CFLAGS+=-xc99=%none
+LDFLAGS+=-lpthread
 else                   # GNU compilers
-PROFILE=
-#PROFILE=-pg
-#DEBUG=-O3
-DEBUG=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
-FLAGS=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
+PROFILE+=
+#PROFILE+=-pg
+#DEBUG+=-O3
+DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
-LDFLAGS=-lpthread $(PROFILE)
+LDFLAGS+=-lpthread $(PROFILE)
 endif
 ############################################################
 

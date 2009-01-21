@@ -5,42 +5,50 @@
  * \date 2008-10-22
  */
 
-#include <iostream>
-
+#include <stdio.h>
 #include "atomic_int.h"
 
 using namespace std;
 
+#if defined(_64_BIT_LONG)
+#define _64BIT_X "%lx"
+#else
+#define _64BIT_X "%llx"
+#endif
+
 int main(void)
 {
-  int ret;
-  AtomicInt i(1);
+  uint64_t ret;
+  AtomicInt i(0xffffffff1LL);
 
-  cerr << "initial i (1): " << i.read() << endl;
+  printf("initial i (0xffffffff1): " _64BIT_X "\n", i.read());
 
   i.inc();
-  cerr << "inc i (2): " << i.read() << endl;
+  printf("inc i (0xffffffff2): " _64BIT_X "\n", i.read());
 
   i.dec();
-  cerr << "dec i (1): " << i.read() << endl;
+  printf("dec i (0xffffffff1): " _64BIT_X "\n", i.read());
 
-  i.set(42);
-  cerr << "set i (42): " << i.read() << endl;
+  i.set(0xfffffff42LL);
+  printf("set i (0xfffffff42): " _64BIT_X "\n", i.read());
 
   i.sub(2);
-  cerr << "sub i (40): " << i.read() << endl;
+  printf("sub 2 i (0xfffffff40): " _64BIT_X "\n", i.read());
 
   i.add(2);
-  cerr << "add i (42): " << i.read() << endl;
+  printf("add 2 i (0xfffffff42): " _64BIT_X "\n", i.read());
 
-  ret = i.swap(50);
-  cerr << "swap i (50), return (42): " << i.read() << ", " << ret << endl;
+  ret = i.swap(0x50);
+  printf("swap (50) i ret (0xfffffff42): " _64BIT_X ", " _64BIT_X "\n",
+	 i.read(), ret);
 
-  ret = i.cmp_and_swap(42, 1);
-  cerr << "bad cmp_and_swap i (50), return (50): " << i.read() << ", " << ret << endl;
+  ret = i.cmp_and_swap(0x42, 1);
+  printf("bad cmp_and_swap (50) i, ret (50): " _64BIT_X ", " _64BIT_X "\n",
+	 i.read(), ret);
 
-  ret = i.cmp_and_swap(50, 1);
-  cerr << "good cmp_and_swap i (1), return (50): " << i.read() << ", " << ret << endl;
+  ret = i.cmp_and_swap(0x50, 0xeeeeeeeeLL);
+  printf("good cmp_and_swap (0xeeeeeeee) i, ret (50): " _64BIT_X ", " _64BIT_X "\n",
+	 i.read(), ret);
 
   return 0;
 }

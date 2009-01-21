@@ -18,30 +18,29 @@
 AtomicInt::AtomicInt(void)
 	: value(0) {}
 
-AtomicInt::AtomicInt(unsigned long val)
+AtomicInt::AtomicInt(uint64_t val)
 	: value(val)
 {
-	assert(sizeof(uint64_t) == sizeof(unsigned long));
 }
 
-unsigned long AtomicInt::read(void) const
+uint64_t AtomicInt::read(void) const
 {
 	return value;
 }
 
-void AtomicInt::set(unsigned long i)
+void AtomicInt::set(uint64_t i)
 {
 	value = i;
 }
 
-void AtomicInt::add(unsigned long i)
+void AtomicInt::add(uint64_t i)
 {
 	__asm__ __volatile__(LOCK_PREFIX "addq %1,%0"
 			     :"=m"(value)
 			     :"ir"(i), "m"(value));
 }
 
-void AtomicInt::sub(unsigned long i)
+void AtomicInt::sub(uint64_t i)
 {
 	__asm__ __volatile__(LOCK_PREFIX "subq %1,%0"
 			     :"=m"(value)
@@ -62,7 +61,7 @@ void AtomicInt::dec(void)
 			     :"m"(value));
 }
 
-unsigned long AtomicInt::swap(unsigned long n)
+uint64_t AtomicInt::swap(uint64_t n)
 {
 	__asm__ __volatile__("xchgq %0,%1"
 			     : "=r" (n)
@@ -72,9 +71,9 @@ unsigned long AtomicInt::swap(unsigned long n)
 	return n;
 }
 
-unsigned long AtomicInt::cmp_and_swap(unsigned long o, unsigned long n)
+uint64_t AtomicInt::cmp_and_swap(uint64_t o, uint64_t n)
 {
-	unsigned long prev;
+	uint64_t prev;
 
 	__asm__ __volatile__("cmpxchgq %1,%2"
 			     : "=a"(prev)

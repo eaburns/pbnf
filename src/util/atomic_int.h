@@ -12,7 +12,8 @@
 #if !defined(_ATOMIC_INT_H_)
 #define _ATOMIC_INT_H_
 
-#include "stdint.h"
+#include <stdint.h>
+
 /**
  * This class defines an atomic integer.  The operations provided as
  * methods of this class can be used concurrently by multiple
@@ -25,21 +26,21 @@ class AtomicInt {
 public:
 	AtomicInt(void);
 
-	AtomicInt(unsigned long val);
+	AtomicInt(uint64_t val);
 
-	unsigned long read(void) const;
+	uint64_t read(void) const;
 
-	void set(unsigned long i);
+	void set(uint64_t i);
 
-	void add(unsigned long i);
+	void add(uint64_t i);
 
-	void sub(unsigned long i);
+	void sub(uint64_t i);
 
 	void inc(void);
 
 	void dec(void);
 
-	unsigned long swap(unsigned long n);
+	uint64_t swap(uint64_t n);
 
 	/**
 	 * Atomic compare and swap.  This operation takes an old value
@@ -54,12 +55,12 @@ public:
 	 *         value is equivilant to 'o', then the operation was
 	 *         a success, otherwise it was not.
 	 */
-	unsigned long cmp_and_swap(unsigned long o, unsigned long n);
+	uint64_t cmp_and_swap(uint64_t o, uint64_t n);
 private:
 
 	/* If this ever gets changed, change the type of fp_type in
 	 * the fixed_point.h file. */
-	volatile unsigned long value;
+	volatile uint64_t value;
 };
 
 #endif	/* !_ATOMIC_INT_H_ */
