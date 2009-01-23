@@ -43,20 +43,9 @@ DoSearch(x) == /\ UNCHANGED<<acquired, Succs>>
 Init == /\ state = [x \in Procs |-> NextBlock]
         /\ acquired = [x \in Procs |-> None]
         /\ isHot = [x \in Nblocks |-> FALSE]
-(*
-        /\ Succs = [x \in Nblocks |-> IF x = 0 THEN {1}
-                                      ELSE IF x = 1 THEN {0,2}
-                                      ELSE IF x = 2 THEN {0,3}
-                                      ELSE IF x = 3 THEN {0,4}
-                                      ELSE IF x = 4 THEN {3}
-                                      ELSE {}]
-*)
+        /\ Succs = [x \in Nblocks |-> IF x = 0 THEN {NNblocks - 1, x + 1}
+                                      ELSE IF x = NNblocks - 1 THEN {0, x - 1} ELSE {x - 1, x + 1}]
         /\ TypeInv
-        /\ \A x \in Nblocks : /\ x \notin Succs[x]
-                              \* This is just so that TLC won't have to search too many initial states.
-                              /\ IF x > 0 /\ x < NNblocks - 1 THEN /\ \E i,j \in Nblocks : i < x /\ x < j /\ Succs[x] = {i, j}
-                                 ELSE IF x = 0 THEN \E i \in Nblocks : i > x /\ Succs[x] = {i}
-                                      ELSE \E i \in Nblocks : i < x /\ Succs[x] = {i}
 
 Next == \E x \in Procs : (DoNextBlock(x) \/ DoSearch(x))
 Fairness == \A x \in Procs : WF_Vars(DoNextBlock(x) \/ DoSearch(x))
