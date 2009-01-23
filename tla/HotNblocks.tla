@@ -22,7 +22,7 @@ HotInterference(A) == UNION {IntScope(x) : x \in Hot(A)}         \* Set of Nbloc
 Free(A) == {x \in Nblocks : Overlap(x, A) = {} /\ x \notin HotInterference(A)} \* Free Nblocks given the set of acquired nblocks
 Acquired == {acquired[x] : x \in Procs} \ {none}                 \* Set of Nblocks which are currently acquired
 
-Donextblock(x) == /\ UNCHANGED<<Succs>>
+doNextBlock(x) == /\ UNCHANGED<<Succs>>
                   /\ state[x] = nextblock
                   /\ acquired[x] = none => Free(Acquired) # {}
                   /\ IF Free(Acquired \ {acquired[x]}) # {} THEN
@@ -32,7 +32,7 @@ Donextblock(x) == /\ UNCHANGED<<Succs>>
                      ELSE /\ acquired' = [acquired EXCEPT ![x] = none]
                           /\ UNCHANGED<<state, isHot>>
 
-Dosearch(x) == /\ UNCHANGED<<acquired, Succs>>
+doSearch(x) == /\ UNCHANGED<<acquired, Succs>>
                /\ state[x] = search
                /\ state' = [state EXCEPT ![x] = nextblock]
                /\ \/ UNCHANGED<<isHot>>
@@ -47,8 +47,8 @@ Init == /\ state = [x \in Procs |-> nextblock]
                                       ELSE IF x = nnblocks - 1 THEN {0, x - 1} ELSE {x - 1, x + 1}]
         /\ TypeInv
 
-Next == \E x \in Procs : (Donextblock(x) \/ Dosearch(x))
-Fairness == \A x \in Procs : WF_Vars(Donextblock(x) \/ Dosearch(x))
+Next == \E x \in Procs : (doNextBlock(x) \/ doSearch(x))
+Fairness == \A x \in Procs : WF_Vars(doNextBlock(x) \/ doSearch(x))
 Prog == Init /\ [][Next]_Vars /\ Fairness
 ------------------------------------------------------------
 HotNblocks == \A x \in Nblocks : isHot[x] ~> ~isHot[x]
