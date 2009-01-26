@@ -71,7 +71,7 @@ IN
 
     <4>2. QED BY <4>1 \* UG then change \A to \E (which is allowed).
 
-   <3>2. H(c) => \E i \in Procs : acquired[i] \in Overlap(x, Acquired)
+   <3>2. Prog => [](H(c) => \E i \in Procs : acquired[i] \in Overlap(x, Acquired))
          PROOF OMITTED \* TODO
 
    <3>3. QED BY <3>1 and <3>2 \* TODO: what is this called?
@@ -80,7 +80,7 @@ IN
 
   <2>2. QED \* Lattice rule with <2>1
 
-<1>2. x \in Nblocks /\ isHot[x] => \E c \in S : H(c)
+<1>2. Prog => [](x \in Nblocks /\ isHot[x] => \E c \in S : H(c))
       PROOF OMITTED \* TODO: since x is hot, there is something overlapping its scope.
 
 <1>3. Prog => (x \in Nblocks /\ isHot[x] ~> ~isHot[x])
