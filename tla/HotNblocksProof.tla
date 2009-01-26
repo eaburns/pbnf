@@ -25,7 +25,6 @@ IN
 
     <4>1. H(c) /\ x \in Procs /\ i \in Blocking(x) ~> (G \/ \E d \in S : d < c /\ H(d))
 
-
      <5>1. H(c) /\ i \in Procs /\ i \in Blocking(x) /\ state[i] = nextblock ~> (G \/ \E d \in S : d < c /\ H(d)
 
       \* Use WF1 on doNextBlock(i)
@@ -79,7 +78,6 @@ IN
          \* I dunno what this is called... since H(c) implies that something is acquired in the overlap
          \* we can add/remove the overlap part.
 
-     
   <2>2. QED \* Lattice rule with <2>1
 
 <1>2. x \in Nblocks /\ isHot[x] => \E c \in S : H(c)
