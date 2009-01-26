@@ -1,9 +1,15 @@
 -------------------- MODULE HotNblocksProof --------------------
+(*
+Anything labeled PROOF OMITTED  will need to be done before the proof is complete.
+Also, we need to figure out what to label the steps that use:
+  ((A /\ B ~> C) /\ [](A => B)) => (A ~> C)
+*)
 EXTENDS HotNblocks
 
 PROOF Prog => HotNblocks
 
 LET OverlapAmt(x) == Cardinality(Overlap(x, Acquired))
+    Blocking(x) == { p \in Procs : acquired[p] \in Overlap(x, Acquired) }
     S == Nat \ {0}
     G == ~isHot[x]
     H(c) == x \in Nblocks /\ isHot[x] /\ OverlapAmt(x) = c
@@ -15,9 +21,6 @@ IN
        ASSUME Prog /\ c \in S
        PROVE H(c) ~> (G \/ \E d \in S : d < c /\ H(d))
 
-   \* The set of processes which have acquired blocks overlapping x's duplicate detection scope.
-   LET Blocking(x) == { p \in Procs : acquired[p] \in Overlap(x, Acquired) } IN
-   
    <3>1. (\E i \in Procs : H(c) /\ i \in Blocking(x) ~> (G \/ \E d \in S : d < c /\ H(d))
 
     <4>1. H(c) /\ x \in Procs /\ i \in Blocking(x) ~> (G \/ \E d \in S : d < c /\ H(d))
@@ -85,6 +88,8 @@ IN
 <1>3. Prog => (x \in Nblocks /\ isHot[x] ~> ~isHot[x])
       BY <1>1 and <1>2 \* TODO: what is this called?
       \* Since <1>2 is a safety property (which we will demonstrate in <1>3), we can add/remove it somehow at our leasure.
+      \* What we really want here is:
+      \* ((A /\ B ~> C) /\ [](A => B)) => (A ~> B)
 
 <1>4. Prog => \A x \in Nblocks : isHot[x] ~> ~isHot[x]
       BY <1>3 \* Universal Generalization
