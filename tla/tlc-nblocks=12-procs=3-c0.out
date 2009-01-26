@@ -1,0 +1,95 @@
+Fri Jan 23 13:07:03 EST 2009
+SPECIFICATION Prog
+
+CONSTANTS
+	NNblocks = 12
+	NProcs = 3
+	None = None
+	Search = Search
+	NextBlock = NextBlock
+
+INVARIANTS
+	TypeInv
+
+PROPERTIES
+	HotNblocks
+
+java version "1.6.0_02"
+Java(TM) SE Runtime Environment (build 1.6.0_02-b05)
+Java HotSpot(TM) Server VM (build 1.6.0_02-b05, mixed mode)
+
+TLC2 Version 2.01 of February 23, 2008
+Model-checking
+Parsing file HotNblocks.tla
+Parsing file /home/rai/eaburns/lib/tla/tla2sany/StandardModules/FiniteSets.tla
+Parsing file /home/rai/eaburns/lib/tla/tla2sany/StandardModules/Naturals.tla
+Parsing file /home/rai/eaburns/lib/tla/tla2sany/StandardModules/Sequences.tla
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module HotNblocks
+Implied-temporal checking--satisfiability problem has 12 branches.
+Finished computing initial states: 1 distinct state generated.
+Progress(4): 711 states generated, 483 distinct states found, 451 states left on queue.
+Progress(5): 15744 states generated, 5465 distinct states found, 4116 states left on queue.
+Progress(6): 24360 states generated, 6917 distinct states found, 4928 states left on queue.
+Progress(6): 31810 states generated, 7933 distinct states found, 5366 states left on queue.
+Progress(6): 44643 states generated, 11189 distinct states found, 7179 states left on queue.
+Progress(6): 53451 states generated, 13087 distinct states found, 8224 states left on queue.
+--Checking temporal properties for the current state space...
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
+Progress(5): 64837 states generated, 15380 distinct states found, 9395 states left on queue.
+Progress(7): 76901 states generated, 17796 distinct states found, 10416 states left on queue.
+Progress(7): 88818 states generated, 20018 distinct states found, 11111 states left on queue.
+Progress(7): 101027 states generated, 22119 distinct states found, 11557 states left on queue.
+Progress(7): 112697 states generated, 23900 distinct states found, 11833 states left on queue.
+Progress(7): 123708 states generated, 25655 distinct states found, 12240 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
+Progress(7): 133914 states generated, 26853 distinct states found, 12127 states left on queue.
+Progress(6): 140569 states generated, 27304 distinct states found, 12031 states left on queue.
+Progress(8): 147517 states generated, 27847 distinct states found, 11925 states left on queue.
+Progress(8): 154729 states generated, 28259 distinct states found, 11446 states left on queue.
+Progress(8): 161417 states generated, 28582 distinct states found, 10916 states left on queue.
+Progress(8): 168097 states generated, 28865 distinct states found, 10336 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
+Progress(8): 175328 states generated, 29643 distinct states found, 10137 states left on queue.
+Progress(8): 184898 states generated, 31668 distinct states found, 10740 states left on queue.
+Progress(8): 193649 states generated, 33406 distinct states found, 11190 states left on queue.
+Progress(8): 200679 states generated, 34044 distinct states found, 10905 states left on queue.
+Progress(8): 207575 states generated, 34576 distinct states found, 10549 states left on queue.
+Progress(8): 213746 states generated, 34836 distinct states found, 10081 states left on queue.
+--Checking temporal properties for the current state space...
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
+Progress(8): 220375 states generated, 35090 distinct states found, 9542 states left on queue.
+Progress(8): 227133 states generated, 35767 distinct states found, 9295 states left on queue.
+Progress(7): 234547 states generated, 36460 distinct states found, 9130 states left on queue.
+Progress(9): 242427 states generated, 37358 distinct states found, 9025 states left on queue.
+Progress(9): 252250 states generated, 38898 distinct states found, 8894 states left on queue.
+Progress(9): 260934 states generated, 39930 distinct states found, 8350 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
+Progress(9): 269743 states generated, 40963 distinct states found, 7827 states left on queue.
+Progress(9): 278363 states generated, 41925 distinct states found, 7304 states left on queue.
+Progress(9): 286531 states generated, 42751 distinct states found, 6768 states left on queue.
+Progress(9): 291580 states generated, 42769 distinct states found, 6338 states left on queue.
+Progress(10): 297184 states generated, 42835 distinct states found, 5723 states left on queue.
+Progress(10): 304002 states generated, 43027 distinct states found, 4782 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
+Progress(10): 310992 states generated, 43349 distinct states found, 3856 states left on queue.
+Progress(10): 317914 states generated, 43642 distinct states found, 2903 states left on queue.
+Progress(10): 324606 states generated, 43857 distinct states found, 1950 states left on queue.
+Progress(10): 330842 states generated, 43945 distinct states found, 1059 states left on queue.
+Progress(10): 335145 states generated, 43945 distinct states found, 581 states left on queue.
+Progress(10): 339544 states generated, 43945 distinct states found, 93 states left on queue.
+--Checking temporal properties for the complete state space...
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+    calculated (optimistic):  7.062743423956463E-10
+    based on the actual fingerprints:  4.547468631258771E-12
+340417 states generated, 43945 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 10.
+
+real	206m48.431s
+user	958m46.579s
+sys	31m29.673s
+Fri Jan 23 16:33:52 EST 2009
