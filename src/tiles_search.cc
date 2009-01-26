@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
 //	HZero hzero(&g);
 //	g.set_heuristic(&hzero);
 	Tiles::ManhattanDist manhattan(&g);
+	manhattan.set_weight(weight);
 	g.set_heuristic(&manhattan);
 
 	//timeout(600);

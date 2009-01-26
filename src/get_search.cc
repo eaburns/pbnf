@@ -34,7 +34,7 @@ using namespace std;
 unsigned int threads = 1;
 fp_type cost_bound = fp_infinity;
 unsigned int nblocks = 1;
-fp_type weight = 1.0;
+float weight = 1.0;
 
 Search *get_search(int argc, char *argv[])
 {
@@ -67,15 +67,15 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "idpsdd-%u-%u", &threads, &nblocks) == 2) {
 		return new IDPSDDSearch(threads);
 	} else if (argc > 1
-		   && sscanf(argv[1], "dynpsdd-%lu-%u-%u",
+		   && sscanf(argv[1], "dynpsdd-%f-%u-%u",
 			     &weight, &threads, &nblocks) == 3) {
 		return new DynamicBoundedPSDD(threads, weight);
 	} else if (argc > 1
-		   && sscanf(argv[1], "pbnf-%u-%u-%u",
-			     &min_expansions, &threads, &nblocks) == 3) {
+		   && sscanf(argv[1], "pbnf-%f-%u-%u-%u",
+			     &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new PBNFSearch(threads, min_expansions, false);
 	} else if (argc > 1
-		   && sscanf(argv[1], "safepbnf-%u-%u-%u", &min_expansions, &threads, &nblocks) == 3) {
+		   && sscanf(argv[1], "safepbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new PBNFSearch(threads, min_expansions, true);
 	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
 		return new MultiAStar(threads);
@@ -92,8 +92,9 @@ Search *get_search(int argc, char *argv[])
 		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tidpsdd-<threads>-<nblocks>" << endl
-		     << "\tpbnf-<min_expansions>-<threads>-<nblocks>" << endl
+		     << "\tpbnf-<weight>-<min_expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl
+		     << "\tsafepbnf-<weight>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tmultiastar-<threads>" << endl
 		     << endl;
 		exit(EXIT_FAILURE);
