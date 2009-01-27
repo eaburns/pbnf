@@ -81,27 +81,49 @@ IN
  <2>2. QED \* Lattice rule with <2>1
 
 <1>2. Prog => [](x \in Nblocks /\ isHot[x] => \E c \in S : H(c))
- LET I == x \in Nblocks /\ isHot[x] => \E c \in S : H(c)
+
+ LET I == x \in Nblocks /\ isHot[x] => \E c \in S : H(c) /\ x \notin HotInterference(Acquired)
      N == Next IN
- <2>1. Init => I
-       OBVIOUS \* Nothing is hot in Init, and therefore the implication holds trivially.
+     
+ <2>1. Prog => [](I)
+ 
+  <3>1. Init => I
+        OBVIOUS \* Nothing is hot in Init, and therefore the implication holds trivially.
+ 
+  <3>2. I /\ [\E i \in Procs : (doNextBlock(i) \/ doSearch(i))]_Vars => I'
+ 
+   <4>1. I /\ Vars = Vars' => I'
+         OBVIOUS \* Studdering step.
+ 
+   <4>2. I /\ (\E i \in Procs : doNextBlock(i)) => I'
+         ASSUME I /\ \E i \in Procs : do NextBlock(i)
+         PROVE I'
+ 
+    <5>1. CASE x \in Free(Acquired \ acquired[i])
+          OBVIOUS \* isHot'[x] = FALSE, and the implication holds trivially since the LHS is FALSE.
+ 
+    <5>2. CASE x \notin Free(Acquired \ acquired[i])
+          PROOF OMITTED
+          \* Must show:
+          \*  x \notin Free(Acquired \ acquired[i])) => Cardinality(Overlap(x, Acquired)) > 0
+          \* which will require showing:
+          \*  x \notin HotInterference(Acquired) => x \notin HotInterference(Acquired \ acquired[i])
+          \* then show:
+          \*  x \notin HotInterference(Aqcuired) => x \notin HotInterference(Acquired')
 
- <2>2. I /\ [\E i \in Procs : (doNextBlock(i) \/ doSearch(i))]_Vars => I'
+    <5>3. QED BY <5>1 and <5>2
+ 
+   <4>3. I /\ (\E i \in Procs : doSearch(i)) => I'
+        PROOF OMITTED \* TODO
+ 
+   <4>4. QED BY <4>1, <4>2 and <4>3
+ 
+  <3>4. QED BY <3>1, <3>2 \* INV1
 
-  <3>1. I /\ Vars = Vars' => I'
-        OBVIOUS \* Studdering step.
+ <2>2. I => x \in Nblocks /\ isHot[x] => \E c \in S : H(c)
+       OBVIOUS \* Weakening on the right side of the implication.
 
-  <3>2. I /\ (\E i \in Procs : doNextBlock(i)) => I'
-        ASSUME I /\ \E i \in Procs : do NextBlock(i)
-        PROVE I'
-        PROOF OMITTED \* This proof will be a bit long...
-
-  <3>3. I /\ (\E i \in Procs : doSearch(i)) => I'
-       PROOF OMITTED \* TODO
-
-  <3>3. QED BY <3>1, <3>2 and <3>3
-
- <2>3. QED BY <3>1 and <3>2 \* INV1
+ <2>3. QED BY <2>1 and <2>2
 
 <1>3. Prog => (x \in Nblocks /\ isHot[x] ~> ~isHot[x])
       BY <1>1 and <1>2 \* TODO: what is this called?
