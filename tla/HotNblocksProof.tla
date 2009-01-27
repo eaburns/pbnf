@@ -98,23 +98,62 @@ IN
    <4>2. I /\ (\E i \in Procs : doNextBlock(i)) => I'
          ASSUME I /\ \E i \in Procs : do NextBlock(i)
          PROVE I'
- 
-    <5>1. CASE x \in Free(Acquired \ acquired[i])
-          OBVIOUS \* isHot'[x] = FALSE, and the implication holds trivially since the LHS is FALSE.
- 
-    <5>2. CASE x \notin Free(Acquired \ acquired[i])
-          PROOF OMITTED
-          \* Must show:
-          \*  x \notin Free(Acquired \ acquired[i])) => Cardinality(Overlap(x, Acquired)) > 0
-          \* which will require showing:
-          \*  x \notin HotInterference(Acquired) => x \notin HotInterference(Acquired \ acquired[i])
-          \* then show:
-          \*  x \notin HotInterference(Aqcuired) => x \notin HotInterference(Acquired')
 
+    <5>1. CASE isHot[x]
+ 
+     <6>1. CASE x \in Free(Acquired \ acquired[i])
+           OBVIOUS \* isHot'[x] = FALSE, and the implication holds trivially since the LHS is FALSE.
+ 
+     <6>2. CASE x \notin Free(Acquired \ acquired[i])
+
+      <7>1. Cardinality(Overlap(x, Acquired)) > 0
+
+       <8>1. x \notin HotInterference(Acquired \ acquired[i])
+
+        <9>1. HotInterference(Aqcuired \ acquired[i]) \subseteq HotInterference(Acquired)
+              OBVIOUS \* TODO
+
+        <9>2. x \notin HotInterference(Acquired)
+              BY <4>2 and <5>1
+              \* By the assumption of the invariant and the case assumption this is trivial.
+
+        <9>2. QED BY <9>1 and <9>2
+
+       <8>2. QED BY <6>2 and <8>1
+             \* ((<6>2 => <7>1 \/ ~<8>1) /\ <6>2 /\ <8>1) => <7>1
+
+      <7>2. x \notin HotInterference(Acquired')
+            PROOF OMITTED
+
+      <7>3. QED BY <7>1 and <7>2
+
+     <6>3. QED BY <5>1 and <5>2
+
+    <5>2. CASE ~isHot[x]
+          PROOF OMITTED \* Should be obvious, isHot only gets more false.
+          
     <5>3. QED BY <5>1 and <5>2
  
    <4>3. I /\ (\E i \in Procs : doSearch(i)) => I'
+
+    <5>1. CASE isHot[x]
+
+     <6>1. isHot'[x]
+           OBVIOUS \* Nothing becomes cold in the doSearch action.
+
+     <6>2. x \notin HotInterference(Acquired)
+           OBVIOUS \* If a block y becomes hot, it is not in the interference scope of x.
+
+     <6>3. OverlapAmt(x)' = OverlapAmt(x)
+           OBVIOUS \* UNCHANGED<<acquired, Succs>>
+
+     <6>4. QED BY <6>1, <6>2 and <6>3
+
+
+    <5>2. CASE ~isHot[x]
         PROOF OMITTED \* TODO
+
+    <5>3. QED BY <5>1 and <5>2
  
    <4>4. QED BY <4>1, <4>2 and <4>3
  
