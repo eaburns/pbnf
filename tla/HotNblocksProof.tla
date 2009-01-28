@@ -20,20 +20,45 @@ LET S == Nat \ {0}
       PROVE H(c) ~> (G \/ \E d \in S : d < c /\ H(d))
       <2>1. H(c) => \E i \in Procs : i \in Overlap(x, Acquired)
             PROOF BY <1>1 \* the assumption that c is not zero and by the definition of OverlapAmt
-      <2>2. LET P == H(c)
-                Q == G \/ (\E d \in S : d < c /\ H(d))
-                A == i \in Overlap(x, Acquired) /\ doNextBlock(i)
-                N == Next
-            ASSUME [][Next] /\ WF_Vars(A)
+      <2>2. ASSUME [][Next] /\ WF_Vars(A) /\ i \in Overlap(x, Acquired)
             PROVE (H(c) ~> (G \/ \E d \in S : d < c /\ H(d))
+            LET P == H(c) /\ state[i] = nextblock
+                Q == G \/ (\E d \in S : d < c /\ H(d))
+                A == \E i \in Overlap(x, Acquired) : doNextBlock(i)
+                N == Next
             \* This is a WF1 proof
             <3>1. P /\ [N]_Vars => (P' \/ Q')
-                  PROOF OMITTED
+                  ASSUME j \in Procs
+                  PROVE P /\ [doSearch(j) \/ doNextBlock(j)]_Vars => (P' \/ Q')
+                  <4>1. P /\ Vars' = Vars => (P' \/ Q')
+                        PROOF OBVIOUS \* Studdering step... nothing changes and we have P'.
+                  <4>2. P /\ doNextBlock(j) => (P' \/ Q')
+                        <5>1. CASE state[j] = search
+                              PROOF OBVIOUS \* The LHS is false since doNextBlock(j) is not enabled.
+                        <5>2. CASE state[j] = nextblock
+                              PROOF OMITTED
+                        <5>3. QED BY <5>1 and <5>2
+                  <4>3. P /\ doSearch(j) => (P' \/ Q')
+                        <5>1. CASE state[j] = search
+                              PROOF OMITTED
+                        <5>2. CASE state[j] = nextblock
+                              PROOF OBVIOUS \* The LHS is false since doSearch(j) is not enabled.
+                        <5>3. QED BY <5>1 and <5>2
+                  <4>4. QED BY <4>1, <4>2 and <4>3
             <3>2. P /\ <<N /\ A>>_Vars => Q'
                   PROOF OMITTED
             <3>3. P => ENABLED<<A>>_Vars
+                  PROOF OBVIOUS \* P contains the guard for A
+            <3>4. H(c) /\ state[i] = nextblock ~> Q
+                  PROOF BY <3>1, <3>2 and <3>3 \* WF1
+
+            <3>5. H(c) /\ state[i] = search ~> Q \/ (H(c) /\ state[i] = nextblock)
                   PROOF OMITTED
-            <3>4. QED BY <3>1, <3>2 and <3>3 \* Using WF1
+            <3>6. H(c) /\ state[i] = search ~> Q
+                  PROOF BY <3>4 and <3>5 \* ((A ~> B \/ C) /\ (C ~> B)) => (A ~> B)
+
+            <3>7. QED BY <3>4 and <3>6 \* Disjunction of ~>
+            
       <2>3. [][Next] /\ WF_Vars(i \in Overlap(x, Acquired) /\ doNextBlock(i))
             <3>1. [][Next]
                   PROOF OBVIOUS \* This is part of Prog, which we assume in <1>1
