@@ -23,34 +23,32 @@ LET I == x \in Nblocks /\ isHot[x] => OverlapAmt(x) > 0 /\ x \notin HotInterfere
                                     PROOF OBVIOUS \* By the definition of isHot'
                               <6>2. QED BY <6>1 \* The LHS is false and the implication holds trivially.
                         <5>2. CASE x \notin Free(Acquired \ acquired[i])
-                              <6>1. Cardinality(Overlap(x, Acquired)) > 0
-                                    <7>1. x \notin HotInterference(Acquired \ acquired[i])
-                                          <8>1. HotInterference(Aqcuired \ acquired[i]) \subseteq HotInterference(Acquired)
-                                                <9>1. Busy(Acquired \ acquired[i]) \subset Busy(Acquired \ acquired[i])
-                                                      PROOF OBVIOUS
-                                                      \* There are less acquired blocks, and therefore there are less busy blocks.
-                                                <9>2. Overlap(x, Acquired \ acquired[i]) \subseteq Overlap(x, Acquired)
-                                                      <10>1. CASE acquired[i] \in Succs[x]
-                                                             PROOF OBVIOUS \* There is less overlap
-                                                      <10>2. CASE acquired[i] \notin Succs[x]
-                                                             PROOF OBVIOUS \* The overlap set doesn't change
-                                                      <10>3. QED BY <10>1 and <10>2
-                                                <9>3. QED BY <9>1 and <9>2
-                                                \* If there is the same or less overlap, then the hot interference is the same or smaller.
-                                          <8>2. x \notin HotInterference(Acquired)
-                                                PROOF BY <3>2
-                                           \* By the assumption of the invariant and the case assumption this is trivial.
-                                          <8>3. QED BY <8>1 and <8>2
-                                    <7>2. QED BY <5>2 and <7>1 \* ((<5>2 => <6>1 \/ ~<7>1) /\ <5>2 /\ <6>1) => <6>1
-                              <6>2. x \notin HotInterference(Acquired')'
-                                    <7>1. Hot(Acquired')' \subseteq Hot(Acquired)
-                                          PROOF OBVIOUS \* Since isHot' is the same as or more false than isHot.
-                                          \* Is there a better way to explain this?!
-                                    <7>2. HotInterference(Acquired')' \subseteq HotInterference(Acquired)
-                                          PROOF BY <7>1 \* and the definition of HotInterference(A).
-                                          \* There are less hot blocks, so naturally there are less blocks which interfere with hot blocks.
-                                    <7>3. QED BY <7>2
-                              <6>3. QED BY <6>1 and <6>2 \* The RHS is true and the implication holds trivially.
+                              <6>1. Busy(Acquired \ acquired[i]) \subset Busy(Acquired \ acquired[i])
+                                    PROOF OBVIOUS
+                                    \* There are less acquired blocks, and therefore there are less busy blocks.
+                              <6>2. Overlap(x, Acquired \ acquired[i]) \subseteq Overlap(x, Acquired)
+                                    <7>1. CASE acquired[i] \in Succs[x]
+                                           PROOF OBVIOUS \* There is less overlap
+                                    <7>2. CASE acquired[i] \notin Succs[x]
+                                           PROOF OBVIOUS \* The overlap set doesn't change
+                                    <7>3. QED BY <7>1 and <7>2
+                              <6>3. HotInterference(Aqcuired \ acquired[i]) \subseteq HotInterference(Acquired)
+                                    PROOF BY <6>1 and <6>2 \* and the definition of HotInteference(A).
+                              <6>4. x \notin HotInterference(Acquired)
+                                    PROOF BY <3>2 \* By the assumption of the invariant and the case assumption this is trivial.
+                              <6>5. x \notin HotInterference(Acquired \ acquired[i])
+                                    PROOF BY <6>4 and <6>3
+                              <6>6. Cardinality(Overlap(x, Acquired)) > 0
+                                    PROOF BY <5>2 and <6>5 \* ((<5>2 => <6>6 \/ ~<6>5) /\ <5>2 /\ <6>5) => <6>6
+                              <6>7. Hot(Acquired')' \subseteq Hot(Acquired)
+                                    PROOF OBVIOUS \* Since isHot' is the same as or more false than isHot.
+                                    \* Is there a better way to explain this?!
+                              <6>8. HotInterference(Acquired')' \subseteq HotInterference(Acquired)
+                                    PROOF BY <6>7 \* and the definition of HotInterference(A).
+                                    \* There are less hot blocks, so naturally there are less blocks which interfere with hot blocks.
+                              <6>9. x \notin HotInterference(Acquired')'
+                                    PROOF BY <6>7 and <6>8
+                              <6>10. QED BY <6>6 and <6>9 \* The RHS is true and the implication holds trivially.
                         <5>3. QED BY <5>1 and <5>2
                   <4>2. CASE ~isHot[x]
                         <5>1. ~isHot'[x]
