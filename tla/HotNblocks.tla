@@ -38,6 +38,7 @@ doSearch(x) == /\ UNCHANGED<<acquired, Succs>>
                /\ \/ UNCHANGED<<isHot>>
                   \/ \E y \in Succs[acquired[x]] : /\ ~isHot[y]
                                                    /\ IntScope(y) \intersect Hot(Acquired) = {}
+                                                   /\ y \notin HotInterference(Acquired)
                                                    /\ isHot' = [isHot EXCEPT ![y] = TRUE]
 
 Init == /\ state = [x \in Procs |-> nextblock]
