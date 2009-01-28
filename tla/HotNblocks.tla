@@ -21,6 +21,7 @@ Hot(A) == {x \in Nblocks : isHot[x] /\ Overlap(x, A) # {}}       \* Set of all h
 HotInterference(A) == UNION {IntScope(x) : x \in Hot(A)}         \* Set of Nblocks in interference scopes of hot nblocks
 Free(A) == {x \in Nblocks : Overlap(x, A) = {} /\ x \notin HotInterference(A)} \* Free Nblocks given the set of acquired nblocks
 Acquired == {acquired[x] : x \in Procs} \ {none}                 \* Set of Nblocks which are currently acquired
+OverlapAmt(x) == Cardinality(Overlap(x, Acquired))               \* The number of nblocks overlapping x.
 
 doNextBlock(x) == /\ UNCHANGED<<Succs>>
                   /\ state[x] = nextblock
@@ -53,6 +54,8 @@ Fairness == \A x \in Procs : WF_Vars(doNextBlock(x) \/ doSearch(x))
 Prog == Init /\ [][Next]_Vars /\ Fairness
 ------------------------------------------------------------
 HotNblocks == \A x \in Nblocks : isHot[x] ~> ~isHot[x]
+
+HotNblocksOverlap == \A x \in Nblocks : isHot[x] => OverlapAmt(x) > 0
 
 NoCollisions == \A x,y \in Procs : x # y => \/ acquired[x] = none
                                             \/ acquired[y] = none
