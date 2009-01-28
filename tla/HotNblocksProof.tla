@@ -6,14 +6,22 @@ Also, we need to figure out what to label the steps that use:
 *)
 EXTENDS HotNblocks
 
+\* The amount of nblocks overlapping x.
+OverlapAmt(x) == Cardinality(Overlap(x, Acquired))
+
+\* The set of all processors which are blocking x.
+Blocking(x) == { p \in Procs : acquired[p] \in Overlap(x, Acquired) }
+
+\* If an nblock is hot, it must have a busy nblock overlapping its scope.
+HotNblocksOverlap == \A x \in Nblocks : isHot[x] => OverlapAmt(x) > 0
+
 (*
 The this safety property is used later for the proof of the HotNblocks liveness property.
 *)
-PROOF Safety1 == Prog => [](x \in Nblocks /\ isHot[x] => \E c \in S : H(c))
+PROOF Safety1 == Prog => [](HotNblocksOverlap)
 
-LET I == x \in Nblocks /\ isHot[x] => \E c \in S : H(c) /\ x \notin HotInterference(Acquired)
+LET I == x \in Nblocks /\ isHot[x] => OverlapAmt(x) > 0 /\ x \notin HotInterference(Acquired)
     N == Next
-
 <1>1. Prog => [](I)
    <2>1. Init => I
       PROOF OBVIOUS \* Nothing is hot in Init, and therefore the implication holds trivially.
@@ -21,66 +29,62 @@ LET I == x \in Nblocks /\ isHot[x] => \E c \in S : H(c) /\ x \notin HotInterfere
       <3>1. I /\ Vars = Vars' => I'
          PROOF OBVIOUS \* Studdering step.
       <3>2. I /\ (\E i \in Procs : doNextBlock(i)) => I'
-         ASSUME I /\ \E i \in Procs : do NextBlock(i)
-         PROVE I'
-         <4>1. CASE isHot[x]
-            <5>1. CASE x \in Free(Acquired \ acquired[i])
-               PROOF OBVIOUS
-            \* isHot'[x] = FALSE, and the implication holds trivially since the LHS is FALSE.
-            <5>2. CASE x \notin Free(Acquired \ acquired[i])
-               <6>1. Cardinality(Overlap(x, Acquired)) > 0
-                  <7>1. x \notin HotInterference(Acquired \ acquired[i])
-                     <8>1. HotInterference(Aqcuired \ acquired[i]) \subseteq HotInterference(Acquired)
-                        <9>1. Busy(Acquired \ acquired[i]) \subset Busy(Acquired \ acquired[i])
-                           PROOF OBVIOUS
-                        \* There are less acquired blocks, and therefore there are less busy blocks.
-                        <9>2. Overlap(x, Acquired \ acquired[i]) \subseteq Overlap(x, Acquired)
-                           <10>1. CASE acquired[i] \in Succs[x]
-                               PROOF OBVIOUS \* There is less overlap
-                           <10>2. CASE acquired[i] \notin Succs[x]
-                               PROOF OBVIOUS \* The overlap set doesn't change
-                           <10>3. QED BY <10>1 and <10>2
+         ASSUME I /\ (\E i \in Procs : do NextBlock(i)) /\ isHot'[x]
+         PROVE OverlapAmt(x) > 0 /\ x \notin HotInterference(Acquired)
+         <4>1. CASE x \in Free(Acquired \ acquired[i])
+            <5>1. isHot'[x] = FALSE
+               PROOF OBVIOUS \* By the definition of isHot'
+            <5>2. QED BY <5>1 \* This violates the second assumption of <3>2
+         <4>2. CASE x \notin Free(Acquired \ acquired[i])
+            <5>1. Cardinality(Overlap(x, Acquired)) > 0
+               <6>1. x \notin HotInterference(Acquired \ acquired[i])
+                  <7>1. HotInterference(Aqcuired \ acquired[i]) \subseteq HotInterference(Acquired)
+                     <8>1. Busy(Acquired \ acquired[i]) \subset Busy(Acquired \ acquired[i])
+                        PROOF OBVIOUS
+                     \* There are less acquired blocks, and therefore there are less busy blocks.
+                     <8>2. Overlap(x, Acquired \ acquired[i]) \subseteq Overlap(x, Acquired)
+                        <9>1. CASE acquired[i] \in Succs[x]
+                            PROOF OBVIOUS \* There is less overlap
+                        <9>2. CASE acquired[i] \notin Succs[x]
+                            PROOF OBVIOUS \* The overlap set doesn't change
                         <9>3. QED BY <9>1 and <9>2
-                        \* If there is the same or less overlap, then the hot interference is the same or smaller.
-                     <8>2. x \notin HotInterference(Acquired)
-                        PROOF BY <3>2 and <4>1
-                      \* By the assumption of the invariant and the case assumption this is trivial.
                      <8>3. QED BY <8>1 and <8>2
-                  <7>2. QED BY <5>2 and <7>1 \* ((<5>2 => <6>1 \/ ~<7>1) /\ <5>2 /\ <6>1) => <6>1
-               <6>2. x \notin HotInterference(Acquired')
-                  PROOF OMITTED
-               <6>3. QED BY <6>1 and <6>2
+                     \* If there is the same or less overlap, then the hot interference is the same or smaller.
+                  <7>2. x \notin HotInterference(Acquired)
+                     PROOF BY <3>2
+                   \* By the assumption of the invariant and the case assumption this is trivial.
+                  <7>3. QED BY <7>1 and <7>2
+               <6>2. QED BY <4>2 and <6>1 \* ((<5>2 => <6>1 \/ ~<7>1) /\ <5>2 /\ <6>1) => <6>1
+            <5>2. x \notin HotInterference(Acquired')'
+               <6>1. Hot(Acquired')' \subseteq Hot(Acquired)
+                  PROOF OBVIOUS \* Since isHot' is the same as or more false than isHot.
+                  \* Is there a better way to explain this?!
+               <6>2. HotInterference(Acquired')' \subseteq HotInterference(Acquired)
+                  PROOF BY <7>1 \* and the definition of HotInterference(A).
+                  \* There are less hot blocks, so naturally there are less blocks which interfere with hot blocks.
+               <6>3. QED BY <6>2
             <5>3. QED BY <5>1 and <5>2
-         <4>2. CASE ~isHot[x]
-            PROOF OMITTED \* Should be obvious, isHot only gets more false.
          <4>3. QED BY <4>1 and <4>2
       <3>3. I /\ (\E i \in Procs : doSearch(i)) => I'
-         <4>1. CASE isHot[x]
-            <5>1. isHot'[x]
-               PROOF OBVIOUS \* Nothing becomes cold in the doSearch action.
-            <5>2. x \notin HotInterference(Acquired)
-               PROOF OBVIOUS \* If a block y becomes hot, it is not in the interference scope of x.
-            <5>3. OverlapAmt(x)' = OverlapAmt(x)
-               PROOF OBVIOUS \* UNCHANGED<<acquired, Succs>>
-            <5>4. QED BY <5>1, <5>2 and <5>3
-         <4>2. CASE ~isHot[x]
-            PROOF OMITTED \* TODO
+         ASSUME I /\ (\E i \in Procs : doSearch(i)) /\ isHot'[x]
+         <4>1. x \notin HotInterference(Acquired)
+            PROOF OBVIOUS \* If a block y becomes hot, it is not in the interference scope of x.
+         <4>2. OverlapAmt(x)' = OverlapAmt(x)
+            PROOF OBVIOUS \* UNCHANGED<<acquired, Succs>>
          <4>3. QED BY <4>1 and <4>2
       <3>4. QED BY <3>1, <3>2 and <3>3
    <2>3. QED BY <2>1, <2>2 \* INV1
-<1>2. I => x \in Nblocks /\ isHot[x] => \E c \in S : H(c)
-   PROOF OBVIOUS \* Weakening on the right side of the implication.
+<1>2. I => HotNblocksOverlap
+   PROOF OBVIOUS \* Weakening and universal generalization.
 <1>3. QED BY <1>1 and <1>2
 
 ------------------------------------------------------------
 
 PROOF Prog => HotNblocks
 
-LET OverlapAmt(x) == Cardinality(Overlap(x, Acquired))
-      Blocking(x) == { p \in Procs : acquired[p] \in Overlap(x, Acquired) }
-      S == Nat \ {0}
-      G == ~isHot[x]
-      H(c) == x \in Nblocks /\ isHot[x] /\ OverlapAmt(x) = c
+LET S == Nat \ {0}
+    G == ~isHot[x]
+    H(c) == x \in Nblocks /\ isHot[x] /\ OverlapAmt(x) = c
 
 <1>1. Prog => ((\E c \in S: H(c) ~> ~isHot[x])
    <2>1. Prog /\ c \in S => (H(c) ~> (G \/ \E d \in S : d < c /\ H(d)))
