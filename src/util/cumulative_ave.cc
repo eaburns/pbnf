@@ -25,6 +25,14 @@ void CumulativeAverage::add_val(unsigned long val)
 }
 
 /**
+ * Get the number of entries
+ */
+unsigned long CumulativeAverage::get_num(void)
+{
+	return num;
+}
+
+/**
  * Read the average
  */
 float CumulativeAverage::read(void)

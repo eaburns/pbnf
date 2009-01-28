@@ -17,6 +17,8 @@
 #include "pbnf_search.h"
 #include "search.h"
 #include "state.h"
+#include "util/timer.h"
+#include "util/cumulative_ave.h"
 
 using namespace std;
 using namespace PBNF;
@@ -40,9 +42,17 @@ void PBNFSearch::PBNFThread::run(void)
 {
 	vector<State *> *path;
 	NBlock *n = NULL;
+	//Timer t;
+	//CumulativeAverage ca;
+	//double longest_switch = 0;
 
 	do {
+		//t = Timer();
+		//t.start();
 		n = graph->next_nblock(n, !set_hot, search->dynamic_m);
+		//t.stop();
+		//ca.add_val((unsigned long)(t.get_wall_time() * 1000000));
+		//longest_switch = max(longest_switch, t.get_wall_time());
 		set_hot = false;
 		if (n) {
 			expansions = 0;
@@ -54,6 +64,10 @@ void PBNFSearch::PBNFThread::run(void)
 			ave_exp_per_nblock.add_val(exp_this_block);
 		}
 	} while (n);
+
+	//cout << "switch took (avg) " << ca.read()/1000000 << endl;
+	//cout << "number of switches " << ca.get_num() << endl;
+	//cout << "longest switch " << longest_switch << endl;
 
 	graph->set_done();
 }

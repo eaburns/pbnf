@@ -3,7 +3,9 @@
  */
 	.text
 	.align 4
-	.globl cmpxchg_64
+	.globl _cmpxchg_64
+_cmpxchg_64:
+        .globl cmpxchg_64
 cmpxchg_64:
 	pushl	%ebp
 	movl	%esp, %ebp
