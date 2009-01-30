@@ -1,0 +1,46 @@
+Fri Jan 30 13:27:07 EST 2009
+SPECIFICATION Prog
+
+CONSTANTS
+	nnblocks = 10
+	nprocs = 2
+	none = none
+	search = search
+	nextblock = nextblock
+
+INVARIANTS
+	TypeInv
+
+PROPERTIES
+	HotNblocks
+
+java version "1.6.0_0"
+OpenJDK  Runtime Environment (build 1.6.0_0-b11)
+OpenJDK 64-Bit Server VM (build 1.6.0_0-b11, mixed mode)
+
+TLC2 Version 2.01 of February 23, 2008
+Model-checking
+Parsing file HotNblocks.tla
+Parsing file /home/rai/eaburns/lib/tla/tla2sany/StandardModules/FiniteSets.tla
+Parsing file /home/rai/eaburns/lib/tla/tla2sany/StandardModules/Naturals.tla
+Parsing file /home/rai/eaburns/lib/tla/tla2sany/StandardModules/Sequences.tla
+Semantic processing of module Naturals
+Semantic processing of module Sequences
+Semantic processing of module FiniteSets
+Semantic processing of module HotNblocks
+Implied-temporal checking--satisfiability problem has 10 branches.
+Finished computing initial states: 1 distinct state generated.
+Progress(6): 1864 states generated, 494 distinct states found, 298 states left on queue.
+--Checking temporal properties for the complete state space...
+Model checking completed. No error has been found.
+  Estimates of the probability that TLC did not check all reachable states
+  because two distinct states had the same fingerprint:
+    calculated (optimistic):  1.4666935201079756E-12
+    based on the actual fingerprints:  1.274850773358838E-13
+14681 states generated, 2161 distinct states found, 0 states left on queue.
+The depth of the complete state graph search is 9.
+
+real	5m4.261s
+user	8m29.200s
+sys	0m3.256s
+Fri Jan 30 13:32:12 EST 2009

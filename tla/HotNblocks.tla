@@ -31,7 +31,8 @@ doNextBlock(x) == /\ UNCHANGED<<Succs>>
                        /\ state' = [state EXCEPT ![x] = search]
                        /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[x]}) THEN FALSE ELSE isHot[y]]
                      ELSE /\ acquired' = [acquired EXCEPT ![x] = none]
-                          /\ UNCHANGED<<state, isHot>>
+                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired') THEN FALSE ELSE isHot[y]]
+                          /\ UNCHANGED<<state>>
 
 doSearch(x) == /\ UNCHANGED<<acquired, Succs>>
                /\ state[x] = search

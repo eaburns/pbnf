@@ -81,7 +81,7 @@ LET S == Nat \ {0}
                                           /\ state' = [state EXCEPT ![j] = search]
                                           /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[j]})
                                                                          THEN FALSE ELSE isHot[y]]
-                                          PROOF BY <4>2 and <6>2
+                                          PROOF BY <4>2 and <6>3
                                           \* The 'THEN' portion of the IF in doNextBlock(j)
                                     <7>2. acquired'[j] \notin Succs[x]
                                           <8>1. acquired'[j] \in Free(Acquired \ {acquried[j]})
@@ -115,7 +115,7 @@ LET S == Nat \ {0}
                                           /\ state' = [state EXCEPT ![j] = search]
                                           /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[j]})
                                                                          THEN FALSE ELSE isHot[y]]
-                                          PROOF BY <4>2 and <6>2
+                                          PROOF BY <4>2 and <6>4
                                           \* The 'THEN' portion of the IF in doNextBlock(j)
                                     <7>2. acquired'[j] \notin Succs[x]
                                           <8>1. acquired'[j] \in Free(Acquired \ {acquried[j]})
@@ -145,21 +145,46 @@ LET S == Nat \ {0}
                                     <7>11. isHot'[x] = isHot[x]
                                           PROOF BY <7>1 and <7>10 \* the definition of isHot'
                                     <7>12. QED BY <7>4, <7>7, <7>8 and <7>11 \* We have P'
-(*
-----------------------------------------------------------------------------------------------------
-*)
                               <6>5. CASE /\ acquired[j] # none
                                          /\ Free(Acquired \ {acquired[j]}) = {}
                                          /\ acquired[j] \in Overlap(x, Acquired)
-                                          PROOF OMITTED
+                                    <7>1. /\ acquired' = [acquired EXCEPT ![j] = none]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired') THEN FALSE THEN isHot[y]]
+                                          /\ UNCHANGED<<Succs, state>>
+                                          PROOF BY <4>2 and <6>5
+                                          \* The ELSE clause of the IF expression in doNextBlock(j)
+                                    <7>2. acquired'[j] \notin Overlap(x, Acquired')'
+                                          PROOF BY <7>1 and TypeInv
+                                          \* acquired'[j] = none, assumption none \notin Nblocks
+                                          \* and Succs[x] \in [Nblocks -> SUBSET Nblocks]
+                                    <7>3. OverlapAmt(x)' < Overlap(x)
+                                          PROOF BY <6>5, <7>1 and <7>2 \* Only acquired[j] changes, and it is not in Overlap(x, Acquired')'
+                                    <7>4. Acquired' = Acquired \ {acquired[j]}
+                                          PROOF BY <7>1
+                                    <7>5. acquired[i] \in Overlap(x, Acquired')
+                                          PROOF BY <4>2 and <7>4 \* acquired[i] is still overlapping x since it is still in Acquired'
+                                    <7>6. Free(Acquired')' = Free(Acquired')
+                                          PROOF BY <7>1 \* UNCHANGED<<Succs>>
+                                    <7>7. x \notin Free(Acquired')
+                                          PROOF BY <7>5
+                                    <7>8. isHot'[x] = isHot[x]
+                                          PROOF BY <7>1 and <7>7 \* isHot'[x] is not set to false.
+                                    <7>x. QED BY <7>3 and <7>8
 (*
 ----------------------------------------------------------------------------------------------------
 *)
                               <6>6. CASE /\ acquired[j] # none
-                                               /\ Free(Acquired \ {acquired[j]}) = {}
-                                               /\ acquired[j] \notin Overlap(x, Acquired)
-                                          PROOF OMITTED
-                                    <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
+                                         /\ Free(Acquired \ {acquired[j]}) = {}
+                                         /\ acquired[j] \notin Overlap(x, Acquired)
+                                    <7>1. /\ acquired' = [acquired EXCEPT ![j] = none]
+                                          /\ UNCHANGED<<Succs, state, isHot>>
+                                          PROOF BY <4>2 and <6>6
+                                          \* The ELSE clause of the IF expression in doNextBlock(j)
+                                    <7>2. 
+(*
+----------------------------------------------------------------------------------------------------
+*)
+                              <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
                         <5>3. CASE state[j] = nextblock /\ j = i
                               <6>1. acquired[i] # none
                                     PROOF OMITTED \* acquried[i] \in Overlap(x, Acquired) /\ none \notin Overlap(x, Acquired)
