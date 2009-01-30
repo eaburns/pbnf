@@ -1,12 +1,12 @@
-Fri Jan 23 13:07:03 EST 2009
+Wed Jan 28 12:57:47 EST 2009
 SPECIFICATION Prog
 
 CONSTANTS
-	NNblocks = 12
-	NProcs = 3
-	None = None
-	Search = Search
-	NextBlock = NextBlock
+	nnblocks = 12
+	nprocs = 3
+	none = none
+	search = search
+	nextblock = nextblock
 
 INVARIANTS
 	TypeInv
@@ -14,9 +14,10 @@ INVARIANTS
 PROPERTIES
 	HotNblocks
 
-java version "1.6.0_02"
-Java(TM) SE Runtime Environment (build 1.6.0_02-b05)
-Java HotSpot(TM) Server VM (build 1.6.0_02-b05, mixed mode)
+
+java version "1.6.0_0"
+OpenJDK  Runtime Environment (build 1.6.0_0-b11)
+OpenJDK 64-Bit Server VM (build 1.6.0_0-b11, mixed mode)
 
 TLC2 Version 2.01 of February 23, 2008
 Model-checking
@@ -30,56 +31,65 @@ Semantic processing of module FiniteSets
 Semantic processing of module HotNblocks
 Implied-temporal checking--satisfiability problem has 12 branches.
 Finished computing initial states: 1 distinct state generated.
-Progress(4): 711 states generated, 483 distinct states found, 451 states left on queue.
-Progress(5): 15744 states generated, 5465 distinct states found, 4116 states left on queue.
-Progress(6): 24360 states generated, 6917 distinct states found, 4928 states left on queue.
-Progress(6): 31810 states generated, 7933 distinct states found, 5366 states left on queue.
-Progress(6): 44643 states generated, 11189 distinct states found, 7179 states left on queue.
-Progress(6): 53451 states generated, 13087 distinct states found, 8224 states left on queue.
+Progress(4): 1129 states generated, 651 distinct states found, 576 states left on queue.
+Progress(5): 12505 states generated, 4153 distinct states found, 3150 states left on queue.
+Progress(6): 23659 states generated, 7027 distinct states found, 5018 states left on queue.
+Progress(6): 33734 states generated, 8789 distinct states found, 5899 states left on queue.
+Progress(6): 41447 states generated, 10398 distinct states found, 6762 states left on queue.
+Progress(6): 50097 states generated, 12322 distinct states found, 7800 states left on queue.
 --Checking temporal properties for the current state space...
---Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
-Progress(5): 64837 states generated, 15380 distinct states found, 9395 states left on queue.
-Progress(7): 76901 states generated, 17796 distinct states found, 10416 states left on queue.
-Progress(7): 88818 states generated, 20018 distinct states found, 11111 states left on queue.
-Progress(7): 101027 states generated, 22119 distinct states found, 11557 states left on queue.
-Progress(7): 112697 states generated, 23900 distinct states found, 11833 states left on queue.
-Progress(7): 123708 states generated, 25655 distinct states found, 12240 states left on queue.
---Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
-Progress(7): 133914 states generated, 26853 distinct states found, 12127 states left on queue.
-Progress(6): 140569 states generated, 27304 distinct states found, 12031 states left on queue.
-Progress(8): 147517 states generated, 27847 distinct states found, 11925 states left on queue.
-Progress(8): 154729 states generated, 28259 distinct states found, 11446 states left on queue.
-Progress(8): 161417 states generated, 28582 distinct states found, 10916 states left on queue.
-Progress(8): 168097 states generated, 28865 distinct states found, 10336 states left on queue.
---Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
-Progress(8): 175328 states generated, 29643 distinct states found, 10137 states left on queue.
-Progress(8): 184898 states generated, 31668 distinct states found, 10740 states left on queue.
-Progress(8): 193649 states generated, 33406 distinct states found, 11190 states left on queue.
-Progress(8): 200679 states generated, 34044 distinct states found, 10905 states left on queue.
-Progress(8): 207575 states generated, 34576 distinct states found, 10549 states left on queue.
-Progress(8): 213746 states generated, 34836 distinct states found, 10081 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-28-12-57-47 completed.
+Progress(6): 58072 states generated, 13945 distinct states found, 8661 states left on queue.
+Progress(6): 65771 states generated, 15476 distinct states found, 9448 states left on queue.
+Progress(7): 76537 states generated, 17599 distinct states found, 10201 states left on queue.
+Progress(6): 82935 states generated, 18304 distinct states found, 10304 states left on queue.
+Progress(6): 88680 states generated, 18827 distinct states found, 10367 states left on queue.
+Progress(7): 97963 states generated, 20430 distinct states found, 10845 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-28-12-57-47 completed.
+Progress(7): 107743 states generated, 22073 distinct states found, 11224 states left on queue.
+Progress(7): 117802 states generated, 23757 distinct states found, 11625 states left on queue.
+Progress(7): 127595 states generated, 25152 distinct states found, 11776 states left on queue.
+Progress(7): 137257 states generated, 26517 distinct states found, 11913 states left on queue.
+Progress(7): 146746 states generated, 27771 distinct states found, 11940 states left on queue.
+Progress(8): 153351 states generated, 28567 distinct states found, 11846 states left on queue.
 --Checking temporal properties for the current state space...
---Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
-Progress(8): 220375 states generated, 35090 distinct states found, 9542 states left on queue.
-Progress(8): 227133 states generated, 35767 distinct states found, 9295 states left on queue.
-Progress(7): 234547 states generated, 36460 distinct states found, 9130 states left on queue.
-Progress(9): 242427 states generated, 37358 distinct states found, 9025 states left on queue.
-Progress(9): 252250 states generated, 38898 distinct states found, 8894 states left on queue.
-Progress(9): 260934 states generated, 39930 distinct states found, 8350 states left on queue.
---Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
-Progress(9): 269743 states generated, 40963 distinct states found, 7827 states left on queue.
-Progress(9): 278363 states generated, 41925 distinct states found, 7304 states left on queue.
-Progress(9): 286531 states generated, 42751 distinct states found, 6768 states left on queue.
-Progress(9): 291580 states generated, 42769 distinct states found, 6338 states left on queue.
-Progress(10): 297184 states generated, 42835 distinct states found, 5723 states left on queue.
-Progress(10): 304002 states generated, 43027 distinct states found, 4782 states left on queue.
---Checkpointing of run /home/rai/eaburns/tmp/states/09-01-23-13-07-04 completed.
-Progress(10): 310992 states generated, 43349 distinct states found, 3856 states left on queue.
-Progress(10): 317914 states generated, 43642 distinct states found, 2903 states left on queue.
-Progress(10): 324606 states generated, 43857 distinct states found, 1950 states left on queue.
-Progress(10): 330842 states generated, 43945 distinct states found, 1059 states left on queue.
-Progress(10): 335145 states generated, 43945 distinct states found, 581 states left on queue.
-Progress(10): 339544 states generated, 43945 distinct states found, 93 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-28-12-57-47 completed.
+Progress(8): 158997 states generated, 29063 distinct states found, 11624 states left on queue.
+Progress(7): 167115 states generated, 30378 distinct states found, 11905 states left on queue.
+Progress(8): 174065 states generated, 31130 distinct states found, 11844 states left on queue.
+Progress(8): 180211 states generated, 31963 distinct states found, 11844 states left on queue.
+Progress(8): 186601 states generated, 32702 distinct states found, 11703 states left on queue.
+Progress(8): 192356 states generated, 33238 distinct states found, 11493 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-28-12-57-47 completed.
+Progress(8): 198277 states generated, 33801 distinct states found, 11274 states left on queue.
+Progress(8): 204456 states generated, 34534 distinct states found, 11186 states left on queue.
+Progress(8): 210256 states generated, 34991 distinct states found, 10895 states left on queue.
+Progress(8): 215871 states generated, 35385 distinct states found, 10552 states left on queue.
+Progress(8): 221295 states generated, 35773 distinct states found, 10250 states left on queue.
+Progress(8): 226782 states generated, 36065 distinct states found, 9829 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-28-12-57-47 completed.
+Progress(8): 232395 states generated, 36386 distinct states found, 9420 states left on queue.
+Progress(8): 237873 states generated, 36680 distinct states found, 9018 states left on queue.
+Progress(9): 245022 states generated, 37585 distinct states found, 8747 states left on queue.
+Progress(8): 251556 states generated, 38251 distinct states found, 8400 states left on queue.
+Progress(8): 255669 states generated, 38334 distinct states found, 8105 states left on queue.
+Progress(8): 259963 states generated, 38391 distinct states found, 7771 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-28-12-57-47 completed.
+Progress(9): 265450 states generated, 38783 distinct states found, 7487 states left on queue.
+Progress(9): 274229 states generated, 40024 distinct states found, 7112 states left on queue.
+Progress(9): 282942 states generated, 41244 distinct states found, 6727 states left on queue.
+Progress(9): 291646 states generated, 42397 distinct states found, 6281 states left on queue.
+Progress(10): 298524 states generated, 42918 distinct states found, 5558 states left on queue.
+Progress(9): 304531 states generated, 43231 distinct states found, 4824 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-28-12-57-47 completed.
+Progress(10): 310209 states generated, 43412 distinct states found, 4040 states left on queue.
+Progress(10): 315847 states generated, 43600 distinct states found, 3247 states left on queue.
+Progress(10): 321453 states generated, 43764 distinct states found, 2450 states left on queue.
+Progress(10): 327167 states generated, 43911 distinct states found, 1595 states left on queue.
+Progress(10): 331744 states generated, 43945 distinct states found, 957 states left on queue.
+Progress(10): 335555 states generated, 43945 distinct states found, 538 states left on queue.
+--Checkpointing of run /home/rai/eaburns/tmp/states/09-01-28-12-57-47 completed.
+Progress(10): 339266 states generated, 43945 distinct states found, 125 states left on queue.
 --Checking temporal properties for the complete state space...
 Model checking completed. No error has been found.
   Estimates of the probability that TLC did not check all reachable states
@@ -89,7 +99,7 @@ Model checking completed. No error has been found.
 340417 states generated, 43945 distinct states found, 0 states left on queue.
 The depth of the complete state graph search is 10.
 
-real	206m48.431s
-user	958m46.579s
-sys	31m29.673s
-Fri Jan 23 16:33:52 EST 2009
+real	242m10.815s
+user	440m18.927s
+sys	3m47.014s
+Wed Jan 28 16:59:58 EST 2009
