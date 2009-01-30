@@ -79,8 +79,8 @@ ASFLAGS+=-xc99=%none
 CFLAGS+=-xc99=%none
 LDFLAGS+=-lpthread
 else                   # GNU compilers
-#PROFILE+=
-PROFILE+=-pg
+PROFILE+=
+#PROFILE+=-pg
 #DEBUG+=-O3
 DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
