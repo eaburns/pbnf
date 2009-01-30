@@ -31,7 +31,7 @@ LET S == Nat \ {0}
             <3>1. P /\ [N]_Vars => (P' \/ Q')
                   ASSUME j \in Procs
                   PROVE P /\ [doSearch(j) \/ doNextBlock(j)]_Vars => (P' \/ Q')
-                  <4>1. P /\ Vars' = Vars => (P' \/ Q')
+                  <4>1. P /\ UNCHANGED<<Vars>> => (P' \/ Q')
                         PROOF OBVIOUS \* Studdering step... nothing changes and we have P'.
                   <4>2. P /\ doNextBlock(j) => (P' \/ Q')
                         ASSUME P /\ doNextBlock(j)
@@ -43,7 +43,7 @@ LET S == Nat \ {0}
                                     PROOF OBVIOUS \* The action is not enabled.
                               <6>2. CASE acquired[j] = none /\ Free(Acquired) # {}
                                     <7>1. Free(Acquired \ {acquired[j]}) # {}
-                                          PROOF OMITTED \* none \notin Free(Acquired)
+                                          PROOF OBVIOUS \* by assumption none \notin Free(Acquired)
                                     <7>...
                                     PROOF OMITTED
                               <6>3. CASE /\ acquired[j] # none
