@@ -1,4 +1,4 @@
--------------------- MODULE HotNblocksProof --------------------
+-/------------------- MODULE HotNblocksProof --------------------
 (*
 Anything labeled PROOF OMITTED  will need to be done before the proof is complete.
 Also, we need to figure out what to label the steps that use:
@@ -71,27 +71,55 @@ LET S == Nat \ {0}
                                           \* it is not overlapping.
                                     <7>9. acquired'[i] = acquired[i] /\ state'[i] = state[i]
                                           PROOF BY <5>2 and <7>3 \* i # j and only acquired[j] changes and only state[j] changes
-                                    <7>10. QED BY <7>6, <7>8 and <7>9
-(*
-----------------------------------------------------------------------------------------------------
-*)
+                                    <7>10. QED BY <7>6, <7>8 and <7>9 \* We have P'
                               <6>3. CASE /\ acquired[j] # none
-                                         /\ Free(Acquired \ acquired[j]) # {}
+                                         /\ Free(Acquired \ {acquired[j]}) # {}
                                          /\ acquired[j] \in Overlap(x, Acquired)
-                                    PROOF OMITTED
+                                    <7>1. /\ \E y \in Free(Acquired \ {acquired[j]}) : acquired' = [acquired EXCEPT ![j] = y]
+                                          /\ state' = [state EXCEPT ![j] = search]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[j]}) THEN FALSE ELSE isHot[y]]
+                                          PROOF BY <4>2 and <6>2
+                                          \* The 'THEN' portion of the IF in doNextBlock(j)
+                                    <7>2. acquired'[j] \notin Succs[x]
+                                          <8>1. acquired'[j] \in Free(Acquired \ {acquried[j]})
+                                                PROOF BY <7>3
+                                          <8>2. acquired'[j] \notin HotInterference(Acquired \ {acquired[j]})
+                                                PROOF BY <8>1 \* and the definition of Free(Acquired \ {acquired[j]})
+                                          <8>3. Succs[x] \subseteq HotInterference(Acquired \ {acquired[j]})
+                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope
+                                          <8>4. QED BY <8>3
+                                    <7>3. Acquired' = Acquired \ {acquired[j]} \union {acquired'[j]}
+                                          PROOF BY <6>3 and <7>2 \* and the definition of Acquired.
+                                    <7>4. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
+                                          PROOF BY <6>3, <7>2 and <7>3
+                                          \* Now acquired[j] is not overlapping and acquired'[j] doesn't either
+                                    <7>5. OverlapAmt(x)' < OverlapAmt(x)
+                                          PROOF BY <7>4
+                                    <7>6. Overlap(x, Acquired) # {acquired[j]}
+                                          PROOF BY <4>2, <5>2 and <6>3 \* Since i # j and acquired[i] is also in Overlap(x, Acquired)
+                                    <7>7. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
+                                          PROOF BY <4>2 and <5>2
+                                    <7>8. x \notin Free(Acquired \ {acquired[j]})
+                                          PROOF BY <7>7 \* and the definition of Free.
+                                    <7>9. isHot'[x] = isHot[x]
+                                          PROOF BY <7>1 and <7>8 \* from isHot' only falsifying things in Free(Acquired \ {acquired[j]})
+                                    <7>10. QED BY <7>5 and <7>9 \* We have Q'
 (*
 ----------------------------------------------------------------------------------------------------
 *)
                               <6>4. CASE /\ acquired[j] # none
-                                         /\ Free(Acquired \ acquired[j]) # {}
+                                         /\ Free(Acquired \ {acquired[j]}) # {}
                                          /\ acquired[j] \notin Overlap(x, Acquired)
                                     PROOF OMITTED
+(*
+----------------------------------------------------------------------------------------------------
+*)
                               <6>5. CASE /\ acquired[j] # none
-                                         /\ Free(Acquired \ acquired[j]) = {}
+                                         /\ Free(Acquired \ {acquired[j]}) = {}
                                          /\ acquired[j] \in Overlap(x, Acquired)
                                     PROOF OMITTED
                               <6>6. CASE /\ acquired[j] # none
-                                         /\ Free(Acquired \ acquired[j]) = {}
+                                         /\ Free(Acquired \ {acquired[j]}) = {}
                                          /\ acquired[j] \notin Overlap(x, Acquired)
                                     PROOF OMITTED
                               <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
@@ -99,9 +127,9 @@ LET S == Nat \ {0}
                               <6>1. acquired[i] # none
                                     PROOF OMITTED \* acquried[i] \in Overlap(x, Acquired) /\ none \notin Overlap(x, Acquired)
                               <6>2. Q'
-                                    <7>1. CASE Free(Acquired \ acquired[i]) # {}
+                                    <7>1. CASE Free(Acquired \ {acquired[i]}) # {}
                                           PROOF OMITTED
-                                    <7>2. CASE Free(Acquired \ acquired[i]) = {}
+                                    <7>2. CASE Free(Acquired \ {acquired[i]}) = {}
                                           PROOF OMITTED
                                     <7>3. QED BY <7>1 and <7>2
                               <6>3. QED BY <6>2
