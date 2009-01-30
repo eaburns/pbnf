@@ -34,11 +34,46 @@ LET S == Nat \ {0}
                   <4>1. P /\ Vars' = Vars => (P' \/ Q')
                         PROOF OBVIOUS \* Studdering step... nothing changes and we have P'.
                   <4>2. P /\ doNextBlock(j) => (P' \/ Q')
+                        ASSUME P /\ doNextBlock(j)
+                        PROVE P' \/ Q'
                         <5>1. CASE state[j] = search
                               PROOF OBVIOUS \* The LHS is false since doNextBlock(j) is not enabled.
-                        <5>2. CASE state[j] = nextblock
-                              PROOF OMITTED
-                        <5>3. QED BY <5>1 and <5>2
+                        <5>2. CASE state[j] = nextblock /\ j # i
+                              <6>1. CASE acquried[j] = none /\ Free(Acquired) = {}
+                                    PROOF OBVIOUS \* The action is not enabled.
+                              <6>2. CASE acquired[j] = none /\ Free(Acquired) # {}
+                                    <7>1. Free(Acquired \ {acquired[j]}) # {}
+                                          PROOF OMITTED \* none \notin Free(Acquired)
+                                    <7>...
+                                    PROOF OMITTED
+                              <6>3. CASE /\ acquired[j] # none
+                                         /\ Free(Acquired \ acquired[j]) # {}
+                                         /\ acquired[j] \in Overlap(x, Acquired)
+                                    PROOF OMITTED
+                              <6>4. CASE /\ acquired[j] # none
+                                         /\ Free(Acquired \ acquired[j]) # {}
+                                         /\ acquired[j] \notin Overlap(x, Acquired)
+                                    PROOF OMITTED
+                              <6>5. CASE /\ acquired[j] # none
+                                         /\ Free(Acquired \ acquired[j]) = {}
+                                         /\ acquired[j] \in Overlap(x, Acquired)
+                                    PROOF OMITTED
+                              <6>6. CASE /\ acquired[j] # none
+                                         /\ Free(Acquired \ acquired[j]) = {}
+                                         /\ acquired[j] \notin Overlap(x, Acquired)
+                                    PROOF OMITTED
+                              <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
+                        <5>3. CASE state[j] = nextblock /\ j = i
+                              <6>1. acquired[i] # none
+                                    PROOF OMITTED \* acquried[i] \in Overlap(x, Acquired) /\ none \notin Overlap(x, Acquired)
+                              <6>2. Q'
+                                    <7>1. CASE Free(Acquired \ acquired[i]) # {}
+                                          PROOF OMITTED
+                                    <7>2. CASE Free(Acquired \ acquired[i]) = {}
+                                          PROOF OMITTED
+                                    <7>3. QED BY <7>1 and <7>2
+                              <6>3. QED BY <6>2
+                        <5>4. QED BY <5>1, <5>2 and <5>3
                   <4>3. P /\ doSearch(j) => (P' \/ Q')
                         <5>1. CASE state[j] = search
                               PROOF OMITTED
