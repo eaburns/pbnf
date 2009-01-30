@@ -42,14 +42,46 @@ LET S == Nat \ {0}
                               <6>1. CASE acquried[j] = none /\ Free(Acquired) = {}
                                     PROOF OBVIOUS \* The action is not enabled.
                               <6>2. CASE acquired[j] = none /\ Free(Acquired) # {}
-                                    <7>1. Free(Acquired \ {acquired[j]}) # {}
+                                    <7>1. Free(Acquired \ {acquired[j]}) = Free(Acquired)
                                           PROOF OBVIOUS \* by assumption none \notin Free(Acquired)
-                                    <7>...
-                                    PROOF OMITTED
+                                    <7>2. Free(Acquried \ {acquired[j]}) # {}
+                                          PROOF BY <6>2 and <7>1
+                                    <7>3. /\ \E y \in Free(Acquired) : acquired' = [acquired EXCEPT ![j] = y]
+                                          /\ state' = [state EXCEPT ![j] = search]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired) THEN FALSE ELSE isHot[y]]
+                                          PROOF BY <4>2, <7>1 and <7>2
+                                          \* The 'THEN' portion of the IF in doNextBlock(j) with a simple substitution from <7>1
+                                    <7>4. Overlap(x, Acquired) # {}
+                                          PROOF BY <4>2 \* OverlapAmt(x) = c /\ c \in Nat \ {0}, trivial
+                                    <7>5. x \notin Free(Acquired)
+                                          PROOF BY <7>4 \* and definition of Free(Acquired)
+                                    <7>6. isHot'[x] = isHot[x]
+                                          PROOF BY <7>3 and <7>5
+                                    <7>7. acquired'[j] \notin Succs[x]
+                                          <8>1. acquired'[j] \in Free(Acquired)
+                                                PROOF BY <7>3
+                                          <8>2. acquired'[j] \notin HotInterference(Acquired)
+                                                PROOF BY <8>1 \* and the definition of Free(Acquired)
+                                          <8>3. Succs[x] \subseteq HotInterference(Acquired)
+                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope
+                                          <8>4. QED BY <8>3
+                                    <7>8. Overlap(x, Acquired') = Overlap(x, Acquired)
+                                          PROOF BY <7>3 and <7>7
+                                          \* Only acquired[j] changes in acquired', and acquired'[j] \notin Succs[x] and therefore
+                                          \* it is not overlapping.
+                                    <7>9. acquired'[i] = acquired[i] /\ state'[i] = state[i]
+                                          PROOF BY <5>2 and <7>3 \* i # j and only acquired[j] changes and only state[j] changes
+                                    <7>10. QED BY <7>6, <7>8 and <7>9
+(*
+----------------------------------------------------------------------------------------------------
+*)
                               <6>3. CASE /\ acquired[j] # none
                                          /\ Free(Acquired \ acquired[j]) # {}
                                          /\ acquired[j] \in Overlap(x, Acquired)
                                     PROOF OMITTED
+(*
+----------------------------------------------------------------------------------------------------
+*)
                               <6>4. CASE /\ acquired[j] # none
                                          /\ Free(Acquired \ acquired[j]) # {}
                                          /\ acquired[j] \notin Overlap(x, Acquired)
