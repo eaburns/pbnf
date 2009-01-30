@@ -18,15 +18,15 @@ LET S == Nat \ {0}
 <1>1. Prog /\ c \in S => (H(c) ~> (G \/ \E d \in S : d < c /\ H(d)))
       ASSUME Prog /\ c \in S
       PROVE H(c) ~> (G \/ \E d \in S : d < c /\ H(d))
-      <2>1. H(c) => \E i \in Procs : i \in Overlap(x, Acquired)
+      <2>1. H(c) => \E i \in Procs : acquired[i] \in Overlap(x, Acquired)
             PROOF BY <1>1 \* the assumption that c is not zero and by the definition of OverlapAmt
       <2>2. ASSUME [][Next] /\ WF_Vars(A)
             PROVE (H(c) ~> (G \/ \E d \in S : d < c /\ H(d))
 ------------------------------------------------------------
             \* This is a WF1 proof
-            LET P == H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = nextblock
+            LET P == H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock
                 Q == G \/ (\E d \in S : d < c /\ H(d))
-                A == \E i \in Overlap(x, Acquired) : doNextBlock(i)
+                A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) : doNextBlock(i)
                 N == Next
             <3>1. P /\ [N]_Vars => (P' \/ Q')
                   ASSUME j \in Procs
@@ -50,15 +50,15 @@ LET S == Nat \ {0}
                   PROOF OMITTED
             <3>3. P => ENABLED<<A>>_Vars
                   PROOF OBVIOUS \* P contains the guard for A
-            <3>4. H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = nextblock ~> G \/ (\E d \in S : d < c /\ H(d))
+            <3>4. H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock ~> G \/ (\E d \in S : d < c /\ H(d))
                   PROOF BY <3>1, <3>2 and <3>3 \* WF1
 
 ------------------------------------------------------------
             \* This is a WF1 proof
-            LET P == H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = search
+            LET P == H(c) /\ acquride[i] \in Overlap(x, Acquired) /\ state[i] = search
                 Q == \/ (G \/ (\E d \in S : d < c /\ H(d)))
-                     \/ H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = nextblock))
-                A == \E i \in Overlap(x, Acquired) : doNextBlock(i)
+                     \/ H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock))
+                A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) : doNextBlock(i)
                 N == Next
             <3>5. P /\ [N]_Vars => (P' \/ Q')
                   PROOF OMITTED
@@ -67,24 +67,24 @@ LET S == Nat \ {0}
             <3>7. P => ENABLED<<A>>_Vars
                   PROOF OMITTED
             
-            <3>8. H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = search
-                  ~> Q \/ (H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = nextblock)
+            <3>8. H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = search
+                  ~> Q \/ (H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock)
                   PROOF BY <3>5, <3>6 and <3>7 \* WF1
                   
-            <3>9. H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = search ~> G \/ (\E d \in S : d < c /\ H(d))
+            <3>9. H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = search ~> G \/ (\E d \in S : d < c /\ H(d))
                   PROOF BY <3>4 and <3>8 \* ((A ~> B \/ C) /\ (C ~> B)) => (A ~> B)
 ------------------------------------------------------------
-            <3>10. H(c) /\ i \in Overlap(x, Acquired) ~> Q
+            <3>10. H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) ~> Q
                   PROOF BY <3>4 and <3>9 \* Disjunction of ~>
-            <3>11. H(c) => i \in Overlap(x, Acquired)
+            <3>11. H(c) => i \in Procs /\ acquired[i] \in Overlap(x, Acquired)
                   PROOF OBVIOUS
             <3>12. QED BY <3>11 and <3>10 \* This is that ((A /\ B => C) /\ A /\ (A => B)) => (A => C) thing again.
 ------------------------------------------------------------
             
-      <2>3. [][Next] /\ WF_Vars(i \in Overlap(x, Acquired) /\ doNextBlock(i))
+      <2>3. [][Next] /\ WF_Vars(i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ doNextBlock(i))
             <3>1. [][Next]
                   PROOF OBVIOUS \* This is part of Prog, which we assume in <1>1
-            <3>2. WF_Vars(i \in Overlap(x, Acquired) /\ doNextBlock(i))
+            <3>2. WF_Vars(i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ doNextBlock(i))
                   PROOF OMITTED
                   \* There are two pieces here... first, everything in Overlap(x, Acquired) is in Procs
                   \* and second, Overlap(x, Acquired) isn't empty... which it may be... but H(c) implies that it is not
