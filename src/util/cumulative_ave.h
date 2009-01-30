@@ -18,6 +18,7 @@ public:
 	CumulativeAverage(void);
 	void add_val(unsigned long val);
 	float read(void);
+	unsigned long get_num(void);
 	void reset(void);
 private:
 	float ave;
