@@ -20,13 +20,14 @@ LET S == Nat \ {0}
       PROVE H(c) ~> (G \/ \E d \in S : d < c /\ H(d))
       <2>1. H(c) => \E i \in Procs : i \in Overlap(x, Acquired)
             PROOF BY <1>1 \* the assumption that c is not zero and by the definition of OverlapAmt
-      <2>2. ASSUME [][Next] /\ WF_Vars(A) /\ i \in Overlap(x, Acquired)
+      <2>2. ASSUME [][Next] /\ WF_Vars(A)
             PROVE (H(c) ~> (G \/ \E d \in S : d < c /\ H(d))
-            LET P == H(c) /\ state[i] = nextblock
+------------------------------------------------------------
+            \* This is a WF1 proof
+            LET P == H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = nextblock
                 Q == G \/ (\E d \in S : d < c /\ H(d))
                 A == \E i \in Overlap(x, Acquired) : doNextBlock(i)
                 N == Next
-            \* This is a WF1 proof
             <3>1. P /\ [N]_Vars => (P' \/ Q')
                   ASSUME j \in Procs
                   PROVE P /\ [doSearch(j) \/ doNextBlock(j)]_Vars => (P' \/ Q')
@@ -49,15 +50,36 @@ LET S == Nat \ {0}
                   PROOF OMITTED
             <3>3. P => ENABLED<<A>>_Vars
                   PROOF OBVIOUS \* P contains the guard for A
-            <3>4. H(c) /\ state[i] = nextblock ~> Q
+            <3>4. H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = nextblock ~> G \/ (\E d \in S : d < c /\ H(d))
                   PROOF BY <3>1, <3>2 and <3>3 \* WF1
 
-            <3>5. H(c) /\ state[i] = search ~> Q \/ (H(c) /\ state[i] = nextblock)
+------------------------------------------------------------
+            \* This is a WF1 proof
+            LET P == H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = search
+                Q == \/ (G \/ (\E d \in S : d < c /\ H(d)))
+                     \/ H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = nextblock))
+                A == \E i \in Overlap(x, Acquired) : doNextBlock(i)
+                N == Next
+            <3>5. P /\ [N]_Vars => (P' \/ Q')
                   PROOF OMITTED
-            <3>6. H(c) /\ state[i] = search ~> Q
-                  PROOF BY <3>4 and <3>5 \* ((A ~> B \/ C) /\ (C ~> B)) => (A ~> B)
-
-            <3>7. QED BY <3>4 and <3>6 \* Disjunction of ~>
+            <3>6. P /\ <<N /\ A>>_Vars => Q'
+                  PROOF OMITTED
+            <3>7. P => ENABLED<<A>>_Vars
+                  PROOF OMITTED
+            
+            <3>8. H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = search
+                  ~> Q \/ (H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = nextblock)
+                  PROOF BY <3>5, <3>6 and <3>7 \* WF1
+                  
+            <3>9. H(c) /\ i \in Overlap(x, Acquired) /\ state[i] = search ~> G \/ (\E d \in S : d < c /\ H(d))
+                  PROOF BY <3>4 and <3>8 \* ((A ~> B \/ C) /\ (C ~> B)) => (A ~> B)
+------------------------------------------------------------
+            <3>10. H(c) /\ i \in Overlap(x, Acquired) ~> Q
+                  PROOF BY <3>4 and <3>9 \* Disjunction of ~>
+            <3>11. H(c) => i \in Overlap(x, Acquired)
+                  PROOF OBVIOUS
+            <3>12. QED BY <3>11 and <3>10 \* This is that ((A /\ B => C) /\ A /\ (A => B)) => (A => C) thing again.
+------------------------------------------------------------
             
       <2>3. [][Next] /\ WF_Vars(i \in Overlap(x, Acquired) /\ doNextBlock(i))
             <3>1. [][Next]
