@@ -77,7 +77,8 @@ LET S == Nat \ {0}
                                          /\ acquired[j] \in Overlap(x, Acquired)
                                     <7>1. /\ \E y \in Free(Acquired \ {acquired[j]}) : acquired' = [acquired EXCEPT ![j] = y]
                                           /\ state' = [state EXCEPT ![j] = search]
-                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[j]}) THEN FALSE ELSE isHot[y]]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[j]})
+                                                                         THEN FALSE ELSE isHot[y]]
                                           PROOF BY <4>2 and <6>2
                                           \* The 'THEN' portion of the IF in doNextBlock(j)
                                     <7>2. acquired'[j] \notin Succs[x]
