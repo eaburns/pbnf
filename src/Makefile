@@ -77,7 +77,7 @@ DEBUG+=
 FLAGS+=-mt -errwarn=%all $(DEBUG)
 ASFLAGS+=-xc99=%none
 CFLAGS+=-xc99=%none
-LDFLAGS+=-lpthread
+LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
