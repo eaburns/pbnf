@@ -26,7 +26,7 @@ LET S == Nat \ {0}
             \* This is a WF1 proof
             LET P == H(c) /\ i \in Procs /\ acquired[i] \in Overlap(xpdf, Acquired) /\ state[i] = nextblock
                 Q == G \/ (\E d \in S : d < c /\ H(d))
-                A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) : doNextBlock(i)
+                A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ doNextBlock(i)
                 N == Next
             <3>1. P /\ [N]_Vars => (P' \/ Q')
                   ASSUME j \in Procs
@@ -293,14 +293,20 @@ LET S == Nat \ {0}
                               PROOF OBVIOUS \* The LHS is false since doSearch(j) is not enabled.
                         <5>3. QED BY <5>1 and <5>2
                   <4>4. QED BY <4>1, <4>2 and <4>3
-(*
-----------------------------------------------------------------------------------------------------
-*)
             <3>2. P /\ <<N /\ A>>_Vars => Q'
-                  PROOF OMITTED
 (*
 ----------------------------------------------------------------------------------------------------
 *)
+                  <4>1. ASSUME P /\ <<N /\ A /\ HotNblockSafety>>_Vars /\ state[i] = nextblock
+                        PROVE Q'
+                        PROOF OMITTED
+(*
+----------------------------------------------------------------------------------------------------
+*)
+                  <4>2. ASSUME P /\ <<N /\ A>>_Vars /\ state[i] = search
+                        PROVE Q'
+                        PROOF OBVIOUS \* The LHS is false and the implication holds trivially.
+                  <4>3. QED BY <4>1 and <4>2 \* these are the two cases for state[i]
             <3>3. P => ENABLED<<A>>_Vars
                   PROOF OBVIOUS \* P contains the guard for A
             <3>4. H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock ~> G \/ (\E d \in S : d < c /\ H(d))
