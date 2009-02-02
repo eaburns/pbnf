@@ -46,8 +46,22 @@ doSearch(x) == /\ UNCHANGED<<acquired, Succs>>
 Init == /\ state = [x \in Procs |-> nextblock]
         /\ acquired = [x \in Procs |-> none]
         /\ isHot = [x \in Nblocks |-> FALSE]
+        \* This is just a basic graph where each nblock is connected to its neighbors forming a loop.
         /\ Succs = [x \in Nblocks |-> IF x = 0 THEN {nnblocks - 1, x + 1}
                                       ELSE IF x = nnblocks - 1 THEN {0, x - 1} ELSE {x - 1, x + 1}]
+(*
+        \* The interesting feature of this graph is that 2 is in the interference scope of 1,
+        \* but 1 is not in the interference scope of 2.
+        /\ Cardinality(Nblocks) = 8
+        /\ Succs = [x \in Nblocks |-> IF x = 0 THEN { 6 }
+                                      ELSE IF x = 1 THEN { 2, 4 }
+                                      ELSE IF x = 2 THEN { 3, 5, 0 }
+                                      ELSE IF x = 3 THEN { 4, 7 }
+                                      ELSE IF x = 4 THEN { 1, 3 }
+                                      ELSE IF x = 5 THEN { 2, 6, 7 }
+                                      ELSE IF x = 6 THEN { 0 }
+                                      ELSE (* x = 7 *) { 5 } ]
+*)
         /\ TypeInv
 
 Next == \E x \in Procs : (doNextBlock(x) \/ doSearch(x))
