@@ -70,7 +70,7 @@ Prog == Init /\ [][Next]_Vars /\ Fairness
 ------------------------------------------------------------
 HotNblocks == \A x \in Nblocks : isHot[x] ~> ~isHot[x]
 
-HotNblocksOverlap == \A x \in Nblocks : isHot[x] => OverlapAmt(x) > 0
+HotNblockSafety == \A x \in Nblocks : isHot[x] => OverlapAmt(x) > 0 /\ x \notin HotInterference(Acquired)
 
 NoCollisions == \A x,y \in Procs : x # y => \/ acquired[x] = none
                                             \/ acquired[y] = none

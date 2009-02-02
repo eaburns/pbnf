@@ -4,7 +4,7 @@ EXTENDS HotNblocks
 (*
 The this safety property is used later for the proof of the HotNblocks liveness property.
 *)
-PROOF Safety1 == Prog => [](HotNblocksOverlap)
+PROOF Safety1 == Prog => [](HotNblockSafety)
 
 LET I == x \in Nblocks /\ isHot[x] => OverlapAmt(x) > 0 /\ x \notin HotInterference(Acquired)
     N == Next
@@ -115,7 +115,5 @@ LET I == x \in Nblocks /\ isHot[x] => OverlapAmt(x) > 0 /\ x \notin HotInterfere
                   <4>3. QED BY <4>1 and <4>2
             <3>4. QED BY <3>1, <3>2 and <3>3
       <2>3. QED BY <2>1, <2>2 \* INV1
-<1>2. I => HotNblocksOverlap
-      PROOF OBVIOUS \* Weakening and universal generalization.
-<1>3. QED BY <1>1 and <1>2
+<1>2. QED BY <1>1
 ============================================================

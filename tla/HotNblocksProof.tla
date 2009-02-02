@@ -24,7 +24,7 @@ LET S == Nat \ {0}
             PROVE (H(c) ~> (G \/ \E d \in S : d < c /\ H(d))
 ------------------------------------------------------------
             \* This is a WF1 proof
-            LET P == H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock
+            LET P == H(c) /\ i \in Procs /\ acquired[i] \in Overlap(xpdf, Acquired) /\ state[i] = nextblock
                 Q == G \/ (\E d \in S : d < c /\ H(d))
                 A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) : doNextBlock(i)
                 N == Next
@@ -34,7 +34,8 @@ LET S == Nat \ {0}
                   <4>1. P /\ UNCHANGED<<Vars>> => (P' \/ Q')
                         PROOF OBVIOUS \* Studdering step... nothing changes and we have P'.
                   <4>2. P /\ doNextBlock(j) => (P' \/ Q')
-                        ASSUME P /\ doNextBlock(j)
+                        ASSUME P /\ doNextBlock(j) /\ HotNblockSafety
+                        \* Proof Safety1 shows that HotNblockSafety is an invariant and INV2 lets us add it here for free.
                         PROVE P' \/ Q'
                         <5>1. CASE state[j] = search
                               PROOF OBVIOUS \* The LHS is false since doNextBlock(j) is not enabled.
@@ -209,8 +210,8 @@ LET S == Nat \ {0}
                                                 PROOF BY <4>2 and <7>1 \* This is the THEN clause of the IF in doNextBlock(i)
                                           <8>2. Overlap(x, Acquired \ {acquired[i]}) = {}
                                                 PROOF BY <7>1 \* and the definition of the overlap set of x.
-                                          <8>3. x \notin Hot(Acquired \ {acquired[i]})
-                                                PROOF BY <8>2
+                                          <8>3. x \notin HotInterference(Acquired \ {acquired[i]})
+                                                PROOF BY <4>2 \* and HotNblockSafety
                                           <8>4. x \in Free(Acquired \ {acquired[i]})
                                                 PROOF BY <8>2 and <8>3 \* and the definition of the Free set.
                                           <8>5. ~isHot'[x]
@@ -225,8 +226,8 @@ LET S == Nat \ {0}
                                                 PROOF BY <8>1 \* and the definition of the Acquired set.
                                           <8>3. Overlap(x, Acquired') = {}
                                                 PROOF BY <7>2 and <8>2 \* The last acquired block overlapping x is released.
-                                          <8>4. x \notin Hot(Acquired')
-                                                PROOF BY <8>3 \* and the definition of the Hot set.
+                                          <8>4. x \notin HotInterference(Acquired')
+                                                PROOF BY <4>2 \* and HotNblockSafety
                                           <8>5. x \in Free(Acquired')
                                                 PROOF BY <8>3 and <8>4
                                           <8>6. ~isHot'[x]                                             
@@ -283,13 +284,23 @@ LET S == Nat \ {0}
                         <5>4. QED BY <5>1, <5>2 and <5>3
                   <4>3. P /\ doSearch(j) => (P' \/ Q')
                         <5>1. CASE state[j] = search
-                              PROOF OMITTED
+                              <6>1. j # i
+                                    PROOF BY <4>3 \* state[i] = nextblock
+                              <6>2. UNCHANGED<<acquired, Succs>>
+                                    PROOF BY <4>3 \* this is always in doSearch(j)
+                              <6>3. QED BY <6>1 and <6>2 \* only state[j] changes and j # i, so we have P'
                         <5>2. CASE state[j] = nextblock
                               PROOF OBVIOUS \* The LHS is false since doSearch(j) is not enabled.
                         <5>3. QED BY <5>1 and <5>2
                   <4>4. QED BY <4>1, <4>2 and <4>3
+(*
+----------------------------------------------------------------------------------------------------
+*)
             <3>2. P /\ <<N /\ A>>_Vars => Q'
                   PROOF OMITTED
+(*
+----------------------------------------------------------------------------------------------------
+*)
             <3>3. P => ENABLED<<A>>_Vars
                   PROOF OBVIOUS \* P contains the guard for A
             <3>4. H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock ~> G \/ (\E d \in S : d < c /\ H(d))
