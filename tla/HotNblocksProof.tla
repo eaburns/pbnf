@@ -194,22 +194,92 @@ LET S == Nat \ {0}
                                           PROOF BY <5>2 and <7>1 \* i # j and only state[j] changes
                                     <7>10. QED BY <7>5, <7>7, <7>8 and <7>9 \* We have P'
                               <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
-(*
-----------------------------------------------------------------------------------------------------
-*)
                         <5>3. CASE state[j] = nextblock /\ j = i
                               <6>1. acquired[i] # none
-                                    PROOF OMITTED \* acquried[i] \in Overlap(x, Acquired) /\ none \notin Overlap(x, Acquired)
-                              <6>2. Q'
-                                    <7>1. CASE Free(Acquired \ {acquired[i]}) # {}
-                                          PROOF OMITTED
-                                    <7>2. CASE Free(Acquired \ {acquired[i]}) = {}
-                                          PROOF OMITTED
+                                    <7>1. acquired[i] \in Overlap(x, Acquired)
+                                          PROOF BY <4>2 \* This is in the assumption of P
+                                    <7>2. none \notin Overlap(x, Acquired)
+                                          PROOF OMITTED \* none \notin Nblocks and Ovelap(x, Acquired) can be shown to be \in SUBSET Nblocks.
                                     <7>3. QED BY <7>1 and <7>2
+                              <6>2. Q'
+                                    <7>1. Overlap(x, Acquired) = {acquired[i]} /\ Free(Acquired \ {acquired[i]}) # {}
+                                          <8>1. /\ \E y \in Free(Acquired \ {acquired[i]}) : acquired' = [acquired EXCEPT ![i] = y]
+                                                /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[i]})
+                                                                               THEN FALSE ELSE isHot[y]]
+                                                PROOF BY <4>2 and <7>1 \* This is the THEN clause of the IF in doNextBlock(i)
+                                          <8>2. Overlap(x, Acquired \ {acquired[i]}) = {}
+                                                PROOF BY <7>1 \* and the definition of the overlap set of x.
+                                          <8>3. x \notin Hot(Acquired \ {acquired[i]})
+                                                PROOF BY <8>2
+                                          <8>4. x \in Free(Acquired \ {acquired[i]})
+                                                PROOF BY <8>2 and <8>3 \* and the definition of the Free set.
+                                          <8>5. ~isHot'[x]
+                                                PROOF BY <7>1 and <8>4
+                                          <8>6. QED BY <8>5
+                                    <7>2. Overlap(x, Acquired) = {acquired[i]} /\ Free(Acquired \ {acquired[i]}) = {}
+                                          <8>1. /\ acquired' = [acquired EXCEPT ![i] = none]
+                                                /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired')
+                                                                               THEN FALSE ELSE isHot[x]]
+                                                PROOF BY <4>2 and <7>2 \* The ELSE clause of the IF in doNextBlock(i)
+                                          <8>2. Acquired' = Acquired \ {acquired[i]}
+                                                PROOF BY <8>1 \* and the definition of the Acquired set.
+                                          <8>3. Overlap(x, Acquired') = {}
+                                                PROOF BY <7>2 and <8>2 \* The last acquired block overlapping x is released.
+                                          <8>4. x \notin Hot(Acquired')
+                                                PROOF BY <8>3 \* and the definition of the Hot set.
+                                          <8>5. x \in Free(Acquired')
+                                                PROOF BY <8>3 and <8>4
+                                          <8>6. ~isHot'[x]                                             
+                                                PROOF BY <8>1 and <8>5
+                                          <8>7. QED BY <8>6
+                                    <7>3. CASE Overlap(x, Acquired) # {acquired[i]} /\ Free(Acquired \ {acquired[i]}) # {}
+                                          <8>1. /\ \E y \in Free(Acquired \ {acquired[i]}) : acquired' = [acquired EXCEPT ![i] = y]
+                                                /\ state' = [state EXCEPT ![i] = search]
+                                                /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[i]})
+                                                                               THEN FALSE ELSE isHot[y]]
+                                                PROOF BY <4>2 and <7>3 \* This is the THEN clause of the IF in doNextBlock(i)
+                                          <8>2. Overlap(x, Acquired \ {acquired[i]}) \subset Overlap(x, Acquired)
+                                                PROOF OBVIOUS \* an element in the ovelap set of x is now not there
+                                          <8>3. Acquired' = Acquired \ {acquired[i]} \union {acquired'[i]}
+                                                PROOF BY <8>1 \* i acquires a new block.
+                                          <8>4. acquired'[i] \notin HotInterference(Acquired)
+                                                PROOF BY <8>1 \* and the definition of the Free set.
+                                          <8>5. Overlap(x, Acquired) \subseteq HotInterference(Acquired)
+                                                PROOF OBVIOUS \* by the definition of these two sets.
+                                          <8>6. acquired'[i] \notin Overlap(x, Acquired')'
+                                                PROOF BY <8>1, <8>2, <8>3 and <8>4
+                                          <8>7. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
+                                                PROOF BY <7>3 and <8>6 \* acquired[i] is no longer in the overlap set of x.
+                                          <8>8. OverlapAmt(x)' < OverlapAmt(x)
+                                                PROOF BY <8>7
+                                          <8>9. Overlap(x, Acquired \ {acquired[i]}) # {}
+                                                PROOF BY <7>3 and <8>1 \* only one block was released and it was not the last one.
+                                          <8>10. x \notin Free(Acquired \ {acquired[i]})
+                                                PROOF BY <8>9 \* and the definition of the Free set.
+                                          <8>11. isHot'[x]
+                                                PROOF BY <8>10
+                                          <8>11. QED BY <8>8 and <8>11
+                                    <7>4. CASE Overlap(x, Acquired) # {acquired[i]} /\ Free(Acquired \ {acquired[i]}) = {}
+                                          <8>1. /\ acquired' = [acquired EXCEPT ![i] = none]
+                                                /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired')
+                                                                               THEN FALSE ELSE isHot[x]]
+                                                /\ UNCHANGED<<state>>
+                                                PROOF BY <4>2 and <7>4 \* This is the ELSE clause of the IF in doNextBlock(i)
+                                          <8>2. Acquired' = Acquired \ {acquired[i]}
+                                                PROOF BY <8>2 \* and the definition of the Acquired set.
+                                          <8>3. Overlap(x, Acquired') \subset Overlap(x, Acquired)
+                                                PROOF BY <8>2 \* and the definition of the Overlap set of x.
+                                          <8>4. OverlapAmt(x)' < OverlapAmt(x)
+                                                PROOF BY <8>3
+                                          <8>5. Overlap(x, Acquired') # {}
+                                                PROOF BY <7>4 and <8>2 \* acquired[i] was not the last element of the Overlap set.
+                                          <8>6. x \notin Free(Acquired')
+                                                PROOF BY <8>5 \* and the definition of the Free set.
+                                          <8>7. isHot'[x]
+                                                PROOF BY <8>1 and <8>6
+                                          <8>8. QED BY <8>4 and <8>7
+                                    <7>5. QED BY <7>1, <7>2, <7>3 and <7>4
                               <6>3. QED BY <6>2
-(*
-----------------------------------------------------------------------------------------------------
-*)
                         <5>4. QED BY <5>1, <5>2 and <5>3
                   <4>3. P /\ doSearch(j) => (P' \/ Q')
                         <5>1. CASE state[j] = search
