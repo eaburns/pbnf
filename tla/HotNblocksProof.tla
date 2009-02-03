@@ -1,4 +1,4 @@
--/------------------- MODULE HotNblocksProof --------------------
+-------------------- MODULE HotNblocksProof --------------------
 (*
 Anything labeled PROOF OMITTED  will need to be done before the proof is complete.
 Also, we need to figure out what to label the steps that use:
@@ -294,15 +294,47 @@ LET S == Nat \ {0}
                         <5>3. QED BY <5>1 and <5>2
                   <4>4. QED BY <4>1, <4>2 and <4>3
             <3>2. P /\ <<N /\ A>>_Vars => Q'
-(*
-----------------------------------------------------------------------------------------------------
-*)
                   <4>1. ASSUME P /\ <<N /\ A /\ HotNblockSafety>>_Vars /\ state[i] = nextblock
                         PROVE Q'
-                        PROOF OMITTED
+                        <5>1. CASE Free(Acquired \ {acquired[i]}) # {}
+                              <6>1. CASE Overlap(x, Acquired) = {acquired[i]}
+                                    <7>1. /\ \E y \in Free(Acquired \ {acquired[i]}): acquired' = [acquired EXCEPT ![i] = y]
+                                          /\ state' = [state EXCEPT ![i] = search]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[i]})
+                                                                         THEN FALSE ELSE isHot[y]]
+                                          PROOF BY<4>1 and <5>1 \* This is the THEN clause of the IF in doNextBlock(i)
+                                    <7>2. x \notin HotInterference(Aqcuired)
+                                          PROOF BY <4>1 \* This is just a reiteration of HotNblockSafety assumed in <4>1
+                                    <7>3. HotInterference(Acquired \ {acquired[i]}) \subseteq HotInterference(Acquired)
+                                          PROOF OBVIOUS \* There are either the same hot blocks or less when we release acquired[i].
+                                    <7>4. x \notin HotInterference(Acquired \ {acquired[i]})
+                                          PROOF BY <7>3 and <7>4
+                                    <7>5. x \in Free(Acquired \ {acquired[i]})
+                                          PROOF BY <6>1 and <7>1 \* The last overlapping block is not acquired.
+                                    <7>6. ~isHot'[x]
+                                          PROOF BY <7>4 and <7>5 \* and the definition of the Free set.
+                                    <7>7. QED BY <7>6
 (*
 ----------------------------------------------------------------------------------------------------
 *)
+                              <6>2. CASE Overlap(x, Acquired) # {acquired[i]}
+                                    <7>1. /\ \E y \in Free(Acquired \ {acquired[i]}): acquired' = [acquired EXCEPT ![i] = y]
+                                          /\ state' = [state EXCEPT ![i] = search]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[i]})
+                                                                         THEN FALSE ELSE isHot[y]]
+                                          PROOF BY<4>1 and <5>1 \* This is the THEN clause of the IF in doNextBlock(i)
+                                    <7>...
+(*
+----------------------------------------------------------------------------------------------------
+*)
+                              <6>3. QED BY <6>1 and <6>2
+                        <5>2. CASE Free(Acquired \ {acquired[i]}) = {}
+                              <6>1. CASE Overlap(x, Acquired) = {acquired[i]}
+                                    PROOF OMITTED
+                              <6>2. CASE Overlap(x, Acquired) # {acquired[i]}
+                                    PROOF OMITTED
+                              <6>3. QED BY <6>1 and <6>2
+                        <5>3. QED BY <5>1 and <5>2
                   <4>2. ASSUME P /\ <<N /\ A>>_Vars /\ state[i] = search
                         PROVE Q'
                         PROOF OBVIOUS \* The LHS is false and the implication holds trivially.
