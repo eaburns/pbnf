@@ -342,16 +342,38 @@ LET S == Nat \ {0}
                                     <7>11. QED BY <7>4 and <7>10 \* We have Q'
                               <6>3. QED BY <6>1 and <6>2
                         <5>2. CASE Free(Acquired \ {acquired[i]}) = {}
-(*
-----------------------------------------------------------------------------------------------------
-*)
                               <6>1. CASE Overlap(x, Acquired) = {acquired[i]}
-                                    PROOF OMITTED
-(*
-----------------------------------------------------------------------------------------------------
-*)
+                                    <7>1. isHot' = [y \in Nblocks : IF y \in Free(Acquired \ {acquired[i]} THEN FALSE ELSE isHot[y]]
+                                          PROOF BY <4>1 and <5>2 \* This is the ELSE clause of the IF in doNextBlock(i)
+                                    <7>2. x \notin HotInterference(Acquired)
+                                          PROOF BY <4>1 \* This is just a reiteration of HotNblockSafety assumed in <4>1.
+                                    <7>3. HotInterference(Aqcuired \ {acquired[i]}) \subseteq HotInterference(Acquired)
+                                          PROOF OBVIOUS \* There are either the same hot blocks or less when we release acquired[i].
+                                    <7>4. x \notin HotInterference(Acquired \ {acquired[i]})
+                                          PROOF BY <7>2 and <7>3
+                                    <7>5. Overlap(x, Acquired \ {acquired[i]}) = {}
+                                          PROOF BY <6>1 \* acquired[i] is the only thing in the overlap set, if we remove it then the set is empty.
+                                    <7>6. x \in Free(Acquired \{acquired[i]})
+                                          PROOF BY <7>4 and <7>5 \* and the definition of the Free set.
+                                    <7>7. ~isHot'[x]
+                                          PROOF BY <7>1 and <7>6
+                                    <7>8. QED BY <7>7
                               <6>2. CASE Overlap(x, Acquired) # {acquired[i]}
-                                    PROOF OMITTED
+                                    <7>1. /\ acquired' = [acquired EXCEPT ![i] = none
+                                          /\ isHot' = [y \in Nblocks : IF y \in Free(Acquired \ {acquired[i]} THEN FALSE ELSE isHot[y]]
+                                          /\ UNCHANGED<<state>>
+                                          PROOF BY <4>1 and <5>2 \* This is the ELSE clause of the IF in doNextBlock(i)
+                                    <7>2. Overlap(x, Acquired \ {acquired[i]}) # {}
+                                          PROOF BY <4>1 and <6>2 \* There are other things overlapping x besides acquired[i].
+                                    <7>3. x \notin Free(Acquired \ {acquired[i]})
+                                          PROOF BY <7>2 \* and the definition of the Free set.
+                                    <7>4. isHot'[x] = isHot[x]
+                                          PROOF BY <7>1 and <7>3
+                                    <7>5. Acquried' = Acquired \ {acquired[i]}
+                                          PROOF BY <7>1
+                                    <7>6. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
+                                          PROOF BY <4>1 and <7>5 \* acquired[i] leaves the Overlap set of x.
+                                    <7>7. QED BY <7>4 and <7>6 \* We have Q'
                               <6>3. QED BY <6>1 and <6>2
                         <5>3. QED BY <5>1 and <5>2
                   <4>2. ASSUME P /\ <<N /\ A>>_Vars /\ state[i] = search
@@ -370,8 +392,14 @@ LET S == Nat \ {0}
                      \/ H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock))
                 A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) : doNextBlock(i)
                 N == Next
+(*
+----------------------------------------------------------------------------------------------------
+*)
             <3>5. P /\ [N]_Vars => (P' \/ Q')
                   PROOF OMITTED
+(*
+----------------------------------------------------------------------------------------------------
+*)
             <3>6. P /\ <<N /\ A>>_Vars => Q'
                   PROOF OMITTED
             <3>7. P => ENABLED<<A>>_Vars
