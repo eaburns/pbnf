@@ -37,9 +37,7 @@ LET S == Nat \ {0}
                         ASSUME P /\ doNextBlock(j) /\ HotNblockSafety
                         \* Proof Safety1 shows that HotNblockSafety is an invariant and INV2 lets us add it here for free.
                         PROVE P' \/ Q'
-                        <5>1. CASE state[j] = search
-                              PROOF OBVIOUS \* The LHS is false since doNextBlock(j) is not enabled.
-                        <5>2. CASE state[j] = nextblock /\ j # i
+                        <5>1. CASE j # i
                               <6>1. CASE acquried[j] = none /\ Free(Acquired) = {}
                                     PROOF OBVIOUS \* The action is not enabled.
                               <6>2. CASE acquired[j] = none /\ Free(Acquired) # {}
@@ -72,7 +70,7 @@ LET S == Nat \ {0}
                                           \* Only acquired[j] changes in acquired', and acquired'[j] \notin Succs[x] and therefore
                                           \* it is not overlapping.
                                     <7>9. acquired'[i] = acquired[i] /\ state'[i] = state[i]
-                                          PROOF BY <5>2 and <7>3 \* i # j and only acquired[j] changes and only state[j] changes
+                                          PROOF BY <5>1 and <7>3 \* i # j and only acquired[j] changes and only state[j] changes
                                     <7>10. QED BY <7>6, <7>8 and <7>9 \* We have P'
                               <6>3. CASE /\ acquired[j] # none
                                          /\ Free(Acquired \ {acquired[j]}) # {}
@@ -100,9 +98,9 @@ LET S == Nat \ {0}
                                     <7>5. OverlapAmt(x)' < OverlapAmt(x)
                                           PROOF BY <7>4
                                     <7>6. Overlap(x, Acquired) # {acquired[j]}
-                                          PROOF BY <4>2, <5>2 and <6>3 \* Since i # j and acquired[i] is also in Overlap(x, Acquired)
+                                          PROOF BY <4>2, <5>1 and <6>3 \* Since i # j and acquired[i] is also in Overlap(x, Acquired)
                                     <7>7. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
-                                          PROOF BY <4>2 and <5>2
+                                          PROOF BY <4>2 and <5>1
                                     <7>8. x \notin Free(Acquired \ {acquired[j]})
                                           PROOF BY <7>7 \* and the definition of Free.
                                     <7>9. isHot'[x] = isHot[x]
@@ -134,13 +132,13 @@ LET S == Nat \ {0}
                                     <7>5. acquired[i] \in Overlap(x, Acquired')'
                                           PROOF BY <4>2 and <7>4 \* This remains true since the overlap sets are the same.
                                     <7>6. acquired'[i] = acquired[i]
-                                          PROOF BY <5>2 and <7>1 \* i # j and only acquired[j] changes.
+                                          PROOF BY <5>1 and <7>1 \* i # j and only acquired[j] changes.
                                     <7>7. acquired'[i] \in Overlap(x, Acquired')'
                                           PROOF BY <7>5 and <7>7
                                     <7>8. state'[i] = state[i]
-                                          PROOF BY <5>2 and <7>1 \* i # j and only state[j] changes.
+                                          PROOF BY <5>1 and <7>1 \* i # j and only state[j] changes.
                                     <7>9. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
-                                          PROOF BY <4>2 and <5>2 \* i # j and acquired[i] \in Overlap(x, Acquired)
+                                          PROOF BY <4>2 and <5>1 \* i # j and acquired[i] \in Overlap(x, Acquired)
                                     <7>10. x \notin Free(Acquired \ {acquired[j]})
                                           PROOF BY <7>9 \* and the definition of Free(Acquired \ {acquired[j]})
                                     <7>11. isHot'[x] = isHot[x]
@@ -163,7 +161,7 @@ LET S == Nat \ {0}
                                     <7>4. Acquired' = Acquired \ {acquired[j]}
                                           PROOF BY <7>1
                                     <7>5. acquired[i] \in Overlap(x, Acquired')
-                                          PROOF BY <4>2, <5>2 and <7>4 \* acquired[i] is still overlapping x since it is still in Acquired'
+                                          PROOF BY <4>2, <5>1 and <7>4 \* acquired[i] is still overlapping x since it is still in Acquired'
                                     <7>6. x \notin Free(Acquired')
                                           PROOF BY <7>5 \* and the definition of Free(Acquired')
                                     <7>7. isHot'[x] = isHot[x]
@@ -180,7 +178,7 @@ LET S == Nat \ {0}
                                     <7>2. Acquired' = Acquired \ {acquired[j]}
                                           PROOF BY <7>1 \* and the definition of Acquired
                                     <7>3. acquired[i] \in Overlap(x, Acquired')
-                                          PROOF BY <4>2, <5>2 and <7>4 \* acquired[i] is still overlapping x since it is still in Acquired'
+                                          PROOF BY <4>2, <5>1 and <7>4 \* acquired[i] is still overlapping x since it is still in Acquired'
                                     <7>4. x \notin Free(Acquired')
                                           PROOF BY <7>3 \* and the definition of Free(Acquired')
                                     <7>5. isHot'[x] = isHot[x]
@@ -192,10 +190,10 @@ LET S == Nat \ {0}
                                     <7>8. OverlapAmt(x)' = OverlapAmt(x)
                                           PROOF BY <7>7
                                     <7>9. state'[i] = state[i]
-                                          PROOF BY <5>2 and <7>1 \* i # j and only state[j] changes
+                                          PROOF BY <5>1 and <7>1 \* i # j and only state[j] changes
                                     <7>10. QED BY <7>5, <7>7, <7>8 and <7>9 \* We have P'
                               <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
-                        <5>3. CASE state[j] = nextblock /\ j = i
+                        <5>2. CASE j = i
                               <6>1. acquired[i] # none
                                     <7>1. acquired[i] \in Overlap(x, Acquired)
                                           PROOF BY <4>2 \* This is in the assumption of P
@@ -281,7 +279,7 @@ LET S == Nat \ {0}
                                           <8>8. QED BY <8>4 and <8>7
                                     <7>5. QED BY <7>1, <7>2, <7>3 and <7>4
                               <6>3. QED BY <6>2
-                        <5>4. QED BY <5>1, <5>2 and <5>3
+                        <5>3. QED BY <5>1 and <5>2
                   <4>3. P /\ doSearch(j) => (P' \/ Q')
                         <5>1. CASE state[j] = search
                               <6>1. j # i
