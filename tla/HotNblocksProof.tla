@@ -387,19 +387,29 @@ LET S == Nat \ {0}
 
 ------------------------------------------------------------
             \* This is a WF1 proof
-            LET P == H(c) /\ acquride[i] \in Overlap(x, Acquired) /\ state[i] = search
+            LET P == H(c) /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = search
                 Q == \/ (G \/ (\E d \in S : d < c /\ H(d)))
                      \/ H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock))
                 A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) : doNextBlock(i)
                 N == Next
-(*
-----------------------------------------------------------------------------------------------------
-*)
             <3>5. P /\ [N]_Vars => (P' \/ Q')
-                  PROOF OMITTED
+                  ASSUME j \in Procs
+                  PROVE P /\ [doSearch(j) \/ doNextBlock(j)]_Vars => (P' \/ Q')
+                  <4>1. P /\ UNCHANGED<<Vars>> => (P' \/ Q')
+                        PROOF OBVIOUS \* Studdering step
 (*
 ----------------------------------------------------------------------------------------------------
 *)
+                  <4>2. P /\ doNextBlock(j) => (P' \/ Q')
+                        ASSUME P /\ doNextBlock(j)
+                        PROVE P' \/ Q'
+                        PROOF OMITTED
+(*
+----------------------------------------------------------------------------------------------------
+*)
+                  <4>3. P /\ doSearch(j) => (P' \/ Q')
+                        PROOF OMITTED
+                  <4>4. QED BY <4>1, <4>2 and <4>3
             <3>6. P /\ <<N /\ A>>_Vars => Q'
                   PROOF OMITTED
             <3>7. P => ENABLED<<A>>_Vars
