@@ -63,10 +63,10 @@ LET S == Nat \ {0}
                                           <8>2. acquired'[j] \notin HotInterference(Acquired)
                                                 PROOF BY <8>1 \* and the definition of Free(Acquired)
                                           <8>3. Succs[x] \subseteq HotInterference(Acquired)
-                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope
-                                          <8>4. QED BY <8>3
+                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope and isHot[x]
+                                          <8>4. QED BY <8>2 and <8>3
                                     <7>8. Overlap(x, Acquired')' = Overlap(x, Acquired)
-                                          PROOF BY <7>3 and <7>7
+                                          PROOF BY <6>2, <7>3 and <7>7 \* acquired[j] = none
                                           \* Only acquired[j] changes in acquired', and acquired'[j] \notin Succs[x] and therefore
                                           \* it is not overlapping.
                                     <7>9. acquired'[i] = acquired[i] /\ state'[i] = state[i]
@@ -84,12 +84,12 @@ LET S == Nat \ {0}
                                           \* The 'THEN' portion of the IF in doNextBlock(j)
                                     <7>2. acquired'[j] \notin Succs[x]
                                           <8>1. acquired'[j] \in Free(Acquired \ {acquried[j]})
-                                                PROOF BY <7>3
+                                                PROOF BY <7>1
                                           <8>2. acquired'[j] \notin HotInterference(Acquired \ {acquired[j]})
                                                 PROOF BY <8>1 \* and the definition of Free(Acquired \ {acquired[j]})
                                           <8>3. Succs[x] \subseteq HotInterference(Acquired \ {acquired[j]})
-                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope
-                                          <8>4. QED BY <8>3
+                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope and isHot[x]
+                                          <8>4. QED BY <8>2 and <8>3
                                     <7>3. Acquired' = Acquired \ {acquired[j]} \union {acquired'[j]}
                                           PROOF BY <7>1 \* acquired' and the definition of Acquired
                                     <7>4. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
@@ -97,15 +97,13 @@ LET S == Nat \ {0}
                                           \* Now acquired[j] is not overlapping and acquired'[j] doesn't either
                                     <7>5. OverlapAmt(x)' < OverlapAmt(x)
                                           PROOF BY <7>4
-                                    <7>6. Overlap(x, Acquired) # {acquired[j]}
-                                          PROOF BY <4>2, <5>1 and <6>3 \* Since i # j and acquired[i] is also in Overlap(x, Acquired)
-                                    <7>7. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
+                                    <7>6. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
                                           PROOF BY <4>2 and <5>1
-                                    <7>8. x \notin Free(Acquired \ {acquired[j]})
-                                          PROOF BY <7>7 \* and the definition of Free.
-                                    <7>9. isHot'[x] = isHot[x]
-                                          PROOF BY <7>1 and <7>8 \* from isHot' only falsifying things in Free(Acquired \ {acquired[j]})
-                                    <7>10. QED BY <7>5 and <7>9 \* We have Q'
+                                    <7>7. x \notin Free(Acquired \ {acquired[j]})
+                                          PROOF BY <7>6 \* and the definition of Free.
+                                    <7>8. isHot'[x] = isHot[x]
+                                          PROOF BY <7>1 and <7>7 \* from isHot' only falsifying things in Free(Acquired \ {acquired[j]})
+                                    <7>9. QED BY <7>5 and <7>8 \* We have Q'
                               <6>4. CASE /\ acquired[j] # none
                                          /\ Free(Acquired \ {acquired[j]}) # {}
                                          /\ acquired[j] \notin Overlap(x, Acquired)
@@ -118,32 +116,30 @@ LET S == Nat \ {0}
                                           \* The 'THEN' portion of the IF in doNextBlock(j)
                                     <7>2. acquired'[j] \notin Succs[x]
                                           <8>1. acquired'[j] \in Free(Acquired \ {acquried[j]})
-                                                PROOF BY <7>3
+                                                PROOF BY <7>1
                                           <8>2. acquired'[j] \notin HotInterference(Acquired \ {acquired[j]})
                                                 PROOF BY <8>1 \* and the definition of Free(Acquired \ {acquired[j]})
                                           <8>3. Succs[x] \subseteq HotInterference(Acquired \ {acquired[j]})
-                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope
-                                          <8>4. QED BY <8>3
+                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope and isHot[x]
+                                          <8>4. QED BY <8>2 and <8>3
                                           \* acquired[j] \notin Overlap(x, Acquired) so the set of blocks overlapping x are the same.
                                     <7>3. Acquried' = Acquired \ {acquired[j]} \union {acquired'[j]}
                                           PROOF BY <7>1 \* acquired' and the definition of Acquired
                                     <7>4. Overlap(x, Acquired')' = Overlap(x, Acquired)
-                                          PROOF BY <7>1, <7>2 and <7>3
+                                          PROOF BY <7>1, <7>2 and <7>3 \* i # j, acquried[j] is not overlapping and only acquired[j] changed.
                                     <7>5. acquired[i] \in Overlap(x, Acquired')'
                                           PROOF BY <4>2 and <7>4 \* This remains true since the overlap sets are the same.
                                     <7>6. acquired'[i] = acquired[i]
                                           PROOF BY <5>1 and <7>1 \* i # j and only acquired[j] changes.
-                                    <7>7. acquired'[i] \in Overlap(x, Acquired')'
-                                          PROOF BY <7>5 and <7>7
-                                    <7>8. state'[i] = state[i]
+                                    <7>7. state'[i] = state[i]
                                           PROOF BY <5>1 and <7>1 \* i # j and only state[j] changes.
-                                    <7>9. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
+                                    <7>8. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
                                           PROOF BY <4>2 and <5>1 \* i # j and acquired[i] \in Overlap(x, Acquired)
-                                    <7>10. x \notin Free(Acquired \ {acquired[j]})
-                                          PROOF BY <7>9 \* and the definition of Free(Acquired \ {acquired[j]})
-                                    <7>11. isHot'[x] = isHot[x]
-                                          PROOF BY <7>1 and <7>10 \* the definition of isHot'
-                                    <7>12. QED BY <7>4, <7>7, <7>8 and <7>11 \* We have P'
+                                    <7>9. x \notin Free(Acquired \ {acquired[j]})
+                                          PROOF BY <7>8 \* and the definition of Free(Acquired \ {acquired[j]})
+                                    <7>10. isHot'[x] = isHot[x]
+                                          PROOF BY <7>1 and <7>9 \* the definition of isHot'
+                                    <7>11. QED BY <7>4, <7>6, <7>7 and <7>10 \* We have P'
                               <6>5. CASE /\ acquired[j] # none
                                          /\ Free(Acquired \ {acquired[j]}) = {}
                                          /\ acquired[j] \in Overlap(x, Acquired)
@@ -153,7 +149,7 @@ LET S == Nat \ {0}
                                           PROOF BY <4>2 and <6>5
                                           \* The ELSE clause of the IF expression in doNextBlock(j)
                                     <7>2. acquired'[j] \notin Overlap(x, Acquired')'
-                                          PROOF BY <7>1 and TypeInv
+                                          PROOF BY <7>1 \* and TypeInv
                                           \* acquired'[j] = none, assumption none \notin Nblocks
                                           \* and Succs[x] \in [Nblocks -> SUBSET Nblocks]
                                     <7>3. OverlapAmt(x)' < Overlap(x)
@@ -166,7 +162,7 @@ LET S == Nat \ {0}
                                           PROOF BY <7>5 \* and the definition of Free(Acquired')
                                     <7>7. isHot'[x] = isHot[x]
                                           PROOF BY <7>1 and <7>6 \* isHot'[x] is not set to false.
-                                    <7>8. QED BY <7>3 and <7>7
+                                    <7>8. QED BY <7>3 and <7>7 \* We have Q'
                               <6>6. CASE /\ acquired[j] # none
                                          /\ Free(Acquired \ {acquired[j]}) = {}
                                          /\ acquired[j] \notin Overlap(x, Acquired)
@@ -178,20 +174,18 @@ LET S == Nat \ {0}
                                     <7>2. Acquired' = Acquired \ {acquired[j]}
                                           PROOF BY <7>1 \* and the definition of Acquired
                                     <7>3. acquired[i] \in Overlap(x, Acquired')
-                                          PROOF BY <4>2, <5>1 and <7>4 \* acquired[i] is still overlapping x since it is still in Acquired'
+                                          PROOF BY <4>2, <5>1 and <7>2 \* acquired[i] is still overlapping x since it is still in Acquired'
                                     <7>4. x \notin Free(Acquired')
                                           PROOF BY <7>3 \* and the definition of Free(Acquired')
                                     <7>5. isHot'[x] = isHot[x]
-                                          PROOF BY <7>4 \* and the definition of isHot'
-                                    <7>6. Acquired' = Acquired \ {acquired[j]}
-                                          PROOF BY <7>1 \* and the definition of Acquired'
-                                    <7>7. Overlap(x, Acquired')' = Overlap(x, Acquired)
-                                          PROOF BY <6>6 and <7>6 \* acquired[j] is not in the overlap set and everything else stays the same
-                                    <7>8. OverlapAmt(x)' = OverlapAmt(x)
-                                          PROOF BY <7>7
-                                    <7>9. state'[i] = state[i]
+                                          PROOF BY <7>1 and <7>4
+                                    <7>6. Overlap(x, Acquired')' = Overlap(x, Acquired)
+                                          PROOF BY <6>6 and <7>2 \* acquired[j] is not in the overlap set and everything else stays the same
+                                    <7>7. OverlapAmt(x)' = OverlapAmt(x)
+                                          PROOF BY <7>6
+                                    <7>8. state'[i] = state[i]
                                           PROOF BY <5>1 and <7>1 \* i # j and only state[j] changes
-                                    <7>10. QED BY <7>5, <7>7, <7>8 and <7>9 \* We have P'
+                                    <7>9. QED BY <7>5, <7>6, <7>7 and <7>8 \* We have P'
                               <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
                         <5>2. CASE j = i
                               <6>1. acquired[i] # none
@@ -395,13 +389,165 @@ LET S == Nat \ {0}
                   PROVE P /\ [doSearch(j) \/ doNextBlock(j)]_Vars => (P' \/ Q')
                   <4>1. P /\ UNCHANGED<<Vars>> => (P' \/ Q')
                         PROOF OBVIOUS \* Studdering step
-(*
-----------------------------------------------------------------------------------------------------
-*)
                   <4>2. P /\ doNextBlock(j) => (P' \/ Q')
                         ASSUME P /\ doNextBlock(j)
                         PROVE P' \/ Q'
-                        PROOF OMITTED
+(*
+----------------------------------------------------------------------------------------------------
+*)
+                        <5>1. j # i
+                              PROOF OBVIOUS \* They have different states and hence are not the same process.
+                        <5>2. P' \/ Q'
+                              <6>1. CASE acquried[j] = none /\ Free(Acquired) = {}
+                                    PROOF OBVIOUS \* The action is not enabled.
+                              <6>2. CASE acquired[j] = none /\ Free(Acquired) # {}
+                                    <7>1. Free(Acquired \ {acquired[j]}) = Free(Acquired)
+                                          PROOF OBVIOUS \* by assumption none \notin Free(Acquired)
+                                    <7>2. Free(Acquried \ {acquired[j]}) # {}
+                                          PROOF BY <6>2 and <7>1
+                                    <7>3. /\ UNCHANGED<<Succ>>
+                                          /\ \E y \in Free(Acquired) : acquired' = [acquired EXCEPT ![j] = y]
+                                          /\ state' = [state EXCEPT ![j] = search]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired) THEN FALSE ELSE isHot[y]]
+                                          PROOF BY <4>2, <7>1 and <7>2
+                                          \* The 'THEN' portion of the IF in doNextBlock(j) with a simple substitution from <7>1
+                                    <7>4. Overlap(x, Acquired) # {}
+                                          PROOF BY <4>2 \* OverlapAmt(x) = c /\ c \in Nat \ {0}, trivial
+                                    <7>5. x \notin Free(Acquired)
+                                          PROOF BY <7>4 \* and definition of Free(Acquired)
+                                    <7>6. isHot'[x] = isHot[x]
+                                          PROOF BY <7>3 and <7>5
+                                    <7>7. acquired'[j] \notin Succs[x]
+                                          <8>1. acquired'[j] \in Free(Acquired)
+                                                PROOF BY <7>3
+                                          <8>2. acquired'[j] \notin HotInterference(Acquired)
+                                                PROOF BY <8>1 \* and the definition of Free(Acquired)
+                                          <8>3. Succs[x] \subseteq HotInterference(Acquired)
+                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope and isHot[x]
+                                          <8>4. QED BY <8>2 and <8>3
+                                    <7>8. Overlap(x, Acquired')' = Overlap(x, Acquired)
+                                          PROOF BY <6>2, <7>3 and <7>7 \* acquired[j] = none
+                                          \* Only acquired[j] changes in acquired', and acquired'[j] \notin Succs[x] and therefore
+                                          \* it is not overlapping.
+                                    <7>9. acquired'[i] = acquired[i] /\ state'[i] = state[i]
+                                          PROOF BY <5>1 and <7>3 \* i # j and only acquired[j] changes and only state[j] changes
+                                    <7>10. QED BY <7>6, <7>8 and <7>9 \* We have P'
+                              <6>3. CASE /\ acquired[j] # none
+                                         /\ Free(Acquired \ {acquired[j]}) # {}
+                                         /\ acquired[j] \in Overlap(x, Acquired)
+                                    <7>1. /\ UNCHANGED<<Succ>>
+                                          /\ \E y \in Free(Acquired \ {acquired[j]}) : acquired' = [acquired EXCEPT ![j] = y]
+                                          /\ state' = [state EXCEPT ![j] = search]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[j]})
+                                                                         THEN FALSE ELSE isHot[y]]
+                                          PROOF BY <4>2 and <6>3
+                                          \* The 'THEN' portion of the IF in doNextBlock(j)
+                                    <7>2. acquired'[j] \notin Succs[x]
+                                          <8>1. acquired'[j] \in Free(Acquired \ {acquried[j]})
+                                                PROOF BY <7>1
+                                          <8>2. acquired'[j] \notin HotInterference(Acquired \ {acquired[j]})
+                                                PROOF BY <8>1 \* and the definition of Free(Acquired \ {acquired[j]})
+                                          <8>3. Succs[x] \subseteq HotInterference(Acquired \ {acquired[j]})
+                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope and isHot[x]
+                                          <8>4. QED BY <8>2 and<8>3
+                                    <7>3. Acquired' = Acquired \ {acquired[j]} \union {acquired'[j]}
+                                          PROOF BY <7>1 \* acquired' and the definition of Acquired
+                                    <7>4. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
+                                          PROOF BY <6>3, <7>2 and <7>3
+                                          \* Now acquired[j] is not overlapping and acquired'[j] doesn't either
+                                    <7>5. OverlapAmt(x)' < OverlapAmt(x)
+                                          PROOF BY <7>4
+                                    <7>6. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
+                                          PROOF BY <4>2 and <5>1
+                                    <7>7. x \notin Free(Acquired \ {acquired[j]})
+                                          PROOF BY <7>6 \* and the definition of Free.
+                                    <7>8. isHot'[x] = isHot[x]
+                                          PROOF BY <7>1 and <7>7 \* from isHot' only falsifying things in Free(Acquired \ {acquired[j]})
+                                    <7>9. QED BY <7>5 and <7>8 \* We have Q'
+                              <6>4. CASE /\ acquired[j] # none
+                                         /\ Free(Acquired \ {acquired[j]}) # {}
+                                         /\ acquired[j] \notin Overlap(x, Acquired)
+                                    <7>1. /\ UNCHANGED<<Succs>>
+                                          /\ \E y \in Free(Acquired \ {acquired[j]}) : acquired' = [acquired EXCEPT ![j] = y]
+                                          /\ state' = [state EXCEPT ![j] = search]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[j]})
+                                                                         THEN FALSE ELSE isHot[y]]
+                                          PROOF BY <4>2 and <6>4
+                                          \* The 'THEN' portion of the IF in doNextBlock(j)
+                                    <7>2. acquired'[j] \notin Succs[x]
+                                          <8>1. acquired'[j] \in Free(Acquired \ {acquried[j]})
+                                                PROOF BY <7>1
+                                          <8>2. acquired'[j] \notin HotInterference(Acquired \ {acquired[j]})
+                                                PROOF BY <8>1 \* and the definition of Free(Acquired \ {acquired[j]})
+                                          <8>3. Succs[x] \subseteq HotInterference(Acquired \ {acquired[j]})
+                                                PROOF OBVIOUS \* by the definition of HotInterference and IntScope and isHot[x]
+                                          <8>4. QED BY <8>2 and <8>3
+                                          \* acquired[j] \notin Overlap(x, Acquired) so the set of blocks overlapping x are the same.
+                                    <7>3. Acquried' = Acquired \ {acquired[j]} \union {acquired'[j]}
+                                          PROOF BY <7>1 \* acquired' and the definition of Acquired
+                                    <7>4. Overlap(x, Acquired')' = Overlap(x, Acquired)
+                                          PROOF BY <7>1, <7>2 and <7>3 \* i # j, acquired[j] is not overlapping and only acquired[j] chaned.
+                                    <7>5. acquired[i] \in Overlap(x, Acquired')'
+                                          PROOF BY <4>2 and <7>4 \* This remains true since the overlap sets are the same.
+                                    <7>6. acquired'[i] = acquired[i]
+                                          PROOF BY <5>1 and <7>1 \* i # j and only acquired[j] changes.
+                                    <7>7. state'[i] = state[i]
+                                          PROOF BY <5>1 and <7>1 \* i # j and only state[j] changes.
+                                    <7>8. acquired[i] \in Overlap(x, Acquired \ {acquired[j]})
+                                          PROOF BY <4>2 and <5>1 \* i # j and acquired[i] \in Overlap(x, Acquired)
+                                    <7>9. x \notin Free(Acquired \ {acquired[j]})
+                                          PROOF BY <7>8 \* and the definition of Free(Acquired \ {acquired[j]})
+                                    <7>10. isHot'[x] = isHot[x]
+                                          PROOF BY <7>1 and <7>9 \* the definition of isHot'
+                                    <7>11. QED BY <7>4, <7>6, <7>7 and <7>10 \* We have P'
+                              <6>5. CASE /\ acquired[j] # none
+                                         /\ Free(Acquired \ {acquired[j]}) = {}
+                                         /\ acquired[j] \in Overlap(x, Acquired)
+                                    <7>1. /\ acquired' = [acquired EXCEPT ![j] = none]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired') THEN FALSE THEN isHot[y]]
+                                          /\ UNCHANGED<<Succs, state>>
+                                          PROOF BY <4>2 and <6>5
+                                          \* The ELSE clause of the IF expression in doNextBlock(j)
+                                    <7>2. acquired'[j] \notin Overlap(x, Acquired')'
+                                          PROOF BY <7>1 \* and TypeInv
+                                          \* acquired'[j] = none, assumption none \notin Nblocks
+                                          \* and Succs[x] \in [Nblocks -> SUBSET Nblocks]
+                                    <7>3. OverlapAmt(x)' < Overlap(x)
+                                          PROOF BY <6>5, <7>1 and <7>2 \* Only acquired[j] changes, and it is not in Overlap(x, Acquired')'
+                                    <7>4. Acquired' = Acquired \ {acquired[j]}
+                                          PROOF BY <7>1
+                                    <7>5. acquired[i] \in Overlap(x, Acquired')
+                                          PROOF BY <4>2, <5>1 and <7>4 \* acquired[i] is still overlapping x since it is still in Acquired'
+                                    <7>6. x \notin Free(Acquired')
+                                          PROOF BY <7>5 \* and the definition of Free(Acquired')
+                                    <7>7. isHot'[x] = isHot[x]
+                                          PROOF BY <7>1 and <7>6 \* isHot'[x] is not set to false.
+                                    <7>8. QED BY <7>3 and <7>7 \* We have Q'
+                              <6>6. CASE /\ acquired[j] # none
+                                         /\ Free(Acquired \ {acquired[j]}) = {}
+                                         /\ acquired[j] \notin Overlap(x, Acquired)
+                                    <7>1. /\ acquired' = [acquired EXCEPT ![j] = none]
+                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired') THEN FALSE THEN isHot[y]]
+                                          /\ UNCHANGED<<Succs, state>>
+                                          PROOF BY <4>2 and <6>6
+                                          \* The ELSE clause of the IF expression in doNextBlock(j)
+                                    <7>2. Acquired' = Acquired \ {acquired[j]}
+                                          PROOF BY <7>1 \* and the definition of Acquired
+                                    <7>3. acquired[i] \in Overlap(x, Acquired')
+                                          PROOF BY <4>2, <5>1 and <7>2 \* acquired[i] is still overlapping x since it is still in Acquired'
+                                    <7>4. x \notin Free(Acquired')
+                                          PROOF BY <7>3 \* and the definition of Free(Acquired')
+                                    <7>5. isHot'[x] = isHot[x]
+                                          PROOF BY <7>4 \* and the definition of isHot'
+                                    <7>6. Overlap(x, Acquired')' = Overlap(x, Acquired)
+                                          PROOF BY <6>6 and <7>2 \* acquired[j] is not in the overlap set and everything else stays the same
+                                    <7>7. OverlapAmt(x)' = OverlapAmt(x)
+                                          PROOF BY <7>6
+                                    <7>8. state'[i] = state[i]
+                                          PROOF BY <5>1 and <7>1 \* i # j and only state[j] changes
+                                    <7>9. QED BY <7>5, <7>6, <7>7 and <7>8 \* We have P'
+                              <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
+                        <5>3. QED BY <5>2
 (*
 ----------------------------------------------------------------------------------------------------
 *)
