@@ -275,103 +275,117 @@ LET S == Nat \ {0}
                               <6>3. QED BY <6>2
                         <5>3. QED BY <5>1 and <5>2
                   <4>3. P /\ doSearch(j) => (P' \/ Q')
+                  <4>4. QED BY <4>1, <4>2 and <4>3
                         <5>1. CASE state[j] = search
                               <6>1. j # i
-                                    PROOF BY <4>3 \* state[i] = nextblock
+                                    PROOF BY <4>3 \* state[i] = nextblock and therefore these two are different.
                               <6>2. UNCHANGED<<acquired, Succs>>
                                     PROOF BY <4>3 \* this is always in doSearch(j)
-                              <6>3. QED BY <6>1 and <6>2 \* only state[j] changes and j # i, so we have P'
+                              <6>3. state'[i] = state[i]
+                                    PROOF BY <4>3 and <6>1 \* Only state[j] changes.
+                              <6>4. acquired'[i] \in Overlap(x, Acquired)
+                                    PROOF BY <6>2 \* None of the acquired blocks change.
+                              <6>5. OverlapAmt(x)' = Overlap(x)
+                                    PROOF BY <4>3 and <6>2
+                              <6>6. isHot'[x]
+                                    <7>1. CASE UNCHANGED<<isHot>>
+                                          PROOF BY <4>3 and <7>1
+
+                                    <7>2. CASE \E y \in Succs[acquired[j]]: /\ ~isHot[y]
+                                                                            /\ IntScope(y) \intersect Hot(Acquired) = {}
+                                                                            /\ y \notin HotInterference(Acquired)
+                                                                            /\ isHot' = [isHot EXCEPT ![y] = TRUE]
+                                          <8>1. y # x
+                                                PROOF BY <4>3 and <7>2 \* ~isHot[y] /\ isHot[x] => x # y
+                                          <8>2. QED BY <4>3 and <8>1 \* Only y changes in isHot'
+                                    <7>3. QED BY <7>1 and <7>2 \* These are the only two options in the doSearch(j) action.
+                              <6>7. QED BY <6>3, <6>4, <6>5 and <6>6
                         <5>2. CASE state[j] = nextblock
                               PROOF OBVIOUS \* The LHS is false since doSearch(j) is not enabled.
                         <5>3. QED BY <5>1 and <5>2
-                  <4>4. QED BY <4>1, <4>2 and <4>3
             <3>2. P /\ <<N /\ A>>_Vars => Q'
-                  <4>1. ASSUME P /\ <<N /\ A /\ HotNblockSafety>>_Vars /\ state[i] = nextblock
-                        PROVE Q'
-                        <5>1. CASE Free(Acquired \ {acquired[i]}) # {}
-                              <6>1. CASE Overlap(x, Acquired) = {acquired[i]}
-                                    <7>1. /\ \E y \in Free(Acquired \ {acquired[i]}): acquired' = [acquired EXCEPT ![i] = y]
-                                          /\ state' = [state EXCEPT ![i] = search]
-                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[i]})
-                                                                         THEN FALSE ELSE isHot[y]]
-                                          PROOF BY<4>1 and <5>1 \* This is the THEN clause of the IF in doNextBlock(i)
-                                    <7>2. x \notin HotInterference(Aqcuired)
-                                          PROOF BY <4>1 \* This is just a reiteration of HotNblockSafety assumed in <4>1
-                                    <7>3. HotInterference(Acquired \ {acquired[i]}) \subseteq HotInterference(Acquired)
-                                          PROOF OBVIOUS \* There are either the same hot blocks or less when we release acquired[i].
-                                    <7>4. x \notin HotInterference(Acquired \ {acquired[i]})
-                                          PROOF BY <7>3 and <7>4
-                                    <7>5. x \in Free(Acquired \ {acquired[i]})
-                                          PROOF BY <6>1 and <7>1 \* The last overlapping block is not acquired.
-                                    <7>6. ~isHot'[x]
-                                          PROOF BY <7>4 and <7>5 \* and the definition of the Free set.
-                                    <7>7. QED BY <7>6
-                              <6>2. CASE Overlap(x, Acquired) # {acquired[i]}
-                                    <7>1. /\ \E y \in Free(Acquired \ {acquired[i]}): acquired' = [acquired EXCEPT ![i] = y]
-                                          /\ state' = [state EXCEPT ![i] = search]
-                                          /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[i]})
-                                                                         THEN FALSE ELSE isHot[y]]
-                                          /\ UNCHANGED<<Succs>>
-                                          PROOF BY<4>1 and <5>1 \* This is the THEN clause of the IF in doNextBlock(i)
-                                    <7>2. Overlap(x, Acquired \ {acquired[i]}) # {}
-                                          PROOF BY <4>1 and <6>2 \* There are other things overlapping x besides acquired[i].
-                                    <7>3. x \notin Free(Acquired \ {acquired[i]})
-                                          PROOF BY <7>2 \* and the definition of the Free set.
-                                    <7>4. isHot'[x] = isHot[x]
-                                          PROOF BY <7>1 and <7>3 \* x doesn't become free so it remains hot.
-                                    <7>5. Acquired' = Acquired \ {acquired[i]} \union {acquired'[i]}
-                                          PROOF BY <7>1 \* and the definition of the Acquired set.
-                                    <7>6. acquired'[i] \notin HotInterference(Acquired \ {acquired[i]})
-                                          PROOF BY <7>1 \* and the definition of the Free set.
-                                    <7>7. Overlap(x, Acquired \ {acquired[i]}) \subseteq HotInterference(Aqcuired \ {acquired[i]})
-                                          PROOF OBVIOUS \* by the deinition of the Overlap and HotInterference sets.
-                                    <7>8. acquired'[i] \notin Overlap(x, Acquired \ {acquired[i]})
-                                          PROOF BY <7>6 and <7>7
-                                    <7>9. acquired'[i] \notin Overlap(x, Acquired')'
-                                          PROOF BY <7>1, <7>5 and <7>8 \* Succs is unchanged, acquired'[i] is not interfering with the overlap set.
-                                    <7>10. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
-                                          PROOF BY <4>3 and <7>9 \* acquired[i] is no longer in the Overlap set of x.
-                                    <7>11. QED BY <7>4 and <7>10 \* We have Q'
-                              <6>3. QED BY <6>1 and <6>2
-                        <5>2. CASE Free(Acquired \ {acquired[i]}) = {}
-                              <6>1. CASE Overlap(x, Acquired) = {acquired[i]}
-                                    <7>1. isHot' = [y \in Nblocks : IF y \in Free(Acquired \ {acquired[i]} THEN FALSE ELSE isHot[y]]
-                                          PROOF BY <4>1 and <5>2 \* This is the ELSE clause of the IF in doNextBlock(i)
-                                    <7>2. x \notin HotInterference(Acquired)
-                                          PROOF BY <4>1 \* This is just a reiteration of HotNblockSafety assumed in <4>1.
-                                    <7>3. HotInterference(Aqcuired \ {acquired[i]}) \subseteq HotInterference(Acquired)
-                                          PROOF OBVIOUS \* There are either the same hot blocks or less when we release acquired[i].
-                                    <7>4. x \notin HotInterference(Acquired \ {acquired[i]})
-                                          PROOF BY <7>2 and <7>3
-                                    <7>5. Overlap(x, Acquired \ {acquired[i]}) = {}
-                                          PROOF BY <6>1 \* acquired[i] is the only thing in the overlap set, if we remove it then the set is empty.
-                                    <7>6. x \in Free(Acquired \{acquired[i]})
-                                          PROOF BY <7>4 and <7>5 \* and the definition of the Free set.
-                                    <7>7. ~isHot'[x]
-                                          PROOF BY <7>1 and <7>6
-                                    <7>8. QED BY <7>7
-                              <6>2. CASE Overlap(x, Acquired) # {acquired[i]}
-                                    <7>1. /\ acquired' = [acquired EXCEPT ![i] = none
-                                          /\ isHot' = [y \in Nblocks : IF y \in Free(Acquired \ {acquired[i]} THEN FALSE ELSE isHot[y]]
-                                          /\ UNCHANGED<<state>>
-                                          PROOF BY <4>1 and <5>2 \* This is the ELSE clause of the IF in doNextBlock(i)
-                                    <7>2. Overlap(x, Acquired \ {acquired[i]}) # {}
-                                          PROOF BY <4>1 and <6>2 \* There are other things overlapping x besides acquired[i].
-                                    <7>3. x \notin Free(Acquired \ {acquired[i]})
-                                          PROOF BY <7>2 \* and the definition of the Free set.
-                                    <7>4. isHot'[x] = isHot[x]
-                                          PROOF BY <7>1 and <7>3
-                                    <7>5. Acquried' = Acquired \ {acquired[i]}
-                                          PROOF BY <7>1
-                                    <7>6. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
-                                          PROOF BY <4>1 and <7>5 \* acquired[i] leaves the Overlap set of x.
-                                    <7>7. QED BY <7>4 and <7>6 \* We have Q'
-                              <6>3. QED BY <6>1 and <6>2
+                  ASSUME P /\ <<N /\ A /\ HotNblockSafety>>_Vars
+                  PROVE Q'
+                  <4>1. CASE Free(Acquired \ {acquired[i]}) # {}
+                        <5>1. CASE Overlap(x, Acquired) = {acquired[i]}
+                              <6>1. /\ \E y \in Free(Acquired \ {acquired[i]}): acquired' = [acquired EXCEPT ![i] = y]
+                                    /\ state' = [state EXCEPT ![i] = search]
+                                    /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[i]})
+                                                                   THEN FALSE ELSE isHot[y]]
+                                    PROOF BY <3>2 and <4>1 \* This is the THEN clause of the IF in doNextBlock(i)
+                              <6>2. x \notin HotInterference(Aqcuired)
+                                    PROOF BY <3>2 \* This is just a reiteration of HotNblockSafety assumed in <3>2
+                              <6>3. HotInterference(Acquired \ {acquired[i]}) \subseteq HotInterference(Acquired)
+                                    PROOF OBVIOUS \* There are either the same hot blocks or less when we release acquired[i].
+                              <6>4. x \notin HotInterference(Acquired \ {acquired[i]})
+                                    PROOF BY <6>3 and <6>4
+                              <6>5. x \in Free(Acquired \ {acquired[i]})
+                                    PROOF BY <5>1 and <6>1 \* The last overlapping block is not acquired.
+                              <6>6. ~isHot'[x]
+                                    PROOF BY <6>4 and <6>5 \* and the definition of the Free set.
+                              <6>7. QED BY <6>6
+                        <5>2. CASE Overlap(x, Acquired) # {acquired[i]}
+                              <6>1. /\ \E y \in Free(Acquired \ {acquired[i]}): acquired' = [acquired EXCEPT ![i] = y]
+                                    /\ state' = [state EXCEPT ![i] = search]
+                                    /\ isHot' = [y \in Nblocks |-> IF y \in Free(Acquired \ {acquired[i]})
+                                                                   THEN FALSE ELSE isHot[y]]
+                                    /\ UNCHANGED<<Succs>>
+                                    PROOF BY<3>2 and <4>1 \* This is the THEN clause of the IF in doNextBlock(i)
+                              <6>2. Overlap(x, Acquired \ {acquired[i]}) # {}
+                                    PROOF BY <3>2 and <5>2 \* There are other things overlapping x besides acquired[i].
+                              <6>3. x \notin Free(Acquired \ {acquired[i]})
+                                    PROOF BY <6>2 \* and the definition of the Free set.
+                              <6>4. isHot'[x] = isHot[x]
+                                    PROOF BY <6>1 and <6>3 \* x doesn't become free so it remains hot.
+                              <6>5. Acquired' = Acquired \ {acquired[i]} \union {acquired'[i]}
+                                    PROOF BY <6>1 \* and the definition of the Acquired set.
+                              <6>6. acquired'[i] \notin HotInterference(Acquired \ {acquired[i]})
+                                    PROOF BY <6>1 \* and the definition of the Free set.
+                              <6>7. Overlap(x, Acquired \ {acquired[i]}) \subseteq HotInterference(Aqcuired \ {acquired[i]})
+                                    PROOF OBVIOUS \* by the deinition of the Overlap and HotInterference sets.
+                              <6>8. acquired'[i] \notin Overlap(x, Acquired \ {acquired[i]})
+                                    PROOF BY <6>6 and <6>7
+                              <6>9. acquired'[i] \notin Overlap(x, Acquired')'
+                                    PROOF BY <6>1, <6>5 and <6>8 \* Succs is unchanged, acquired'[i] is not interfering with the overlap set.
+                              <6>10. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
+                                    PROOF BY <3>2 and <6>9 \* acquired[i] is no longer in the Overlap set of x.
+                              <6>11. QED BY <6>4 and <6>10 \* We have Q'
+                        <6>3. QED BY <6>1 and <6>2
+                  <4>2. CASE Free(Acquired \ {acquired[i]}) = {}
+                        <5>1. CASE Overlap(x, Acquired) = {acquired[i]}
+                              <6>1. isHot' = [y \in Nblocks : IF y \in Free(Acquired \ {acquired[i]} THEN FALSE ELSE isHot[y]]
+                                    PROOF BY <3>2 and <4>2 \* This is the ELSE clause of the IF in doNextBlock(i)
+                              <6>2. x \notin HotInterference(Acquired)
+                                    PROOF BY <3>2 \* This is just a reiteration of HotNblockSafety assumed in <3>2.
+                              <6>3. HotInterference(Aqcuired \ {acquired[i]}) \subseteq HotInterference(Acquired)
+                                    PROOF OBVIOUS \* There are either the same hot blocks or less when we release acquired[i].
+                              <6>4. x \notin HotInterference(Acquired \ {acquired[i]})
+                                    PROOF BY <6>2 and <6>3
+                              <6>5. Overlap(x, Acquired \ {acquired[i]}) = {}
+                                    PROOF BY <5>1 \* acquired[i] is the only thing in the overlap set, if we remove it then the set is empty.
+                              <6>6. x \in Free(Acquired \{acquired[i]})
+                                    PROOF BY <6>4 and <6>5 \* and the definition of the Free set.
+                              <6>7. ~isHot'[x]
+                                    PROOF BY <6>1 and <6>6
+                              <6>8. QED BY <6>7
+                        <5>2. CASE Overlap(x, Acquired) # {acquired[i]}
+                              <6>1. /\ acquired' = [acquired EXCEPT ![i] = none
+                                    /\ isHot' = [y \in Nblocks : IF y \in Free(Acquired \ {acquired[i]} THEN FALSE ELSE isHot[y]]
+                                    /\ UNCHANGED<<state>>
+                                    PROOF BY <3>2 and <4>2 \* This is the ELSE clause of the IF in doNextBlock(i)
+                              <6>2. Overlap(x, Acquired \ {acquired[i]}) # {}
+                                    PROOF BY <3>2 and <5>2 \* There are other things overlapping x besides acquired[i].
+                              <6>3. x \notin Free(Acquired \ {acquired[i]})
+                                    PROOF BY <6>2 \* and the definition of the Free set.
+                              <6>4. isHot'[x] = isHot[x]
+                                    PROOF BY <6>1 and <6>3
+                              <6>5. Acquried' = Acquired \ {acquired[i]}
+                                    PROOF BY <6>1
+                              <6>6. Overlap(x, Acquired')' \subset Overlap(x, Acquired)
+                                    PROOF BY <3>2 and <6>5 \* acquired[i] leaves the Overlap set of x.
+                              <6>7. QED BY <6>4 and <6>6 \* We have Q'
                         <5>3. QED BY <5>1 and <5>2
-                  <4>2. ASSUME P /\ <<N /\ A>>_Vars /\ state[i] = search
-                        PROVE Q'
-                        PROOF OBVIOUS \* The LHS is false and the implication holds trivially.
-                  <4>3. QED BY <4>1 and <4>2 \* these are the two cases for state[i]
+                  <4>3. QED BY <4>1 and <4>2
             <3>3. P => ENABLED<<A>>_Vars
                   PROOF OBVIOUS \* P contains the guard for A
             <3>4. H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock ~> G \/ (\E d \in S : d < c /\ H(d))
@@ -382,7 +396,7 @@ LET S == Nat \ {0}
             LET P == H(c) /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = search
                 Q == \/ (G \/ (\E d \in S : d < c /\ H(d)))
                      \/ H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock))
-                A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) : doNextBlock(i)
+                A == i \in Procs /\ acquired[i] \in Overlap(x, Acquired) : doSearch(i)
                 N == Next
             <3>5. P /\ [N]_Vars => (P' \/ Q')
                   ASSUME j \in Procs
@@ -392,9 +406,6 @@ LET S == Nat \ {0}
                   <4>2. P /\ doNextBlock(j) => (P' \/ Q')
                         ASSUME P /\ doNextBlock(j)
                         PROVE P' \/ Q'
-(*
-----------------------------------------------------------------------------------------------------
-*)
                         <5>1. j # i
                               PROOF OBVIOUS \* They have different states and hence are not the same process.
                         <5>2. P' \/ Q'
@@ -548,16 +559,62 @@ LET S == Nat \ {0}
                                     <7>9. QED BY <7>5, <7>6, <7>7 and <7>8 \* We have P'
                               <6>7. QED BY <6>1, <6>2, <6>3, <6>4, <6>5 and <6>6
                         <5>3. QED BY <5>2
-(*
-----------------------------------------------------------------------------------------------------
-*)
                   <4>3. P /\ doSearch(j) => (P' \/ Q')
-                        PROOF OMITTED
+                        <5>1. CASE state[j] = search
+                              <6>1. j # i
+                                    PROOF BY <4>3 \* state[i] = nextblock and therefore these two are different.
+                              <6>2. UNCHANGED<<acquired, Succs>>
+                                    PROOF BY <4>3 \* this is always in doSearch(j)
+                              <6>3. state'[i] = state[i]
+                                    PROOF BY <4>3 and <6>1 \* Only state[j] changes.
+                              <6>4. acquired'[i] \in Overlap(x, Acquired)
+                                    PROOF BY <6>2 \* None of the acquired blocks change.
+                              <6>5. OverlapAmt(x)' = Overlap(x)
+                                    PROOF BY <4>3 and <6>2
+                              <6>6. isHot'[x]
+                                    <7>1. CASE UNCHANGED<<isHot>>
+                                          PROOF BY <4>3 and <7>1
+
+                                    <7>2. CASE \E y \in Succs[acquired[j]]: /\ ~isHot[y]
+                                                                            /\ IntScope(y) \intersect Hot(Acquired) = {}
+                                                                            /\ y \notin HotInterference(Acquired)
+                                                                            /\ isHot' = [isHot EXCEPT ![y] = TRUE]
+                                          <8>1. y # x
+                                                PROOF BY <4>3 and <7>2 \* ~isHot[y] /\ isHot[x] => x # y
+                                          <8>2. QED BY <4>3 and <8>1 \* Only y changes in isHot'
+                                    <7>3. QED BY <7>1 and <7>2 \* These are the only two options in the doSearch(j) action.
+                              <6>7. QED BY <6>3, <6>4, <6>5 and <6>6
+                        <5>2. CASE state[j] = nextblock
+                              PROOF OBVIOUS \* The LHS is false since doSearch(j) is not enabled.
+                        <5>3. QED BY <5>1 and <5>2
                   <4>4. QED BY <4>1, <4>2 and <4>3
             <3>6. P /\ <<N /\ A>>_Vars => Q'
-                  PROOF OMITTED
+                  ASSUME P /\ <<N /\ A /\ HotNblockSafety>>_Vars
+                  PROVE Q'
+                  <4>1. isHot'[x]
+                        <5>1. CASE UNCHANGED<<isHot>>
+                              PROOF BY <3>6 and <5>1
+                        <5>2. CASE \E y \in Succs[acquired[i]]: /\ ~isHot[y]
+                                                                /\ IntScope(y) \intersect Hot(Acquired) = {}
+                                                                /\ y \notin HotInterference(Acquired)
+                                                                /\ isHot' = [isHot EXCEPT ![y] = TRUE]
+                              <6>1. y # x
+                                    PROOF <3>6 and <5>2 \* ~isHot[y] /\ isHot[x] => x # y
+                              <6>2. QED BY <3>6, <5>2 and <6>1 \* Only y changes in isHot'
+                        <5>3. QED BY <5>1 and <5>2
+                  <4>2. UNCHANGED<<acquired, Succs>>
+                        PROOF BY <3>6 \* This is part of doSearch(i)
+                  <4>3. OverlapAmt(x)' = OverlapAmt(x)
+                        PROOF BY <4>2
+                  <4>4. acquired'[i] \in Overlap(x, Acquired')'
+                        PROOF BY <4>2
+                  <4>5. state'[i] = nextblock
+                        PROOF BY <3>6
+                  <4>6. QED BY <4>1, <4>3, <4>4 and <4>5 \* We have Q'
+                 
             <3>7. P => ENABLED<<A>>_Vars
-                  PROOF OMITTED
+                  PROOF OBVIOUS \* The guard for A is part of P
+                  
             
             <3>8. H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = search
                   ~> Q \/ (H(c) /\ i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ state[i] = nextblock)
@@ -576,8 +633,14 @@ LET S == Nat \ {0}
       <2>3. [][Next] /\ WF_Vars(i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ doNextBlock(i))
             <3>1. [][Next]
                   PROOF OBVIOUS \* This is part of Prog, which we assume in <1>1
+(*
+----------------------------------------------------------------------------------------------------
+*)
             <3>2. WF_Vars(i \in Procs /\ acquired[i] \in Overlap(x, Acquired) /\ doNextBlock(i))
                   PROOF OMITTED
+(*
+----------------------------------------------------------------------------------------------------
+*)
                   \* There are two pieces here... first, everything in Overlap(x, Acquired) is in Procs
                   \* and second, Overlap(x, Acquired) isn't empty... which it may be... but H(c) implies that it is not
                   \* just look at <2>1
