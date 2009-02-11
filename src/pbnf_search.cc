@@ -23,13 +23,15 @@
 using namespace std;
 using namespace PBNF;
 
-#define MIN_M 32
+#define MIN_M 64
 #define MAX_INT std::numeric_limits<int>::max()
 
 AtomicInt PBNFSearch::min_expansions(MIN_M);
 
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
-	: graph(graph), search(search), set_hot(false) {}
+	: graph(graph), search(search), set_hot(false) {
+	next_best = 0.0;
+}
 
 
 PBNFSearch::PBNFThread::~PBNFThread(void) {}
@@ -42,17 +44,17 @@ void PBNFSearch::PBNFThread::run(void)
 {
 	vector<State *> *path;
 	NBlock *n = NULL;
-	//Timer t;
-	//CumulativeAverage ca;
-	//double longest_switch = 0;
 
 	do {
-		//t = Timer();
-		//t.start();
-		n = graph->next_nblock(n, !set_hot, search->dynamic_m);
-		//t.stop();
-		//ca.add_val((unsigned long)(t.get_wall_time() * 1000000));
-		//longest_switch = max(longest_switch, t.get_wall_time());
+		n = graph->next_nblock(n, !set_hot, false);
+
+		if (n && search->dynamic_m){
+			next_best = graph->best_f();
+			//if (next_best == n->open.get_best_f()){
+			//	next_best = 0.0;
+			//}
+		}
+		
 		set_hot = false;
 		if (n) {
 			expansions = 0;
@@ -64,10 +66,6 @@ void PBNFSearch::PBNFThread::run(void)
 			ave_exp_per_nblock.add_val(exp_this_block);
 		}
 	} while (n);
-
-	//cout << "switch took (avg) " << ca.read()/1000000 << endl;
-	//cout << "number of switches " << ca.get_num() << endl;
-	//cout << "longest switch " << longest_switch << endl;
 
 	graph->set_done();
 }
@@ -155,8 +153,13 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (expansions < search->min_expansions.read())
-		return false;
+	if (next_best == 0.0 || graph->best_f() != 0.0){
+		if (expansions < search->min_expansions.read())
+			return false;
+	}
+	else{
+		return n->open.get_best_f() > next_best;
+	}
 
 	expansions = 0;
 
@@ -169,9 +172,9 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 		ret = free < cur || scope < cur;
 		if (!ret)
-			graph->wont_release(n, search->dynamic_m);
+			graph->wont_release(n, false);
 		else if (scope < free) {
-			graph->set_hot(best_scope, search->dynamic_m);
+			graph->set_hot(best_scope, false);
 			set_hot = true;
 		}
 	} else {
@@ -272,9 +275,6 @@ void PBNFSearch::inc_m()
 {
         unsigned int old = PBNFSearch::min_expansions.read();
 	unsigned int o, n;
-	//cout << "inc_m" << endl;
-	//if (PBNFSearch::min_expansions.read() > MIN_M)
-	//cout << old << endl;
 	do { o = old; n = min((unsigned int)(o * 2), (unsigned int)((MAX_INT/2)-1)); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
 	} while (old != o);
 }
@@ -283,9 +283,6 @@ void PBNFSearch::dec_m()
 {
         unsigned int old = PBNFSearch::min_expansions.read();
 	unsigned int o, n;
-	//cout << "dec_m" << endl;
-	//if (PBNFSearch::min_expansions.read() > MIN_M)
-	//cout << old << endl;
 	do { o = old; n = max((unsigned int)(o*.8), (unsigned int)MIN_M); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
 	} while (old != o);
 }
