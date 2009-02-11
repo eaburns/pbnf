@@ -121,6 +121,11 @@ template<class PQCompare>
 template<class PQCompare>
  void PQOpenList<PQCompare>::prune(void)
 {
+	int fill = pq.get_fill();
+
+	for (int i = 0; i < fill; i += 1)
+		pq.get_elem(i)->set_open(false);
+
 	pq.reset();
 }
 

@@ -28,6 +28,7 @@ public:
 	void elem_improved(int i);
 
 	int get_fill() { return fill; }
+	Elem get_elem(int i) { assert(i < fill); return heap[i]; }
 
 private:
 	int left_of(int i);
@@ -40,6 +41,7 @@ private:
 	int sift_down(Elem e, int i);
 
 	bool heap_holds(int, int);
+	//bool indexes_match(void);
 
 	int fill;
 	int size;
@@ -108,7 +110,7 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	while (i > 0 && cmp(e, parent) > 0) {
 		heap[i] = parent;
 		set_index(parent, i);
-		assert(i < fill + 1);
+		assert(i < fill);
 		i = p_ind;
 		p_ind = parent_of(i);
 		parent = heap[p_ind];
@@ -169,11 +171,12 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	}
 
 	heap[fill] = e;
-	int i = sift_up(fill);
-	set_index(e, i);
 	fill += 1;
+	int i = sift_up(fill - 1);
+	set_index(e, i);
 	assert(i < fill);
 /*
+	assert(indexes_match());
 	assert(heap_holds(0, fill - 1));
 */
 }
@@ -190,11 +193,13 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	set_index(e, -1);
 
 	heap[0] = heap[fill - 1];
+	heap[fill - 1] = NULL;
 	fill -= 1;
 	if (fill > 0)
 		sift_down(heap[0], 0);
 
 /*
+	assert(indexes_match());
 	assert(heap_holds(0, fill - 1));
 */
 
@@ -229,10 +234,12 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 template<class Elem, class ElemCmp, class ElemSetInd>
 	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::elem_improved(int i)
 {
+	//assert(indexes_match());
 	assert(i >= 0);
 	assert(i < fill);
 	Elem e = heap[i];
 	set_index(e, sift_up(i));
+	//assert(indexes_match());
 /*
 	assert(heap_holds(0, fill - 1));
 */
@@ -267,3 +274,17 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 
 	return true;
 }
+
+/*
+template<class Elem, class ElemCmp, class ElemSetInd>
+	bool PriorityQueue<Elem, ElemCmp, ElemSetInd>::indexes_match(void)
+{
+	for (int i = 0; i < fill; i += 1) {
+		if (cmp(heap[i]) != i) {
+			std::cerr << "ind=" << cmp(heap[i]) << " should be: " << i << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+*/
