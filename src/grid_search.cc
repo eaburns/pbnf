@@ -59,9 +59,11 @@ int main(int argc, char *argv[])
 
 		// Make sure that the heuristic was actually admissible!
 		for (unsigned int i = path->size() - 1; i >= 0; i -= 1) {
+#if !defined(NDEBUG)
 			State *s = path->at(i);
 			fp_type togo = path->at(0)->get_g() - s->get_g();
 			assert(s->get_h() <= togo);
+#endif
 			if (i > 0)
 				assert(s->get_h() > 0);
 			if (i == 0)

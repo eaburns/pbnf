@@ -73,7 +73,7 @@ ifeq ($(MARCH), sun4v) # Sun compilers
 CC=cc
 CXX=CC
 #DEBUG=-g -xO0   # use the dbx debugger
-DEBUG+=
+DEBUG+=-DNDEBUG
 FLAGS+=-mt -errwarn=%all $(DEBUG)
 ASFLAGS+=-xc99=%none
 CFLAGS+=-xc99=%none
@@ -81,8 +81,8 @@ LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
-#DEBUG+=-O3
-DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+DEBUG+=-O3 -DNDEBUG
+#DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 LDFLAGS+=-lpthread $(PROFILE)
@@ -154,6 +154,22 @@ pq_test.$(MARCH): $(OBJ) util/pq_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/pq_test.cc
 
 create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
+	echo
+	echo
+	echo
+	echo
+	echo
+	echo
+	echo
+	echo Is debugging turned off?
+	echo
+	echo
+	echo
+	echo
+	echo
+	echo
+	echo
+	echo
 	cp grid_search.$(MARCH) grid_search.$(MARCH).bin
 	cp tiles_search.$(MARCH) tiles_search.$(MARCH).bin
 

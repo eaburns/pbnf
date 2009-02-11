@@ -12,7 +12,7 @@
 #include "state.h"
 
 State::State(SearchDomain *d, State *parent, fp_type g)
-	: parent(parent), domain(d), g(g), h(-1), open(false) {}
+	: parent(parent), domain(d), g(g), h(-1), open(false), f_pq_index(-1), f_prime_pq_index(-1) {}
 
 State::~State() {}
 

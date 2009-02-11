@@ -13,47 +13,12 @@
 #include <assert.h>
 
 #include <limits>
-#include <algorithm>
 
 #include "state.h"
 #include "open_list.h"
+#include "util/priority_queue.h"
 
 using namespace std;
-
-class CompareOnF {
-public:
-	bool operator()(State *a, State *b) const {
-		fp_type fa = a->get_f();
-		fp_type fb = b->get_f();
-
-		if (fa == fb)
-			return a->get_g() < b->get_g();
-
-		return fa > fb;
-	}
-
-	fp_type get_value(State *s) const {
-		return s->get_f();
-	}
-};
-
-class CompareOnFPrime {
-public:
-	bool operator()(State *a, State *b) const {
-		fp_type fa = a->get_f_prime();
-		fp_type fb = b->get_f_prime();
-
-		if (fa == fb)
-			return a->get_g() < b->get_g();
-
-		return fa > fb;
-	}
-
-	fp_type get_value(State *s) const {
-		return s->get_f_prime();
-	}
-};
-
 
 /**
  * A priority queue for states based on their f(s) = g(s) + h(s)
@@ -62,7 +27,7 @@ public:
  * \todo make this a bit more general.
  */
 template<class PQCompare>
-class PQOpenList : public OpenList {
+	class PQOpenList : public OpenList {
 public:
 	PQOpenList(void);
 	void add(State *s);
@@ -75,7 +40,8 @@ public:
 
 	void resort(State *s);
 private:
-	vector<State *> heap;
+	PriorityQueue<State *, PQCompare, PQCompare> pq;
+	PQCompare get_index;
 	PQCompare comp;
 };
 
@@ -83,9 +49,8 @@ private:
  * Create a new PQ open list.
  */
 template<class PQCompare>
-PQOpenList<PQCompare>::PQOpenList(void)
+	PQOpenList<PQCompare>::PQOpenList(void)
 {
-	make_heap(heap.begin(), heap.end(), comp);
 }
 
 /**
@@ -96,9 +61,7 @@ template<class PQCompare>
 void PQOpenList<PQCompare>::add(State *s)
 {
 	s->set_open(true);
-	heap.push_back(s);
-	push_heap(heap.begin(), heap.end(), comp);
-	set_best_f(heap.front()->get_f());
+	pq.add(s);
 }
 
 /**
@@ -110,15 +73,13 @@ State *PQOpenList<PQCompare>::take(void)
 {
 	State *s;
 
-	s = heap.front();
+	s = pq.take();
 	s->set_open(false);
-	pop_heap(heap.begin(), heap.end(), comp);
-	heap.pop_back();
 
-	if (heap.empty())
+	if (pq.empty())
 		set_best_f(fp_infinity);
 	else
-		set_best_f(heap.front()->get_f());
+		set_best_f(pq.peek()->get_f());
 
 	return s;
 }
@@ -129,7 +90,7 @@ State *PQOpenList<PQCompare>::take(void)
 template<class PQCompare>
 State *PQOpenList<PQCompare>::peek(void)
 {
-	return heap.front();
+	return pq.peek();
 }
 
 /**
@@ -139,7 +100,7 @@ State *PQOpenList<PQCompare>::peek(void)
 template<class PQCompare>
 bool PQOpenList<PQCompare>::empty(void)
 {
-	return heap.empty();
+	return pq.empty();
 }
 
 /**
@@ -148,12 +109,10 @@ bool PQOpenList<PQCompare>::empty(void)
 template<class PQCompare>
 void PQOpenList<PQCompare>::delete_all_states(void)
 {
-	vector<State *>::iterator iter;
+	while (!pq.empty())
+		delete pq.take();
 
-	for (iter = heap.begin(); iter != heap.end(); iter++)
-		delete *iter;
-
-	heap.clear();
+	pq.reset();
 }
 
 /**
@@ -162,12 +121,7 @@ void PQOpenList<PQCompare>::delete_all_states(void)
 template<class PQCompare>
 void PQOpenList<PQCompare>::prune(void)
 {
-	vector<State *>::iterator iter;
-
-	for (iter = heap.begin(); iter != heap.end(); iter++)
-		(*iter)->set_open(false);
-
-	heap.clear();
+	pq.reset();
 }
 
 /**
@@ -176,10 +130,10 @@ void PQOpenList<PQCompare>::prune(void)
 template<class PQCompare>
 fp_type PQOpenList<PQCompare>::get_best_val(void)
 {
-	if (heap.empty())
+	if (pq.empty())
 		return fp_infinity;
 
-	return comp.get_value(heap.front());
+	return comp.get_value(pq.peek());
 }
 
 /**
@@ -187,17 +141,9 @@ fp_type PQOpenList<PQCompare>::get_best_val(void)
  * updating states which are open.
  */
 template<class PQCompare>
-void PQOpenList<PQCompare>::resort(State *s)
+	void PQOpenList<PQCompare>::resort(State *s)
 {
-	vector<State *>::iterator iter;
-
-	for (iter = heap.begin(); iter != heap.end(); iter++)
-		if (*iter == s) {
-			push_heap(heap.begin(), ++iter, comp);
-			return;
-		}
-
-	assert("should not reach here" == NULL);
+	pq.elem_improved(get_index(s));
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */

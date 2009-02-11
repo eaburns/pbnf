@@ -17,17 +17,19 @@
  */
 template<class Elem, class ElemCmp, class ElemSetInd> class PriorityQueue {
 public:
-
+	PriorityQueue(void);
 	void add(Elem e);
 	Elem take(void);
 	Elem peek(void);
 	bool empty(void);
+	void reset(void);
 
 	/** When the value of an element gets better (closer to the
 	 * front of the queue) this function re-sifts it. */
 	void elem_improved(int i);
 
-	std::vector<Elem> get_vec(void) { return heap; }
+	std::vector<Elem> get_vec() { return heap; }
+	int get_fill() { return fill; }
 
 private:
 	int left_of(int i);
@@ -35,14 +37,23 @@ private:
 	int parent_of(int i);
 	int is_leaf(int i);
 	int max_child(int i);
-	void sift_up(int i);
-	void sift_down(int i);
+	int sift_up(int i);
+	int try_push(Elem e, int i);
+	int sift_down(Elem e, int i);
+
+	bool heap_holds(int, int);
 
 	int fill;
 	std::vector<Elem> heap;
 	ElemCmp cmp;
 	ElemSetInd set_index;
 };
+
+template<class Elem, class ElemCmp, class ElemSetInd>
+	PriorityQueue<Elem, ElemCmp, ElemSetInd>::PriorityQueue(void)
+{
+	reset();
+}
 
 template<class Elem, class ElemCmp, class ElemSetInd>
 	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::left_of(int i)
@@ -65,7 +76,7 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 template<class Elem, class ElemCmp, class ElemSetInd>
 	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::is_leaf(int i)
 {
-	return left_of(i) > fill && right_of(i) > fill;
+	return left_of(i) >= fill && right_of(i) >= fill;
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
@@ -89,71 +100,93 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
-	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_up(int i)
+	 int PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_up(int i)
 {
-	if (i > 0) {
-		int p_ind = parent_of(i);
-		Elem elm = heap[i];
-		Elem parent = heap[p_ind];
-		if (cmp(elm, parent) > 0) {
-			heap[i] = parent;
-			set_index(parent, i);
-			heap[p_ind] = elm;
-			set_index(elm, p_ind);
-			sift_up(p_ind);
+	int p_ind = parent_of(i);
+	Elem parent = heap[p_ind];
+	Elem e = heap[i];
+	while (i > 0 && cmp(e, parent) > 0) {
+		heap[i] = parent;
+		set_index(parent, i);
+		i = p_ind;
+		p_ind = parent_of(i);
+		parent = heap[p_ind];
+	}
+	heap[i] = e;
+	return i;
+}
+
+template<class Elem, class ElemCmp, class ElemSetInd>
+	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::try_push(Elem e, int i)
+{
+	int child_i = left_of(i);
+	if (child_i < fill) {
+		Elem child = heap[child_i];
+		int right_i = right_of(i);
+		if (right_i < fill) {
+			Elem right = heap[right_i];
+			if (cmp(child, right) < 0) {
+				child = right;
+				child_i = right_i;
+			}
 		}
+		if (cmp(e, child) > 0) {
+			return i;
+		} else {
+			heap[i] = child;
+			set_index(child, i);
+			return try_push(e, child_i);
+		}
+	} else {
+		return i;
 	}
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
-	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_down(int i)
+	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_down(Elem e, int i)
 {
-	if (!is_leaf(i)) {
-		int max_c_ind = max_child(i);
-		Elem elm = heap[i];
-		Elem max_c = heap[max_c_ind];
+	i = try_push(e, i);
+	heap[i] = e;
+	set_index(e, i);
 
-		if (cmp(elm, max_c) < 0) {
-			heap[i] = max_c;
-			set_index(max_c, i);
-			heap[max_c_ind] = elm;
-			set_index(elm, max_c_ind);
-			sift_down(max_c_ind);
-		}
-	}
+	return i;
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
 	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::add(Elem e)
 {
-	if (heap.size() > (unsigned int) fill)
-		heap[fill] = e;
-	else
-		heap.push_back(e);
+	if (heap.size() <= (unsigned int) fill)
+		heap.resize(fill * 2);
 
-	sift_up(fill);
+	heap[fill] = e;
+	set_index(e, sift_up(fill));
 	fill += 1;
+/*
+	assert(heap_holds(0, fill - 1));
+*/
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
 	Elem PriorityQueue<Elem, ElemCmp, ElemSetInd>::take(void)
 {
-	Elem head;
+	Elem e;
 
 	if (fill <= 0)
 		return NULL;
 
-	head = heap[0];
-	set_index(head, -1);
+	e = heap[0];
+	set_index(e, -1);
 
+	heap[0] = heap[fill - 1];
 	fill -= 1;
-	if (fill > 0) {
-		heap[0] = heap[fill];
-		set_index(heap[0], 0);
-		sift_down(0);
-	}
+	if (fill > 0)
+		sift_down(heap[0], 0);
 
-	return head;
+/*
+	assert(heap_holds(0, fill - 1));
+*/
+
+	return e;
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
@@ -172,7 +205,49 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
+	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::reset(void)
+{
+	fill = 0;
+	heap.resize(500, NULL);
+}
+
+template<class Elem, class ElemCmp, class ElemSetInd>
 	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::elem_improved(int i)
 {
+	assert(i >= 0);
+	assert(i < fill);
 	sift_up(i);
+/*
+	assert(heap_holds(0, fill - 1));
+*/
+}
+
+template<class Elem, class ElemCmp, class ElemSetInd>
+	bool PriorityQueue<Elem, ElemCmp, ElemSetInd>::heap_holds(int ind_start, int ind_end)
+{
+	int c;
+	for (int i = ind_start; i <= ind_end; i += 1) {
+		int right = right_of(i);
+		int left = left_of(i);
+		if (right < fill && (c = cmp(heap[i], heap[right])) < 0) {
+			std::cerr << "fill: " << fill
+				  << " c: " << c
+				  << " right: " << right
+				  << " val: " << cmp.get_value(heap[right])
+				  << " i: " << i
+				  << " val: " << cmp.get_value(heap[i]) << std::endl;;
+			return false;
+		}
+		if (left < fill && (c = cmp(heap[i], heap[left])) < 0) {
+			std::cerr << "fill: " << fill
+				  << " c: " << c
+				  <<  " left: " << left
+				  << " val: " << cmp.get_value(heap[left])
+				  << " i: " << i
+				  << " val: " << cmp.get_value(heap[i]) << std::endl;;
+			return false;
+		}
+	}
+
+	return true;
 }

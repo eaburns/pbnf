@@ -21,6 +21,10 @@ public:
 		{
 			return a->value - b->value;
 		}
+
+		int get_value(Int *a) {
+			return a->value;
+		}
 	};
 	class IntSetInd {
 	public:
@@ -39,12 +43,11 @@ public:
 	int value;
 };
 
-void print_heap(PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq)
+void print(PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq)
 {
-	vector<Int*> v = pq.get_vec();
-
-	for (unsigned int i = 0; i < v.size(); i += 1)
-		cout << "[" << v[i]->value << "]";
+	for (int i = 0; i < pq.get_fill(); i += 1) {
+		cout << "[" << pq.get_vec()[i]->value << "]";
+	}
 	cout << endl;
 }
 
@@ -52,22 +55,32 @@ int main(void)
 {
 	PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq;
 	Int *one = new Int(1);
+	Int *three = new Int(3);
 
 	pq.add(one);
 	pq.add(new Int(2));
-	pq.add(new Int(3));
+	pq.add(three);
 	pq.add(new Int(4));
 	pq.add(new Int(5));
 
+	print(pq);
 	cout << "peek: " << pq.peek()->value << endl;
 	delete pq.take();
 	cout << "peek: " << pq.peek()->value << endl;
+	print(pq);
 
 	one->value = 100;
 	pq.elem_improved(one->index);
 	cout << "peek: " << pq.peek()->value << endl;
+	print(pq);
 	delete pq.take();
 	cout << "peek: " << pq.peek()->value << endl;
+	print(pq);
+	three->value = 5;
+	pq.elem_improved(three->index);
+	cout << "peek: " << pq.peek()->value << endl;
+	print(pq);
+	delete pq.take();
 
 	return 0;
 }

@@ -43,7 +43,7 @@ namespace PBNF {
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		PQOpenList<CompareOnFPrime> open;
+		PQOpenList<State::CompareOnFPrime> open;
 
 		unsigned int sigma_hot;
 		int hot;

@@ -18,7 +18,7 @@
  * A thread safe PQ OpenList implementation.
  */
 template<class PQCompare>
-class SynchPQOList : public PQOpenList<PQCompare> {
+	class SynchPQOList : public PQOpenList<PQCompare> {
 public:
 	SynchPQOList(void);
 
@@ -36,12 +36,12 @@ private:
 };
 
 template<class PQCompare>
-SynchPQOList<PQCompare>::SynchPQOList(void) {
+	SynchPQOList<PQCompare>::SynchPQOList(void) {
 	pthread_mutex_init(&mutex, NULL);
 }
 
 template<class PQCompare>
-void SynchPQOList<PQCompare>::add(State *s)
+	void SynchPQOList<PQCompare>::add(State *s)
 {
 	pthread_mutex_lock(&mutex);
 	PQOpenList<PQCompare>::add(s);
@@ -114,6 +114,7 @@ fp_type SynchPQOList<PQCompare>::get_best_val(void)
 
 template<class PQCompare>
 void SynchPQOList<PQCompare>::resort(State *s)
+
 {
 	pthread_mutex_lock(&mutex);
 	PQOpenList<PQCompare>::resort(s);

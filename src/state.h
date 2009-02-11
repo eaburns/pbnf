@@ -22,6 +22,70 @@ using namespace std;
  */
 class State {
 public:
+
+	class CompareOnF {
+	public:
+
+		int operator()(State *a, State *b) const {
+			fp_type fa = a->get_f();
+			fp_type fb = b->get_f();
+
+			if (fa > fb) return -1;
+			else if (fb > fa) return 1;
+			else {
+				fp_type ga = a->get_g();
+				fp_type gb = b->get_g();
+
+				if (ga > gb) return 1;
+				else if (gb > ga) return -1;
+				else return 0;
+			}
+		}
+		fp_type get_value(State *s) const {
+			return s->get_f_prime();
+		}
+		void operator()(State *a, int i)
+		{
+			a->f_prime_pq_index = i;
+		}
+
+		int operator()(State *a)
+		{
+			return a->f_prime_pq_index;
+		}
+	};
+
+	class CompareOnFPrime {
+	public:
+		int operator()(State *a, State *b) const {
+			fp_type fa = a->get_f_prime();
+			fp_type fb = b->get_f_prime();
+			if (fa > fb) return -1;
+			else if (fb > fa) return 1;
+			else {
+				fp_type ga = a->get_g();
+				fp_type gb = b->get_g();
+
+				if (ga > gb) return 1;
+				else if (gb > ga) return -1;
+				else return 0;
+			}
+		}
+
+		fp_type get_value(State *s) const {
+			return s->get_f_prime();
+		}
+		void operator()(State *a, int i)
+		{
+			a->f_prime_pq_index = i;
+		}
+
+		int operator()(State *a)
+		{
+			return a->f_prime_pq_index;
+		}
+	};
+
 	State(SearchDomain *d, State *parent, fp_type g);
 
 	virtual ~State();
@@ -51,6 +115,10 @@ public:
 	fp_type g;
 	fp_type h;
 	bool open;
+
+	/* indexes into the pq open lists. */
+	int f_pq_index;
+	int f_prime_pq_index;
 };
 
 #endif	/* !_STATE_H_ */
