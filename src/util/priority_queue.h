@@ -56,13 +56,13 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
-	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::left_of(int i)
+	 int PriorityQueue<Elem, ElemCmp, ElemSetInd>::left_of(int i)
 {
 	return 2 * i + 1;
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
-	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::right_of(int i)
+	 int PriorityQueue<Elem, ElemCmp, ElemSetInd>::right_of(int i)
 {
 	return 2 * i + 2;
 }
@@ -143,7 +143,7 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
-	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_down(Elem e, int i)
+	int  PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_down(Elem e, int i)
 {
 	i = try_push(e, i);
 	heap[i] = e;
@@ -205,7 +205,7 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
-	bool PriorityQueue<Elem, ElemCmp, ElemSetInd>::empty(void)
+	 bool PriorityQueue<Elem, ElemCmp, ElemSetInd>::empty(void)
 {
 	return fill <= 0;
 }
@@ -214,7 +214,7 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::reset(void)
 {
 	fill = 0;
-	size = 500;
+	size = 100;
 	if (heap)
 		delete[] heap;
 	heap = new Elem[size];

@@ -88,7 +88,7 @@ State *PQOpenList<PQCompare>::take(void)
  * Peek at the top element.
  */
 template<class PQCompare>
-State *PQOpenList<PQCompare>::peek(void)
+ State * PQOpenList<PQCompare>::peek(void)
 {
 	return pq.peek();
 }
@@ -98,7 +98,7 @@ State *PQOpenList<PQCompare>::peek(void)
  * \return True if the open list is empty, false if not.
  */
 template<class PQCompare>
-bool PQOpenList<PQCompare>::empty(void)
+ bool PQOpenList<PQCompare>::empty(void)
 {
 	return pq.empty();
 }
@@ -107,7 +107,7 @@ bool PQOpenList<PQCompare>::empty(void)
  * Delete all of the states on the open list.
  */
 template<class PQCompare>
-void PQOpenList<PQCompare>::delete_all_states(void)
+ void PQOpenList<PQCompare>::delete_all_states(void)
 {
 	while (!pq.empty())
 		delete pq.take();
@@ -119,7 +119,7 @@ void PQOpenList<PQCompare>::delete_all_states(void)
  * Prune all of the states.
  */
 template<class PQCompare>
-void PQOpenList<PQCompare>::prune(void)
+ void PQOpenList<PQCompare>::prune(void)
 {
 	pq.reset();
 }
@@ -128,7 +128,7 @@ void PQOpenList<PQCompare>::prune(void)
  * Get the value of the best node.
  */
 template<class PQCompare>
-fp_type PQOpenList<PQCompare>::get_best_val(void)
+ fp_type PQOpenList<PQCompare>::get_best_val(void)
 {
 	if (pq.empty())
 		return fp_infinity;
