@@ -108,6 +108,7 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	while (i > 0 && cmp(e, parent) > 0) {
 		heap[i] = parent;
 		set_index(parent, i);
+		assert(i < fill + 1);
 		i = p_ind;
 		p_ind = parent_of(i);
 		parent = heap[p_ind];
@@ -135,6 +136,7 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 		} else {
 			heap[i] = child;
 			set_index(child, i);
+			assert(i < fill);
 			return try_push(e, child_i);
 		}
 	} else {
@@ -146,8 +148,10 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	int  PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_down(Elem e, int i)
 {
 	i = try_push(e, i);
+	assert(i < fill);
 	heap[i] = e;
 	set_index(e, i);
+	assert(i < fill);
 
 	return i;
 }
@@ -165,8 +169,10 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	}
 
 	heap[fill] = e;
-	set_index(e, sift_up(fill));
+	int i = sift_up(fill);
+	set_index(e, i);
 	fill += 1;
+	assert(i < fill);
 /*
 	assert(heap_holds(0, fill - 1));
 */
@@ -225,7 +231,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 {
 	assert(i >= 0);
 	assert(i < fill);
-	sift_up(i);
+	Elem e = heap[i];
+	set_index(e, sift_up(i));
 /*
 	assert(heap_holds(0, fill - 1));
 */
