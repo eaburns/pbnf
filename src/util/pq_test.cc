@@ -43,6 +43,7 @@ public:
 	int value;
 };
 
+/*
 void print(PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq)
 {
 	for (int i = 0; i < pq.get_fill(); i += 1) {
@@ -50,6 +51,10 @@ void print(PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq)
 	}
 	cout << endl;
 }
+*/
+
+void print (PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq) {}
+
 
 int main(void)
 {

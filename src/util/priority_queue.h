@@ -10,7 +10,6 @@
 #include <assert.h>
 
 #include <iostream>
-#include <vector>
 
 /**
  * A template priority queue class.
@@ -28,7 +27,6 @@ public:
 	 * front of the queue) this function re-sifts it. */
 	void elem_improved(int i);
 
-	std::vector<Elem> get_vec() { return heap; }
 	int get_fill() { return fill; }
 
 private:
@@ -44,7 +42,8 @@ private:
 	bool heap_holds(int, int);
 
 	int fill;
-	std::vector<Elem> heap;
+	int size;
+	Elem* heap;
 	ElemCmp cmp;
 	ElemSetInd set_index;
 };
@@ -52,6 +51,7 @@ private:
 template<class Elem, class ElemCmp, class ElemSetInd>
 	PriorityQueue<Elem, ElemCmp, ElemSetInd>::PriorityQueue(void)
 {
+	heap = NULL;
 	reset();
 }
 
@@ -155,8 +155,14 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 template<class Elem, class ElemCmp, class ElemSetInd>
 	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::add(Elem e)
 {
-	if (heap.size() <= (unsigned int) fill)
-		heap.resize(fill * 2);
+	if (size <= fill) {
+		size = size * 2;
+		Elem *new_heap = new Elem[size];
+		for (int i = 0; i < fill; i += 1)
+			new_heap[i] = heap[i];
+		delete[] heap;
+		heap = new_heap;
+	}
 
 	heap[fill] = e;
 	set_index(e, sift_up(fill));
@@ -208,7 +214,10 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::reset(void)
 {
 	fill = 0;
-	heap.resize(500, NULL);
+	size = 500;
+	if (heap)
+		delete[] heap;
+	heap = new Elem[size];
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
