@@ -23,13 +23,15 @@
 using namespace std;
 using namespace PBNF;
 
-#define MIN_M 32
+#define MIN_M 64
 #define MAX_INT std::numeric_limits<int>::max()
 
 AtomicInt PBNFSearch::min_expansions(MIN_M);
 
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
-	: graph(graph), search(search), set_hot(false) {}
+	: graph(graph), search(search), set_hot(false) {
+	next_best = 0.0;
+}
 
 
 PBNFSearch::PBNFThread::~PBNFThread(void) {}
@@ -44,7 +46,15 @@ void PBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		n = graph->next_nblock(n, !set_hot, search->dynamic_m);
+		n = graph->next_nblock(n, !set_hot, false);
+
+		if (n && search->dynamic_m){
+			next_best = graph->best_f();
+			//if (next_best == n->open.get_best_f()){
+			//	next_best = 0.0;
+			//}
+		}
+		
 		set_hot = false;
 		if (n) {
 			expansions = 0;
@@ -143,8 +153,13 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (expansions < search->min_expansions.read())
-		return false;
+	if (next_best == 0.0 || graph->best_f() != 0.0){
+		if (expansions < search->min_expansions.read())
+			return false;
+	}
+	else{
+		return n->open.get_best_f() > next_best;
+	}
 
 	expansions = 0;
 
@@ -157,9 +172,9 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 		ret = free < cur || scope < cur;
 		if (!ret)
-			graph->wont_release(n, search->dynamic_m);
+			graph->wont_release(n, false);
 		else if (scope < free) {
-			graph->set_hot(best_scope, search->dynamic_m);
+			graph->set_hot(best_scope, false);
 			set_hot = true;
 		}
 	} else {

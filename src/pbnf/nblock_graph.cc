@@ -259,6 +259,13 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
 	return nblocks_assigned_max;
 }
 
+fp_type NBlockGraph::best_f(void){
+	if (free_list.empty())
+		return 0.0;
+	else
+		return free_list.best_f();
+}
+
 
 /**
  * Print an NBlock, but don't take the lock.

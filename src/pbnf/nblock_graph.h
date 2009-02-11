@@ -43,6 +43,8 @@ namespace PBNF {
 		void wont_release(NBlock *b, bool dynamic_m);
 		void set_hot(NBlock *b, bool dynamic_m);
 
+		fp_type best_f(void);
+
 	private:
 		void cpp_is_a_bad_language(const Projection *p, State *initial);
 		void __set_done(void);

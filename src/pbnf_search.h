@@ -57,6 +57,7 @@ private:
 		bool set_hot;
 		unsigned long exp_this_block;
 		CumulativeAverage ave_exp_per_nblock;
+		fp_type next_best;
 	};
 
 	unsigned int n_threads;
