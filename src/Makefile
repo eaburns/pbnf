@@ -154,22 +154,22 @@ pq_test.$(MARCH): $(OBJ) util/pq_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/pq_test.cc
 
 create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo Is debugging turned off?
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo Is debugging turned off?
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
 	cp grid_search.$(MARCH) grid_search.$(MARCH).bin
 	cp tiles_search.$(MARCH) tiles_search.$(MARCH).bin
 
