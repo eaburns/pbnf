@@ -21,3 +21,4 @@ src/tiles_hash_test.*
 src/tiles_read_test.*
 src/tiles_search.*
 src/two_tile_project_test.*
+src/pq_test.*
