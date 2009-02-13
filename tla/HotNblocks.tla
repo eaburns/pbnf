@@ -15,6 +15,7 @@ TypeInv == /\ state \in [Procs -> States]
 
 Preds(x) == {y \in Nblocks : x \in Succs[y]}                     \* Set of predecessors to Nblock x
 IntScope(x) == Succs[x] \union UNION {Preds(y) : y \in Succs[x]} \* The interference scope of x
+IntBy(x) == {y \in Nblocks : x \in IntScope(y)}                  \* Set of Nblocks which x interferes.
 Busy(A) == A \union UNION {Succs[x] : x \in A}                   \* Set of Nblocks which are busy given the set of acquired nblocks
 Overlap(x, A) == Succs[x] \intersect Busy(A)                     \* Set of Busy Nblocks overlapping the successors of x
 Hot(A) == {x \in Nblocks : isHot[x] /\ Overlap(x, A) # {}}       \* Set of all hot nblocks given the set of acquired nblocks
@@ -38,7 +39,7 @@ doSearch(x) == /\ UNCHANGED<<acquired, Succs>>
                /\ state[x] = search
                /\ state' = [state EXCEPT ![x] = nextblock]
                /\ \/ UNCHANGED<<isHot>>
-                  \/ \E y \in Succs[acquired[x]] : /\ ~isHot[y]
+                  \/ \E y \in IntBy[acquired[x]] : /\ ~isHot[y]
                                                    /\ IntScope(y) \intersect Hot(Acquired) = {}
                                                    /\ y \notin HotInterference(Acquired)
                                                    /\ isHot' = [isHot EXCEPT ![y] = TRUE]

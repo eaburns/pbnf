@@ -291,7 +291,7 @@ LET S == Nat \ {0}
                                     <7>1. CASE UNCHANGED<<isHot>>
                                           PROOF BY <4>3 and <7>1
 
-                                    <7>2. CASE \E y \in Succs[acquired[j]]: /\ ~isHot[y]
+                                    <7>2. CASE \E y \in IntBy[acquired[j]]: /\ ~isHot[y]
                                                                             /\ IntScope(y) \intersect Hot(Acquired) = {}
                                                                             /\ y \notin HotInterference(Acquired)
                                                                             /\ isHot' = [isHot EXCEPT ![y] = TRUE]
@@ -575,7 +575,7 @@ LET S == Nat \ {0}
                                     <7>1. CASE UNCHANGED<<isHot>>
                                           PROOF BY <4>3 and <7>1
 
-                                    <7>2. CASE \E y \in Succs[acquired[j]]: /\ ~isHot[y]
+                                    <7>2. CASE \E y \in IntBy[acquired[j]]: /\ ~isHot[y]
                                                                             /\ IntScope(y) \intersect Hot(Acquired) = {}
                                                                             /\ y \notin HotInterference(Acquired)
                                                                             /\ isHot' = [isHot EXCEPT ![y] = TRUE]
@@ -594,7 +594,7 @@ LET S == Nat \ {0}
                   <4>1. isHot'[x]
                         <5>1. CASE UNCHANGED<<isHot>>
                               PROOF BY <3>6 and <5>1
-                        <5>2. CASE \E y \in Succs[acquired[i]]: /\ ~isHot[y]
+                        <5>2. CASE \E y \in IntBy[acquired[i]]: /\ ~isHot[y]
                                                                 /\ IntScope(y) \intersect Hot(Acquired) = {}
                                                                 /\ y \notin HotInterference(Acquired)
                                                                 /\ isHot' = [isHot EXCEPT ![y] = TRUE]
