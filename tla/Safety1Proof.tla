@@ -62,7 +62,7 @@ LET I == x \in Nblocks /\ isHot[x] => OverlapAmt(x) > 0 /\ x \notin HotInterfere
                         <5>1. CASE isHot' = isHot
                               PROOF OBVIOUS
                         <5>2. CASE isHot' # isHot
-                              ASSUME /\ y \in IntBy[acquired[i]]
+                              ASSUME /\ y \in IntBy(acquired[i])
                                      /\ ~isHot[y]
                                      /\ IntScope(y) \union Hot(Acquired) = {}
                                      /\ y \notin HotInterference(Acquired)
@@ -90,7 +90,7 @@ LET I == x \in Nblocks /\ isHot[x] => OverlapAmt(x) > 0 /\ x \notin HotInterfere
                         <5>1. CASE isHot' = isHot
                               PROOF OBVIOUS
                         <5>2. CASE isHot' # isHot
-                              ASSUME /\ y \in IntBy[acquired[i]]
+                              ASSUME /\ y \in IntBy(acquired[i])
                                      /\ ~isHot[y]
                                      /\ IntScope(y) \union Hot(Acquired) = {}
                                      /\ y \notin HotInterference(Acquired)
@@ -98,7 +98,7 @@ LET I == x \in Nblocks /\ isHot[x] => OverlapAmt(x) > 0 /\ x \notin HotInterfere
                               PROVE I'
                               <6>1. CASE x = y
                                     <7>1. acquired[i] \in IntScope(x)
-                                          PROOF BY <5>2 and <6>1 \* y = x and y \in IntBy[acquired[i]]
+                                          PROOF BY <5>2 and <6>1 \* y = x and y \in IntBy(acquired[i])
                                     <7>2. acquired'[i] = acquired[i]
                                           PROOF BY <3>3 \* UNCHONGED<<acquired>>
                                     <7>3. acquired'[i] \in Overlap(x, Acquired')'

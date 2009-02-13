@@ -39,7 +39,7 @@ doSearch(x) == /\ UNCHANGED<<acquired, Succs>>
                /\ state[x] = search
                /\ state' = [state EXCEPT ![x] = nextblock]
                /\ \/ UNCHANGED<<isHot>>
-                  \/ \E y \in IntBy[acquired[x]] : /\ ~isHot[y]
+                  \/ \E y \in IntBy(acquired[x]) : /\ ~isHot[y]
                                                    /\ IntScope(y) \intersect Hot(Acquired) = {}
                                                    /\ y \notin HotInterference(Acquired)
                                                    /\ isHot' = [isHot EXCEPT ![y] = TRUE]
