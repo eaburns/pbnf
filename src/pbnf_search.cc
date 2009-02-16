@@ -54,7 +54,7 @@ void PBNFSearch::PBNFThread::run(void)
 			//	next_best = 0.0;
 			//}
 		}
-		
+
 		set_hot = false;
 		if (n) {
 			expansions = 0;
@@ -90,10 +90,8 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 	while (!open->empty() && !should_switch(n)) {
 		State *s = open->take();
 
-		if (s->get_f() >= search->bound.read()) {
-			open->prune();
-			break;
-		}
+		if (s->get_f() >= search->bound.read())
+			continue;
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -256,7 +254,7 @@ vector<State *> *PBNFSearch::search(State *initial)
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
 
-	cout << "nblock graph creation time: " << t.get_wall_time() << endl;
+	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
 
 	return path;
 }
