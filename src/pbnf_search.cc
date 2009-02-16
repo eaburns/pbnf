@@ -228,8 +228,11 @@ vector<State *> *PBNFSearch::search(State *initial)
 	vector<PBNFThread *>::iterator iter;
 	fp_type sum = 0.0;
 	unsigned int num = 0;
+	Timer t;
 
+	t.start();
 	graph = new NBlockGraph(project, initial);
+	t.stop();
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PBNFThread *t = new PBNFThread(graph, this);
@@ -252,6 +255,8 @@ vector<State *> *PBNFSearch::search(State *initial)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
+
+	cout << "nblock graph creation time: " << t.get_wall_time() << endl;
 
 	return path;
 }
