@@ -23,7 +23,7 @@
 using namespace std;
 using namespace PBNF;
 
-#define MIN_M 64
+#define MIN_M 1
 #define MAX_INT std::numeric_limits<int>::max()
 
 AtomicInt PBNFSearch::min_expansions(MIN_M);
