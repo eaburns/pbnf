@@ -133,7 +133,7 @@ template<class PQCompare>
 template<class PQCompare>
  unsigned int PQOpenList<PQCompare>::size(void)
 {
-	return pq.get_size();
+	return pq.get_fill();
 }
 
 /**
