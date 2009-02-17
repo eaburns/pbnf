@@ -28,56 +28,53 @@
 using namespace std;
 using namespace PBNF;
 
-NBlock *NBlockGraph::create_nblock(unsigned int id)
-{
-	assert(id < project->get_num_nblocks());
-
-	NBlock *n = new NBlock(id);
-	vector<unsigned int>::iterator i, j;
-	vector<unsigned int> preds = project->get_predecessors(id);
-	vector<unsigned int> succs = project->get_successors(id);
-	// predecessors, successors and the predecessors of the successors.
-	vector<unsigned int> interferes = preds;
-	for (i = succs.begin(); i != succs.end(); i++) {
-		interferes.push_back(*i);
-		vector<unsigned int> spreds = project->get_predecessors(*i);
-		for (j = spreds.begin(); j != spreds.end(); j++) {
-			interferes.push_back(*j);
-		}
-	}
-	for (i = preds.begin(); i != preds.end(); i++)
-		if (*i != n->id)
-			n->preds.insert(*i);
-	for (i = succs.begin(); i != succs.end(); i++)
-		if (*i != n->id)
-			n->succs.insert(*i);
-	for (i = interferes.begin(); i != interferes.end(); i++)
-		if (*i != n->id)
-			n->interferes.insert(*i);
-
-
-	nblocks_created += 1;
-
-	return n;
-}
-
 void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 {
+	map<unsigned int, NBlock *>::iterator iter;
 	unsigned int init_nblock = p->project(initial);
 
-	nblocks_created = 0;
-	project = p;
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
-	_blocks = new NBlock*[num_nblocks];
-	for(unsigned int i = 0; i < num_nblocks; i += 1)
-		_blocks[i] = NULL;
+	for (unsigned int i = 0; i < num_nblocks; i += 1) {
+		NBlock *n = new NBlock(i);
+		if (i == init_nblock) {
+			n->open.add(initial);
+			free_list.add(n);
+		}
 
-	NBlock *n = create_nblock(init_nblock);
-	n->open.add(initial);
-	_blocks[init_nblock] = n;
-	free_list.add(n);
+		blocks[i] = n;
+	}
+
+	// Now connect the graph.
+	for (iter = blocks.begin(); iter != blocks.end(); iter++) {
+		NBlock *n = iter->second;
+		vector<unsigned int>::iterator i, j;
+		vector<unsigned int> preds = p->get_predecessors(n->id);
+		vector<unsigned int> succs = p->get_successors(n->id);
+
+		// predecessors, successors and the predecessors of the successors.
+		vector<unsigned int> interferes = preds;
+		for (i = succs.begin(); i != succs.end(); i++) {
+			interferes.push_back(*i);
+			vector<unsigned int> spreds = p->get_predecessors(*i);
+			for (j = spreds.begin(); j != spreds.end(); j++) {
+				interferes.push_back(*j);
+			}
+		}
+
+		for (i = preds.begin(); i != preds.end(); i++)
+			if (*i != n->id)
+				n->preds.insert(blocks[*i]);
+
+		for (i = succs.begin(); i != succs.end(); i++)
+			if (*i != n->id)
+				n->succs.insert(blocks[*i]);
+
+		for (i = interferes.begin(); i != interferes.end(); i++)
+			if (*i != n->id)
+				n->interferes.insert(blocks[*i]);
+	}
 
 	done = false;
 
@@ -102,11 +99,10 @@ NBlockGraph::NBlockGraph(const Projection *p, State *initial)
  */
 NBlockGraph::~NBlockGraph()
 {
-	for (unsigned int i = 0; i < num_nblocks; i += 1)
-		if (_blocks[i])
-			delete _blocks[i];
+	map<unsigned int, NBlock *>::iterator iter;
 
-	delete[] _blocks;
+	for (iter = blocks.begin(); iter != blocks.end(); iter++)
+		delete iter->second;
 }
 
 
@@ -147,6 +143,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, bool dynamic_m)
 	else if(dynamic_m){
 		PBNFSearch::dec_m();
 	}
+	
 
 	if (finished) {		// Release an NBlock
 		if (finished->sigma != 0) {
@@ -220,14 +217,12 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
 	fp_type best_f = fp_infinity;
-	set<unsigned int>::iterator i;
+	set<NBlock*>::iterator i;
 
 //	pthread_mutex_lock(&mutex);
 
 	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-		NBlock *b = get_nblock_if_created(*i);
-		if (!b)
-			continue;
+		NBlock *b = *i;
 		if (b->open.empty())
 			continue;
 		if (!best_b || b->open.get_best_f() < best_f) {
@@ -251,22 +246,9 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
  */
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
-	if (!_blocks[hash])
-		_blocks[hash] = create_nblock(hash);
-
-	return _blocks[hash];
+	return blocks[hash];
 }
 
-/**
- * Get the NBlock given by the hash value.  If this nblock has not yet
- * been created then NULL is returned.
- */
-NBlock *NBlockGraph::get_nblock_if_created(unsigned int hash)
-{
-	if (!_blocks[hash])
-		return NULL;
-	return _blocks[hash];
-}
 
 /**
  * Get the statistics on the maximum number of NBlocks assigned at one time.
@@ -290,6 +272,8 @@ fp_type NBlockGraph::best_f(void){
  */
 void NBlockGraph::__print(ostream &o)
 {
+	map<unsigned int, NBlock *>::iterator biter;
+
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
@@ -298,9 +282,8 @@ void NBlockGraph::__print(ostream &o)
 	free_list.print(o);
 	o << "--------------------" << endl;
 	o << "All Blocks:" << endl;
-	for (unsigned int i = 0; i < num_nblocks; i += 1)
-		if (_blocks[i])
-			_blocks[i]->print(o);
+	for (biter = blocks.begin(); biter != blocks.end(); biter++)
+		biter->second->print(o);
 }
 
 /**
@@ -319,10 +302,9 @@ void NBlockGraph::print(ostream &o)
  */
 void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 {
-	set<unsigned int>::iterator iter;
-	NBlock *n = get_nblock(y);
+	set<NBlock *>::iterator iter;
 
-	assert(n->sigma == 0);
+	assert(blocks[y]->sigma == 0);
 
 	/*
 	  \A y' \in predecessors(y) /\ y' /= y,
@@ -333,22 +315,21 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	  \sigma(y'') <- \sigma(y'') +- 1
 	*/
 
-	for (iter = n->interferes.begin();
-	     iter != n->interferes.end();
+	for (iter = blocks[y]->interferes.begin();
+	     iter != blocks[y]->interferes.end();
 	     iter++) {
-		NBlock *m = get_nblock(*iter);
-		if (m->sigma == 0) {
+		if ((*iter)->sigma == 0) {
 			assert(delta > 0);
-			if (is_free(m))
-				free_list.remove(m);
+			if (is_free(*iter))
+				free_list.remove(*iter);
 			num_sigma_zero -= 1;
 		}
-		m->sigma += delta;
-		if (m->sigma == 0) {
-			if (m->hot)
-				set_cold(m);
-			if (is_free(m)) {
-				free_list.add(m);
+		(*iter)->sigma += delta;
+		if ((*iter)->sigma == 0) {
+			if ((*iter)->hot)
+				set_cold(*iter);
+			if (is_free(*iter)) {
+				free_list.add(*iter);
 				pthread_cond_broadcast(&cond);
 			}
 			num_sigma_zero += 1;
@@ -400,7 +381,7 @@ bool NBlockGraph::is_free(NBlock *b)
  */
 void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 {
-	set<unsigned int>::iterator i;
+	set<NBlock*>::iterator i;
 	fp_type f = b->open.get_best_f();
 
 	if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
@@ -416,21 +397,19 @@ void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 	}
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-			assert(b->id != *i);
-			NBlock *m = get_nblock(*i);
-			if (m->hot && m->open.get_best_f() < f)
+			assert(b != *i);
+			if ((*i)->hot && (*i)->open.get_best_f() < f)
 				goto out;
 		}
 
 		b->hot = true;
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-			assert(b->id != *i);
-			NBlock *m = get_nblock(*i);
-			if (is_free(m))
-				free_list.remove(m);
-			if (m->hot)
-				set_cold(m);
-			m->sigma_hot += 1;
+			assert(b != *i);
+			if (is_free(*i))
+				free_list.remove(*i);
+			if ((*i)->hot)
+				set_cold(*i);
+			(*i)->sigma_hot += 1;
 		}
 	}
 out:
@@ -443,15 +422,14 @@ out:
  */
 void NBlockGraph::set_cold(NBlock *b)
 {
-	set<unsigned int>::iterator i;
+	set<NBlock*>::iterator i;
 
 	b->hot = false;
 	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-		assert(b->id != *i);
-		NBlock *m = get_nblock(*i);
-		m->sigma_hot -= 1;
-		if (is_free(m)) {
-			free_list.add(m);
+		assert(b != *i);
+		(*i)->sigma_hot -= 1;
+		if (is_free(*i)) {
+			free_list.add(*i);
 			pthread_cond_broadcast(&cond);
 		}
 	}
@@ -463,7 +441,7 @@ void NBlockGraph::set_cold(NBlock *b)
  */
 void NBlockGraph::wont_release(NBlock *b, bool dynamic_m)
 {
-	set<unsigned int>::iterator iter;
+	set<NBlock *>::iterator iter;
 
 	if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
 		if(dynamic_m){
@@ -478,20 +456,9 @@ void NBlockGraph::wont_release(NBlock *b, bool dynamic_m)
 	for (iter = b->interferes.begin();
 	     iter != b->interferes.end();
 	     iter++) {
-		NBlock *m = get_nblock_if_created(*iter);
-		if (!m)
-			continue;
-		if (m->hot)
-			set_cold(m);
+		if ((*iter)->hot)
+			set_cold(*iter);
 	}
 
 	pthread_mutex_unlock(&mutex);
-}
-
-/**
- * Get the number of nblocks which were actually created.
- */
-unsigned int NBlockGraph::get_ncreated_nblocks(void)
-{
-	return nblocks_created;
 }

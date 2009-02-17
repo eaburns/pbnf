@@ -254,7 +254,7 @@ vector<State *> *PBNFSearch::search(State *initial)
 		threads.push_back(t);
 		t->start();
 	}
-
+	
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
@@ -281,9 +281,6 @@ vector<State *> *PBNFSearch::search(State *initial)
 		cout << "avg-open-list-size: " << osum / onum << endl;
 
 	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
-
-	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
-	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
 	return path;
 }

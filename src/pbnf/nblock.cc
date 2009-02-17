@@ -61,7 +61,7 @@ bool NBlock::NBlockCompare::operator()(NBlock *a, NBlock *b)
 void NBlock::print(ostream &o)
 {
 	fp_type best_f;
-	set<unsigned int>::const_iterator iter;
+	set<NBlock *>::const_iterator iter;
 
 	best_f = open.empty() ? fp_infinity : open.peek()->get_f();
 
@@ -75,17 +75,17 @@ void NBlock::print(ostream &o)
 
 	o << "\tinterferes with: ";
 	for (iter = interferes.begin(); iter != interferes.end(); iter++)
-		o << (*iter) << " ";
+		o << (*iter)->id << " ";
 	o << endl;
 
 	o << "\tpreds: ";
 	for (iter = preds.begin(); iter != preds.end(); iter++)
-		o << (*iter) << " ";
+		o << (*iter)->id << " ";
 	o << endl;
 
 	o << "\tsuccs: ";
 	for (iter = succs.begin(); iter != succs.end(); iter++)
-		o << (*iter) << " ";
+		o << (*iter)->id << " ";
 	o << endl;
 
 }
