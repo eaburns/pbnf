@@ -267,15 +267,14 @@ vector<State *> *PBNFSearch::search(State *initial)
 
 		delete *iter;
 	}
-	cout << osum << " " << onum << endl;
 	if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
 	if (onum == 0)
-		cout << "avg open list size: -1" << endl;
+		cout << "avg-open-list-size: -1" << endl;
 	else
-		cout << "avg open list size: " << osum / onum << endl;
+		cout << "avg-open-list-size: " << osum / onum << endl;
 
 	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
 
