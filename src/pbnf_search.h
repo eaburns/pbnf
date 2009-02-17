@@ -47,6 +47,7 @@ private:
 		~PBNFThread(void);
 		void run(void);
 		fp_type get_ave_exp_per_nblock(void);
+		fp_type get_ave_open_size(void);
 	private:
 		vector<State *> *search_nblock(NBlock *n);
 		bool should_switch(NBlock *n);
@@ -57,6 +58,7 @@ private:
 		bool set_hot;
 		unsigned long exp_this_block;
 		CumulativeAverage ave_exp_per_nblock;
+		CumulativeAverage ave_open_size;
 		fp_type next_best;
 	};
 

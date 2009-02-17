@@ -79,6 +79,14 @@ fp_type PBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
 }
 
 /**
+ * Get the average size of open lists.
+ */
+fp_type PBNFSearch::PBNFThread::get_ave_open_size(void)
+{
+	return ave_open_size.read();
+}
+
+/**
  * Search a single NBlock.
  */
 vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
@@ -89,6 +97,7 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 
 	while (!open->empty() && !should_switch(n)) {
 		State *s = open->take();
+		ave_open_size.add_val(open->size());
 
 		if (s->get_f() >= search->bound.read())
 			continue;
@@ -121,6 +130,7 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 						next_open->resort(dup);
 					else
 						next_open->add(dup);
+					ave_open_size.add_val(open->size());
 				}
 				delete *iter;
 			} else {
@@ -131,6 +141,7 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 					return path;
 				}
 				next_open->add(*iter);
+				ave_open_size.add_val(open->size());
 			}
 		}
 		delete children;
@@ -226,6 +237,8 @@ vector<State *> *PBNFSearch::search(State *initial)
 	vector<PBNFThread *>::iterator iter;
 	fp_type sum = 0.0;
 	unsigned int num = 0;
+	fp_type osum = 0.0;
+	unsigned int onum = 0;
 	Timer t;
 
 	t.start();
@@ -237,7 +250,7 @@ vector<State *> *PBNFSearch::search(State *initial)
 		threads.push_back(t);
 		t->start();
 	}
-
+	
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
@@ -246,13 +259,23 @@ vector<State *> *PBNFSearch::search(State *initial)
 			sum += ave;
 			num += 1;
 		}
+		fp_type oave = (*iter)->get_ave_open_size();
+		if (oave != 0) {
+			osum += oave;
+			onum += 1;
+		}
 
 		delete *iter;
 	}
+	cout << osum << " " << onum << endl;
 	if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
+	if (onum == 0)
+		cout << "avg open list size: -1" << endl;
+	else
+		cout << "avg open list size: " << osum / onum << endl;
 
 	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
 

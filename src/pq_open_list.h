@@ -37,6 +37,7 @@ public:
 	void delete_all_states(void);
 	fp_type get_best_val(void);
 	void prune(void);
+	unsigned int size(void);
 
 	void resort(State *s);
 private:
@@ -127,6 +128,12 @@ template<class PQCompare>
 		pq.get_elem(i)->set_open(false);
 
 	pq.reset();
+}
+
+template<class PQCompare>
+ unsigned int PQOpenList<PQCompare>::size(void)
+{
+	return pq.get_size();
 }
 
 /**

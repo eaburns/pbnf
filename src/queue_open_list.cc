@@ -63,3 +63,8 @@ void QueueOpenList::prune(void)
 	while (!q.empty())
 		q.pop();
 }
+
+unsigned int QueueOpenList::size(void)
+{
+	return q.size();
+}

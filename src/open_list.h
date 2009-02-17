@@ -28,6 +28,7 @@ public:
 	virtual bool empty(void) = 0;
 	virtual void delete_all_states(void) = 0;
 	virtual void prune(void) = 0;
+	virtual unsigned int size(void) = 0;
 
 	fp_type get_best_f(void);
 protected:

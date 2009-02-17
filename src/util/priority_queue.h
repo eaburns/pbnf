@@ -22,6 +22,7 @@ public:
 	Elem peek(void);
 	bool empty(void);
 	void reset(void);
+	unsigned int get_size(void);
 
 	/** When the value of an element gets better (closer to the
 	 * front of the queue) this function re-sifts it. */
@@ -229,6 +230,12 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	if (heap)
 		delete[] heap;
 	heap = new Elem[size];
+}
+
+template<class Elem, class ElemCmp, class ElemSetInd>
+	 unsigned int PriorityQueue<Elem, ElemCmp, ElemSetInd>::get_size(void)
+{
+	return size;
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>

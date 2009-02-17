@@ -25,6 +25,7 @@ public:
 	bool empty(void);
 	void delete_all_states(void);
 	void prune(void);
+	unsigned int size(void);
 private:
 	queue<State *> q;
 };
