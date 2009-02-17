@@ -70,6 +70,10 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
+	_blocks = new NBlock*[num_nblocks];
+	for(unsigned int i = 0; i < num_nblocks; i += 1)
+		_blocks[i] = NULL;
+
 	NBlock *n = create_nblock(init_nblock);
 	n->open.add(initial);
 	_blocks[init_nblock] = n;
@@ -98,10 +102,11 @@ NBlockGraph::NBlockGraph(const Projection *p, State *initial)
  */
 NBlockGraph::~NBlockGraph()
 {
-	map<unsigned int, NBlock *>::iterator iter;
+	for (unsigned int i = 0; i < num_nblocks; i += 1)
+		if (_blocks[i])
+			delete _blocks[i];
 
-	for (iter = _blocks.begin(); iter != _blocks.end(); iter++)
-		delete iter->second;
+	delete[] _blocks;
 }
 
 
@@ -246,18 +251,10 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
  */
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
-	map<unsigned int, NBlock*>::iterator iter;
-	NBlock *n;
+	if (!_blocks[hash])
+		_blocks[hash] = create_nblock(hash);
 
-	iter = _blocks.find(hash);
-	if (iter == _blocks.end()) {
-		n = create_nblock(hash);
-		_blocks[hash] = n;
-	} else {
-		n = iter->second;
-	}
-
-	return n;
+	return _blocks[hash];
 }
 
 /**
@@ -266,13 +263,9 @@ NBlock *NBlockGraph::get_nblock(unsigned int hash)
  */
 NBlock *NBlockGraph::get_nblock_if_created(unsigned int hash)
 {
-	map<unsigned int, NBlock*>::iterator iter;
-
-	iter = _blocks.find(hash);
-	if (iter == _blocks.end())
+	if (!_blocks[hash])
 		return NULL;
-	else
-		return iter->second;
+	return _blocks[hash];
 }
 
 /**
@@ -297,8 +290,6 @@ fp_type NBlockGraph::best_f(void){
  */
 void NBlockGraph::__print(ostream &o)
 {
-	map<unsigned int, NBlock *>::iterator biter;
-
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
@@ -307,8 +298,9 @@ void NBlockGraph::__print(ostream &o)
 	free_list.print(o);
 	o << "--------------------" << endl;
 	o << "All Blocks:" << endl;
-	for (biter = _blocks.begin(); biter != _blocks.end(); biter++)
-		biter->second->print(o);
+	for (unsigned int i = 0; i < num_nblocks; i += 1)
+		if (_blocks[i])
+			_blocks[i]->print(o);
 }
 
 /**

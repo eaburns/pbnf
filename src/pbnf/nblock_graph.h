@@ -59,8 +59,8 @@ namespace PBNF {
 
 		const Projection *project;
 
-		/* NBlocks. */
-		map<unsigned int, NBlock *> _blocks;
+		/* NBlocks (this may be incomplete because nblocks are created lazily). */
+		NBlock **_blocks;
 
 		/* The total number of NBlocks. */
 		unsigned int num_nblocks;
