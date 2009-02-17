@@ -43,21 +43,28 @@ namespace PBNF {
 		void wont_release(NBlock *b, bool dynamic_m);
 		void set_hot(NBlock *b, bool dynamic_m);
 
+		unsigned int get_ncreated_nblocks(void);
+
 		fp_type best_f(void);
 
 	private:
 		void cpp_is_a_bad_language(const Projection *p, State *initial);
+		NBlock *create_nblock(unsigned int id);
+		NBlock *get_nblock_if_created(unsigned int hash);
 		void __set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);
 		void set_cold(NBlock *b);
 		void update_scope_sigmas(unsigned int y, int delta);
 
-		/* NBlocks. */
-		map<unsigned int, NBlock *> blocks;
+		const Projection *project;
+
+		/* NBlocks (this may be incomplete because nblocks are created lazily). */
+		NBlock **_blocks;
 
 		/* The total number of NBlocks. */
 		unsigned int num_nblocks;
+		unsigned int nblocks_created;
 
 		/* The number of NBlocks with sigma values of zero. */
 		unsigned int num_sigma_zero;

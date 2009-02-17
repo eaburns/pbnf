@@ -49,9 +49,9 @@ namespace PBNF {
 		int hot;
 		int inuse;
 
-		set<NBlock *> interferes;
-		set<NBlock *> preds;
-		set<NBlock *> succs;
+		set<unsigned int> interferes;
+		set<unsigned int> preds;
+		set<unsigned int> succs;
 	};
 }	/* PBNF */
 #endif	/* !_NBLOCK_H_ */
