@@ -28,6 +28,9 @@
 using namespace std;
 using namespace PBNF;
 
+/**
+ * Create the nblock with the given ID.
+ */
 NBlock *NBlockGraph::create_nblock(unsigned int id)
 {
 	assert(id < project->get_num_nblocks());
@@ -61,6 +64,11 @@ NBlock *NBlockGraph::create_nblock(unsigned int id)
 	return n;
 }
 
+/**
+ * Apparently gdb can't single step inside a c++ constructor... so we
+ * just call this function in the constructor so that we can see what
+ * is going on.
+ */
 void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 {
 	unsigned int init_nblock = p->project(initial);
@@ -246,13 +254,15 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 
 /**
  * Get the NBlock given by the hash value.
- * This shouldn't be called unless the calling thread has this block
- * assigned to it.
  */
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
-	if (!_blocks[hash])
-		_blocks[hash] = create_nblock(hash);
+	if (!_blocks[hash]) {
+		pthread_mutex_lock(&mutex);
+		if (!_blocks[hash])
+			_blocks[hash] = create_nblock(hash);
+		pthread_mutex_unlock(&mutex);
+	}
 
 	return _blocks[hash];
 }
