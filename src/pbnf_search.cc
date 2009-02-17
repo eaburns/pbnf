@@ -177,14 +177,18 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 	if (search->detect_livelocks) {
 		NBlock *best_scope = graph->best_in_scope(n);
-		fp_type scope = best_scope->open.get_best_f();
+		if (best_scope) {
+			fp_type scope = best_scope->open.get_best_f();
 
-		ret = free < cur || scope < cur;
-		if (!ret)
-			graph->wont_release(n, false);
-		else if (scope < free) {
-			graph->set_hot(best_scope, false);
-			set_hot = true;
+			ret = free < cur || scope < cur;
+			if (!ret)
+				graph->wont_release(n, false);
+			else if (scope < free) {
+				graph->set_hot(best_scope, false);
+				set_hot = true;
+			}
+		} else {
+			ret = free < cur;
 		}
 	} else {
 		ret = free < cur;

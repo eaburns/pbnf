@@ -217,12 +217,12 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
 	fp_type best_f = fp_infinity;
-	map<unsigned int, NBlock*>::iterator i;
+	set<NBlock*>::iterator i;
 
 //	pthread_mutex_lock(&mutex);
 
-	for (i = blocks.begin(); i != blocks.end(); i++) {
-		NBlock *b = i->second;
+	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
+		NBlock *b = *i;
 		if (b->open.empty())
 			continue;
 		if (!best_b || b->open.get_best_f() < best_f) {
