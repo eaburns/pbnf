@@ -17,6 +17,7 @@
 #include "../open_list.h"
 #include "../pq_open_list.h"
 #include "../closed_list.h"
+#include "../projection.h"
 
 using namespace std;
 
@@ -25,7 +26,7 @@ namespace PBNF {
  * An NBlock
  */
 	struct NBlock {
-		NBlock(unsigned int id);
+		NBlock(const Projection *p, unsigned int id);
 
 		~NBlock(void);
 

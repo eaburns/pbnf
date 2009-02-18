@@ -10,6 +10,7 @@
 #include <assert.h>
 
 #include <limits>
+#include <vector>
 #include <set>
 
 #include "nblock.h"
@@ -23,14 +24,38 @@ using namespace PBNF;
 /**
  * Create a new NBlock structure.
  */
-NBlock::NBlock(unsigned int id)
+NBlock::NBlock(const Projection *project, unsigned int id)
 	: id(id),
 	  sigma(0),
 	  closed(1000),
 	  sigma_hot(0),
 	  hot(false),
-	  inuse(false) {}
+	  inuse(false)
+{
+	assert(id < project->get_num_nblocks());
 
+	vector<unsigned int>::iterator i, j;
+	vector<unsigned int> preds_vec = project->get_predecessors(id);
+	vector<unsigned int> succs_vec = project->get_successors(id);
+	// predecessors, successors and the predecessors of the successors.
+	vector<unsigned int> interferes_vec = preds_vec;
+	for (i = succs_vec.begin(); i != succs_vec.end(); i++) {
+		interferes_vec.push_back(*i);
+		vector<unsigned int> spreds = project->get_predecessors(*i);
+		for (j = spreds.begin(); j != spreds.end(); j++) {
+			interferes_vec.push_back(*j);
+		}
+	}
+	for (i = preds_vec.begin(); i != preds_vec.end(); i++)
+		if (*i != id)
+			preds.insert(*i);
+	for (i = succs_vec.begin(); i != succs_vec.end(); i++)
+		if (*i != id)
+			succs.insert(*i);
+	for (i = interferes_vec.begin(); i != interferes_vec.end(); i++)
+		if (*i != id)
+			interferes.insert(*i);
+}
 
 /**
  * Destroy an NBlock and all of its states.

@@ -33,31 +33,7 @@ using namespace PBNF;
  */
 NBlock *NBlockGraph::create_nblock(unsigned int id)
 {
-	assert(id < project->get_num_nblocks());
-
-	NBlock *n = new NBlock(id);
-	vector<unsigned int>::iterator i, j;
-	vector<unsigned int> preds = project->get_predecessors(id);
-	vector<unsigned int> succs = project->get_successors(id);
-	// predecessors, successors and the predecessors of the successors.
-	vector<unsigned int> interferes = preds;
-	for (i = succs.begin(); i != succs.end(); i++) {
-		interferes.push_back(*i);
-		vector<unsigned int> spreds = project->get_predecessors(*i);
-		for (j = spreds.begin(); j != spreds.end(); j++) {
-			interferes.push_back(*j);
-		}
-	}
-	for (i = preds.begin(); i != preds.end(); i++)
-		if (*i != n->id)
-			n->preds.insert(*i);
-	for (i = succs.begin(); i != succs.end(); i++)
-		if (*i != n->id)
-			n->succs.insert(*i);
-	for (i = interferes.begin(); i != interferes.end(); i++)
-		if (*i != n->id)
-			n->interferes.insert(*i);
-
+	NBlock *n = new NBlock(project, id);
 
 	nblocks_created += 1;
 
@@ -247,7 +223,7 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 //	pthread_mutex_unlock(&mutex);
 
 	// best_b => best_f != fp_infinity
-	assert(best_f != fp_infinity || !best_b);
+//	assert(best_f != fp_infinity || !best_b);
 
 	return best_b;
 }
@@ -263,6 +239,17 @@ NBlock *NBlockGraph::get_nblock(unsigned int hash)
 			_blocks[hash] = create_nblock(hash);
 		pthread_mutex_unlock(&mutex);
 	}
+
+	return _blocks[hash];
+}
+
+/**
+ * Get the NBlock given by the hash value when the lock is already held.
+ */
+NBlock *NBlockGraph::__get_nblock(unsigned int hash)
+{
+	if (!_blocks[hash])
+		_blocks[hash] = create_nblock(hash);
 
 	return _blocks[hash];
 }
@@ -330,7 +317,7 @@ void NBlockGraph::print(ostream &o)
 void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 {
 	set<unsigned int>::iterator iter;
-	NBlock *n = get_nblock(y);
+	NBlock *n = __get_nblock(y);
 
 	assert(n->sigma == 0);
 
@@ -346,7 +333,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	for (iter = n->interferes.begin();
 	     iter != n->interferes.end();
 	     iter++) {
-		NBlock *m = get_nblock(*iter);
+		NBlock *m = __get_nblock(*iter);
 		if (m->sigma == 0) {
 			assert(delta > 0);
 			if (is_free(m))
@@ -427,7 +414,7 @@ void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
-			NBlock *m = get_nblock(*i);
+			NBlock *m = __get_nblock(*i);
 			if (m->hot && m->open.get_best_f() < f)
 				goto out;
 		}
@@ -435,7 +422,7 @@ void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 		b->hot = true;
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
-			NBlock *m = get_nblock(*i);
+			NBlock *m = __get_nblock(*i);
 			if (is_free(m))
 				free_list.remove(m);
 			if (m->hot)
