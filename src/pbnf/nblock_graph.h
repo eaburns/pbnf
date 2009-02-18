@@ -23,6 +23,7 @@
 #include "../queue_open_list.h"
 #include "../open_list.h"
 #include "../projection.h"
+#include "../util/nblock_map.h"
 
 using namespace std;
 
@@ -61,7 +62,8 @@ namespace PBNF {
 		const Projection *project;
 
 		/* NBlocks (this may be incomplete because nblocks are created lazily). */
-		NBlock **_blocks;
+//		NBlock **_blocks;
+		NBlockMap<NBlock> map;
 
 		/* The total number of NBlocks. */
 		unsigned int num_nblocks;

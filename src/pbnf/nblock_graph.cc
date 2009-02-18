@@ -54,13 +54,9 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
-	_blocks = new NBlock*[num_nblocks];
-	for(unsigned int i = 0; i < num_nblocks; i += 1)
-		_blocks[i] = NULL;
 
-	NBlock *n = create_nblock(init_nblock);
+	NBlock *n = map.get(init_nblock);
 	n->open.add(initial);
-	_blocks[init_nblock] = n;
 	free_list.add(n);
 
 	done = false;
@@ -77,6 +73,7 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
  * \param p The projection function.
  */
 NBlockGraph::NBlockGraph(const Projection *p, State *initial)
+	: map(p)
 {
 	cpp_is_a_bad_language(p, initial);
 }
@@ -86,11 +83,6 @@ NBlockGraph::NBlockGraph(const Projection *p, State *initial)
  */
 NBlockGraph::~NBlockGraph()
 {
-	for (unsigned int i = 0; i < num_nblocks; i += 1)
-		if (_blocks[i])
-			delete _blocks[i];
-
-	delete[] _blocks;
 }
 
 
@@ -209,7 +201,7 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 //	pthread_mutex_lock(&mutex);
 
 	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-		NBlock *b = get_nblock_if_created(*i);
+		NBlock *b = map.find(*i);
 		if (!b)
 			continue;
 		if (b->open.empty())
@@ -233,36 +225,7 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
  */
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
-	if (!_blocks[hash]) {
-		pthread_mutex_lock(&mutex);
-		if (!_blocks[hash])
-			_blocks[hash] = create_nblock(hash);
-		pthread_mutex_unlock(&mutex);
-	}
-
-	return _blocks[hash];
-}
-
-/**
- * Get the NBlock given by the hash value when the lock is already held.
- */
-NBlock *NBlockGraph::__get_nblock(unsigned int hash)
-{
-	if (!_blocks[hash])
-		_blocks[hash] = create_nblock(hash);
-
-	return _blocks[hash];
-}
-
-/**
- * Get the NBlock given by the hash value.  If this nblock has not yet
- * been created then NULL is returned.
- */
-NBlock *NBlockGraph::get_nblock_if_created(unsigned int hash)
-{
-	if (!_blocks[hash])
-		return NULL;
-	return _blocks[hash];
+	return map.get(hash);
 }
 
 /**
@@ -296,8 +259,8 @@ void NBlockGraph::__print(ostream &o)
 	o << "--------------------" << endl;
 	o << "All Blocks:" << endl;
 	for (unsigned int i = 0; i < num_nblocks; i += 1)
-		if (_blocks[i])
-			_blocks[i]->print(o);
+		if (map.find(i))
+			map.find(i)->print(o);
 }
 
 /**
@@ -317,7 +280,7 @@ void NBlockGraph::print(ostream &o)
 void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 {
 	set<unsigned int>::iterator iter;
-	NBlock *n = __get_nblock(y);
+	NBlock *n = map.get(y);
 
 	assert(n->sigma == 0);
 
@@ -333,7 +296,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	for (iter = n->interferes.begin();
 	     iter != n->interferes.end();
 	     iter++) {
-		NBlock *m = __get_nblock(*iter);
+		NBlock *m = map.get(*iter);
 		if (m->sigma == 0) {
 			assert(delta > 0);
 			if (is_free(m))
@@ -414,7 +377,7 @@ void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
-			NBlock *m = __get_nblock(*i);
+			NBlock *m = map.get(*i);
 			if (m->hot && m->open.get_best_f() < f)
 				goto out;
 		}
@@ -422,7 +385,7 @@ void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 		b->hot = true;
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
-			NBlock *m = __get_nblock(*i);
+			NBlock *m = map.get(*i);
 			if (is_free(m))
 				free_list.remove(m);
 			if (m->hot)
@@ -445,7 +408,7 @@ void NBlockGraph::set_cold(NBlock *b)
 	b->hot = false;
 	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 		assert(b->id != *i);
-		NBlock *m = get_nblock(*i);
+		NBlock *m = map.get(*i);
 		m->sigma_hot -= 1;
 		if (is_free(m)) {
 			free_list.add(m);
@@ -475,7 +438,7 @@ void NBlockGraph::wont_release(NBlock *b, bool dynamic_m)
 	for (iter = b->interferes.begin();
 	     iter != b->interferes.end();
 	     iter++) {
-		NBlock *m = get_nblock_if_created(*iter);
+		NBlock *m = map.find(*iter);
 		if (!m)
 			continue;
 		if (m->hot)
@@ -490,5 +453,5 @@ void NBlockGraph::wont_release(NBlock *b, bool dynamic_m)
  */
 unsigned int NBlockGraph::get_ncreated_nblocks(void)
 {
-	return nblocks_created;
+	return map.get_num_created();;
 }
