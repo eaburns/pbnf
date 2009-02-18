@@ -45,6 +45,7 @@ namespace BFPSDD {
 
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
+		unsigned int get_ncreated_nblocks(void);
 
 		fp_type get_layer_value(void) const;
 
@@ -355,6 +356,12 @@ namespace BFPSDD {
 		fp_type NBlockGraph<NBlockPQ, StateCompare>::get_layer_value(void) const
 	{
 		return layer_value;
+	}
+
+	template<class NBlockPQ, class StateCompare>
+	unsigned int NBlockGraph<NBlockPQ, StateCompare>::get_ncreated_nblocks(void)
+	{
+		return map.get_num_created();
 	}
 
 } /* BFPSDD */

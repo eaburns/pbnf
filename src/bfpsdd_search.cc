@@ -19,6 +19,7 @@
 #include "bfpsdd/nblock_graph.h"
 #include "bfpsdd/nblock.h"
 #include "util/thread.h"
+#include "util/timer.h"
 #include "projection.h"
 #include "open_list.h"
 #include "closed_list.h"
@@ -215,8 +216,15 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 	vector<BFPSDDThread *>::iterator iter;
 	fp_type sum = 0.0;
 	unsigned int num = 0;
+	Timer t;
 
-graph = new NBlockGraph<RealValNBlockPQ<State::CompareOnFPrime>, State::CompareOnFPrime>(project, n_threads, multiplier, initial);
+	t.start();
+	graph = new NBlockGraph<RealValNBlockPQ<State::CompareOnFPrime>,
+		State::CompareOnFPrime>(project,
+					n_threads,
+					multiplier,
+					initial);
+	t.stop();
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		BFPSDDThread *t = new BFPSDDThread(graph, this);
@@ -240,6 +248,11 @@ graph = new NBlockGraph<RealValNBlockPQ<State::CompareOnFPrime>, State::CompareO
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
+
+	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
+
+	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
+	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
 	return path;
 }
