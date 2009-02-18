@@ -23,6 +23,7 @@
 #include "../queue_open_list.h"
 #include "../open_list.h"
 #include "../projection.h"
+#include "../util/nblock_map.h"
 #include "nblock.h"
 
 using namespace std;
@@ -53,7 +54,8 @@ namespace BFPSDD {
 		void update_sigma(NBlock<StateCompare> *yblk, int delta);
 
 		/* NBlocks. */
-		map<unsigned int, NBlock<StateCompare> *> blocks;
+//		map<unsigned int, NBlock<StateCompare> *> blocks;
+		NBlockMap<NBlock<StateCompare> > map;
 
 		/* The total number of NBlocks. */
 		unsigned int num_nblocks;
@@ -101,8 +103,8 @@ namespace BFPSDD {
 								 unsigned int nt,
 								 fp_type mult,
 								 State *initial)
+		: map(p)
 	{
-		typename map<unsigned int, NBlock<StateCompare> *>::iterator iter;
 		unsigned int init_nblock = p->project(initial);
 
 		this->nthreads = nt;
@@ -110,49 +112,11 @@ namespace BFPSDD {
 		this->multiplier = mult;
 		assert(init_nblock < num_nblocks);
 
-		for (unsigned int i = 0; i < num_nblocks; i += 1) {
-			NBlock<StateCompare> *n = new NBlock<StateCompare>(i);
-			if (i == init_nblock) {
-				n->open.add(initial);
-				n->closed.add(initial);
-				free_list.push_back(n);
-				layer_value = n->open.get_best_val();
-			}
-
-			blocks[i] = n;
-		}
-
-		// Now connect the graph.
-		for (iter = blocks.begin(); iter != blocks.end(); iter++) {
-			NBlock<StateCompare> *n = iter->second;
-			vector<unsigned int>::iterator i, j;
-			vector<unsigned int> preds = p->get_predecessors(n->id);
-			vector<unsigned int> succs = p->get_successors(n->id);
-
-			// predecessors, successors and the predecessors of the successors.
-			vector<unsigned int> interferes = preds;
-			for (i = succs.begin(); i != succs.end(); i++) {
-				interferes.push_back(*i);
-				vector<unsigned int> spreds = p->get_predecessors(*i);
-				for (j = spreds.begin(); j != spreds.end(); j++) {
-					interferes.push_back(*j);
-				}
-			}
-
-			for (i = preds.begin(); i != preds.end(); i++)
-				if (*i != n->id)
-					n->preds.insert(blocks[*i]);
-
-			for (i = succs.begin(); i != succs.end(); i++)
-				if (*i != n->id)
-					n->succs.insert(blocks[*i]);
-
-			for (i = interferes.begin(); i != interferes.end(); i++)
-				if (*i != n->id)
-					n->interferes.insert(blocks[*i]);
-		}
-
-
+		NBlock<StateCompare> *n = map.get(init_nblock);
+		n->open.add(initial);
+		n->closed.add(initial);
+		free_list.push_back(n);
+		layer_value = n->open.get_best_val();
 
 		pthread_mutex_init(&mutex, NULL);
 		pthread_cond_init(&cond, NULL);
@@ -167,12 +131,7 @@ namespace BFPSDD {
  */
 	template<class NBlockPQ, class StateCompare>
 		NBlockGraph<NBlockPQ, StateCompare>::~NBlockGraph()
-	{
-		typename map<unsigned int, NBlock<StateCompare> *>::iterator iter;
-
-		for (iter = blocks.begin(); iter != blocks.end(); iter++)
-			delete iter->second;
-	}
+	{}
 
 
 /**
@@ -214,12 +173,7 @@ namespace BFPSDD {
 				// free with nodes on them, and all of the
 				// NBlocks have sigma values of zero:
 				// Switch to the next iteration
-				typename map<unsigned int, NBlock<StateCompare> *>::iterator iter;
 
-/*
-				if (nblock_pq.top()->open.empty())
-					goto out;
-*/
 
 				// Switch layers -- fill the freelist with the
 				// nblocks that have the next layer's value
@@ -268,7 +222,7 @@ namespace BFPSDD {
 	template<class NBlockPQ, class StateCompare>
 		NBlock<StateCompare> *NBlockGraph<NBlockPQ, StateCompare>::get_nblock(unsigned int hash)
 	{
-		return blocks[hash];
+		return map.get(hash);
 	}
 
 
@@ -304,7 +258,6 @@ namespace BFPSDD {
 	template<class NBlockPQ, class StateCompare>
 		void NBlockGraph<NBlockPQ, StateCompare>::__print(ostream &o)
 	{
-		typename map<unsigned int, NBlock<StateCompare> *>::iterator biter;
 		typename list<NBlock<StateCompare> *>::iterator fiter;
 
 		o << "Number of NBlocks: " << num_nblocks << endl;
@@ -318,8 +271,9 @@ namespace BFPSDD {
 		o << "--------------------" << endl;
 
 		o << "All Blocks:" << endl;
-		for (biter = blocks.begin(); biter != blocks.end(); biter++)
-			biter->second->print(o);
+		for (unsigned int i = 0; i < num_nblocks; i += 1)
+			if (map.find(i))
+				map.find(i)->print(o);
 	}
 
 /**
@@ -376,9 +330,10 @@ namespace BFPSDD {
 		NBlockGraph<NBlockPQ, StateCompare>::update_scope_sigmas(unsigned int y,
 									 int delta)
 	{
-		typename set<NBlock<StateCompare> *>::iterator iter;
+		typename set<unsigned int>::iterator iter;
+		NBlock<StateCompare> *n = map.get(y);
 
-		assert(blocks[y]->sigma == 0);
+		assert(n->sigma == 0);
 
 		/*
 		  \A y' \in predecessors(y) /\ y' /= y,
@@ -389,10 +344,10 @@ namespace BFPSDD {
 		  \sigma(y'') <- \sigma(y'') +- 1
 		*/
 
-		for (iter = blocks[y]->interferes.begin();
-		     iter != blocks[y]->interferes.end();
+		for (iter = n->interferes.begin();
+		     iter != n->interferes.end();
 		     iter++) {
-			update_sigma(*iter, delta);
+			update_sigma(map.get(*iter), delta);
 		}
 	}
 
