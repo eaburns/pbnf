@@ -24,8 +24,8 @@ using namespace PBNF;
 /**
  * Create a new NBlock structure.
  */
-NBlock::NBlock(const Projection *project, unsigned int id)
-	: id(id),
+NBlock::NBlock(const Projection *project, unsigned int ident)
+	: id(ident),
 	  sigma(0),
 	  closed(1000),
 	  sigma_hot(0),
