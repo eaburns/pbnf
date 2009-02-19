@@ -8,6 +8,9 @@
  * \date 2009-02-18
  */
 
+#if !defined(_NBLOCK_MAP_H_)
+#define _NBLOCK_MAP_H_
+
 #include <pthread.h>
 
 #include "../projection.h"
@@ -96,3 +99,4 @@ unsigned int NBlockMap<NB>::get_num_created(void)
 {
 	return num_created;
 }
+#endif /* !_NBLOCK_MAP_H_ */

@@ -25,7 +25,7 @@ namespace PSDD {
  * An NBlock
  */
 	struct NBlock {
-		NBlock(unsigned int id);
+		NBlock(const Projection *p, unsigned int id);
 
 		~NBlock(void);
 
@@ -38,9 +38,9 @@ namespace PSDD {
 
 		bool inuse;
 
-		set<NBlock *> interferes;
-		set<NBlock *> preds;
-		set<NBlock *> succs;
+		set<unsigned int> interferes;
+		set<unsigned int> preds;
+		set<unsigned int> succs;
 	};
 
 } /* PSDD */

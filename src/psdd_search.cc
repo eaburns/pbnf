@@ -17,6 +17,7 @@
 #include "psdd/nblock_graph.h"
 #include "psdd/nblock.h"
 #include "util/thread.h"
+#include "util/timer.h"
 #include "projection.h"
 #include "open_list.h"
 #include "closed_list.h"
@@ -219,10 +220,15 @@ vector<State *> *PSDDSearch::search(State *initial)
 	vector<PSDDThread *>::iterator iter;
 	fp_type sum = 0.0;
 	unsigned int num = 0;
-	if (!graph)
+	Timer t;
+
+	if (!graph) {
+		t.start();
 		graph = new NBlockGraph(project, initial);
-	else
+		t.stop();
+	} else {
 		graph->reset(project, initial);
+	}
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PSDDThread *t = new PSDDThread(graph, this);
@@ -251,6 +257,11 @@ vector<State *> *PSDDSearch::search(State *initial)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
+
+	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
+
+	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
+	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
 	return path;
 }

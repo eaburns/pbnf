@@ -30,8 +30,8 @@ using namespace PSDD;
  * \param p The projection function.
  */
 NBlockGraph::NBlockGraph(const Projection *p, State *initial)
+	: map(p)
 {
-	map<unsigned int, NBlock *>::iterator iter;
 	unsigned int init_nblock = p->project(initial);
 
 	layer = LAYERA;
@@ -39,47 +39,10 @@ NBlockGraph::NBlockGraph(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
-	for (unsigned int i = 0; i < num_nblocks; i += 1) {
-		NBlock *n = new NBlock(i);
-		if (i == init_nblock) {
-			n->open[layer].add(initial);
-			n->closed.add(initial);
-
-			free_list[layer].push_back(n);
-		}
-
-		blocks[i] = n;
-	}
-
-	// Now connect the graph.
-	for (iter = blocks.begin(); iter != blocks.end(); iter++) {
-		NBlock *n = iter->second;
-		vector<unsigned int>::iterator i, j;
-		vector<unsigned int> preds = p->get_predecessors(n->id);
-		vector<unsigned int> succs = p->get_successors(n->id);
-
-		// predecessors, successors and the predecessors of the successors.
-		vector<unsigned int> interferes = preds;
-		for (i = succs.begin(); i != succs.end(); i++) {
-			interferes.push_back(*i);
-			vector<unsigned int> spreds = p->get_predecessors(*i);
-			for (j = spreds.begin(); j != spreds.end(); j++) {
-				interferes.push_back(*j);
-			}
-		}
-
-		for (i = preds.begin(); i != preds.end(); i++)
-			if (*i != n->id)
-				n->preds.insert(blocks[*i]);
-
-		for (i = succs.begin(); i != succs.end(); i++)
-			if (*i != n->id)
-				n->succs.insert(blocks[*i]);
-
-		for (i = interferes.begin(); i != interferes.end(); i++)
-			if (*i != n->id)
-				n->interferes.insert(blocks[*i]);
-	}
+	NBlock *n = map.get(init_nblock);
+	n->open[layer].add(initial);
+	n->closed.add(initial);
+	free_list[layer].push_back(n);
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
@@ -92,13 +55,7 @@ NBlockGraph::NBlockGraph(const Projection *p, State *initial)
 /**
  * Destroy an NBlock graph.
  */
-NBlockGraph::~NBlockGraph()
-{
-	map<unsigned int, NBlock *>::iterator iter;
-
-	for (iter = blocks.begin(); iter != blocks.end(); iter++)
-		delete iter->second;
-}
+NBlockGraph::~NBlockGraph() {}
 
 
 /**
@@ -138,7 +95,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			// free with nodes on them, and all of the
 			// NBlocks have sigma values of zero:
 			// Switch to the next iteration
-			map<unsigned int, NBlock *>::iterator iter;
 
 			// Switch layers
 			layer = get_next_layer();
@@ -185,7 +141,7 @@ out:
  */
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
-	return blocks[hash];
+	return map.get(hash);
 }
 
 
@@ -217,7 +173,6 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
  */
 void NBlockGraph::__print(ostream &o)
 {
-	map<unsigned int, NBlock *>::iterator biter;
 	list<NBlock *>::iterator fiter;
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
@@ -231,8 +186,9 @@ void NBlockGraph::__print(ostream &o)
 	o << "--------------------" << endl;
 
 	o << "All Blocks:" << endl;
-	for (biter = blocks.begin(); biter != blocks.end(); biter++)
-		biter->second->print(o);
+	for (unsigned int i = 0; i < num_nblocks; i += 1)
+		if (map.find(i))
+			map.find(i)->print(o);
 }
 
 /**
@@ -281,9 +237,10 @@ void NBlockGraph::update_sigma(NBlock *yblk, int delta)
  */
 void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 {
-	set<NBlock *>::iterator iter;
+	set<unsigned int>::iterator iter;
+	NBlock *n = map.get(y);
 
-	assert(blocks[y]->sigma == 0);
+	assert(n->sigma == 0);
 
 	/*
 	  \A y' \in predecessors(y) /\ y' /= y,
@@ -294,11 +251,11 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	  \sigma(y'') <- \sigma(y'') +- 1
 	*/
 
-	for (iter = blocks[y]->interferes.begin();
-	     iter != blocks[y]->interferes.end();
+	for (iter = n->interferes.begin();
+	     iter != n->interferes.end();
 	     iter++) {
-		assert(*iter != blocks[y]);
-		update_sigma(*iter, delta);
+		assert(*iter != n->id);
+		update_sigma(map.get(*iter), delta);
 	}
 }
 
@@ -327,18 +284,24 @@ void NBlockGraph::reset(const Projection *p, State *initial)
 	nblocks_assigned = 0;
 
 	for (unsigned int i = 0; i < num_nblocks; i += 1) {
-		NBlock *n = blocks[i];
-		n->closed.delete_all_states();
-		n->open[0].delete_all_states();
-		n->open[1].delete_all_states();
-		n->inuse = false;
-		n->sigma = 0;
-		if (i == init_nblock) {
-			n->open[layer].add(initial);
-			n->closed.add(initial);
+		NBlock *n = map.find(i);
+		if (n) {
+			n->closed.delete_all_states();
+			n->open[0].delete_all_states();
+			n->open[1].delete_all_states();
+			n->inuse = false;
+			n->sigma = 0;
+			if (i == init_nblock) {
+				n->open[layer].add(initial);
+				n->closed.add(initial);
 
-			free_list[layer].push_back(n);
+				free_list[layer].push_back(n);
+			}
 		}
-
 	}
+}
+
+unsigned int NBlockGraph::get_ncreated_nblocks(void)
+{
+	return map.get_num_created();
 }

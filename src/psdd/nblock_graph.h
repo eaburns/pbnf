@@ -22,6 +22,7 @@
 #include "../queue_open_list.h"
 #include "../open_list.h"
 #include "../projection.h"
+#include "../util/nblock_map.h"
 #include "nblock.h"
 
 using namespace std;
@@ -42,6 +43,7 @@ namespace PSDD {
 
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
+		unsigned int get_ncreated_nblocks(void);
 
 		enum layer get_next_layer(void) const;
 		enum layer get_cur_layer(void) const;
@@ -54,7 +56,8 @@ namespace PSDD {
 		void update_sigma(NBlock *yblk, int delta);
 
 		/* NBlocks. */
-		map<unsigned int, NBlock *> blocks;
+//		map<unsigned int, NBlock *> blocks;
+		NBlockMap<NBlock> map;
 
 		/* The total number of NBlocks. */
 		unsigned int num_nblocks;
