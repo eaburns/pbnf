@@ -49,8 +49,8 @@ namespace WPBNF {
 		void observe(NBlock *b);
 
 		unsigned int get_ncreated_nblocks(void);
-
-		fp_type best_f(void);
+		fp_type best_free_f(void);
+		fp_type get_f_min(void);
 
 	private:
 		void cpp_is_a_bad_language(const Projection *p, State *initial);
@@ -69,6 +69,7 @@ namespace WPBNF {
 
 		/* A PQ to sort all of the nblocks on f value.  This is for quickly finding f-min. */
 		PriorityQueue<NBlock*, NBlock::NBlockPQFuncs, NBlock::NBlockPQFuncs> nblock_pq;
+		AtomicInt f_min;
 
 		/* The total number of NBlocks. */
 		unsigned int num_nblocks;

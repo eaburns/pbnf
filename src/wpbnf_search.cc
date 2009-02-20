@@ -49,7 +49,7 @@ void WPBNFSearch::PBNFThread::run(void)
 		n = graph->next_nblock(n, !set_hot);
 
 		if (n && search->dynamic_m){
-			next_best = graph->best_f();
+			next_best = graph->best_free_f();
 			//if (next_best == n->open.get_best_f()){
 			//	next_best = 0.0;
 			//}
@@ -162,7 +162,7 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (next_best == 0.0 || graph->best_f() != 0.0){
+	if (next_best == 0.0 || graph->best_free_f() != 0.0){
 		if (expansions < search->min_expansions.read())
 			return false;
 	}

@@ -111,6 +111,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		pthread_mutex_lock(&mutex);
 
 	if (finished) {		// Release an NBlock
+		// Sanity check.
 		if (finished->sigma != 0) {
 			cerr << "A proc had an NBlock with sigma != 0" << endl;
 			finished->print(cerr);
@@ -119,6 +120,25 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		}
 		assert(finished->sigma == 0);
 
+		// Re-sort the nblock PQ so that we can get the f_min value.
+		if (nblock_pq.peek() == finished) {
+			// if we were looking at the best block, we
+			// need to update the successors too incase we
+			// are no longer the best block but one of
+			// them are.
+			set<unsigned int>::iterator iter;
+			for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
+				NBlock *n = map.find(*iter);
+				if (n)
+					nblock_pq.elem_changed(n->pq_index);
+			}
+		}
+		nblock_pq.elem_changed(finished->pq_index);
+		f_min.set(nblock_pq.peek()->open.get_best_f());
+
+		// Test if this nblock is still worse than the front
+		// of the free list.  If not, then just keep searching
+		// it.
 		if (!finished->open.empty()) {
 			fp_type cur_f = finished->open.get_best_f();
 			fp_type new_f;
@@ -134,6 +154,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 
 		nblocks_assigned -= 1;
 
+		// Possibly add this block back to the free list.
 		if (is_free(finished)) {
 			free_list.add(finished);
 			pthread_cond_broadcast(&cond);
@@ -223,11 +244,22 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
 	return nblocks_assigned_max;
 }
 
-fp_type NBlockGraph::best_f(void){
+/**
+ * Get the value of the best nblock on the free list.
+ */
+fp_type NBlockGraph::best_free_f(void){
 	if (free_list.empty())
 		return 0.0;
 	else
 		return free_list.best_f();
+}
+
+/**
+ * Get the global f_min value.
+ */
+fp_type NBlockGraph::get_f_min(void)
+{
+	return f_min.read();
 }
 
 
