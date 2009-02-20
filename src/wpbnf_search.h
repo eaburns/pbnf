@@ -28,16 +28,11 @@ using namespace WPBNF;
 
 class WPBNFSearch : public Search {
 public:
-	WPBNFSearch(unsigned int n_threads, unsigned int min_expansions,
-		   bool detect_livelocks);
+	WPBNFSearch(unsigned int n_threads, unsigned int min_expansions);
 
 	virtual ~WPBNFSearch(void);
 
 	virtual vector<State *> *search(State *initial);
-
-	static void inc_m();
-	static void dec_m();
-
 private:
 	void set_path(vector<State *> *path);
 
@@ -67,7 +62,6 @@ private:
 	pthread_mutex_t path_mutex;
 	vector<State *> *path;
 	AtomicInt bound;
-	bool detect_livelocks;
 	bool dynamic_m;
 
 	NBlockGraph *graph;

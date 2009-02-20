@@ -80,7 +80,7 @@ Search *get_search(int argc, char *argv[])
 		return new PBNFSearch(threads, min_expansions, true);
 	} else if (argc > 1
 		   && sscanf(argv[1], "wpbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
-		return new WPBNFSearch(threads, min_expansions, true);
+		return new WPBNFSearch(threads, min_expansions);
 	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
 		return new MultiAStar(threads);
 	} else {

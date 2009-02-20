@@ -46,7 +46,7 @@ void WPBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		n = graph->next_nblock(n, !set_hot, false);
+		n = graph->next_nblock(n, !set_hot);
 
 		if (n && search->dynamic_m){
 			next_best = graph->best_f();
@@ -175,20 +175,16 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 	fp_type free = graph->next_nblock_f_value();
 	fp_type cur = n->open.peek()->get_f();
 
-	if (search->detect_livelocks) {
-		NBlock *best_scope = graph->best_in_scope(n);
-		if (best_scope) {
-			fp_type scope = best_scope->open.get_best_f();
+	NBlock *best_scope = graph->best_in_scope(n);
+	if (best_scope) {
+		fp_type scope = best_scope->open.get_best_f();
 
-			ret = free < cur || scope < cur;
-			if (!ret)
-				graph->wont_release(n, false);
-			else if (scope < free) {
-				graph->set_hot(best_scope, false);
-				set_hot = true;
-			}
-		} else {
-			ret = free < cur;
+		ret = free < cur || scope < cur;
+		if (!ret)
+			graph->wont_release(n);
+		else if (scope < free) {
+			graph->set_hot(best_scope);
+			set_hot = true;
 		}
 	} else {
 		ret = free < cur;
@@ -204,13 +200,11 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 
 WPBNFSearch::WPBNFSearch(unsigned int n_threads,
-		       unsigned int min_e,
-		       bool detect_livelocks)
+			 unsigned int min_e)
 	: n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
 	  bound(fp_infinity),
-	  detect_livelocks(detect_livelocks),
 	  graph(NULL)
 
 {
@@ -301,20 +295,4 @@ void WPBNFSearch::set_path(vector<State *> *p)
 		bound.set(p->at(0)->get_g());
 	}
 	pthread_mutex_unlock(&path_mutex);
-}
-
-void WPBNFSearch::inc_m()
-{
-        unsigned int old = WPBNFSearch::min_expansions.read();
-	unsigned int o, n;
-	do { o = old; n = min((unsigned int)(o * 2), (unsigned int)((MAX_INT/2)-1)); old = WPBNFSearch::min_expansions.cmp_and_swap(o, n);
-	} while (old != o);
-}
-
-void WPBNFSearch::dec_m()
-{
-        unsigned int old = WPBNFSearch::min_expansions.read();
-	unsigned int o, n;
-	do { o = old; n = max((unsigned int)(o*.8), (unsigned int)MIN_M); old = WPBNFSearch::min_expansions.cmp_and_swap(o, n);
-	} while (old != o);
 }

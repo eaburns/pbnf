@@ -21,7 +21,6 @@
 #include "../pq_open_list.h"
 #include "../open_list.h"
 #include "../projection.h"
-#include "../wpbnf_search.h"
 #include "nblock.h"
 #include "nblock_graph.h"
 
@@ -98,31 +97,17 @@ NBlockGraph::~NBlockGraph()
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, bool dynamic_m)
+NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 {
 	NBlock *n = NULL;
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
 	if (trylock && finished && !finished->open.empty()) {
-		if (pthread_mutex_trylock(&mutex) == EBUSY){
-			if(dynamic_m){
-				WPBNFSearch::inc_m();
-			}
+		if (pthread_mutex_trylock(&mutex) == EBUSY)
 			return finished;
-		}
-		else if(dynamic_m){
-			WPBNFSearch::dec_m();
-		}
-	} else if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
-		if(dynamic_m){
-			WPBNFSearch::inc_m();
-		}
+	} else if(pthread_mutex_trylock(&mutex) == EBUSY)
 		pthread_mutex_lock(&mutex);
-	}
-	else if(dynamic_m){
-		WPBNFSearch::dec_m();
-	}
 
 	if (finished) {		// Release an NBlock
 		if (finished->sigma != 0) {
@@ -358,22 +343,14 @@ bool NBlockGraph::is_free(NBlock *b)
 /**
  * Mark an NBlock as hot, we want this one.
  */
-void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
+void NBlockGraph::set_hot(NBlock *b)
 {
 	set<unsigned int>::iterator i;
 	fp_type f = b->open.get_best_f();
 
-	if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
-		if(dynamic_m){
-			WPBNFSearch::inc_m();
-		}
+	if(pthread_mutex_trylock(&mutex) == EBUSY)
 		pthread_mutex_lock(&mutex);
-	}
-	else{
-		if(dynamic_m){
-			WPBNFSearch::dec_m();
-		}
-	}
+
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
@@ -421,19 +398,12 @@ void NBlockGraph::set_cold(NBlock *b)
  * We won't release block b, so set all hot blocks in its interference
  * scope back to cold.
  */
-void NBlockGraph::wont_release(NBlock *b, bool dynamic_m)
+void NBlockGraph::wont_release(NBlock *b)
 {
 	set<unsigned int>::iterator iter;
 
-	if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
-		if(dynamic_m){
-			WPBNFSearch::inc_m();
-		}
+	if(pthread_mutex_trylock(&mutex) == EBUSY)
 		pthread_mutex_lock(&mutex);
-	}
-	else if(dynamic_m){
-		WPBNFSearch::dec_m();
-	}
 
 	for (iter = b->interferes.begin();
 	     iter != b->interferes.end();
