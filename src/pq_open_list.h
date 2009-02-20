@@ -155,7 +155,7 @@ template<class PQCompare>
 template<class PQCompare>
 	void PQOpenList<PQCompare>::resort(State *s)
 {
-	pq.elem_improved(get_index(s));
+	pq.elem_changed(get_index(s));
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */

@@ -28,7 +28,7 @@ public:
 
 	/** When the value of an element gets better (closer to the
 	 * front of the queue) this function re-sifts it. */
-	void elem_improved(int i);
+	void elem_changed(int i);
 
 	int get_fill() { return fill; }
 	Elem get_elem(int i) { assert(i < fill); return heap[i]; }
@@ -235,13 +235,14 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 }
 
 template<class Elem, class ElemCmp, class ElemSetInd>
-	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::elem_improved(int i)
+	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::elem_changed(int i)
 {
 	//assert(indexes_match());
 	assert(i >= 0);
 	assert(i < fill);
 	Elem e = heap[i];
-	set_index(e, sift_up(i));
+	int ind = sift_up(i);
+	sift_down(e, ind);
 	//assert(indexes_match());
 /*
 	assert(heap_holds(0, fill - 1));

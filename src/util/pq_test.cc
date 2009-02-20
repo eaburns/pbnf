@@ -75,14 +75,14 @@ int main(void)
 	print(pq);
 
 	one->value = 100;
-	pq.elem_improved(one->index);
+	pq.elem_changed(one->index);
 	cout << "peek: " << pq.peek()->value << endl;
 	print(pq);
 	delete pq.take();
 	cout << "peek: " << pq.peek()->value << endl;
 	print(pq);
 	three->value = 5;
-	pq.elem_improved(three->index);
+	pq.elem_changed(three->index);
 	cout << "peek: " << pq.peek()->value << endl;
 	print(pq);
 	delete pq.take();
