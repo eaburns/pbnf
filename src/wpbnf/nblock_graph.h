@@ -29,7 +29,7 @@
 using namespace std;
 
 namespace WPBNF {
-	class NBlockGraph {
+	class NBlockGraph : public NBlockMap<NBlock>::CreationObserver {
 	public:
 		NBlockGraph(const Projection *p, State *init);
 
@@ -45,6 +45,8 @@ namespace WPBNF {
 		NBlock *best_in_scope(NBlock *b);
 		void wont_release(NBlock *b);
 		void set_hot(NBlock *b);
+
+		void observe(NBlock *b);
 
 		unsigned int get_ncreated_nblocks(void);
 

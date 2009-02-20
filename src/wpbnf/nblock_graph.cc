@@ -53,6 +53,7 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
+	map.set_observer(this);
 
 	NBlock *n = map.get(init_nblock);
 	n->open.add(initial);
@@ -424,4 +425,12 @@ void NBlockGraph::wont_release(NBlock *b)
 unsigned int NBlockGraph::get_ncreated_nblocks(void)
 {
 	return map.get_num_created();;
+}
+
+/**
+ * This is where the NBlockMap notifies us of the creation of a new nblock.
+ */
+void NBlockGraph::observe(NBlock *b)
+{
+	nblock_pq.add(b);
 }

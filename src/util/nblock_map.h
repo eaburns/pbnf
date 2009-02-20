@@ -17,6 +17,16 @@
 
 template<class NB> class NBlockMap {
 public:
+
+	/**
+	 * Observes the creation of an nblock.
+	 */
+	class CreationObserver {
+	public:
+		virtual ~CreationObserver() {}
+		virtual void observe(NB *b) = 0;
+	};
+
 	NBlockMap(const Projection *p);
 	~NBlockMap(void);
 
@@ -26,12 +36,17 @@ public:
 
 	unsigned int get_num_created(void);
 
+
+	void set_observer(CreationObserver *o);
+
 private:
 	const Projection *project;
 	NB **blocks;
 	unsigned int num_nblocks;
 	unsigned int num_created;
 	pthread_mutex_t mutex;
+
+	CreationObserver *observer;
 };
 
 /**
@@ -41,6 +56,7 @@ private:
 template<class NB>
 NBlockMap<NB>::NBlockMap(const Projection *p)
 {
+	observer = NULL;
 	project = p;
 	num_nblocks = p->get_num_nblocks();
 	blocks = new NB*[num_nblocks];
@@ -73,6 +89,8 @@ NB *NBlockMap<NB>::get(unsigned int id)
 		pthread_mutex_lock(&mutex);
 		if (!blocks[id]) {
 			blocks[id] = new NB(project, id);
+			if (observer)
+				observer->observe(blocks[id]);
 			num_created += 1;
 		}
 		pthread_mutex_unlock(&mutex);
@@ -99,4 +117,15 @@ unsigned int NBlockMap<NB>::get_num_created(void)
 {
 	return num_created;
 }
+
+/**
+ * Set a class that observes the creation of new nblocks.
+ */
+template<class NB>
+void NBlockMap<NB>::set_observer(CreationObserver *o)
+{
+	observer = o;
+}
+
+
 #endif /* !_NBLOCK_MAP_H_ */
