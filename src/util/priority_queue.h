@@ -7,6 +7,9 @@
  * \date 2009-02-10
  */
 
+#if !defined(_PRIORITY_QUEUE_H_)
+#define _PRIORITY_QUEUE_H_
+
 #include <assert.h>
 
 #include <iostream>
@@ -288,3 +291,4 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	return true;
 }
 */
+#endif /* !_PRIORITY_QUEUE_H_ */

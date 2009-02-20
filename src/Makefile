@@ -38,6 +38,10 @@ SRC= \
 	bfpsdd_search.cc \
 	idpsdd_search.cc \
 	dynamic_bounded_psdd.cc \
+	wpbnf/nblock.cc \
+	wpbnf/nblock_graph.cc \
+	wpbnf/nblock_free_list.cc \
+	wpbnf_search.cc \
 	pbnf/nblock.cc \
 	pbnf/nblock_graph.cc \
 	pbnf/nblock_free_list.cc \

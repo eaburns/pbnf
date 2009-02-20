@@ -1,0 +1,37 @@
+/**
+ * \file nblock_free_list.h
+ *
+ *
+ *
+ * \author Ethan Burns
+ * \date 2008-10-29
+ */
+
+#if !defined(_NBLOCK_FREE_LIST_H_)
+#define _NBLOCK_FREE_LIST_H_
+
+#include <iostream>
+#include <vector>
+
+#include "../util/atomic_int.h"
+#include "nblock.h"
+
+using namespace std;
+
+namespace WPBNF {
+	class NBlockFreeList {
+	public:
+		NBlockFreeList(void);
+
+		void add(NBlock *b);
+		NBlock *take(void);
+		bool empty(void) const;
+		void remove(NBlock *b);
+		fp_type best_f(void);
+		void print(ostream &o);
+	private:
+		vector<NBlock *> heap;
+		AtomicInt best;
+	};
+}	/* PBNF */
+#endif	/* !_NBLOCK_FREE_LIST_H_ */

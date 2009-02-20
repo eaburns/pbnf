@@ -24,6 +24,7 @@
 #include "idpsdd_search.h"
 #include "dynamic_bounded_psdd.h"
 #include "pbnf_search.h"
+#include "wpbnf_search.h"
 #include "pastar.h"
 #include "prastar.h"
 
@@ -77,6 +78,9 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1
 		   && sscanf(argv[1], "safepbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new PBNFSearch(threads, min_expansions, true);
+	} else if (argc > 1
+		   && sscanf(argv[1], "wpbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
+		return new WPBNFSearch(threads, min_expansions, true);
 	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
 		return new MultiAStar(threads);
 	} else {
