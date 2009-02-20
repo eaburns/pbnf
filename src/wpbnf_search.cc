@@ -65,7 +65,7 @@ void WPBNFSearch::PBNFThread::run(void)
 				search->set_path(path);
 			ave_exp_per_nblock.add_val(exp_this_block);
 		}
-	} while (n);
+	} while (!search->done && n);
 
 	graph->set_done();
 }
@@ -95,11 +95,11 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 	OpenList *open = &n->open;
 //	ClosedList *closed = &n->closed;
 
-	while (!open->empty() && !should_switch(n)) {
+	while (!search->done && !open->empty() && !should_switch(n)) {
 		State *s = open->take();
 		ave_open_size.add_val(open->size());
 
-		if (s->get_f() >= search->bound.read())
+		if (search->weight * s->get_f() >= search->bound.read())
 			continue;
 
 		if (s->is_goal()) {
@@ -114,7 +114,7 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		vector<State *>::iterator iter;
 
  		for (iter = children->begin(); iter != children->end(); iter++) {
-			if ((*iter)->get_f() >= search->bound.read()) {
+			if (search->weight * (*iter)->get_f() >= search->bound.read()) {
 				delete *iter;
 				continue;
 			}
@@ -243,6 +243,8 @@ vector<State *> *WPBNFSearch::search(State *initial)
 	graph = new NBlockGraph(project, initial);
 	t.stop();
 
+	weight = initial->get_domain()->get_heuristic()->get_weight();
+
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PBNFThread *t = new PBNFThread(graph, this);
 		threads.push_back(t);
@@ -293,6 +295,8 @@ void WPBNFSearch::set_path(vector<State *> *p)
 	if (p && bound.read() > p->at(0)->get_g()) {
 		this->path = p;
 		bound.set(p->at(0)->get_g());
+		if (graph->get_f_min() > p->at(0)->get_g())
+			done = true;
 	}
 	pthread_mutex_unlock(&path_mutex);
 }

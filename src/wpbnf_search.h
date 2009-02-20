@@ -62,10 +62,14 @@ private:
 	pthread_mutex_t path_mutex;
 	vector<State *> *path;
 	AtomicInt bound;
+	bool done;
+
 	bool dynamic_m;
 
 	NBlockGraph *graph;
 	static AtomicInt min_expansions;
+
+	fp_type weight;
 };
 
 #endif	/* !_PBNF_SEARCH_H_ */
