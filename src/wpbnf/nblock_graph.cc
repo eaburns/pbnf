@@ -121,17 +121,11 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		assert(finished->sigma == 0);
 
 		// Re-sort the nblock PQ so that we can get the f_min value.
-		if (nblock_pq.peek() == finished) {
-			// if we were looking at the best block, we
-			// need to update the successors too incase we
-			// are no longer the best block but one of
-			// them are.
-			set<unsigned int>::iterator iter;
-			for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
-				NBlock *n = map.find(*iter);
-				if (n)
+		set<unsigned int>::iterator iter;
+		for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
+			NBlock *n = map.find(*iter);
+			if (n)
 					nblock_pq.elem_changed(n->pq_index);
-			}
 		}
 		nblock_pq.elem_changed(finished->pq_index);
 		f_min.set(nblock_pq.peek()->open.get_best_f());
