@@ -211,7 +211,11 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	  path(NULL),
 	  bound(fp_infinity),
 	  detect_livelocks(detect_livelocks),
-	  graph(NULL)
+	  graph(NULL),
+	  sum(0.0),
+	  num(0),
+	  osum(0.0),
+	  onum(0)
 
 {
 	pthread_mutex_init(&path_mutex, NULL);
@@ -239,15 +243,8 @@ vector<State *> *PBNFSearch::search(State *initial)
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
-	fp_type sum = 0.0;
-	unsigned int num = 0;
-	fp_type osum = 0.0;
-	unsigned int onum = 0;
-	Timer t;
 
-	t.start();
 	graph = new NBlockGraph(project, initial);
-	t.stop();
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PBNFThread *t = new PBNFThread(graph, this);
@@ -271,19 +268,6 @@ vector<State *> *PBNFSearch::search(State *initial)
 
 		delete *iter;
 	}
-	if (num == 0)
-		cout << "expansions-per-nblock: -1" << endl;
-	else
-		cout << "expansions-per-nblock: " << sum / num << endl;
-	if (onum == 0)
-		cout << "avg-open-list-size: -1" << endl;
-	else
-		cout << "avg-open-list-size: " << osum / onum << endl;
-
-	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
-
-	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
-	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
 	return path;
 }
@@ -317,4 +301,19 @@ void PBNFSearch::dec_m()
 	unsigned int o, n;
 	do { o = old; n = max((unsigned int)(o*.8), (unsigned int)MIN_M); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
 	} while (old != o);
+}
+
+void PBNFSearch::output_stats(void)
+{
+	if (num == 0)
+		cout << "expansions-per-nblock: -1" << endl;
+	else
+		cout << "expansions-per-nblock: " << sum / num << endl;
+	if (onum == 0)
+		cout << "avg-open-list-size: -1" << endl;
+	else
+		cout << "avg-open-list-size: " << osum / onum << endl;
+
+	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
+	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 }
