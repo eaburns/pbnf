@@ -69,7 +69,7 @@ public:
 	  if (dup->get_g() > c->get_g()) {
 	    dup->update(c->get_parent(), c->get_g());
 	    if (dup->is_open())
-	      p->open.resort(dup);
+	      p->open.see_update(dup);
 	    else
 	      p->open.add(dup);
 	  }

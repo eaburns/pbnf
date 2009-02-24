@@ -45,7 +45,7 @@ public:
 
 	/** When the value of an element gets better (closer to the
 	 * front of the queue) this function re-sifts it. */
-	void elem_changed(int i);
+	void see_update(int i);
 
 	int get_fill() { return fill; }
 	Elem get_elem(int i) { assert(i < fill); return heap[i]; }
@@ -303,7 +303,7 @@ template<class Elem, class PQOps>
  * Re-sort a single element in the PQ whose value has changed.
  */
 template<class Elem, class PQOps>
-	void PriorityQueue<Elem, PQOps>::elem_changed(int i)
+	void PriorityQueue<Elem, PQOps>::see_update(int i)
 {
 	assert(i >= 0);
 	assert(i < fill);

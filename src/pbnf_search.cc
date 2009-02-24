@@ -122,7 +122,7 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 					dup->update((*iter)->get_parent(),
 						    (*iter)->get_g());
 					if (dup->is_open())
-						next_open->resort(dup);
+						next_open->see_update(dup);
 					else
 						next_open->add(dup);
 					ave_open_size.add_val(open->size());

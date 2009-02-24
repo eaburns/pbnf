@@ -37,8 +37,8 @@ public:
 	void delete_all_states(void);
 	void prune(void);
 	unsigned int size(void);
-
-	void resort(State *s);
+	void remove(State *s);
+	void see_update(State *s);
 private:
 	PriorityQueue<State *, PQCompare> pq;
 	PQCompare get_index;
@@ -141,9 +141,19 @@ template<class PQCompare>
  * updating states which are open.
  */
 template<class PQCompare>
-	void PQOpenList<PQCompare>::resort(State *s)
+	void PQOpenList<PQCompare>::see_update(State *s)
 {
-	pq.elem_changed(get_index(s));
+	pq.see_update(get_index(s));
+	set_best_val(comp.get_value(pq.front()));
+}
+
+/**
+ * Remove the given state from the PQ.
+ */
+template<class PQCompare>
+	void PQOpenList<PQCompare>::remove(State *s)
+{
+	pq.remove(get_index(s));
 	set_best_val(comp.get_value(pq.front()));
 }
 

@@ -94,7 +94,7 @@ int main(void)
 
 	cout << "change 1 to -2" << endl;
 	one->value = -2;
-	pq.elem_changed(one->index);
+	pq.see_update(one->index);
 	print(pq);
 	cout << "front: " << pq.front()->value << endl;
 
@@ -109,7 +109,7 @@ int main(void)
 
 	cout << "change 3 to 5" << endl;
 	three->value = 5;
-	pq.elem_changed(three->index);
+	pq.see_update(three->index);
 	print(pq);
 	cout << "front: " << pq.front()->value << endl;
 

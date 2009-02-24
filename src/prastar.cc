@@ -88,7 +88,7 @@ void PRAStar::PRAStarThread::flush_queue(void)
 			if (dup->get_g() > c->get_g()) {
 				dup->update(c->get_parent(), c->get_g());
 				if (dup->is_open())
-					open.resort(dup);
+					open.see_update(dup);
 				else
 					open.add(dup);
 			}
