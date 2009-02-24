@@ -144,6 +144,7 @@ template<class PQCompare>
 	void PQOpenList<PQCompare>::resort(State *s)
 {
 	pq.elem_changed(get_index(s));
+	set_best_val(comp.get_value(pq.peek()));
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */

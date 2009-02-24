@@ -39,8 +39,6 @@ fp_type State::get_f(void) const
  */
 fp_type State::get_f_prime(void) const
 {
-	// Since we use fixed point, we multiply g by fp_one and h by
-	// (fp_one * weight)
 	return g + (domain->get_heuristic()->get_weight() * (h / fp_one));
 }
 

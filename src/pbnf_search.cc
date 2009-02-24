@@ -89,7 +89,6 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 {
 	vector<State *> *path = NULL;
 	OpenList *open = &n->open;
-//	ClosedList *closed = &n->closed;
 
 	while (!open->empty() && !should_switch(n)) {
 		State *s = open->take();

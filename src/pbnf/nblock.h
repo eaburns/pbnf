@@ -40,11 +40,17 @@ namespace PBNF {
 			{
 				assert(!a->open.empty());
 				assert(!b->open.empty());
-				fp_type fa = a->open.peek()->get_f_prime();
-				fp_type fb = b->open.peek()->get_f_prime();
-				if (fa == fb)
-					return a->open.peek()->get_g() < b->open.peek()->get_g();
-				return fa > fb;
+				fp_type fpa = a->open.peek()->get_f_prime();
+				fp_type fpb = b->open.peek()->get_f_prime();
+				if (fpa == fpb) {
+					fp_type fa = a->open.peek()->get_f();
+					fp_type fb = b->open.peek()->get_f();
+					if (fa == fb)
+						return a->open.peek()->get_g() < b->open.peek()->get_g();
+					else
+						return fa > fb;
+				}
+				return fpa > fpb;
 			}
 		};
 
