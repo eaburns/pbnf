@@ -37,7 +37,7 @@ private:
 	int left_of(int i);
 	int right_of(int i);
 	int parent_of(int i);
-	int is_leaf(int i);
+	bool is_leaf(int i);
 	int max_child(int i);
 	int sift_up(int i);
 	int try_push(Elem e, int i);
@@ -53,6 +53,9 @@ private:
 	PQOps set_index;
 };
 
+/**
+ * Create a new priority queue.
+ */
 template<class Elem, class PQOps>
 	PriorityQueue<Elem, PQOps>::PriorityQueue(void)
 {
@@ -60,30 +63,49 @@ template<class Elem, class PQOps>
 	reset();
 }
 
+/**
+ * Get the index of the element to the left of the element [i] in the
+ * tree.
+ */
 template<class Elem, class PQOps>
 	 int PriorityQueue<Elem, PQOps>::left_of(int i)
 {
 	return 2 * i + 1;
 }
 
+/**
+ * Get the index of the element to the right of the element [i] in the
+ * tree.
+ */
 template<class Elem, class PQOps>
 	 int PriorityQueue<Elem, PQOps>::right_of(int i)
 {
 	return 2 * i + 2;
 }
 
+/**
+ * Get the index of the element that is the parent of element [i] in
+ * the tree.
+ */
 template<class Elem, class PQOps>
 	int PriorityQueue<Elem, PQOps>::parent_of(int i)
 {
 	return (i - 1) / 2;
 }
 
+/**
+ * Predicate that tests if element [i] is a leaf node.
+ */
 template<class Elem, class PQOps>
-	int PriorityQueue<Elem, PQOps>::is_leaf(int i)
+	bool PriorityQueue<Elem, PQOps>::is_leaf(int i)
 {
 	return left_of(i) >= fill && right_of(i) >= fill;
 }
 
+/**
+ * Get the index of the max valued child of element [i].  Element [i]
+ * must not be a leaf.
+ */
 template<class Elem, class PQOps>
 	int PriorityQueue<Elem, PQOps>::max_child(int i)
 {
@@ -104,6 +126,14 @@ template<class Elem, class PQOps>
 	return -1;
 }
 
+/**
+ * Sift element [i] up the tree.
+ *
+ * \return The new index of the element that was initially at location [i].
+ *
+ * \note The index of [i] must be reset explicitly by the caller after
+ *       this function is called.
+ */
 template<class Elem, class PQOps>
 	 int PriorityQueue<Elem, PQOps>::sift_up(int i)
 {
@@ -122,6 +152,13 @@ template<class Elem, class PQOps>
 	return i;
 }
 
+/**
+ * Tries to push an element down the tree.
+ *
+ * \return The new index is returned.
+ *
+ * \note This function does not set the new index of the element.
+ */
 template<class Elem, class PQOps>
 	int PriorityQueue<Elem, PQOps>::try_push(Elem e, int i)
 {
@@ -149,6 +186,11 @@ template<class Elem, class PQOps>
 	}
 }
 
+/**
+ * Push an element down the tree, and set its new index.
+ *
+ * \return The new index.
+ */
 template<class Elem, class PQOps>
 	int  PriorityQueue<Elem, PQOps>::sift_down(Elem e, int i)
 {
@@ -161,6 +203,9 @@ template<class Elem, class PQOps>
 	return i;
 }
 
+/**
+ * Add an element to the priority queue.
+ */
 template<class Elem, class PQOps>
 	void PriorityQueue<Elem, PQOps>::add(Elem e)
 {
@@ -184,6 +229,9 @@ template<class Elem, class PQOps>
 */
 }
 
+/**
+ * Take and return the front element of the priority queue.
+ */
 template<class Elem, class PQOps>
 	Elem PriorityQueue<Elem, PQOps>::take(void)
 {
@@ -209,31 +257,9 @@ template<class Elem, class PQOps>
 	return e;
 }
 
-template<class Elem, class PQOps>
-	Elem PriorityQueue<Elem, PQOps>::front(void)
-{
-	if (fill <= 0)
-		return NULL;
-
-	return heap[0];
-}
-
-template<class Elem, class PQOps>
-	 bool PriorityQueue<Elem, PQOps>::empty(void)
-{
-	return fill <= 0;
-}
-
-template<class Elem, class PQOps>
-	void PriorityQueue<Elem, PQOps>::reset(void)
-{
-	fill = 0;
-	size = 100;
-	if (heap)
-		delete[] heap;
-	heap = new Elem[size];
-}
-
+/**
+ * Re-sort a single element in the PQ whose value has changed.
+ */
 template<class Elem, class PQOps>
 	void PriorityQueue<Elem, PQOps>::elem_changed(int i)
 {
@@ -249,6 +275,44 @@ template<class Elem, class PQOps>
 */
 }
 
+/**
+ * Look at the front element of the priority queue.
+ */
+template<class Elem, class PQOps>
+	Elem PriorityQueue<Elem, PQOps>::front(void)
+{
+	if (fill <= 0)
+		return NULL;
+
+	return heap[0];
+}
+
+/**
+ * Test for empty.
+ */
+template<class Elem, class PQOps>
+	 bool PriorityQueue<Elem, PQOps>::empty(void)
+{
+	return fill <= 0;
+}
+
+/**
+ * Remove all elements (if any), reset fill and the default heap size.
+ */
+template<class Elem, class PQOps>
+	void PriorityQueue<Elem, PQOps>::reset(void)
+{
+	fill = 0;
+	size = 100;
+	if (heap)
+		delete[] heap;
+	heap = new Elem[size];
+}
+
+
+/**
+ * Diagnosis function for making sure that the heap property holds.
+ */
 template<class Elem, class PQOps>
 	bool PriorityQueue<Elem, PQOps>::heap_holds(int ind_start, int ind_end)
 {
