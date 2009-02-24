@@ -42,7 +42,7 @@ public:
 			}
 		}
 		fp_type inline get_value(State *s) const {
-			return s->get_f_prime();
+			return s->get_f();
 		}
 		void inline operator()(State *a, int i)
 		{

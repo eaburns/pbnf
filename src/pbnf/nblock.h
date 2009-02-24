@@ -36,7 +36,16 @@ namespace PBNF {
 
 		class NBlockCompare {
 		public:
-			bool operator()(NBlock *a, NBlock *b);
+			bool operator()(NBlock *a, NBlock *b)
+			{
+				assert(!a->open.empty());
+				assert(!b->open.empty());
+				fp_type fa = a->open.peek()->get_f_prime();
+				fp_type fb = b->open.peek()->get_f_prime();
+				if (fa == fb)
+					return a->open.peek()->get_g() < b->open.peek()->get_g();
+				return fa > fb;
+			}
 		};
 
 		static NBlockCompare compare;

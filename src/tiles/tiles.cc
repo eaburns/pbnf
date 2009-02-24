@@ -271,8 +271,7 @@ void Tiles::ManhattanDist::init(const SearchDomain *d)
 			int row = pos / width;
 
 			table[(tile * (width * height)) + pos] =
-				(abs(goal_col - col)
-				 + abs(goal_row - row)) * fp_one;
+				(abs(goal_col - col) + abs(goal_row - row)) * fp_one;
 		}
 	}
 }

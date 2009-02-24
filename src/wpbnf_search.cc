@@ -49,10 +49,7 @@ void WPBNFSearch::PBNFThread::run(void)
 		n = graph->next_nblock(n, !set_hot);
 
 		if (n && search->dynamic_m){
-			next_best = graph->best_free_f();
-			//if (next_best == n->open.get_best_f()){
-			//	next_best = 0.0;
-			//}
+			next_best = graph->best_free_val();
 		}
 
 		set_hot = false;
@@ -162,12 +159,12 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (next_best == 0.0 || graph->best_free_f() != 0.0){
+	if (next_best == 0.0 || graph->best_free_val() != 0.0){
 		if (expansions < search->min_expansions.read())
 			return false;
 	}
 	else{
-		return n->open.get_best_f() > next_best;
+		return n->open.get_best_val() > next_best;
 	}
 
 	expansions = 0;
@@ -177,7 +174,7 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 	NBlock *best_scope = graph->best_in_scope(n);
 	if (best_scope) {
-		fp_type scope = best_scope->open.get_best_f();
+		fp_type scope = best_scope->open.get_best_val();
 
 		ret = free < cur || scope < cur;
 		if (!ret)

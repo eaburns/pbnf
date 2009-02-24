@@ -49,7 +49,7 @@ namespace WPBNF {
 		void observe(NBlock *b);
 
 		unsigned int get_ncreated_nblocks(void);
-		fp_type best_free_f(void);
+		fp_type best_free_val(void);
 		fp_type get_f_min(void);
 
 	private:

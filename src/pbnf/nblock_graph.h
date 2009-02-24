@@ -37,7 +37,6 @@ namespace PBNF {
 		NBlock *next_nblock(NBlock *finished, bool trylock, bool dynamic_m);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
-		fp_type next_nblock_f_value(void);
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 		void set_done(void);
@@ -47,7 +46,7 @@ namespace PBNF {
 
 		unsigned int get_ncreated_nblocks(void);
 
-		fp_type best_f(void);
+		fp_type best_val(void);
 
 	private:
 		void cpp_is_a_bad_language(const Projection *p, State *initial);

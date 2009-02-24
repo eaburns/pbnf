@@ -30,9 +30,9 @@ public:
 	virtual void prune(void) = 0;
 	virtual unsigned int size(void) = 0;
 
-	fp_type get_best_f(void);
+	virtual fp_type get_best_val(void);
 protected:
-	void set_best_f(fp_type f);
+	void set_best_val(fp_type f);
 private:
 	AtomicInt best;
 };

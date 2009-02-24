@@ -134,12 +134,12 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, bool dynamic_m)
 		assert(finished->sigma == 0);
 
 		if (!finished->open.empty()) {
-			fp_type cur_f = finished->open.get_best_f();
+			fp_type cur_f = finished->open.get_best_val();
 			fp_type new_f;
 			if (free_list.empty())
 				new_f = fp_infinity;
 			else
-				new_f = free_list.best_f();
+				new_f = free_list.best_val();
 			if (cur_f <= new_f) {
 				n = finished;
 				goto out;
@@ -195,7 +195,7 @@ out:
 NBlock *NBlockGraph::best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
-	fp_type best_f = fp_infinity;
+	fp_type best_val = fp_infinity;
 	set<unsigned int>::iterator i;
 
 //	pthread_mutex_lock(&mutex);
@@ -206,16 +206,13 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 			continue;
 		if (b->open.empty())
 			continue;
-		if (!best_b || b->open.get_best_f() < best_f) {
-			best_f = b->open.get_best_f();
+		if (!best_b || b->open.get_best_val() < best_val) {
+			best_val = b->open.get_best_val();
 			best_b = b;
 		}
 	}
 
 //	pthread_mutex_unlock(&mutex);
-
-	// best_b => best_f != fp_infinity
-//	assert(best_f != fp_infinity || !best_b);
 
 	return best_b;
 }
@@ -237,11 +234,14 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
 	return nblocks_assigned_max;
 }
 
-fp_type NBlockGraph::best_f(void){
+/**
+ * Get the value of the best nblock.
+ */
+fp_type NBlockGraph::best_val(void){
 	if (free_list.empty())
 		return 0.0;
 	else
-		return free_list.best_f();
+		return free_list.best_val();
 }
 
 
@@ -317,15 +317,6 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 }
 
 /**
- * Get the f-value of the next best NBlock.
- */
-fp_type NBlockGraph::next_nblock_f_value(void)
-{
-	// this is atomic
-	return free_list.best_f();
-}
-
-/**
  * Sets the done flag with out taking the lock.
  */
 void NBlockGraph::__set_done(void)
@@ -361,7 +352,7 @@ bool NBlockGraph::is_free(NBlock *b)
 void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 {
 	set<unsigned int>::iterator i;
-	fp_type f = b->open.get_best_f();
+	fp_type val = b->open.get_best_val();
 
 	if(!dynamic_m || pthread_mutex_trylock(&mutex) == EBUSY){
 		if(dynamic_m){
@@ -378,7 +369,7 @@ void NBlockGraph::set_hot(NBlock *b, bool dynamic_m)
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
 			NBlock *m = map.get(*i);
-			if (m->hot && m->open.get_best_f() < f)
+			if (m->hot && m->open.get_best_val() < val)
 				goto out;
 		}
 

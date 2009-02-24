@@ -35,7 +35,6 @@ public:
 	State *peek(void);
 	bool empty(void);
 	void delete_all_states(void);
-	fp_type get_best_val(void);
 	void prune(void);
 	unsigned int size(void);
 
@@ -63,6 +62,7 @@ void PQOpenList<PQCompare>::add(State *s)
 {
 	s->set_open(true);
 	pq.add(s);
+	set_best_val(comp.get_value(pq.peek()));
 }
 
 /**
@@ -78,9 +78,9 @@ State *PQOpenList<PQCompare>::take(void)
 	s->set_open(false);
 
 	if (pq.empty())
-		set_best_f(fp_infinity);
+		set_best_val(fp_infinity);
 	else
-		set_best_f(pq.peek()->get_f());
+		set_best_val(comp.get_value(pq.peek()));
 
 	return s;
 }
@@ -134,18 +134,6 @@ template<class PQCompare>
  unsigned int PQOpenList<PQCompare>::size(void)
 {
 	return pq.get_fill();
-}
-
-/**
- * Get the value of the best node.
- */
-template<class PQCompare>
- fp_type PQOpenList<PQCompare>::get_best_val(void)
-{
-	if (pq.empty())
-		return fp_infinity;
-
-	return comp.get_value(pq.peek());
 }
 
 /**

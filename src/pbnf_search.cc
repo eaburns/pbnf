@@ -48,12 +48,8 @@ void PBNFSearch::PBNFThread::run(void)
 	do {
 		n = graph->next_nblock(n, !set_hot, false);
 
-		if (n && search->dynamic_m){
-			next_best = graph->best_f();
-			//if (next_best == n->open.get_best_f()){
-			//	next_best = 0.0;
-			//}
-		}
+		if (n && search->dynamic_m)
+			next_best = graph->best_val();
 
 		set_hot = false;
 		if (n) {
@@ -162,23 +158,23 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (next_best == 0.0 || graph->best_f() != 0.0){
+	if (next_best == 0.0 || graph->best_val() != 0.0){
 		if (expansions < search->min_expansions.read())
 			return false;
 	}
 	else{
-		return n->open.get_best_f() > next_best;
+		return n->open.get_best_val() > next_best;
 	}
 
 	expansions = 0;
 
-	fp_type free = graph->next_nblock_f_value();
+	fp_type free = graph->best_val();
 	fp_type cur = n->open.peek()->get_f();
 
 	if (search->detect_livelocks) {
 		NBlock *best_scope = graph->best_in_scope(n);
 		if (best_scope) {
-			fp_type scope = best_scope->open.get_best_f();
+			fp_type scope = best_scope->open.get_best_val();
 
 			ret = free < cur || scope < cur;
 			if (!ret)
