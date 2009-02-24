@@ -17,6 +17,21 @@
 
 /**
  * A template priority queue class.
+ *
+ * The PQOps class must have the following methods:
+ *
+ *   int operator()(Elem *a, Elem *b);
+ *       -- returns 0 when a == b, >0 when a > b and <0 when a < b.
+ *
+ *   int get_value(Elem *e);
+ *       -- get the value of the element (for debugging only).
+ *
+ *   void operator()(Elem *e, int i);
+ *       -- set the index of element e to the value i.
+ *
+ *   int operator()(Elem *e);
+ *       -- get the index of element e.
+ *
  */
 template<class Elem, class PQOps> class PriorityQueue {
 public:
