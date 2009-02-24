@@ -154,7 +154,10 @@ template<class PQCompare>
 	void PQOpenList<PQCompare>::remove(State *s)
 {
 	pq.remove(get_index(s));
-	set_best_val(comp.get_value(pq.front()));
+	if (pq.empty())
+		set_best_val(fp_infinity);
+	else
+		set_best_val(comp.get_value(pq.front()));
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */
