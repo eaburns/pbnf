@@ -51,7 +51,7 @@ public:
 
 		int inline operator()(State *a)
 		{
-			return a->f_prime_pq_index;
+			return a->f_pq_index;
 		}
 	};
 

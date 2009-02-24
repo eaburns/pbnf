@@ -182,6 +182,7 @@ template<class Elem, class PQOps>
 template<class Elem, class PQOps>
 	int PriorityQueue<Elem, PQOps>::try_push(Elem e, int i)
 {
+	assert(i != -1);
 	int child_i = left_of(i);
 	if (child_i < fill) {
 		Elem child = heap[child_i];

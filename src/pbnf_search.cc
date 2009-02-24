@@ -168,7 +168,7 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 	expansions = 0;
 
 	fp_type free = graph->best_val();
-	fp_type cur = n->open.peek()->get_f();
+	fp_type cur = n->open.get_best_val();
 
 	if (search->detect_livelocks) {
 		NBlock *best_scope = graph->best_in_scope(n);

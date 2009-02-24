@@ -40,8 +40,8 @@ namespace PBNF {
 			{
 				assert(!a->open.empty());
 				assert(!b->open.empty());
-				fp_type fpa = a->open.peek()->get_f_prime();
-				fp_type fpb = b->open.peek()->get_f_prime();
+				fp_type fpa = a->open.get_best_val();
+				fp_type fpb = b->open.get_best_val();
 				if (fpa == fpb) {
 					fp_type fa = a->open.peek()->get_f();
 					fp_type fb = b->open.peek()->get_f();
