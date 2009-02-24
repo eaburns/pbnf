@@ -15,7 +15,7 @@ using namespace std;
 
 class Int {
 public:
-	class IntCmp {
+	class IntPQOps {
 	public:
 		int operator()(Int *a, Int *b)
 		{
@@ -25,9 +25,6 @@ public:
 		int get_value(Int *a) {
 			return a->value;
 		}
-	};
-	class IntSetInd {
-	public:
 		void operator()(Int *a, int ind)
 		{
 			a->index = ind;
@@ -53,12 +50,12 @@ void print(PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq)
 }
 */
 
-void print (PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq) {}
+void print (PriorityQueue<Int*, Int::IntPQOps> pq) {}
 
 
 int main(void)
 {
-	PriorityQueue<Int*, Int::IntCmp, Int::IntSetInd> pq;
+	PriorityQueue<Int*, Int::IntPQOps> pq;
 	Int *one = new Int(1);
 	Int *three = new Int(3);
 
@@ -69,21 +66,21 @@ int main(void)
 	pq.add(new Int(5));
 
 	print(pq);
-	cout << "peek: " << pq.peek()->value << endl;
+	cout << "front: " << pq.front()->value << endl;
 	delete pq.take();
-	cout << "peek: " << pq.peek()->value << endl;
+	cout << "front: " << pq.front()->value << endl;
 	print(pq);
 
 	one->value = 100;
 	pq.elem_changed(one->index);
-	cout << "peek: " << pq.peek()->value << endl;
+	cout << "front: " << pq.front()->value << endl;
 	print(pq);
 	delete pq.take();
-	cout << "peek: " << pq.peek()->value << endl;
+	cout << "front: " << pq.front()->value << endl;
 	print(pq);
 	three->value = 5;
 	pq.elem_changed(three->index);
-	cout << "peek: " << pq.peek()->value << endl;
+	cout << "front: " << pq.front()->value << endl;
 	print(pq);
 	delete pq.take();
 

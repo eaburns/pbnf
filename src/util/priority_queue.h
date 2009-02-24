@@ -17,12 +17,12 @@
 /**
  * A template priority queue class.
  */
-template<class Elem, class ElemCmp, class ElemSetInd> class PriorityQueue {
+template<class Elem, class PQOps> class PriorityQueue {
 public:
 	PriorityQueue(void);
 	void add(Elem e);
 	Elem take(void);
-	Elem peek(void);
+	Elem front(void);
 	bool empty(void);
 	void reset(void);
 
@@ -49,43 +49,43 @@ private:
 	int fill;
 	int size;
 	Elem* heap;
-	ElemCmp cmp;
-	ElemSetInd set_index;
+	PQOps cmp;
+	PQOps set_index;
 };
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	PriorityQueue<Elem, ElemCmp, ElemSetInd>::PriorityQueue(void)
+template<class Elem, class PQOps>
+	PriorityQueue<Elem, PQOps>::PriorityQueue(void)
 {
 	heap = NULL;
 	reset();
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	 int PriorityQueue<Elem, ElemCmp, ElemSetInd>::left_of(int i)
+template<class Elem, class PQOps>
+	 int PriorityQueue<Elem, PQOps>::left_of(int i)
 {
 	return 2 * i + 1;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	 int PriorityQueue<Elem, ElemCmp, ElemSetInd>::right_of(int i)
+template<class Elem, class PQOps>
+	 int PriorityQueue<Elem, PQOps>::right_of(int i)
 {
 	return 2 * i + 2;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::parent_of(int i)
+template<class Elem, class PQOps>
+	int PriorityQueue<Elem, PQOps>::parent_of(int i)
 {
 	return (i - 1) / 2;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::is_leaf(int i)
+template<class Elem, class PQOps>
+	int PriorityQueue<Elem, PQOps>::is_leaf(int i)
 {
 	return left_of(i) >= fill && right_of(i) >= fill;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::max_child(int i)
+template<class Elem, class PQOps>
+	int PriorityQueue<Elem, PQOps>::max_child(int i)
 {
 	int right = right_of(i);
 	int left = left_of(i);
@@ -104,8 +104,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	return -1;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	 int PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_up(int i)
+template<class Elem, class PQOps>
+	 int PriorityQueue<Elem, PQOps>::sift_up(int i)
 {
 	int p_ind = parent_of(i);
 	Elem parent = heap[p_ind];
@@ -122,8 +122,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	return i;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	int PriorityQueue<Elem, ElemCmp, ElemSetInd>::try_push(Elem e, int i)
+template<class Elem, class PQOps>
+	int PriorityQueue<Elem, PQOps>::try_push(Elem e, int i)
 {
 	int child_i = left_of(i);
 	if (child_i < fill) {
@@ -149,8 +149,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	}
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	int  PriorityQueue<Elem, ElemCmp, ElemSetInd>::sift_down(Elem e, int i)
+template<class Elem, class PQOps>
+	int  PriorityQueue<Elem, PQOps>::sift_down(Elem e, int i)
 {
 	i = try_push(e, i);
 	assert(i < fill);
@@ -161,8 +161,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	return i;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::add(Elem e)
+template<class Elem, class PQOps>
+	void PriorityQueue<Elem, PQOps>::add(Elem e)
 {
 	if (size <= fill) {
 		size = size * 2;
@@ -184,8 +184,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 */
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	Elem PriorityQueue<Elem, ElemCmp, ElemSetInd>::take(void)
+template<class Elem, class PQOps>
+	Elem PriorityQueue<Elem, PQOps>::take(void)
 {
 	Elem e;
 
@@ -209,8 +209,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	return e;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	Elem PriorityQueue<Elem, ElemCmp, ElemSetInd>::peek(void)
+template<class Elem, class PQOps>
+	Elem PriorityQueue<Elem, PQOps>::front(void)
 {
 	if (fill <= 0)
 		return NULL;
@@ -218,14 +218,14 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	return heap[0];
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	 bool PriorityQueue<Elem, ElemCmp, ElemSetInd>::empty(void)
+template<class Elem, class PQOps>
+	 bool PriorityQueue<Elem, PQOps>::empty(void)
 {
 	return fill <= 0;
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::reset(void)
+template<class Elem, class PQOps>
+	void PriorityQueue<Elem, PQOps>::reset(void)
 {
 	fill = 0;
 	size = 100;
@@ -234,8 +234,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 	heap = new Elem[size];
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	void PriorityQueue<Elem, ElemCmp, ElemSetInd>::elem_changed(int i)
+template<class Elem, class PQOps>
+	void PriorityQueue<Elem, PQOps>::elem_changed(int i)
 {
 	//assert(indexes_match());
 	assert(i >= 0);
@@ -249,8 +249,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 */
 }
 
-template<class Elem, class ElemCmp, class ElemSetInd>
-	bool PriorityQueue<Elem, ElemCmp, ElemSetInd>::heap_holds(int ind_start, int ind_end)
+template<class Elem, class PQOps>
+	bool PriorityQueue<Elem, PQOps>::heap_holds(int ind_start, int ind_end)
 {
 	int c;
 	for (int i = ind_start; i <= ind_end; i += 1) {
@@ -280,8 +280,8 @@ template<class Elem, class ElemCmp, class ElemSetInd>
 }
 
 /*
-template<class Elem, class ElemCmp, class ElemSetInd>
-	bool PriorityQueue<Elem, ElemCmp, ElemSetInd>::indexes_match(void)
+template<class Elem, class PQOps>
+	bool PriorityQueue<Elem, PQOps>::indexes_match(void)
 {
 	for (int i = 0; i < fill; i += 1) {
 		if (cmp(heap[i]) != i) {

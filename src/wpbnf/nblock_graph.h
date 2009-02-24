@@ -68,7 +68,7 @@ namespace WPBNF {
 		NBlockMap<NBlock> map;
 
 		/* A PQ to sort all of the nblocks on f value.  This is for quickly finding f-min. */
-		PriorityQueue<NBlock*, NBlock::NBlockPQFuncs, NBlock::NBlockPQFuncs> nblock_pq;
+		PriorityQueue<NBlock*, NBlock::NBlockPQFuncs> nblock_pq;
 		AtomicInt f_min;
 
 		/* The total number of NBlocks. */

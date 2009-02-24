@@ -40,7 +40,7 @@ public:
 
 	void resort(State *s);
 private:
-	PriorityQueue<State *, PQCompare, PQCompare> pq;
+	PriorityQueue<State *, PQCompare> pq;
 	PQCompare get_index;
 	PQCompare comp;
 };
@@ -62,7 +62,7 @@ void PQOpenList<PQCompare>::add(State *s)
 {
 	s->set_open(true);
 	pq.add(s);
-	set_best_val(comp.get_value(pq.peek()));
+	set_best_val(comp.get_value(pq.front()));
 }
 
 /**
@@ -80,7 +80,7 @@ State *PQOpenList<PQCompare>::take(void)
 	if (pq.empty())
 		set_best_val(fp_infinity);
 	else
-		set_best_val(comp.get_value(pq.peek()));
+		set_best_val(comp.get_value(pq.front()));
 
 	return s;
 }
@@ -91,7 +91,7 @@ State *PQOpenList<PQCompare>::take(void)
 template<class PQCompare>
  State * PQOpenList<PQCompare>::peek(void)
 {
-	return pq.peek();
+	return pq.front();
 }
 
 /**
@@ -144,7 +144,7 @@ template<class PQCompare>
 	void PQOpenList<PQCompare>::resort(State *s)
 {
 	pq.elem_changed(get_index(s));
-	set_best_val(comp.get_value(pq.peek()));
+	set_best_val(comp.get_value(pq.front()));
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */

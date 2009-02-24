@@ -128,7 +128,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 					nblock_pq.elem_changed(n->pq_index);
 		}
 		nblock_pq.elem_changed(finished->pq_index);
-		f_min.set(nblock_pq.peek()->open.get_best_val());
+		f_min.set(nblock_pq.front()->open.get_best_val());
 
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
