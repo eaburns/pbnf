@@ -46,7 +46,7 @@ public:
 		}
 		void inline operator()(State *a, int i)
 		{
-			a->f_prime_pq_index = i;
+			a->f_pq_index = i;
 		}
 
 		int inline operator()(State *a)
