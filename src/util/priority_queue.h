@@ -22,6 +22,7 @@ public:
 	PriorityQueue(void);
 	void add(Elem e);
 	Elem take(void);
+	void remove(int i);
 	Elem front(void);
 	bool empty(void);
 	void reset(void);
@@ -32,6 +33,9 @@ public:
 
 	int get_fill() { return fill; }
 	Elem get_elem(int i) { assert(i < fill); return heap[i]; }
+
+	/* only for testing purposes. */
+	Elem *get_vec() { return heap; }
 
 private:
 	int left_of(int i);
@@ -255,6 +259,23 @@ template<class Elem, class PQOps>
 */
 
 	return e;
+}
+
+/**
+ * Remove the element at index i.
+ */
+template<class Elem, class PQOps>
+	void PriorityQueue<Elem, PQOps>::remove(int i)
+{
+	assert(i < fill);
+	heap[i] = heap[fill - 1];
+	heap[fill - 1] = NULL;
+	fill = fill - 1;
+	if (i < fill) {
+		Elem e = heap[i];
+		set_index(e, i);
+		sift_down(e, sift_up(i));
+	}
 }
 
 /**
