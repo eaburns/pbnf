@@ -125,7 +125,7 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 						next_open->see_update(dup);
 					else
 						next_open->add(dup);
-					ave_open_size.add_val(open->size());
+					ave_open_size.add_val(next_open->size());
 				}
 				delete *iter;
 			} else {
@@ -136,7 +136,7 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 					return path;
 				}
 				next_open->add(*iter);
-				ave_open_size.add_val(open->size());
+				ave_open_size.add_val(next_open->size());
 			}
 		}
 		delete children;
