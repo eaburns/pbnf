@@ -11,6 +11,7 @@
 #define _PRIORITY_QUEUE_H_
 
 #include <assert.h>
+//#define PQ_DEBUG
 
 #include <iostream>
 
@@ -48,7 +49,7 @@ private:
 	int sift_down(Elem e, int i);
 
 	bool heap_holds(int, int);
-	//bool indexes_match(void);
+	bool indexes_match(void);
 
 	int fill;
 	int size;
@@ -227,10 +228,10 @@ template<class Elem, class PQOps>
 	int i = sift_up(fill - 1);
 	set_index(e, i);
 	assert(i < fill);
-/*
+#if defined(PQ_DEBUG)
 	assert(indexes_match());
 	assert(heap_holds(0, fill - 1));
-*/
+#endif
 }
 
 /**
@@ -253,10 +254,10 @@ template<class Elem, class PQOps>
 	if (fill > 0)
 		sift_down(heap[0], 0);
 
-/*
+#if defined(PQ_DEBUG)
 	assert(indexes_match());
 	assert(heap_holds(0, fill - 1));
-*/
+#endif
 
 	return e;
 }
@@ -276,6 +277,11 @@ template<class Elem, class PQOps>
 		set_index(e, i);
 		sift_down(e, sift_up(i));
 	}
+
+#if defined(PQ_DEBUG)
+	assert(indexes_match());
+	assert(heap_holds(0, fill - 1));
+#endif
 }
 
 /**
@@ -284,16 +290,16 @@ template<class Elem, class PQOps>
 template<class Elem, class PQOps>
 	void PriorityQueue<Elem, PQOps>::elem_changed(int i)
 {
-	//assert(indexes_match());
 	assert(i >= 0);
 	assert(i < fill);
 	Elem e = heap[i];
 	int ind = sift_up(i);
 	sift_down(e, ind);
-	//assert(indexes_match());
-/*
+
+#if defined(PQ_DEBUG)
+	assert(indexes_match());
 	assert(heap_holds(0, fill - 1));
-*/
+#endif
 }
 
 /**
@@ -364,7 +370,6 @@ template<class Elem, class PQOps>
 	return true;
 }
 
-/*
 template<class Elem, class PQOps>
 	bool PriorityQueue<Elem, PQOps>::indexes_match(void)
 {
@@ -376,5 +381,4 @@ template<class Elem, class PQOps>
 	}
 	return true;
 }
-*/
 #endif /* !_PRIORITY_QUEUE_H_ */

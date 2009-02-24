@@ -114,7 +114,7 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 				continue;
 			}
 			unsigned int block = search->project->project(*iter);
-			PQOpenList<State::CompareOnFPrime> *next_open = &graph->get_nblock(block)->open;
+			PQOpenList<State::PQOpsFPrime> *next_open = &graph->get_nblock(block)->open;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
 			State *dup = next_closed->lookup(*iter);
 			if (dup) {

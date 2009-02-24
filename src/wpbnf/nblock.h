@@ -49,10 +49,17 @@ namespace WPBNF {
 				else
 					return 0;
 			}
-
 			/* Set the prio queue index. */
 			void inline operator()(NBlock *a, int i) {
 				a->pq_index = i;
+			}
+			/* Set the prio queue index. */
+			int inline operator()(NBlock *a) {
+				return a->pq_index;
+			}
+			/* Set the prio queue index. */
+			fp_type inline get_value(NBlock *a) {
+				return a->open.peek()->get_f_prime();
 			}
 		};
 
@@ -82,7 +89,7 @@ namespace WPBNF {
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		PQOpenList<State::CompareOnFPrime> open;
+		PQOpenList<State::PQOpsFPrime> open;
 
 		unsigned int sigma_hot;
 		int hot;

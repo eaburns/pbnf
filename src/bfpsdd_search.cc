@@ -30,7 +30,7 @@ using namespace BFPSDD;
 /**
  * Create a new PSDD Search thread.
  */
-BFPSDDSearch::BFPSDDThread::BFPSDDThread(NBlockGraph<BFPSDD::RealValNBlockPQ<State::CompareOnFPrime>,State::CompareOnFPrime> *graph,
+BFPSDDSearch::BFPSDDThread::BFPSDDThread(NBlockGraph<BFPSDD::RealValNBlockPQ<State::PQOpsFPrime>,State::PQOpsFPrime> *graph,
 	BFPSDDSearch *search)
 	: graph(graph), search(search) {}
 
@@ -44,7 +44,7 @@ BFPSDDSearch::BFPSDDThread::~BFPSDDThread() {}
 void BFPSDDSearch::BFPSDDThread::run(void)
 {
 	vector<State *> *path;
-	NBlock<State::CompareOnFPrime> *n = NULL;
+	NBlock<State::PQOpsFPrime> *n = NULL;
 
 	do {
 		n = graph->next_nblock(n);
@@ -71,10 +71,10 @@ fp_type BFPSDDSearch::BFPSDDThread::get_ave_exp_per_nblock(void)
  * \param n The NBlock.
  * \return NULL, or a path to a goal.
  */
-vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<State::CompareOnFPrime> *n)
+vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<State::PQOpsFPrime> *n)
 {
 	vector<State *> *path = NULL;
-	PQOpenList<State::CompareOnFPrime> *cur_open = &n->open;
+	PQOpenList<State::PQOpsFPrime> *cur_open = &n->open;
 
 	while (!cur_open->empty()) {
 		if (exp_this_block > search->min_expansions
@@ -101,8 +101,8 @@ vector<State *> *BFPSDDSearch::BFPSDDThread::search_nblock(NBlock<State::Compare
 		     iter != children->end();
 		     iter++) {
 			unsigned int block = search->project->project(*iter);
-			NBlock<State::CompareOnFPrime> *b = graph->get_nblock(block);
-			PQOpenList<State::CompareOnFPrime> *next_open = &b->open;
+			NBlock<State::PQOpsFPrime> *b = graph->get_nblock(block);
+			PQOpenList<State::PQOpsFPrime> *next_open = &b->open;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
 			if ((*iter)->get_f() >= search->bound.read()) {
 				delete *iter;
@@ -219,8 +219,8 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 	Timer t;
 
 	t.start();
-	graph = new NBlockGraph<RealValNBlockPQ<State::CompareOnFPrime>,
-		State::CompareOnFPrime>(project,
+	graph = new NBlockGraph<RealValNBlockPQ<State::PQOpsFPrime>,
+		State::PQOpsFPrime>(project,
 					n_threads,
 					multiplier,
 					initial);

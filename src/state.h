@@ -23,7 +23,7 @@ using namespace std;
 class State {
 public:
 
-	class CompareOnF {
+	class PQOpsF {
 	public:
 
 		int inline operator()(State *a, State *b) const {
@@ -55,7 +55,7 @@ public:
 		}
 	};
 
-	class CompareOnFPrime {
+	class PQOpsFPrime {
 	public:
 		int inline operator()(State *a, State *b) const {
 			fp_type fa = a->get_f_prime();
@@ -78,7 +78,7 @@ public:
 			return a->f_prime_pq_index;
 		}
 	private:
-		CompareOnF f_cmp;
+		PQOpsF f_cmp;
 	};
 
 	State(SearchDomain *d, State *parent, fp_type g);

@@ -21,13 +21,16 @@ public:
 		{
 			return a->value - b->value;
 		}
-
 		int get_value(Int *a) {
 			return a->value;
 		}
 		void operator()(Int *a, int ind)
 		{
 			a->index = ind;
+		}
+		int operator()(Int *a)
+		{
+			return a->index;
 		}
 	};
 

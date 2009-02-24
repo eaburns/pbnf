@@ -28,7 +28,7 @@ public:
         void set_path(vector<State *> *path);
         bool has_path();
 private:
-	SynchPQOList<State::CompareOnF> open;
+	SynchPQOList<State::PQOpsF> open;
 	SynchClosedList closed;
         bool done;
 	pthread_mutex_t mutex;
