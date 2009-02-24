@@ -22,25 +22,17 @@
 using namespace std;
 
 namespace WPBNF {
-/**
- * An NBlock
- */
 	struct NBlock {
 
+		/**
+		 * Operations for the nblock PQ used for trakcing f_min.
+		 */
 		struct NBlockPQFuncs {
 			/* Order nblocks on increasing f-values. */
 			int inline operator()(NBlock *a, NBlock *b) {
 				fp_type fa, fb;
-
-				if (a->open.empty())
-					fa = fp_infinity;
-				else
-					fa = a->open.peek()->get_f();
-
-				if (b->open.empty())
-					fb = fp_infinity;
-				else
-					fb = b->open.peek()->get_f();
+				fa = a->open_f.get_best_val();
+				fb = b->open_f.get_best_val();
 
 				if (fa > fb)
 					return 1;
@@ -49,47 +41,64 @@ namespace WPBNF {
 				else
 					return 0;
 			}
-
 			/* Set the prio queue index. */
 			void inline operator()(NBlock *a, int i) {
 				a->pq_index = i;
 			}
+			/* Set the prio queue index. */
+			int inline operator()(NBlock *a) {
+				return a->pq_index;
+			}
+			/* Set the prio queue index. */
+			fp_type inline get_value(NBlock *a) {
+				return a->open_f.get_best_val();
+			}
 		};
 
-		NBlock(const Projection *p, unsigned int id);
-
-		~NBlock(void);
-
-		void next_iteration(void);
-		bool operator<(NBlock *a);
-		void print(ostream &s);
-
-		struct NBlockCompare {
+		/**
+		 * NBlocks compare on f', then f then g.
+		 *
+		 * This class is for the nblock_free_list.
+		 */
+		class NBlockCompare {
+		public:
 			bool operator()(NBlock *a, NBlock *b)
 			{
-				assert(!a->open.empty());
-				assert(!b->open.empty());
-				fp_type fa = a->open.peek()->get_f();
-				fp_type fb = b->open.peek()->get_f();
-				if (fa == fb)
-					return a->open.peek()->get_g() < b->open.peek()->get_g();
-				return fa > fb;
+				assert(!a->open_fp.empty());
+				assert(!b->open_fp.empty());
+				fp_type fpa = a->open_fp.get_best_val();
+				fp_type fpb = b->open_fp.get_best_val();
+				if (fpa == fpb) {
+					fp_type fa = a->open_fp.get_best_val();
+					fp_type fb = b->open_fp.get_best_val();
+					if (fa == fb && !a->open_fp.empty() && !b->open_fp.empty())
+						return a->open_fp.peek()->get_g() < b->open_fp.peek()->get_g();
+					else
+						return fa > fb;
+				}
+				return fpa > fpb;
 			}
 		};
 
 		static NBlockCompare compare;
 
+
+		NBlock(const Projection *p, unsigned int id);
+		~NBlock(void);
+		void next_iteration(void);
+		bool operator<(NBlock *a);
+		void print(ostream &s);
+
+
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		PQOpenList<State::CompareOnFPrime> open;
-
+		PQOpenList<State::PQOpsFPrime> open_fp;
+		PQOpenList<State::PQOpsF> open_f;
 		unsigned int sigma_hot;
 		int hot;
 		int inuse;
-
-		int pq_index;
-
+		int pq_index; // Index into the f_min PQ
 		set<unsigned int> interferes;
 		set<unsigned int> preds;
 		set<unsigned int> succs;

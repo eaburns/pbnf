@@ -55,7 +55,7 @@ private:
                 bool completed;
                 CompletionCounter *cc;
                 friend class PRAStar;
-                PQOpenList<State::CompareOnFPrime> open;
+                PQOpenList<State::PQOpsFPrime> open;
                 ClosedList closed;
 		bool q_empty;
         };

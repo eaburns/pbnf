@@ -19,7 +19,7 @@ void QueueOpenList::add(State *s)
 {
 	s->set_open(true);
 	q.push(s);
-	set_best_f(q.front()->get_f());
+	set_best_val(q.front()->get_f());
 }
 
 State *QueueOpenList::take(void)
@@ -29,9 +29,9 @@ State *QueueOpenList::take(void)
 	s->set_open(false);
 	q.pop();
 	if (q.empty())
-		set_best_f(fp_infinity);
+		set_best_val(fp_infinity);
 	else
-		set_best_f(q.front()->get_f());
+		set_best_val(q.front()->get_f());
 
 
 	return s;

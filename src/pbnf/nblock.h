@@ -36,7 +36,22 @@ namespace PBNF {
 
 		class NBlockCompare {
 		public:
-			bool operator()(NBlock *a, NBlock *b);
+			bool operator()(NBlock *a, NBlock *b)
+			{
+				assert(!a->open.empty());
+				assert(!b->open.empty());
+				fp_type fpa = a->open.get_best_val();
+				fp_type fpb = b->open.get_best_val();
+				if (fpa == fpb) {
+					fp_type fa = a->open.peek()->get_f();
+					fp_type fb = b->open.peek()->get_f();
+					if (fa == fb)
+						return a->open.peek()->get_g() < b->open.peek()->get_g();
+					else
+						return fa > fb;
+				}
+				return fpa > fpb;
+			}
 		};
 
 		static NBlockCompare compare;
@@ -44,7 +59,7 @@ namespace PBNF {
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		PQOpenList<State::CompareOnFPrime> open;
+		PQOpenList<State::PQOpsFPrime> open;
 
 		unsigned int sigma_hot;
 		int hot;

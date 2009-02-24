@@ -27,7 +27,7 @@ namespace PBNF {
 		NBlock *take(void);
 		bool empty(void) const;
 		void remove(NBlock *b);
-		fp_type best_f(void);
+		fp_type best_val(void);
 		void print(ostream &o);
 	private:
 		vector<NBlock *> heap;

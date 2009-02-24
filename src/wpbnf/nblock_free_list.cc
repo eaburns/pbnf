@@ -33,7 +33,7 @@ void NBlockFreeList::add(NBlock *b)
 
 	heap.push_back(b);
 	push_heap(heap.begin(), heap.end(), NBlock::compare);
-	best.set(heap.front()->open.peek()->get_f());
+	best.set(heap.front()->open_fp.peek()->get_f_prime());
 }
 
 
@@ -48,7 +48,7 @@ NBlock *NBlockFreeList::take(void)
 	if (heap.empty())
 		best.set(fp_infinity);
 	else
-		best.set(heap.front()->open.peek()->get_f());
+		best.set(heap.front()->open_f.peek()->get_f_prime());
 
 	return b;
 }
@@ -73,7 +73,7 @@ void NBlockFreeList::remove(NBlock *b)
 	}
 }
 
-fp_type NBlockFreeList::best_f(void)
+fp_type NBlockFreeList::best_val(void)
 {
 	return best.read();
 }

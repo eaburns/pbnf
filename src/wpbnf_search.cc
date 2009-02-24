@@ -49,10 +49,7 @@ void WPBNFSearch::PBNFThread::run(void)
 		n = graph->next_nblock(n, !set_hot);
 
 		if (n && search->dynamic_m){
-			next_best = graph->best_free_f();
-			//if (next_best == n->open.get_best_f()){
-			//	next_best = 0.0;
-			//}
+			next_best = graph->best_free_val();
 		}
 
 		set_hot = false;
@@ -92,12 +89,14 @@ fp_type WPBNFSearch::PBNFThread::get_ave_open_size(void)
 vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 {
 	vector<State *> *path = NULL;
-	OpenList *open = &n->open;
+	OpenList *open_fp = &n->open_fp;
+	PQOpenList<State::PQOpsF> *open_f = &n->open_f;
 //	ClosedList *closed = &n->closed;
 
-	while (!search->done && !open->empty() && !should_switch(n)) {
-		State *s = open->take();
-		ave_open_size.add_val(open->size());
+	while (!search->done && !open_fp->empty() && !should_switch(n)) {
+		State *s = open_fp->take();
+		open_f->remove(s);
+		ave_open_size.add_val(open_fp->size());
 
 		if (search->weight * s->get_f() >= search->bound.read())
 			continue;
@@ -119,18 +118,22 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 				continue;
 			}
 			unsigned int block = search->project->project(*iter);
-			PQOpenList<State::CompareOnFPrime> *next_open = &graph->get_nblock(block)->open;
+			PQOpenList<State::PQOpsFPrime> *next_open_fp = &graph->get_nblock(block)->open_fp;
+			PQOpenList<State::PQOpsF> *next_open_f = &graph->get_nblock(block)->open_f;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
 			State *dup = next_closed->lookup(*iter);
 			if (dup) {
 				if (dup->get_g() > (*iter)->get_g()) {
 					dup->update((*iter)->get_parent(),
 						    (*iter)->get_g());
-					if (dup->is_open())
-						next_open->resort(dup);
-					else
-						next_open->add(dup);
-					ave_open_size.add_val(open->size());
+					if (dup->is_open()) {
+						next_open_fp->see_update(dup);
+						next_open_f->see_update(dup);
+					} else {
+						next_open_fp->add(dup);
+						next_open_f->add(dup);
+					}
+					ave_open_size.add_val(next_open_fp->size());
 				}
 				delete *iter;
 			} else {
@@ -140,8 +143,9 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 					delete children;
 					return path;
 				}
-				next_open->add(*iter);
-				ave_open_size.add_val(open->size());
+				next_open_fp->add(*iter);
+				next_open_f->add(*iter);
+				ave_open_size.add_val(next_open_fp->size());
 			}
 		}
 		delete children;
@@ -162,22 +166,22 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (next_best == 0.0 || graph->best_free_f() != 0.0){
+	if (next_best == 0.0 || graph->best_free_val() != 0.0){
 		if (expansions < search->min_expansions.read())
 			return false;
 	}
 	else{
-		return n->open.get_best_f() > next_best;
+		return n->open_fp.get_best_val() > next_best;
 	}
 
 	expansions = 0;
 
 	fp_type free = graph->next_nblock_f_value();
-	fp_type cur = n->open.peek()->get_f();
+	fp_type cur = n->open_fp.get_best_val();
 
 	NBlock *best_scope = graph->best_in_scope(n);
 	if (best_scope) {
-		fp_type scope = best_scope->open.get_best_f();
+		fp_type scope = best_scope->open_fp.get_best_val();
 
 		ret = free < cur || scope < cur;
 		if (!ret)
@@ -295,7 +299,8 @@ void WPBNFSearch::set_path(vector<State *> *p)
 	if (p && bound.read() > p->at(0)->get_g()) {
 		this->path = p;
 		bound.set(p->at(0)->get_g());
-		if (graph->get_f_min() > p->at(0)->get_g())
+
+		if ((weight * graph->get_f_min()) > p->at(0)->get_g())
 			done = true;
 	}
 	pthread_mutex_unlock(&path_mutex);

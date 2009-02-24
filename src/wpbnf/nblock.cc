@@ -70,18 +70,18 @@ NBlock::~NBlock(void)
  */
 void NBlock::print(ostream &o)
 {
-	fp_type best_f;
+	fp_type best_fp;
 	set<unsigned int>::const_iterator iter;
 
-	best_f = open.empty() ? fp_infinity : open.peek()->get_f();
+	best_fp = open_fp.empty() ? fp_infinity : open_fp.peek()->get_f_prime();
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;
 	o << "\tsigma_hot: " << sigma_hot << endl;
 	o << "\thot: " << hot << endl;
 	o << "\tinuse: " << inuse << endl;
-	o << "\topen: " << (open.empty() ? "false" : "true") << endl;
-	o << "\tbest f(n): " << best_f << endl;
+	o << "\topen: " << (open_fp.empty() ? "false" : "true") << endl;
+	o << "\tbest f(n): " << best_fp << endl;
 
 	o << "\tinterferes with: ";
 	for (iter = interferes.begin(); iter != interferes.end(); iter++)

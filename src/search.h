@@ -26,6 +26,7 @@ public:
 	virtual ~Search() {}
 
 	virtual vector<State *> *search(State *) = 0;
+	virtual void output_stats(void);
 
 	void clear_counts(void);
 	unsigned long get_expanded(void) const;

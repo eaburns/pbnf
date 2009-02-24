@@ -75,3 +75,11 @@ void Search::set_generated(unsigned long g)
 {
 	generated.set(g);
 }
+
+
+/**
+ * Do nothing by default.
+ */
+void Search::output_stats(void)
+{
+}

@@ -14,12 +14,12 @@ OpenList::~OpenList() {}
 /**
  * Track the best open state.
  */
-void OpenList::set_best_f(fp_type f)
+void OpenList::set_best_val(fp_type f)
 {
 	best.set(f);
 }
 
-fp_type OpenList::get_best_f(void)
+fp_type OpenList::get_best_val(void)
 {
 	return best.read();
 }

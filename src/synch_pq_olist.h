@@ -30,7 +30,7 @@ public:
 	virtual void prune(void);
 	virtual fp_type get_best_val(void);
 
-	virtual void resort(State *s);
+	virtual void see_update(State *s);
 private:
 	pthread_mutex_t mutex;
 };
@@ -113,11 +113,11 @@ fp_type SynchPQOList<PQCompare>::get_best_val(void)
 }
 
 template<class PQCompare>
-void SynchPQOList<PQCompare>::resort(State *s)
+void SynchPQOList<PQCompare>::see_update(State *s)
 
 {
 	pthread_mutex_lock(&mutex);
-	PQOpenList<PQCompare>::resort(s);
+	PQOpenList<PQCompare>::see_update(s);
 	pthread_mutex_unlock(&mutex);
 }
 

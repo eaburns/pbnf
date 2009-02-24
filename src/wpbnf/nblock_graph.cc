@@ -56,7 +56,8 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	map.set_observer(this);
 
 	NBlock *n = map.get(init_nblock);
-	n->open.add(initial);
+	n->open_fp.add(initial);
+	n->open_f.add(initial);
 	free_list.add(n);
 
 	done = false;
@@ -104,7 +105,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
-	if (trylock && finished && !finished->open.empty()) {
+	if (trylock && finished && !finished->open_fp.empty()) {
 		if (pthread_mutex_trylock(&mutex) == EBUSY)
 			return finished;
 	} else if(pthread_mutex_trylock(&mutex) == EBUSY)
@@ -125,21 +126,21 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
 			NBlock *n = map.find(*iter);
 			if (n)
-					nblock_pq.elem_changed(n->pq_index);
+					nblock_pq.see_update(n->pq_index);
 		}
-		nblock_pq.elem_changed(finished->pq_index);
-		f_min.set(nblock_pq.peek()->open.get_best_f());
+		nblock_pq.see_update(finished->pq_index);
+		f_min.set(nblock_pq.front()->open_f.get_best_val());
 
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
 		// it.
-		if (!finished->open.empty()) {
-			fp_type cur_f = finished->open.get_best_f();
+		if (!finished->open_fp.empty()) {
+			fp_type cur_f = finished->open_fp.get_best_val();
 			fp_type new_f;
 			if (free_list.empty())
 				new_f = fp_infinity;
 			else
-				new_f = free_list.best_f();
+				new_f = free_list.best_val();
 			if (cur_f <= new_f) {
 				n = finished;
 				goto out;
@@ -196,7 +197,7 @@ out:
 NBlock *NBlockGraph::best_in_scope(NBlock *b)
 {
 	NBlock *best_b = NULL;
-	fp_type best_f = fp_infinity;
+	fp_type best_val = fp_infinity;
 	set<unsigned int>::iterator i;
 
 //	pthread_mutex_lock(&mutex);
@@ -205,18 +206,15 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 		NBlock *b = map.find(*i);
 		if (!b)
 			continue;
-		if (b->open.empty())
+		if (b->open_fp.empty())
 			continue;
-		if (!best_b || b->open.get_best_f() < best_f) {
-			best_f = b->open.get_best_f();
+		if (!best_b || b->open_fp.get_best_val() < best_val) {
+			best_val = b->open_fp.get_best_val();
 			best_b = b;
 		}
 	}
 
 //	pthread_mutex_unlock(&mutex);
-
-	// best_b => best_f != fp_infinity
-//	assert(best_f != fp_infinity || !best_b);
 
 	return best_b;
 }
@@ -241,11 +239,11 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
 /**
  * Get the value of the best nblock on the free list.
  */
-fp_type NBlockGraph::best_free_f(void){
+fp_type NBlockGraph::best_free_val(void){
 	if (free_list.empty())
 		return 0.0;
 	else
-		return free_list.best_f();
+		return free_list.best_val();
 }
 
 /**
@@ -334,7 +332,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 fp_type NBlockGraph::next_nblock_f_value(void)
 {
 	// this is atomic
-	return free_list.best_f();
+	return free_list.best_val();
 }
 
 /**
@@ -364,7 +362,7 @@ bool NBlockGraph::is_free(NBlock *b)
 	return !b->inuse
 		&& b->sigma == 0
 		&& b->sigma_hot == 0
-		&& !b->open.empty();
+		&& !b->open_fp.empty();
 }
 
 /**
@@ -373,7 +371,7 @@ bool NBlockGraph::is_free(NBlock *b)
 void NBlockGraph::set_hot(NBlock *b)
 {
 	set<unsigned int>::iterator i;
-	fp_type f = b->open.get_best_f();
+	fp_type f = b->open_fp.get_best_val();
 
 	if(pthread_mutex_trylock(&mutex) == EBUSY)
 		pthread_mutex_lock(&mutex);
@@ -382,7 +380,7 @@ void NBlockGraph::set_hot(NBlock *b)
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
 			NBlock *m = map.get(*i);
-			if (m->hot && m->open.get_best_f() < f)
+			if (m->hot && m->open_fp.get_best_val() < f)
 				goto out;
 		}
 

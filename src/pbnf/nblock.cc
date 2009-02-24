@@ -65,21 +65,6 @@ NBlock::~NBlock(void)
 	closed.delete_all_states();
 }
 
-bool NBlock::NBlockCompare::operator()(NBlock *a, NBlock *b)
-{
-	assert(!a->open.empty());
-	assert(!b->open.empty());
-
-	fp_type fa = a->open.peek()->get_f();
-	fp_type fb = b->open.peek()->get_f();
-
-	if (fa == fb)
-		return a->open.peek()->get_g() < b->open.peek()->get_g();
-
-	return fa > fb;
-}
-
-
 /**
  * Print an NBlock to the given stream.
  */

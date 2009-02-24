@@ -22,7 +22,7 @@ AStar::~AStar(void) {}
 vector<State *> *AStar::search(State *init)
 {
 	vector<State *> *path = NULL;
-	PQOpenList<State::CompareOnF> open;
+	PQOpenList<State::PQOpsF> open;
 	ClosedList closed;
 
 	open.add(init);
@@ -43,7 +43,7 @@ vector<State *> *AStar::search(State *init)
 				if (dup->get_g() > c->get_g()) {
 					dup->update(c->get_parent(), c->get_g());
 					if (dup->is_open())
-						open.resort(dup);
+						open.see_update(dup);
 					else
 						open.add(dup);
 				}

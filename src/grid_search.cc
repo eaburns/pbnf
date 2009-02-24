@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
 	path = search->search(g.initial_state());
 	timer.stop();
 
+	search->output_stats();
+
 	/* Print the graph to the terminal */
 //	g.print(cout, path);
 

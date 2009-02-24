@@ -34,6 +34,7 @@ public:
 	virtual ~PBNFSearch(void);
 
 	virtual vector<State *> *search(State *initial);
+	virtual void output_stats(void);
 
 	static void inc_m();
 	static void dec_m();
@@ -72,6 +73,12 @@ private:
 
 	NBlockGraph *graph;
 	static AtomicInt min_expansions;
+
+	/* stats tracking */
+	fp_type sum;
+	unsigned int num;
+	fp_type osum;
+	unsigned int onum;
 };
 
 #endif	/* !_PBNF_SEARCH_H_ */

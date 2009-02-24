@@ -25,7 +25,7 @@ public:
 	KBFS(unsigned int);
 	virtual vector<State *> *search(State *);
 private:
-	PQOpenList<State::CompareOnF> open;
+	PQOpenList<State::PQOpsF> open;
 	ClosedList closed;
         friend class KBFSThread;
         CompletionCounter cc;
