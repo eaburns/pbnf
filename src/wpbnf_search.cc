@@ -48,9 +48,11 @@ void WPBNFSearch::PBNFThread::run(void)
 	do {
 		n = graph->next_nblock(n, !set_hot);
 
-		if (n && search->dynamic_m){
+		if ((search->weight * graph->get_f_min()) > search->bound.read())
+			break;
+
+		if (n && search->dynamic_m)
 			next_best = graph->best_free_val();
-		}
 
 		set_hot = false;
 		if (n) {
@@ -64,6 +66,7 @@ void WPBNFSearch::PBNFThread::run(void)
 		}
 	} while (!search->done && n);
 
+	search->done = true;
 	graph->set_done();
 }
 
@@ -98,6 +101,14 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		open_f->remove(s);
 		ave_open_size.add_val(open_fp->size());
 
+		// If the best f value in this nblock is bad, prune everything.
+		if (search->weight * open_f->get_best_val() >= search->bound.read()) {
+			open_f->prune();
+			open_fp->prune();
+			break;
+		}
+
+		// If the individual f value is bad, prune the single node.
 		if (search->weight * s->get_f() >= search->bound.read())
 			continue;
 
