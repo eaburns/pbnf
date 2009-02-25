@@ -18,9 +18,11 @@ def usage():
     sys.exit(1)
 
 width, height, n = None, None, None
-dir, model, executable, search_exec, ulimit = "boards", "random", "/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown", "/home/rai/eaburns/src/cpp-search/src/tiles_search.x86_64.bin", "ulimit -v 15000000"
+dir, model, executable = "boards", "random", "/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
+search_exec = "/home/rai/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
+ulimit = "ulimit -v 15000000"
 
-search_exec = "../src/tiles_search.i386"
+#search_exec = "../src/tiles_search.i386"
 
 def switch_representation(tiles):
     other = [0]*len(tiles)
@@ -64,7 +66,7 @@ def make_board(in_data, test):
         #if not, delete the board and decrement num
         if not finished:
             print "failed to finish"
-            sys.exit(1)
+            #sys.exit(1)
             os.remove(path)
         else:
             cost = results[0].split()[1]
