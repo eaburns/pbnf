@@ -26,7 +26,8 @@ using namespace PBNF;
 #define MIN_M 1
 #define MAX_INT std::numeric_limits<int>::max()
 
-AtomicInt PBNFSearch::min_expansions(MIN_M);
+AtomicInt PBNFSearch::failed;
+AtomicInt PBNFSearch::succeeded;
 
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
 	: graph(graph), search(search), set_hot(false) {
@@ -46,7 +47,7 @@ void PBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		n = graph->next_nblock(n, !set_hot, false);
+		n = graph->next_nblock(n, !set_hot);
 
 		if (n && search->dynamic_m)
 			next_best = graph->best_val();
@@ -177,9 +178,9 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 			ret = free < cur || scope < cur;
 			if (!ret)
-				graph->wont_release(n, false);
+				graph->wont_release(n);
 			else if (scope < free) {
-				graph->set_hot(best_scope, false);
+				graph->set_hot(best_scope);
 				set_hot = true;
 			}
 		} else {
@@ -216,12 +217,14 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	pthread_mutex_init(&path_mutex, NULL);
 	if (min_e == 0){
 		dynamic_m = true;
-		PBNFSearch::min_expansions = AtomicInt(MIN_M);
+		min_expansions = AtomicInt(MIN_M);
 	}
 	else{
 		dynamic_m = false;
-		PBNFSearch::min_expansions = AtomicInt(min_e);
+		min_expansions = AtomicInt(min_e);
 	}
+	PBNFSearch::failed = AtomicInt(0);
+	PBNFSearch::succeeded = AtomicInt(0);
 }
 
 
@@ -282,20 +285,20 @@ void PBNFSearch::set_path(vector<State *> *p)
 	pthread_mutex_unlock(&path_mutex);
 }
 
-void PBNFSearch::inc_m()
+void PBNFSearch::inc_switch(bool failed)
 {
-        unsigned int old = PBNFSearch::min_expansions.read();
-	unsigned int o, n;
-	do { o = old; n = min((unsigned int)(o * 2), (unsigned int)((MAX_INT/2)-1)); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
-	} while (old != o);
-}
-
-void PBNFSearch::dec_m()
-{
-        unsigned int old = PBNFSearch::min_expansions.read();
-	unsigned int o, n;
-	do { o = old; n = max((unsigned int)(o*.8), (unsigned int)MIN_M); old = PBNFSearch::min_expansions.cmp_and_swap(o, n);
-	} while (old != o);
+	if (failed){
+		unsigned int old = PBNFSearch::failed.read();
+		unsigned int o, n;
+		do { o = old; n = (unsigned int)(o+1); old = PBNFSearch::failed.cmp_and_swap(o, n);
+		} while (old != o);
+	}
+	else{
+		unsigned int old = PBNFSearch::succeeded.read();
+		unsigned int o, n;
+		do { o = old; n = (unsigned int)(o+1); old = PBNFSearch::succeeded.cmp_and_swap(o, n);
+		} while (old != o);
+	}
 }
 
 void PBNFSearch::output_stats(void)
@@ -311,4 +314,7 @@ void PBNFSearch::output_stats(void)
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
+
+	cout << "failed locks: " << PBNFSearch::failed.read() << endl;
+	cout << "succeeded locks: " << PBNFSearch::succeeded.read() << endl;
 }

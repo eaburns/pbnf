@@ -36,8 +36,7 @@ public:
 	virtual vector<State *> *search(State *initial);
 	virtual void output_stats(void);
 
-	static void inc_m();
-	static void dec_m();
+	static void inc_switch(bool failed);
 
 private:
 	void set_path(vector<State *> *path);
@@ -72,7 +71,9 @@ private:
 	bool dynamic_m;
 
 	NBlockGraph *graph;
-	static AtomicInt min_expansions;
+	AtomicInt min_expansions;
+	static AtomicInt failed;
+	static AtomicInt succeeded;
 
 	/* stats tracking */
 	fp_type sum;

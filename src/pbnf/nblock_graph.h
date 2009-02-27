@@ -34,15 +34,15 @@ namespace PBNF {
 
 		~NBlockGraph();
 
-		NBlock *next_nblock(NBlock *finished, bool trylock, bool dynamic_m);
+		NBlock *next_nblock(NBlock *finished, bool trylock);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 		void set_done(void);
 		NBlock *best_in_scope(NBlock *b);
-		void wont_release(NBlock *b, bool dynamic_m);
-		void set_hot(NBlock *b, bool dynamic_m);
+		void wont_release(NBlock *b);
+		void set_hot(NBlock *b);
 
 		unsigned int get_ncreated_nblocks(void);
 

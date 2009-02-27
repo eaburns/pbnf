@@ -63,15 +63,18 @@ def make_board(in_data, test):
         results = subprocess.Popen(ulimit+"; "+search_exec+" astar <"+path, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
         finished = len(results) > 0 and "cost" in results[0]
         #finished = True
-        #if not, delete the board and decrement num
+        #if not, delete the board and return false
         if not finished:
             print "failed to finish"
             #sys.exit(1)
+            return False
             os.remove(path)
         else:
             cost = results[0].split()[1]
             gen = results[-1].split()[1]
             print "finished with cost", cost, "generated", gen
+    
+    return True
 
 if __name__ == '__main__':
     if "--help" in sys.argv:
@@ -100,4 +103,5 @@ if __name__ == '__main__':
             made += 1
             if made > max:
                 sys.exit(0)
-            make_board(line, test)
+            if not make_board(line, test):
+                made -= 1
