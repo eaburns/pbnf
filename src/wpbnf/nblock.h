@@ -69,8 +69,8 @@ namespace WPBNF {
 				fp_type fpa = a->open_fp.get_best_val();
 				fp_type fpb = b->open_fp.get_best_val();
 				if (fpa == fpb) {
-					fp_type fa = a->open_fp.get_best_val();
-					fp_type fb = b->open_fp.get_best_val();
+					fp_type fa = a->open_f.get_best_val();
+					fp_type fb = b->open_f.get_best_val();
 					if (fa == fb && !a->open_fp.empty() && !b->open_fp.empty())
 						return a->open_fp.peek()->get_g() < b->open_fp.peek()->get_g();
 					else

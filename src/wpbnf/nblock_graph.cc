@@ -329,7 +329,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 /**
  * Get the f-value of the next best NBlock.
  */
-fp_type NBlockGraph::next_nblock_f_value(void)
+fp_type NBlockGraph::next_nblock_value(void)
 {
 	// this is atomic
 	return free_list.best_val();

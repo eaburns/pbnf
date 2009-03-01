@@ -38,7 +38,7 @@ namespace WPBNF {
 		NBlock *next_nblock(NBlock *finished, bool trylock);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
-		fp_type next_nblock_f_value(void);
+		fp_type next_nblock_value(void);
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 		void set_done(void);
