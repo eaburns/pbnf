@@ -44,6 +44,8 @@ Search *get_search(int argc, char *argv[])
 
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
+	} else if (argc > 1 && sscanf(argv[1], "wastar-%f", &weight) == 1) {
+		return new AStar();
 	} else if (argc > 1 && strcmp(argv[1], "idastar") == 0) {
 		return new IDAStar();
 	} else if (argc > 1 && strcmp(argv[1], "bfs") == 0) {
@@ -86,6 +88,7 @@ Search *get_search(int argc, char *argv[])
 	} else {
 		cout << "Must supply a search algorithm:" << endl;
 		cout << "\tastar" << endl
+		     << "\twastar-<weight>" << endl
 		     << "\tidastar" << endl
 		     << "\tbfs" << endl
 		     << "\tcostbounddfs-<cost>" << endl
