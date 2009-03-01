@@ -22,7 +22,7 @@ AStar::~AStar(void) {}
 vector<State *> *AStar::search(State *init)
 {
 	vector<State *> *path = NULL;
-	PQOpenList<State::PQOpsF> open;
+	PQOpenList<State::PQOpsFPrime> open;
 	ClosedList closed;
 
 	open.add(init);
