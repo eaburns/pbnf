@@ -301,6 +301,10 @@ void PBNFSearch::inc_switch(bool failed)
 	}
 }
 
+/**
+ * Output extra "key: value" pairs.
+ * keys should not have spaces in their names!
+ */
 void PBNFSearch::output_stats(void)
 {
 	if (num == 0)
@@ -315,6 +319,6 @@ void PBNFSearch::output_stats(void)
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
-	cout << "failed locks: " << PBNFSearch::failed.read() << endl;
-	cout << "succeeded locks: " << PBNFSearch::succeeded.read() << endl;
+	cout << "failed-locks: " << PBNFSearch::failed.read() << endl;
+	cout << "succeeded-locks: " << PBNFSearch::succeeded.read() << endl;
 }
