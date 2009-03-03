@@ -11,6 +11,9 @@
 #if !defined(_NBLOCK_MAP_H_)
 #define _NBLOCK_MAP_H_
 
+// If this is defined then lazy nblock creation will not happen.
+//#define UNLAZY
+
 #include <pthread.h>
 
 #include "../projection.h"
@@ -60,9 +63,21 @@ NBlockMap<NB>::NBlockMap(const Projection *p)
 	project = p;
 	num_nblocks = p->get_num_nblocks();
 	blocks = new NB*[num_nblocks];
-	for (unsigned int i = 0; i < num_nblocks; i += 1)
+
+	for (unsigned int i = 0; i < num_nblocks; i += 1) {
+#if defined(UNLAZY)
+		blocks[i] = new NB(project, i);
+#else
 		blocks[i] = NULL;
+#endif
+	}
+
+#if defined(UNLAZY)
+	num_created = num_nblocks;
+#else
 	num_created = 0;
+#endif
+
 	pthread_mutex_init(&mutex, NULL);
 }
 
@@ -85,6 +100,9 @@ NBlockMap<NB>::~NBlockMap(void)
 template<class NB>
 NB *NBlockMap<NB>::get(unsigned int id)
 {
+#if defined(UNLAZY)
+	return blocks[id];
+#else
 	if (!blocks[id]) {
 		pthread_mutex_lock(&mutex);
 		if (!blocks[id]) {
@@ -97,6 +115,7 @@ NB *NBlockMap<NB>::get(unsigned int id)
 	}
 
 	return blocks[id];
+#endif
 }
 
 /**
