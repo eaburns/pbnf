@@ -40,10 +40,19 @@ int main(int argc, char *argv[])
 	int denom = g.get_height() / ((int) ratio * threads);
 	unsigned int nblocks = g.get_height() / denom;
 */
-	Tiles::OneTileProject project(&g);
-//	Tiles::TwoTileProject project(&g);
+	Projection *project;
+	if (nblocks == 1 || nblocks == 240) {
+		project = new Tiles::OneTileProject(&g);
+	} else if (nblocks == 2 || nblocks == 3360) {
+		project = new Tiles::TwoTileProject(&g);
+	} else {
+		cerr << "Invalid abstraction size: " << nblocks << endl;
+		cerr << "15-puzzle: 240=1tile, 3360=2tile" << endl;
+		exit(EXIT_FAILURE);
+	}
+
 //	DivMergeProject project(4, &__project);
-	g.set_projection(&project);
+	g.set_projection(project);
 
 //	HZero hzero(&g);
 //	g.set_heuristic(&hzero);
