@@ -20,11 +20,12 @@ def usage():
 width, height, n = None, None, None
 dir, model, executable = "boards", "random", "/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
 search_exec = "/home/rai/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
-ulimit = "ulimit -v 15000000"
+#search_exec = "../src/tiles_search.x86_64"
+ulimit = "ulimit -v 1000000"
 
 #search_exec = "../src/tiles_search.i386"
 
-def switch_representation(tiles):
+def switch_rep(tiles):
     other = [0]*len(tiles)
     tiles = [int(tile) for tile in tiles]
     for tile in tiles:
@@ -35,7 +36,7 @@ def make_board(in_data, test):
     global width, height, n
     in_data = in_data.split()
     num = in_data[0]
-    tiles = in_data[1:]
+    tiles = switch_rep(in_data[1:])
     if n == None:
         n = len(tiles)
         height = math.sqrt(n)
@@ -61,18 +62,30 @@ def make_board(in_data, test):
     if test:
         #run A* to see if the board is solvable
         results = subprocess.Popen(ulimit+"; "+search_exec+" astar <"+path, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
-        finished = len(results) > 0 and "cost" in results[0]
-        #finished = True
+        is_output = len(results) > 0
+        if is_output:
+            finished = "cost" in results[0]
+            solved = not "No Solution" in results[0]
+        else:
+            finished = False
         #if not, delete the board and return false
         if not finished:
-            print "failed to finish"
+            if is_output and not solved:
+                print results
+                #print ", ".join(in_data)
+                print "no solution!"
+                #sys.exit(0)
+                #os.remove(path)
+            else:
+                print "failed to finish"
+            os.remove(path)
             #sys.exit(1)
             return False
-            os.remove(path)
         else:
             cost = results[0].split()[1]
             gen = results[-1].split()[1]
             print "finished with cost", cost, "generated", gen
+            #os.remove(path)
     
     return True
 
@@ -81,14 +94,14 @@ if __name__ == '__main__':
         usage()
     else:
         if "-t" in sys.argv:
-            test =True
+            test = True
             sys.argv.remove("-t")
         else:
             test = False
         if len(sys.argv) > 1:
             max = int(sys.argv[1])
         else:
-            max = sys.maxint/2
+            max = sys.maxint-2
         if len(sys.argv) > 2:
             skip = int(sys.argv[2])
         else:
