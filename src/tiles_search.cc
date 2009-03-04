@@ -41,7 +41,9 @@ int main(int argc, char *argv[])
 	unsigned int nblocks = g.get_height() / denom;
 */
 	Projection *project;
-	if (nblocks == 1 || nblocks == 240) {
+	if (nblocks == 0) {
+		project = NULL;
+	} else if (nblocks == 1 || nblocks == 240) {
 		project = new Tiles::OneTileProject(&g);
 	} else if (nblocks == 2 || nblocks == 3360) {
 		project = new Tiles::TwoTileProject(&g);
