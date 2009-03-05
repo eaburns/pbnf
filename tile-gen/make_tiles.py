@@ -35,7 +35,6 @@ def switch_rep(tiles):
 def make_board(in_data, test):
     global width, height, n
     m = hashlib.md5()
-    print in_data[in_data.index(" ")+1:-1]
     m.update(in_data[in_data.index(" ")+1:-1])
     in_data = in_data.split()
     num = in_data[0]
