@@ -6,7 +6,7 @@
 #
 # sna4 December 2008
 
-import sys, fileinput, math, os, subprocess
+import sys, fileinput, math, os, subprocess, hashlib
 
 def usage():
     print "usage: make_tiles.py [-t] [MAX] [skip]"
@@ -21,7 +21,7 @@ width, height, n = None, None, None
 dir, model, executable = "boards", "random", "/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
 search_exec = "/home/rai/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
 #search_exec = "../src/tiles_search.x86_64"
-ulimit = "ulimit -v 1000000"
+ulimit = "ulimit -v 15000000"
 
 #search_exec = "../src/tiles_search.i386"
 
@@ -34,6 +34,8 @@ def switch_rep(tiles):
 
 def make_board(in_data, test):
     global width, height, n
+    m = hashlib.md5()
+    m.update(in_data[in_data.index(" ")+1:-1])
     in_data = in_data.split()
     num = in_data[0]
     tiles = switch_rep(in_data[1:])
@@ -48,7 +50,7 @@ def make_board(in_data, test):
             width = height
         width, height = str(width), str(height)
     tiles = "\n".join(tiles)
-    path = num+".tile"
+    path = m.hexdigest()+".tile"
     #path = width+"x"+height+".tile"
     #path=os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline().split()[1]
     outfile = open(path, "w")
