@@ -97,12 +97,20 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 //	ClosedList *closed = &n->closed;
 
 	while (!search->done && !open_fp->empty() && !should_switch(n)) {
+		// If the best f value in this nblock is bad, prune everything.
+		if (search->weight * open_f->get_best_val() >= search->bound.read()) {
+			open_f->prune();
+			open_fp->prune();
+			break;
+		}
+
 		State *s = open_fp->take();
 		open_f->remove(s);
 		ave_open_size.add_val(open_fp->size());
 
-		// If the best f value in this nblock is bad, prune everything.
-		if (search->weight * open_f->get_best_val() >= search->bound.read()) {
+		// If the best f' value in this nblock is out of
+		// bounds, prune everything.
+		if (s->get_f_prime() >= search->bound.read()) {
 			open_f->prune();
 			open_fp->prune();
 			break;
