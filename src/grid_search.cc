@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	manhattan.set_weight(weight);
 	g.set_heuristic(&manhattan);
 
-	timeout(300);
+	timeout(90);		// Jordan said he uses 90 seconds
 	timer.start();
 	path = search->search(g.initial_state());
 	timer.stop();
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 			delete path->at(i);
 		delete path;
 	} else {
-		cout << "No Solution" << endl;
+		cout << "# No Solution" << endl;
 	}
 	cout << "wall_time: " << timer.get_wall_time() << endl;
 	cout << "CPU_time: " << timer.get_processor_time() << endl;

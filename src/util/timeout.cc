@@ -18,7 +18,7 @@ using namespace std;
 
 extern "C" void alarm_action(int sig)
 {
-	cout << "No Solution" << endl
+	cout << "# Time out" << endl
 	     << "cost: infinity" << endl
 	     << "length: infinity" << endl
 	     << "wall_time: infinity" << endl
