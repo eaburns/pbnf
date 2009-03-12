@@ -29,6 +29,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+	unsigned int timelimit = 90;	// seconds
 	vector<State *> *path;
 	Search *search = get_search(argc, argv);
 	GridWorld g(cin);
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
 	manhattan.set_weight(weight);
 	g.set_heuristic(&manhattan);
 
-	timeout(90);		// Jordan said he uses 90 seconds
+	timeout(timelimit);
 	timer.start();
 	path = search->search(g.initial_state());
 	timer.stop();
@@ -78,6 +79,7 @@ int main(int argc, char *argv[])
 	} else {
 		cout << "# No Solution" << endl;
 	}
+	cout << "time-limit: " << timelimit << endl;
 	cout << "wall_time: " << timer.get_wall_time() << endl;
 	cout << "CPU_time: " << timer.get_processor_time() << endl;
 	cout << "generated: " << search->get_generated() << endl;
