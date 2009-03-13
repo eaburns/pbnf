@@ -37,6 +37,7 @@ SRC= \
 	psdd_search.cc \
 	wbfpsdd/nblock.cc \
 	wbfpsdd/nblock_graph.cc \
+	wbfpsdd_search.cc \
 	bfpsdd_search.cc \
 	idpsdd_search.cc \
 	dynamic_bounded_psdd.cc \
@@ -91,7 +92,9 @@ DEBUG+=-O3 -DNDEBUG
 #DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
-LDFLAGS+=-lpthread $(PROFILE) -ltcmalloc
+LDFLAGS+=-lpthread $(PROFILE)
+#LDFLAGS+=-lpthread $(PROFILE) -ltcmalloc
+#LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
 endif
 ############################################################
 
