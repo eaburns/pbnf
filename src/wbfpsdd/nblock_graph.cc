@@ -30,6 +30,7 @@ NBlockGraph::NBlockGraph(const Projection *p,
 	this->multiplier = mult;
 	assert(init_nblock < num_nblocks);
 
+	f_min.set(0);
 	map.set_observer(this);
 
 	NBlock *n = map.get(init_nblock);

@@ -53,6 +53,7 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
+	f_min.set(0);
 	map.set_observer(this);
 
 	NBlock *n = map.get(init_nblock);

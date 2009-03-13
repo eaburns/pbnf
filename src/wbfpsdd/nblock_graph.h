@@ -70,14 +70,19 @@ namespace WBFPSDD {
 		/* list of free nblock numbers */
 		list<NBlock *> free_list;
 
-		/* prio-queue of NBlocks to track the global f_min value. */
+		/* prio-queue of NBlocks to track the global f_min
+		 * value.  Nblocks are added to this priority queue
+		 * upon creation and stay here until the search
+		 * finishes. */
 		PriorityQueue<NBlock*, NBlock::PQOpsF> nblock_pq_f;
 		AtomicInt f_min;
 
-		/* prio-queue of NBlocks used to populate the next layer. */
+		/* prio-queue of NBlocks used to populate the next
+		 * layer.  Nblocks are added and removed from this pq
+		 * as they are acquired by processors. */
 		PriorityQueue<NBlock*, NBlock::PQOpsFPrime> nblock_pq_fp;
 
-		/* The value of this layer */
+		/* The value of this layer. */
 		fp_type layer_value;
 
 
