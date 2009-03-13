@@ -20,7 +20,65 @@ using namespace std;
 
 namespace WBFPSDD {
 
-	template <class StateCompare> struct NBlock {
+	struct NBlock {
+
+		struct PQOpsF {
+                        /* Order nblocks on increasing f-values. */
+			int inline operator()(NBlock *a, NBlock *b) {
+				fp_type fa, fb;
+				fa = a->open_f.get_best_val();
+				fb = b->open_f.get_best_val();
+				/* if fa > fb, we want it to be
+				 * ordered after fb in the PQ (which
+				 * is a max PQ) so we say that fa is
+				 * less than fb. */
+				if (fa > fb) return -1;
+ 				else if (fb > fa) return 1;
+				else return 0;
+			}
+			/* Set the prio queue index. */
+			void inline operator()(NBlock *a, int i) {
+				a->f_pq_index = i;
+			}
+			/* Set the prio queue index. */
+			int inline operator()(NBlock *a) {
+				return a->f_pq_index;
+			}
+			/* Set the prio queue index. */
+			fp_type inline get_value(NBlock *a) {
+				return a->open_f.get_best_val();
+			}
+		};
+
+		struct PQOpsFPrime {
+                        /* Order nblocks on increasing f-values. */
+			int inline operator()(NBlock *a, NBlock *b) {
+				fp_type fa, fb;
+				fa = a->open_fp.get_best_val();
+				fb = b->open_fp.get_best_val();
+				if (fa > fb) return -1;
+ 				else if (fb > fa) return 1;
+				else return f_cmp(a, b);
+			}
+			/* Set the prio queue index. */
+			void inline operator()(NBlock *a, int i) {
+				a->fp_pq_index = i;
+			}
+			/* Set the prio queue index. */
+			int inline operator()(NBlock *a) {
+				return a->fp_pq_index;
+			}
+			/* Set the prio queue index. */
+			fp_type inline get_value(NBlock *a) {
+				return a->open_fp.get_best_val();
+			}
+
+		private:
+			PQOpsF f_cmp;
+
+		};
+
+
 		NBlock(const Projection *project, unsigned int id);
 
 		~NBlock(void);
@@ -30,7 +88,10 @@ namespace WBFPSDD {
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		PQOpenList<StateCompare> open;
+		PQOpenList<State::PQOpsF> open_f;
+		PQOpenList<State::PQOpsFPrime> open_fp;
+		int f_pq_index;	/* this nblock's index into a PQ */
+		int fp_pq_index; /* this nblock's index into a PQ */
 
 		bool inuse;
 
@@ -39,80 +100,6 @@ namespace WBFPSDD {
 		set<unsigned int> succs;
 	};
 
-/**
- * Create a new NBlock structure.
- */
-	template <class StateCompare>
-		NBlock<StateCompare>::NBlock(const Projection *project, unsigned int ident)
-		: id(ident),
-		sigma(0),
-		closed(1000),
-		inuse(false)
-		{
-			assert(id < project->get_num_nblocks());
-
-			vector<unsigned int>::iterator i, j;
-			vector<unsigned int> preds_vec = project->get_predecessors(id);
-			vector<unsigned int> succs_vec = project->get_successors(id);
-			// predecessors, successors and the predecessors of the successors.
-			vector<unsigned int> interferes_vec = preds_vec;
-			for (i = succs_vec.begin(); i != succs_vec.end(); i++) {
-				interferes_vec.push_back(*i);
-				vector<unsigned int> spreds = project->get_predecessors(*i);
-				for (j = spreds.begin(); j != spreds.end(); j++) {
-					interferes_vec.push_back(*j);
-				}
-			}
-			for (i = preds_vec.begin(); i != preds_vec.end(); i++)
-				if (*i != id)
-					preds.insert(*i);
-			for (i = succs_vec.begin(); i != succs_vec.end(); i++)
-				if (*i != id)
-					succs.insert(*i);
-			for (i = interferes_vec.begin(); i != interferes_vec.end(); i++)
-				if (*i != id)
-					interferes.insert(*i);
-		}
-
-
-
-/**
- * Destroy an NBlock and all of its states.
- */
-	template <class StateCompare>
-		NBlock<StateCompare>::~NBlock(void)
-	{
-		closed.delete_all_states();
-	}
-
-
-/**
- * Print an NBlock to the given stream.
- */
-	template <class StateCompare>
-		void NBlock<StateCompare>::print(ostream &o) const
-	{
-		typename set<unsigned int>::const_iterator iter;
-
-		o << "nblock " << id << endl;
-		o << "\tsigma: " << sigma << endl;
-
-		o << "\tinterferes with: ";
-		for (iter = interferes.begin(); iter != interferes.end(); iter++)
-			o << *iter << " ";
-		o << endl;
-
-		o << "\tpreds: ";
-		for (iter = preds.begin(); iter != preds.end(); iter++)
-			o << *iter << " ";
-		o << endl;
-
-		o << "\tsuccs: ";
-		for (iter = succs.begin(); iter != succs.end(); iter++)
-			o << *iter << " ";
-		o << endl;
-
-	}
 
 } /* WBFPSDD */
 

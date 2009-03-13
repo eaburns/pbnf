@@ -126,7 +126,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
 			NBlock *n = map.find(*iter);
 			if (n)
-					nblock_pq.see_update(n->pq_index);
+				nblock_pq.see_update(n->pq_index);
 		}
 		nblock_pq.see_update(finished->pq_index);
 		f_min.set(nblock_pq.front()->open_f.get_best_val());

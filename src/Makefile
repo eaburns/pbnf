@@ -35,6 +35,8 @@ SRC= \
 	psdd/nblock.cc \
 	psdd/nblock_graph.cc \
 	psdd_search.cc \
+	wbfpsdd/nblock.cc \
+	wbfpsdd/nblock_graph.cc \
 	bfpsdd_search.cc \
 	idpsdd_search.cc \
 	dynamic_bounded_psdd.cc \
@@ -89,7 +91,7 @@ DEBUG+=-O3 -DNDEBUG
 #DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
-LDFLAGS+=-lpthread $(PROFILE)
+LDFLAGS+=-lpthread $(PROFILE) -ltcmalloc
 endif
 ############################################################
 
