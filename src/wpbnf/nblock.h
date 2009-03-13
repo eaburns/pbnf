@@ -34,12 +34,9 @@ namespace WPBNF {
 				fa = a->open_f.get_best_val();
 				fb = b->open_f.get_best_val();
 
-				if (fa > fb)
-					return 1;
-				else if (fb > fa)
-					return -1;
-				else
-					return 0;
+				if (fa > fb) return -1;
+ 				else if (fb > fa) return 1;
+				else return 0;
 			}
 			/* Set the prio queue index. */
 			void inline operator()(NBlock *a, int i) {
