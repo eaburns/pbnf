@@ -22,6 +22,9 @@
  *
  *   int operator()(Elem *a, Elem *b);
  *       -- returns 0 when a == b, >0 when a > b and <0 when a < b.
+ *      TODO: change this to be a "predecessor" operator... *much*
+ *      easier to think about than having it be a greater than
+ *      operator.
  *
  *   int get_value(Elem *e);
  *       -- get the value of the element (for debugging only).
