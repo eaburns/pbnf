@@ -41,7 +41,6 @@ namespace BFPSDD {
 
 		NBlock<StateCompare> *next_nblock(NBlock<StateCompare> *finished);
 		NBlock<StateCompare> *get_nblock(unsigned int hash);
-		void set_path_found(void);
 
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
@@ -225,21 +224,6 @@ namespace BFPSDD {
 	{
 		return map.get(hash);
 	}
-
-
-/**
- * Signal anyone else that is waiting that a path has been found and
- * there is no need to get a new NBlock.
- */
-	template<class NBlockPQ, class StateCompare>
-		void NBlockGraph<NBlockPQ, StateCompare>::set_path_found(void)
-	{
-		pthread_mutex_lock(&mutex);
-		path_found = true;
-		pthread_cond_broadcast(&cond);
-		pthread_mutex_unlock(&mutex);
-	}
-
 
 /**
  * Get the statistics on the maximum number of NBlocks assigned at one time.

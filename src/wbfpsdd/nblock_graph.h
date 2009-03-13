@@ -41,13 +41,14 @@ namespace WBFPSDD {
 
 		NBlock *next_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
-		void set_path_found(void);
 
+		void set_done(void);
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 		unsigned int get_ncreated_nblocks(void);
 
 		fp_type get_layer_value(void) const;
+		fp_type get_f_min(void);
 
 		void observe(NBlock *b);
 
@@ -85,7 +86,7 @@ namespace WBFPSDD {
 
 		/* This flag is set when a thread finds a path so that other
 		 * threads do not continue to wait for a new NBlock. */
-		bool path_found;
+		bool done;
 
 
 		/*

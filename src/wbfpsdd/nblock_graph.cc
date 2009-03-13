@@ -41,7 +41,7 @@ NBlockGraph::NBlockGraph(const Projection *p,
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
-	path_found = false;
+	done = false;
 
 	nblocks_assigned = 0;
 	nblocks_assigned_max = 0;
@@ -116,17 +116,17 @@ NBlockGraph::next_nblock(NBlock *finished)
 			}
 
 			if (free_list.empty())
-				path_found = true;
+				done = true;
 
 			// Wake up everyone...
 			pthread_cond_broadcast(&cond);
 		}
 	}
 
-	while (free_list.empty() && !path_found)
+	while (free_list.empty() && !done)
 		pthread_cond_wait(&cond, &mutex);
 
-	if (path_found)
+	if (done)
 		goto out;
 
 	n = free_list.front();
@@ -151,19 +151,6 @@ out:
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
 	return map.get(hash);
-}
-
-
-/**
- * Signal anyone else that is waiting that a path has been found and
- * there is no need to get a new NBlock.
- */
-void NBlockGraph::set_path_found(void)
-{
-	pthread_mutex_lock(&mutex);
-	path_found = true;
-	pthread_cond_broadcast(&cond);
-	pthread_mutex_unlock(&mutex);
 }
 
 
@@ -273,6 +260,16 @@ NBlockGraph::update_scope_sigmas(unsigned int y,
 	}
 }
 
+
+/**
+ * Get the global f_min value.
+ */
+fp_type NBlockGraph::get_f_min(void)
+{
+	return f_min.read();
+}
+
+
 // Get the value of the current layer.
 fp_type NBlockGraph::get_layer_value(void) const
 {
@@ -291,4 +288,10 @@ unsigned int NBlockGraph::get_ncreated_nblocks(void)
 void NBlockGraph::observe(NBlock *b)
 {
 	nblock_pq_f.add(b);
+}
+
+void NBlockGraph::set_done(void)
+{
+	done = true;
+	pthread_cond_broadcast(&cond);
 }

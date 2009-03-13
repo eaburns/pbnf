@@ -78,7 +78,7 @@ fp_type WPBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
 	return ave_exp_per_nblock.read();
 }
 
-/**
+/**p
  * Get the average size of open lists.
  */
 fp_type WPBNFSearch::PBNFThread::get_ave_open_size(void)
@@ -228,8 +228,8 @@ WPBNFSearch::WPBNFSearch(unsigned int n_threads,
 	  project(NULL),
 	  path(NULL),
 	  bound(fp_infinity),
+	  done(false),
 	  graph(NULL)
-
 {
 	pthread_mutex_init(&path_mutex, NULL);
 	if (min_e == 0){
