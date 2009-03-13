@@ -78,7 +78,6 @@ namespace WBFPSDD {
 
 		};
 
-
 		NBlock(const Projection *project, unsigned int id);
 
 		~NBlock(void);
