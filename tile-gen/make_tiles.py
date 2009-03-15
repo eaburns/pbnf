@@ -6,7 +6,7 @@
 #
 # sna4 December 2008
 
-import sys, fileinput, math, os, subprocess, hashlib
+import sys, shutil, fileinput, math, os, subprocess, hashlib
 
 def usage():
     print "usage: make_tiles.py [-t] [MAX] [skip]"
@@ -50,8 +50,7 @@ def make_board(in_data, test):
             width = height
         width, height = str(width), str(height)
     tiles = "\n".join(tiles)
-    path = m.hexdigest()+".tile"
-    #path = width+"x"+height+".tile"
+    path = num+"_"+width+"x"+height+".tile"
     #path=os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline().split()[1]
     outfile = open(path, "w")
     outfile.write(width+" "+height+"\n")
@@ -60,11 +59,15 @@ def make_board(in_data, test):
     outfile.write("goal positions:\n")
     outfile.write("\n".join([str(x) for x in range(n)]))
     outfile.close()
+    
+    new_path = m.hexdigest()+".tile"
 
     if test:
         #run A* to see if the board is solvable
         results = subprocess.Popen(ulimit+"; "+search_exec+" astar <"+path, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
         is_output = len(results) > 0
+        shutil.move(path, new_path)
+        path = new_path
         if is_output:
             finished = "cost" in results[0]
             solved = not "No Solution" in results[0]
