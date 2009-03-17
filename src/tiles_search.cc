@@ -29,7 +29,8 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	unsigned int timelimit = 90;	// seconds
+	// 90 seconds is too small to solve the 96 instance optimally in a consistent manner.
+	unsigned int timelimit = 18000;	// seconds
 	vector<State *> *path;
 	Search *search = get_search(argc, argv);
 	Tiles g(cin);
@@ -101,6 +102,9 @@ int main(int argc, char *argv[])
 	cout << "CPU_time: " << timer.get_processor_time() << endl;
 	cout << "generated: " << search->get_generated() << endl;
 	cout << "expanded: " << search->get_expanded() << endl;
+
+	if (project)
+		delete project;
 
 	delete search;
 

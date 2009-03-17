@@ -185,6 +185,8 @@ void ClosedList::delete_all_states(void)
 	for (unsigned int i = 0; i < size; i += 1) {
 		for (b = table[i]; b; b = b->next)
 			delete b->data;
+		if (table[i])
+			delete table[i];
 		table[i] = NULL;
 	}
 }
