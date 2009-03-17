@@ -36,6 +36,7 @@
 template<class Elem, class PQOps> class PriorityQueue {
 public:
 	PriorityQueue(void);
+	~PriorityQueue(void);
 	void add(Elem e);
 	Elem take(void);
 	void remove(int i);
@@ -81,6 +82,16 @@ template<class Elem, class PQOps>
 {
 	heap = NULL;
 	reset();
+}
+
+/**
+ * Destroy a PQ.
+ */
+template<class Elem, class PQOps>
+	PriorityQueue<Elem, PQOps>::~PriorityQueue(void)
+{
+	if (heap)
+		delete[] heap;
 }
 
 /**
@@ -285,6 +296,7 @@ template<class Elem, class PQOps>
 	void PriorityQueue<Elem, PQOps>::remove(int i)
 {
 	assert(i < fill);
+	set_index(heap[i], -1);
 	heap[i] = heap[fill - 1];
 	heap[fill - 1] = NULL;
 	fill = fill - 1;
