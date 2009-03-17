@@ -21,10 +21,7 @@
  * The PQOps class must have the following methods:
  *
  *   int operator()(Elem *a, Elem *b);
- *       -- returns 0 when a == b, >0 when a > b and <0 when a < b.
- *      TODO: change this to be a "predecessor" operator... *much*
- *      easier to think about than having it be a greater than
- *      operator.
+ *       -- returns true if a is a predecessor of b.
  *
  *   int get_value(Elem *e);
  *       -- get the value of the element (for debugging only).
@@ -72,7 +69,7 @@ private:
 	int fill;
 	int size;
 	Elem* heap;
-	PQOps cmp;
+	PQOps pred;
 	PQOps set_index;
 };
 
@@ -136,7 +133,7 @@ template<class Elem, class PQOps>
 	int left = left_of(i);
 	assert(!is_leaf(i));
 	if (left < fill && right < fill) {
-		if (cmp(heap[right], heap[left]) > 0)
+		if (pred(heap[right], heap[left]))
 			return right;
 		else
 			return left;
@@ -163,7 +160,7 @@ template<class Elem, class PQOps>
 	int p_ind = parent_of(i);
 	Elem parent = heap[p_ind];
 	Elem e = heap[i];
-	while (i > 0 && cmp(e, parent) > 0) {
+	while (i > 0 && pred(e, parent)) {
 		heap[i] = parent;
 		set_index(parent, i);
 		assert(i < fill);
@@ -192,12 +189,12 @@ template<class Elem, class PQOps>
 		int right_i = right_of(i);
 		if (right_i < fill) {
 			Elem right = heap[right_i];
-			if (cmp(child, right) < 0) {
+			if (pred(right, child)) {
 				child = right;
 				child_i = right_i;
 			}
 		}
-		if (cmp(e, child) > 0) {
+		if (pred(e, child)) {
 			return i;
 		} else {
 			heap[i] = child;
@@ -366,22 +363,20 @@ template<class Elem, class PQOps>
 	for (int i = ind_start; i <= ind_end; i += 1) {
 		int right = right_of(i);
 		int left = left_of(i);
-		if (right < fill && (c = cmp(heap[i], heap[right])) < 0) {
+		if (right < fill && pred(heap[right], heap[i])) {
 			std::cerr << "fill: " << fill
-				  << " c: " << c
 				  << " right: " << right
-				  << " val: " << cmp.get_value(heap[right])
+				  << " val: " << pred.get_value(heap[right])
 				  << " i: " << i
-				  << " val: " << cmp.get_value(heap[i]) << std::endl;;
+				  << " val: " << pred.get_value(heap[i]) << std::endl;;
 			return false;
 		}
-		if (left < fill && (c = cmp(heap[i], heap[left])) < 0) {
+		if (left < fill && pred(heap[left], heap[i])) {
 			std::cerr << "fill: " << fill
-				  << " c: " << c
 				  <<  " left: " << left
-				  << " val: " << cmp.get_value(heap[left])
+				  << " val: " << pred.get_value(heap[left])
 				  << " i: " << i
-				  << " val: " << cmp.get_value(heap[i]) << std::endl;;
+				  << " val: " << pred.get_value(heap[i]) << std::endl;;
 			return false;
 		}
 	}

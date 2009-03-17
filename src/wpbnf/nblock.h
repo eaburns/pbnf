@@ -28,15 +28,9 @@ namespace WPBNF {
 		 * Operations for the nblock PQ used for trakcing f_min.
 		 */
 		struct NBlockPQFuncs {
-			/* Order nblocks on increasing f-values. */
+			/* Predecessor operator. */
 			int inline operator()(NBlock *a, NBlock *b) {
-				fp_type fa, fb;
-				fa = a->open_f.get_best_val();
-				fb = b->open_f.get_best_val();
-
-				if (fa > fb) return -1;
- 				else if (fb > fa) return 1;
-				else return 0;
+				return a->open_f.get_best_val() < b->open_f.get_best_val();
 			}
 			/* Set the prio queue index. */
 			void inline operator()(NBlock *a, int i) {

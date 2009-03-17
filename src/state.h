@@ -25,20 +25,18 @@ public:
 
 	class PQOpsF {
 	public:
-
+		/* The predecessor operator. */
 		int inline operator()(State *a, State *b) const {
 			fp_type fa = a->get_f();
 			fp_type fb = b->get_f();
 
-			if (fa > fb) return -1;
-			else if (fb > fa) return 1;
+			if (fa < fb) return true;
+			else if (fa > fb) return false;
 			else {
 				fp_type ga = a->get_g();
 				fp_type gb = b->get_g();
 
-				if (ga > gb) return 1;
-				else if (gb > ga) return -1;
-				else return 0;
+				return ga > gb;
 			}
 		}
 		fp_type inline get_value(State *s) const {
@@ -60,8 +58,8 @@ public:
 		int inline operator()(State *a, State *b) const {
 			fp_type fa = a->get_f_prime();
 			fp_type fb = b->get_f_prime();
-			if (fa > fb) return -1;
-			else if (fb > fa) return 1;
+			if (fa < fb) return true;
+			else if (fa > fb) return false;
 			else return f_cmp(a, b);
 		}
 

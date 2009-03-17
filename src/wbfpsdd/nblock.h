@@ -25,16 +25,7 @@ namespace WBFPSDD {
 		struct PQOpsF {
                         /* Order nblocks on increasing f-values. */
 			int inline operator()(NBlock *a, NBlock *b) {
-				fp_type fa, fb;
-				fa = a->open_f.get_best_val();
-				fb = b->open_f.get_best_val();
-				/* if fa > fb, we want it to be
-				 * ordered after fb in the PQ (which
-				 * is a max PQ) so we say that fa is
-				 * less than fb. */
-				if (fa > fb) return -1;
- 				else if (fb > fa) return 1;
-				else return 0;
+				return a->open_f.get_best_val() < b->open_f.get_best_val();
 			}
 			/* Set the prio queue index. */
 			void inline operator()(NBlock *a, int i) {
@@ -56,8 +47,8 @@ namespace WBFPSDD {
 				fp_type fa, fb;
 				fa = a->open_fp.get_best_val();
 				fb = b->open_fp.get_best_val();
-				if (fa > fb) return -1;
- 				else if (fb > fa) return 1;
+				if (fa < fb) return true;
+ 				else if (fa > fb) return false;
 				else return f_cmp(a, b);
 			}
 			/* Set the prio queue index. */

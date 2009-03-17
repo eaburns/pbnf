@@ -19,7 +19,7 @@ public:
 	public:
 		int operator()(Int *a, Int *b)
 		{
-			return a->value - b->value;
+			return a->value > b->value;
 		}
 		int get_value(Int *a) {
 			return a->value;
