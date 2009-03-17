@@ -107,7 +107,10 @@ NBlockGraph::next_nblock(NBlock *finished)
 
 			// Switch layers -- fill the freelist with the
 			// nblocks that have the next layer's value
-			layer_value = nblock_pq_fp.front()->open_fp.get_best_val();
+			if (nblock_pq_fp.empty())
+				layer_value = fp_infinity;
+			else
+				layer_value = nblock_pq_fp.front()->open_fp.get_best_val();
 			unsigned int added = 0;
 			while (!nblock_pq_fp.empty()
 			       && (added < multiplier*nthreads
@@ -212,7 +215,8 @@ NBlockGraph::update_sigma(NBlock *yblk,
 		if (!yblk->open_fp.empty())
 			free_list.remove(yblk);
 		assert(!yblk->inuse);
-		nblock_pq_fp.remove(yblk->fp_pq_index);
+		if (yblk->fp_pq_index != -1)
+			nblock_pq_fp.remove(yblk->fp_pq_index);
 		num_sigma_zero -= 1;
 	}
 
@@ -228,6 +232,7 @@ NBlockGraph::update_sigma(NBlock *yblk,
 				nblock_pq_fp.add(yblk);
 			}
 		}
+
 		num_sigma_zero += 1;
 	}
 }

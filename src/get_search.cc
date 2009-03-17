@@ -21,6 +21,7 @@
 #include "kbfs.h"
 #include "psdd_search.h"
 #include "bfpsdd_search.h"
+#include "wbfpsdd_search.h"
 #include "idpsdd_search.h"
 #include "dynamic_bounded_psdd.h"
 #include "pbnf_search.h"
@@ -67,6 +68,11 @@ Search *get_search(int argc, char *argv[])
 			     &min_expansions, &threads, &nblocks) == 4) {
 		return new BFPSDDSearch(threads, multiplier, min_expansions);
 	} else if (argc > 1
+		   && sscanf(argv[1], "wbfpsdd-%f-%u-%u-%u-%u", &weight,
+			     &multiplier, &min_expansions,
+			     &threads, &nblocks) == 5) {
+		return new WBFPSDDSearch(threads, multiplier, min_expansions);
+	} else if (argc > 1
 		   && sscanf(argv[1], "idpsdd-%u-%u", &threads, &nblocks) == 2) {
 		return new IDPSDDSearch(threads);
 	} else if (argc > 1
@@ -98,6 +104,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
+		     << "\twbfpsdd-<weight>-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tidpsdd-<threads>-<nblocks>" << endl
 		     << "\tpbnf-<weight>-<min_expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl

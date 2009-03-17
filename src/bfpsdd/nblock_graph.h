@@ -177,7 +177,10 @@ namespace BFPSDD {
 
 				// Switch layers -- fill the freelist with the
 				// nblocks that have the next layer's value
-				layer_value = nblock_pq.top()->open.get_best_val();
+				if (nblock_pq.empty())
+					layer_value = fp_infinity;
+				else
+					layer_value = nblock_pq.top()->open.get_best_val();
 				unsigned int added = 0;
 				while (!nblock_pq.empty()
 				       && (added < multiplier*nthreads
