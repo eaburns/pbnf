@@ -28,6 +28,7 @@
 #include "wpbnf_search.h"
 #include "pastar.h"
 #include "prastar.h"
+#include "wprastar.h"
 
 #include "get_search.h"
 
@@ -60,6 +61,8 @@ Search *get_search(int argc, char *argv[])
 		return new PAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads);
+	} else if (argc > 1 && sscanf(argv[1], "wprastar-%u-%u-%u", &threads, &nblocks, &multiplier) == 3) {
+		return new wPRAStar(threads, multiplier);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
@@ -101,6 +104,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tkbfs-<threads>" << endl
 		     << "\tpastar-<threads>" << endl
 		     << "\tprastar-<threads>-<nblocks>" << endl
+		     << "\twprastar-<weight>-<multiplier>-<threads>-<nblocks>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl

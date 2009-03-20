@@ -51,7 +51,8 @@ SRC= \
 	pbnf_search.cc \
 	kbfs.cc \
 	pastar.cc \
-	prastar.cc
+	prastar.cc \
+	wprastar.cc
 
 OBJ=$(addprefix $(OBJDIR)/, $(SRC:.cc=.o))
 

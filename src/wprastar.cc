@@ -1,10 +1,10 @@
 /**
- * \file prastar.cc
+ * \file wprastar.cc
  *
  *
  *
  * \author Seth Lemons
- * \date 2008-11-19
+ * \date 2009-03-19
  */
 
 #include <assert.h>
@@ -14,14 +14,14 @@
 #include <vector>
 #include <limits>
 
-#include "prastar.h"
+#include "wprastar.h"
 #include "projection.h"
 #include "search.h"
 #include "state.h"
 
 using namespace std;
 
-PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, CompletionCounter* cc)
+wPRAStar::wPRAStarThread::wPRAStarThread(wPRAStar *p, vector<wPRAStarThread *> *threads, CompletionCounter* cc)
 	: p(p),
 	  threads(threads),
 	  cc(cc),
@@ -32,12 +32,12 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
 }
 
 
-PRAStar::PRAStarThread::~PRAStarThread(void) {
+wPRAStar::wPRAStarThread::~wPRAStarThread(void) {
 }
 
-void PRAStar::PRAStarThread::add(State* c, bool self_add){
+void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 	if (self_add){
-		//cout << "self" << endl;
+		pthread_mutex_unlock(&mutex);
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {
@@ -53,7 +53,6 @@ void PRAStar::PRAStarThread::add(State* c, bool self_add){
 			open.add(c);
 			closed.add(c);
 		}
-		//cout << "end self" << endl;
 
 		return;
 	}
@@ -70,7 +69,7 @@ void PRAStar::PRAStarThread::add(State* c, bool self_add){
 /**
  * Flush the queue
  */
-void PRAStar::PRAStarThread::flush_queue(void)
+void wPRAStar::wPRAStarThread::flush_queue(void)
 {
 	// wait for either completion or more nodes to expand
 	if (open.empty()) {
@@ -125,7 +124,7 @@ void PRAStar::PRAStarThread::flush_queue(void)
 	pthread_mutex_unlock(&mutex);
 }
 
-State *PRAStar::PRAStarThread::take(void){
+State *wPRAStar::wPRAStarThread::take(void){
 	while (open.empty() || !q_empty) {
 		flush_queue();
 		if (cc->is_complete()){
@@ -144,7 +143,7 @@ State *PRAStar::PRAStarThread::take(void){
 /**
  * Run the search thread.
  */
-void PRAStar::PRAStarThread::run(void){
+void wPRAStar::wPRAStarThread::run(void){
         vector<State *> *children = NULL;
 
         while(!p->is_done()){
@@ -152,8 +151,7 @@ void PRAStar::PRAStarThread::run(void){
 		if (s == NULL)
 			continue;
 
-		if (s->get_f() >= p->bound.read()) {
-			open.prune();
+		if (p->weight * s->get_f() >= p->bound.read()) {
 			continue;
 		}
 		if (s->is_goal()) {
@@ -177,25 +175,36 @@ void PRAStar::PRAStarThread::run(void){
 /************************************************************/
 
 
-PRAStar::PRAStar(unsigned int n_threads) 
+wPRAStar::wPRAStar(unsigned int n_threads, fp_type multiplier) 
 	: n_threads(n_threads),
+	  multiplier(multiplier),
 	  bound(fp_infinity),
 	  project(NULL),
 	  path(NULL){
         done = false;
 }
 
-PRAStar::~PRAStar(void) {
+
+wPRAStar::wPRAStar(unsigned int n_threads, fp_type multiplier, fp_type bound) 
+	: n_threads(n_threads),
+	  multiplier(multiplier),
+          bound(bound),
+	  project(NULL),
+	  path(NULL){
+        done = false;
 }
 
-void PRAStar::set_done()
+wPRAStar::~wPRAStar(void) {
+}
+
+void wPRAStar::set_done()
 {
         pthread_mutex_lock(&mutex);
         done = true;
         pthread_mutex_unlock(&mutex);
 }
 
-bool PRAStar::is_done()
+bool wPRAStar::is_done()
 {
         bool ret;
         pthread_mutex_lock(&mutex);
@@ -204,7 +213,7 @@ bool PRAStar::is_done()
         return ret;
 }
 
-void PRAStar::set_path(vector<State *> *p)
+void wPRAStar::set_path(vector<State *> *p)
 {
         pthread_mutex_lock(&mutex);
         if (this->path == NULL || 
@@ -215,7 +224,7 @@ void PRAStar::set_path(vector<State *> *p)
         pthread_mutex_unlock(&mutex);
 }
 
-bool PRAStar::has_path()
+bool wPRAStar::has_path()
 {
         bool ret;
         pthread_mutex_lock(&mutex);
@@ -224,7 +233,7 @@ bool PRAStar::has_path()
         return ret;
 }
 
-vector<State *> *PRAStar::search(State *init)
+vector<State *> *wPRAStar::search(State *init)
 {
         pthread_mutex_init(&mutex, NULL);
 	project = init->get_domain()->get_projection();
@@ -232,7 +241,7 @@ vector<State *> *PRAStar::search(State *init)
         CompletionCounter cc = CompletionCounter(n_threads);
 
         for (unsigned int i = 0; i < n_threads; i += 1) {
-		PRAStarThread *t = new PRAStarThread(this, &threads, &cc);
+		wPRAStarThread *t = new wPRAStarThread(this, &threads, &cc);
 		threads.push_back(t);
         }
 

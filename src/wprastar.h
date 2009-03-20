@@ -1,14 +1,14 @@
 /**
- * \file prastar_search.h
+ * \file wprastar_search.h
  *
  *
  *
  * \author Seth Lemons
- * \date 2008-11-19
+ * \date 2009-03-19
  */
 
-#if !defined(_PRASTAR_H_)
-#define _PRASTAR_H_
+#if !defined(_WPRASTAR_H_)
+#define _WPRASTAR_H_
 
 #include <vector>
 
@@ -24,11 +24,12 @@
 
 using namespace std;
 
-class PRAStar : public Search {
+class wPRAStar : public Search {
 public:
-        PRAStar(unsigned int n_threads);
+        wPRAStar(unsigned int n_threads, fp_type multiplier);
+        wPRAStar(unsigned int n_threads, fp_type multiplier, fp_type bound);
 
-        virtual ~PRAStar(void);
+        virtual ~wPRAStar(void);
 
         virtual vector<State *> *search(State *init);
         void set_done();
@@ -36,39 +37,43 @@ public:
         void set_path(vector<State *> *path);
         bool has_path();
 
+	void set_bound(fp_type bound);
+
 private:
-        class PRAStarThread : public Thread {
+        class wPRAStarThread : public Thread {
         public:
-                PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, CompletionCounter* cc);
-                virtual ~PRAStarThread(void);
+                wPRAStarThread(wPRAStar *p, vector<wPRAStarThread *> *threads, CompletionCounter* cc);
+                virtual ~wPRAStarThread(void);
                 virtual void run(void);
-                void add(State* c, bool self_add);
+                void add(State* s, bool self_add);
                 State *take(void);
 
 
         private:
                 void flush_queue(void);
-                PRAStar *p;
-                vector<PRAStarThread *> *threads;
+                wPRAStar *p;
+                vector<wPRAStarThread *> *threads;
 		vector<State *> q;
                 pthread_mutex_t mutex;
                 bool completed;
                 CompletionCounter *cc;
-                friend class PRAStar;
+                friend class wPRAStar;
                 PQOpenList<State::PQOpsFPrime> open;
                 ClosedList closed;
 		bool q_empty;
         };
 
+        const unsigned int n_threads;
+	fp_type weight;
+	fp_type multiplier;
+	AtomicInt bound;
         bool done;
         pthread_cond_t cond;
         pthread_mutex_t mutex;
-        const unsigned int n_threads;
-	AtomicInt bound;
 	const Projection *project;
         vector<State *> *path;
-	vector<PRAStarThread *> threads;
-	vector<PRAStarThread *>::iterator iter;
+	vector<wPRAStarThread *> threads;
+	vector<wPRAStarThread *>::iterator iter;
 };
 
-#endif	/* !_PRASTAR_H_ */
+#endif	/* !_WPRASTAR_H_ */
