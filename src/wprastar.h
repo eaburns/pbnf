@@ -1,5 +1,5 @@
 /**
- * \file wprastar_search.h
+ * \file wprastar.h
  *
  *
  *

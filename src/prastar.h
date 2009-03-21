@@ -1,5 +1,5 @@
 /**
- * \file prastar_search.h
+ * \file prastar.h
  *
  *
  *
