@@ -26,8 +26,8 @@ using namespace std;
 
 class wPRAStar : public Search {
 public:
-        wPRAStar(unsigned int n_threads, fp_type multiplier);
-        wPRAStar(unsigned int n_threads, fp_type multiplier, fp_type bound);
+        wPRAStar(unsigned int n_threads);
+        wPRAStar(unsigned int n_threads, fp_type bound);
 
         virtual ~wPRAStar(void);
 
@@ -65,7 +65,6 @@ private:
 
         const unsigned int n_threads;
 	fp_type weight;
-	fp_type multiplier;
 	AtomicInt bound;
         bool done;
         pthread_cond_t cond;

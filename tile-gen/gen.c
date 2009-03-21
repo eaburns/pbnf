@@ -5,25 +5,6 @@ int size = 0;
 
 int counter = 0;
 
-bool is_solvable(int* dir){
-	int revOrd = 0;
-	
-	for (i = 0; i < size - 1; i++) 
-	  for (j = i + 1; j < size; j++) 
-	    if (dir[i] > dir[j] && dir[j] != 0)
-	      revOrd++;
-	if (revOrd % 2 == 0) {
-	  printf("%d", ++counter);    
-	  for (i = 0; i < size; i++)
-	    printf(" %d", dir[i]); 
-	  printf("\n");
-	  printf("%i\n", revOrd);
-	  return true;
-	}
-
-	return false;
-}
-
 void permuteRecursive(int *dir, int *flag, int index)
 {
 	int i, j;

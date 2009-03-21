@@ -25,7 +25,7 @@ def is_solvable(dir):
             if dir[i] > dir[j] and dir[j] != 0:
                 revOrd+=1;
     if revOrd % 2 == 0:
-        #print revOrd
+        print revOrd
         return True
 
 def gen_board(ignore, size):

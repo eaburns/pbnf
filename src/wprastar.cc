@@ -175,9 +175,8 @@ void wPRAStar::wPRAStarThread::run(void){
 /************************************************************/
 
 
-wPRAStar::wPRAStar(unsigned int n_threads, fp_type multiplier) 
+wPRAStar::wPRAStar(unsigned int n_threads) 
 	: n_threads(n_threads),
-	  multiplier(multiplier),
 	  bound(fp_infinity),
 	  project(NULL),
 	  path(NULL){
@@ -185,9 +184,8 @@ wPRAStar::wPRAStar(unsigned int n_threads, fp_type multiplier)
 }
 
 
-wPRAStar::wPRAStar(unsigned int n_threads, fp_type multiplier, fp_type bound) 
+wPRAStar::wPRAStar(unsigned int n_threads, fp_type bound) 
 	: n_threads(n_threads),
-	  multiplier(multiplier),
           bound(bound),
 	  project(NULL),
 	  path(NULL){
@@ -237,6 +235,7 @@ vector<State *> *wPRAStar::search(State *init)
 {
         pthread_mutex_init(&mutex, NULL);
 	project = init->get_domain()->get_projection();
+	weight = init->get_domain()->get_heuristic()->get_weight();
 
         CompletionCounter cc = CompletionCounter(n_threads);
 
