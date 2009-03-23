@@ -81,6 +81,7 @@ NBlockGraph::next_nblock(NBlock *finished)
 		assert(finished->sigma == 0);
 
 		nblocks_assigned -= 1;
+		finished->inlayer = false;
 		if (!finished->open_fp.empty())
 			nblock_pq_fp.add(finished);
 
@@ -115,8 +116,10 @@ NBlockGraph::next_nblock(NBlock *finished)
 			while (!nblock_pq_fp.empty()
 			       && (added < multiplier*nthreads
 				   || nblock_pq_fp.front()->open_fp.get_best_val() == layer_value)) {
+				NBlock *nb = nblock_pq_fp.take();
 				added += 1;
-				free_list.push_back(nblock_pq_fp.take());
+				nb->inlayer = true;
+				free_list.push_back(nb);
 			}
 
 			if (free_list.empty())
@@ -225,7 +228,8 @@ NBlockGraph::update_sigma(NBlock *yblk,
 	if (yblk->sigma == 0) {
 		if (!yblk->open_fp.empty()) {
 			assert(!yblk->inuse);
-			if (yblk->open_fp.get_best_val() == layer_value) {
+			if (yblk->open_fp.get_best_val() == layer_value
+			    && yblk->inlayer) {
 				free_list.push_back(yblk);
 				pthread_cond_signal(&cond);
 			} else {

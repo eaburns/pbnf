@@ -33,6 +33,7 @@ namespace BFPSDD {
 		PQOpenList<StateCompare> open;
 
 		bool inuse;
+		bool inlayer;
 
 		set<unsigned int> interferes;
 		set<unsigned int> preds;
@@ -47,7 +48,8 @@ namespace BFPSDD {
 		: id(ident),
 		sigma(0),
 		closed(1000),
-		inuse(false)
+		inuse(false),
+		inlayer(false)
 		{
 			assert(id < project->get_num_nblocks());
 

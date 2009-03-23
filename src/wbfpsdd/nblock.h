@@ -84,6 +84,7 @@ namespace WBFPSDD {
 		int fp_pq_index; /* this nblock's index into a PQ */
 
 		bool inuse;
+		bool inlayer;
 
 		set<unsigned int> interferes;
 		set<unsigned int> preds;

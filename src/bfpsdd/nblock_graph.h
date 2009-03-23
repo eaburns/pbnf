@@ -161,6 +161,7 @@ namespace BFPSDD {
 			assert(finished->sigma == 0);
 
 			nblocks_assigned -= 1;
+			finished->inlayer = false;
 			if (!finished->open.empty())
 				nblock_pq.add(finished);
 
@@ -185,8 +186,10 @@ namespace BFPSDD {
 				while (!nblock_pq.empty()
 				       && (added < multiplier*nthreads
 					   || nblock_pq.top()->open.get_best_val() == layer_value)) {
+					NBlock<StateCompare> *nb = nblock_pq.take();
 					added += 1;
-					free_list.push_back(nblock_pq.take());
+					nb->inlayer = true;
+					free_list.push_back(nb);
 				}
 
 				if (free_list.empty())
@@ -298,7 +301,8 @@ namespace BFPSDD {
 		if (yblk->sigma == 0) {
 			if (!yblk->open.empty()) {
 				assert(!yblk->inuse);
-				if (yblk->open.get_best_val() == layer_value) {
+				if (yblk->open.get_best_val() == layer_value
+				    && yblk->inlayer) {
 					free_list.push_back(yblk);
 					pthread_cond_signal(&cond);
 				} else {

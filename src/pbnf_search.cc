@@ -285,9 +285,9 @@ void PBNFSearch::set_path(vector<State *> *p)
 	pthread_mutex_unlock(&path_mutex);
 }
 
-void PBNFSearch::inc_switch(bool failed)
+void PBNFSearch::inc_switch(bool f)
 {
-	if (failed){
+	if (f){
 		unsigned int old = PBNFSearch::failed.read();
 		unsigned int o, n;
 		do { o = old; n = (unsigned int)(o+1); old = PBNFSearch::failed.cmp_and_swap(o, n);
