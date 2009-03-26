@@ -94,6 +94,8 @@ Search *get_search(int argc, char *argv[])
 		return new WPBNFSearch(threads, min_expansions);
 	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
 		return new MultiAStar(threads);
+	} else if (argc > 1 && sscanf(argv[1], "multiwastar-%f-%u", &weight, &threads) == 2) {
+		return new MultiAStar(threads);
 	} else {
 		cout << "Must supply a search algorithm:" << endl;
 		cout << "\tastar" << endl
@@ -114,6 +116,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<weight>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tmultiastar-<threads>" << endl
+		     << "\tmultiwastar-<weight>-<threads>" << endl
 		     << endl;
 		exit(EXIT_FAILURE);
 	}
