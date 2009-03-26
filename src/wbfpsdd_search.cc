@@ -115,15 +115,15 @@ vector<State *> *WBFPSDDSearch::WBFPSDDThread::search_nblock(NBlock *n)
 		for (iter = children->begin();
 		     iter != children->end();
 		     iter++) {
+			if (search->weight * (*iter)->get_f() >= search->bound.read()) {
+				delete *iter;
+				continue;
+			}
 			unsigned int block = search->project->project(*iter);
 			NBlock *b = graph->get_nblock(block);
 			PQOpenList<State::PQOpsF> *next_open_f = &b->open_f;
 			PQOpenList<State::PQOpsFPrime> *next_open_fp = &b->open_fp;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
-			if (search->weight * (*iter)->get_f() >= search->bound.read()) {
-				delete *iter;
-				continue;
-			}
 			State *dup = next_closed->lookup(*iter);
 			if (dup) {
 				if (dup->get_g() > (*iter)->get_g()) {
