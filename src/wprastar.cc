@@ -151,6 +151,9 @@ void wPRAStar::wPRAStarThread::run(void){
 		if (s == NULL)
 			continue;
 
+		if (s->get_f_prime() >= p->bound.read()) {
+			open.prune();
+		}
 		if (p->weight * s->get_f() >= p->bound.read()) {
 			continue;
 		}
