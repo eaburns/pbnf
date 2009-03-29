@@ -47,7 +47,7 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 				else
 					open.add(dup);
 			}
-			delete c;
+			//delete c;
 		}
 		else{
 			open.add(c);
@@ -75,7 +75,7 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 	if (open.empty()) {
 		pthread_mutex_lock(&mutex);
 	} else if (pthread_mutex_trylock(&mutex) == EBUSY) {
-			return;
+		return;
 	}
 	if (q_empty) {
 		if (!open.empty()) {
@@ -112,7 +112,7 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 				else
 					open.add(dup);
 			}
-			delete c;
+			//delete c;
 		}
 		else{
 			open.add(c);
