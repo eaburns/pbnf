@@ -47,7 +47,7 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 				else
 					open.add(dup);
 			}
-			//delete c;
+			delete c;
 		}
 		else{
 			open.add(c);
@@ -112,7 +112,7 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 				else
 					open.add(dup);
 			}
-			//delete c;
+			delete c;
 		}
 		else{
 			open.add(c);
