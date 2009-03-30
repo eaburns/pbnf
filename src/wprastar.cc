@@ -37,7 +37,6 @@ wPRAStar::wPRAStarThread::~wPRAStarThread(void) {
 
 void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 	if (self_add){
-		pthread_mutex_unlock(&mutex);
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {

@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	manhattan.set_weight(weight);
 	g.set_heuristic(&manhattan);
 
-	timeout(timelimit);
+	//timeout(timelimit);
 	timer.start();
 	path = search->search(g.initial_state());
 	timer.stop();
