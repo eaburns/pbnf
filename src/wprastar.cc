@@ -74,7 +74,7 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 	if (open.empty()) {
 		pthread_mutex_lock(&mutex);
 	} else if (pthread_mutex_trylock(&mutex) == EBUSY) {
-			return;
+		return;
 	}
 	if (q_empty) {
 		if (!open.empty()) {
@@ -150,6 +150,9 @@ void wPRAStar::wPRAStarThread::run(void){
 		if (s == NULL)
 			continue;
 
+		if (s->get_f_prime() >= p->bound.read()) {
+			open.prune();
+		}
 		if (p->weight * s->get_f() >= p->bound.read()) {
 			continue;
 		}
