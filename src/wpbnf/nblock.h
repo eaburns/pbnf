@@ -25,28 +25,6 @@ namespace WPBNF {
 	struct NBlock {
 
 		/**
-		 * Operations for the nblock PQ used for trakcing f_min.
-		 */
-		struct NBlockPQFuncs {
-			/* Predecessor operator. */
-			int inline operator()(NBlock *a, NBlock *b) {
-				return a->open_f.get_best_val() < b->open_f.get_best_val();
-			}
-			/* Set the prio queue index. */
-			void inline operator()(NBlock *a, int i) {
-				a->pq_index = i;
-			}
-			/* Set the prio queue index. */
-			int inline operator()(NBlock *a) {
-				return a->pq_index;
-			}
-			/* Set the prio queue index. */
-			fp_type inline get_value(NBlock *a) {
-				return a->open_f.get_best_val();
-			}
-		};
-
-		/**
 		 * NBlocks compare on f', then f then g.
 		 *
 		 * This class is for the nblock_free_list.
@@ -60,12 +38,8 @@ namespace WPBNF {
 				fp_type fpa = a->open_fp.get_best_val();
 				fp_type fpb = b->open_fp.get_best_val();
 				if (fpa == fpb) {
-					fp_type fa = a->open_f.get_best_val();
-					fp_type fb = b->open_f.get_best_val();
-					if (fa == fb && !a->open_fp.empty() && !b->open_fp.empty())
+					if (!a->open_fp.empty() && !b->open_fp.empty())
 						return a->open_fp.peek()->get_g() < b->open_fp.peek()->get_g();
-					else
-						return fa > fb;
 				}
 				return fpa > fpb;
 			}
