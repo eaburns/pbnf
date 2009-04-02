@@ -22,25 +22,6 @@ namespace WBFPSDD {
 
 	struct NBlock {
 
-		struct PQOpsF {
-                        /* Order nblocks on increasing f-values. */
-			int inline operator()(NBlock *a, NBlock *b) {
-				return a->open_f.get_best_val() < b->open_f.get_best_val();
-			}
-			/* Set the prio queue index. */
-			void inline operator()(NBlock *a, int i) {
-				a->f_pq_index = i;
-			}
-			/* Set the prio queue index. */
-			int inline operator()(NBlock *a) {
-				return a->f_pq_index;
-			}
-			/* Set the prio queue index. */
-			fp_type inline get_value(NBlock *a) {
-				return a->open_f.get_best_val();
-			}
-		};
-
 		struct PQOpsFPrime {
                         /* Order nblocks on increasing f-values. */
 			int inline operator()(NBlock *a, NBlock *b) {
@@ -48,8 +29,7 @@ namespace WBFPSDD {
 				fa = a->open_fp.get_best_val();
 				fb = b->open_fp.get_best_val();
 				if (fa < fb) return true;
- 				else if (fa > fb) return false;
-				else return f_cmp(a, b);
+ 				else return false;
 			}
 			/* Set the prio queue index. */
 			void inline operator()(NBlock *a, int i) {
@@ -64,9 +44,6 @@ namespace WBFPSDD {
 				return a->open_fp.get_best_val();
 			}
 
-		private:
-			PQOpsF f_cmp;
-
 		};
 
 		NBlock(const Projection *project, unsigned int id);
@@ -78,9 +55,7 @@ namespace WBFPSDD {
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		PQOpenList<State::PQOpsF> open_f;
 		PQOpenList<State::PQOpsFPrime> open_fp;
-		int f_pq_index;	/* this nblock's index into a PQ */
 		int fp_pq_index; /* this nblock's index into a PQ */
 
 		bool inuse;

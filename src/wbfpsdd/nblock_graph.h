@@ -31,7 +31,7 @@ using namespace std;
 
 namespace WBFPSDD {
 
-	class NBlockGraph : public NBlockMap<NBlock>::CreationObserver {
+	class NBlockGraph {
 	public:
 		enum layer { LAYERA = 0, LAYERB };
 
@@ -48,9 +48,6 @@ namespace WBFPSDD {
 		unsigned int get_ncreated_nblocks(void);
 
 		fp_type get_layer_value(void) const;
-		fp_type get_f_min(void);
-
-		void observe(NBlock *b);
 
 	private:
 		void __print(ostream &o);
@@ -69,13 +66,6 @@ namespace WBFPSDD {
 
 		/* list of free nblock numbers */
 		list<NBlock *> free_list;
-
-		/* prio-queue of NBlocks to track the global f_min
-		 * value.  Nblocks are added to this priority queue
-		 * upon creation and stay here until the search
-		 * finishes. */
-		PriorityQueue<NBlock*, NBlock::PQOpsF> nblock_pq_f;
-		AtomicInt f_min;
 
 		/* prio-queue of NBlocks used to populate the next
 		 * layer.  Nblocks are added and removed from this pq

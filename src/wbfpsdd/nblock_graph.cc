@@ -30,11 +30,9 @@ NBlockGraph::NBlockGraph(const Projection *p,
 	this->multiplier = mult;
 	assert(init_nblock < num_nblocks);
 
-	f_min.set(0);
-	map.set_observer(this);
+	//map.set_observer(this);
 
 	NBlock *n = map.get(init_nblock);
-	n->open_f.add(initial);
 	n->open_fp.add(initial);
 	n->closed.add(initial);
 	free_list.push_back(n);
@@ -84,16 +82,6 @@ NBlockGraph::next_nblock(NBlock *finished)
 		finished->inlayer = false;
 		if (!finished->open_fp.empty())
 			nblock_pq_fp.add(finished);
-
-		// Re-sort the nblock PQ for tracking f_min.
-		set<unsigned int>::iterator iter;
-		for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
-			NBlock *n = map.find(*iter);
-			if (n)
-				nblock_pq_f.see_update(n->f_pq_index);
-		}
-		nblock_pq_f.see_update(finished->f_pq_index);
-		f_min.set(nblock_pq_f.front()->open_f.get_best_val());
 
 		update_scope_sigmas(finished->id, -1);
 		finished->inuse = false;
@@ -271,15 +259,6 @@ NBlockGraph::update_scope_sigmas(unsigned int y,
 }
 
 
-/**
- * Get the global f_min value.
- */
-fp_type NBlockGraph::get_f_min(void)
-{
-	return f_min.read();
-}
-
-
 // Get the value of the current layer.
 fp_type NBlockGraph::get_layer_value(void) const
 {
@@ -291,13 +270,6 @@ fp_type NBlockGraph::get_layer_value(void) const
 unsigned int NBlockGraph::get_ncreated_nblocks(void)
 {
 	return map.get_num_created();
-}
-
-// Observe an nblock being created by the nblock map... add it to the
-// PQ tracking f_min.
-void NBlockGraph::observe(NBlock *b)
-{
-	nblock_pq_f.add(b);
 }
 
 void NBlockGraph::set_done(void)
