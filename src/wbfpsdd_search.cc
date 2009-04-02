@@ -1,4 +1,4 @@
-/**
+ /**
  * \file wfbfpsdd_search.cc
  *
  *
@@ -155,7 +155,8 @@ WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int 
 	  path(NULL),
 	  graph(NULL),
 	  min_expansions(min_expansions),
-	  multiplier(mult)
+	  multiplier(mult),
+	  done(false)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
