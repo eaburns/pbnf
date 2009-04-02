@@ -1,7 +1,7 @@
 /**
  * \file nblock_map.h
  *
- * A map from unsigned int ids no nblocks where the nblocks are
+ * A map from unsigned int ids to nblocks where the nblocks are
  * created lazily upon request.
  *
  * \author Ethan Burns

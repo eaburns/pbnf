@@ -1,4 +1,4 @@
-/**
+ /**
  * \file wfbfpsdd_search.cc
  *
  *
@@ -48,9 +48,6 @@ void WBFPSDDSearch::WBFPSDDThread::run(void)
 	do {
 		n = graph->next_nblock(n);
 
-		if ((search->weight * graph->get_f_min()) > search->bound.read())
-			break;
-
 		if (n) {
 			exp_this_block = 0;
 			path = search_nblock(n);
@@ -85,18 +82,10 @@ vector<State *> *WBFPSDDSearch::WBFPSDDThread::search_nblock(NBlock *n)
 		    && n->open_fp.get_best_val() > graph->get_layer_value())
 			break;
 
-		if (search->weight * n->open_f.get_best_val() >= search->bound.read()) {
-			n->open_f.prune();
-			n->open_fp.prune();
-			break;
-		}
-
 		State *s = n->open_fp.take();
-		n->open_f.remove(s);
 
 		if (s->get_f_prime() >= search->bound.read()) {
 			n->open_fp.prune();
-			n->open_f.prune();
 			break;
 		}
 
@@ -121,7 +110,6 @@ vector<State *> *WBFPSDDSearch::WBFPSDDThread::search_nblock(NBlock *n)
 			}
 			unsigned int block = search->project->project(*iter);
 			NBlock *b = graph->get_nblock(block);
-			PQOpenList<State::PQOpsF> *next_open_f = &b->open_f;
 			PQOpenList<State::PQOpsFPrime> *next_open_fp = &b->open_fp;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
 			State *dup = next_closed->lookup(*iter);
@@ -130,10 +118,8 @@ vector<State *> *WBFPSDDSearch::WBFPSDDThread::search_nblock(NBlock *n)
 					dup->update((*iter)->get_parent(),
 						    (*iter)->get_g());
 					if (dup->is_open()) {
-						next_open_f->see_update(dup);
 						next_open_fp->see_update(dup);
 					} else {
-						next_open_f->add(dup);
 						next_open_fp->add(dup);
 					}
 				}
@@ -145,7 +131,6 @@ vector<State *> *WBFPSDDSearch::WBFPSDDThread::search_nblock(NBlock *n)
 					delete children;
 					return path;
 				}
-				next_open_f->add(*iter);
 				next_open_fp->add(*iter);
 			}
 		}
@@ -170,7 +155,8 @@ WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int 
 	  path(NULL),
 	  graph(NULL),
 	  min_expansions(min_expansions),
-	  multiplier(mult)
+	  multiplier(mult),
+	  done(false)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -213,9 +199,6 @@ void WBFPSDDSearch::set_path(vector<State *> *p)
 	if (p && bound.read() >= p->at(0)->get_g()) {
 		this->path = p;
 		bound.set(p->at(0)->get_g());
-
-		if ((weight * graph->get_f_min()) > p->at(0)->get_g())
-			done = true;
 	}
 	pthread_mutex_unlock(&path_mutex);
 }

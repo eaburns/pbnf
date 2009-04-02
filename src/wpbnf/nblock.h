@@ -24,27 +24,6 @@ using namespace std;
 namespace WPBNF {
 	struct NBlock {
 
-		/**
-		 * Operations for the nblock PQ used for tracking f_min.
-		 */
-		struct NBlockPQFuncs {
-			/* Predecessor operator. */
-			int inline operator()(NBlock *a, NBlock *b) {
-				return a->open_f.get_best_val() < b->open_f.get_best_val();
-			}
-			/* Set the prio queue index. */
-			void inline operator()(NBlock *a, int i) {
-				a->pq_index = i;
-			}
-			/* Set the prio queue index. */
-			int inline operator()(NBlock *a) {
-				return a->pq_index;
-			}
-			/* Set the prio queue index. */
-			fp_type inline get_value(NBlock *a) {
-				return a->open_f.get_best_val();
-			}
-		};
 
 		struct NBlockPQFuncsFprime {
 			/* Predecessor operator. */
@@ -53,18 +32,13 @@ namespace WPBNF {
 				fp_type bfp = b->open_fp.get_best_val();
 
 				if (afp == bfp) {
-					fp_type af = a->open_f.get_best_val();
-					fp_type bf = b->open_f.get_best_val();
-					if (af == bf) {
-						fp_type ag = fp_infinity;
-						fp_type bg = fp_infinity;
-						if (!a->open_fp.empty())
-							ag = a->open_fp.peek()->get_g();
-						if (!b->open_fp.empty())
-							bg = b->open_fp.peek()->get_g();
-						return ag > bg;
-					}
-					return af < bf;
+					fp_type ag = 0;
+					fp_type bg = 0;
+					if (!a->open_fp.empty())
+						ag = a->open_fp.peek()->get_g();
+					if (!b->open_fp.empty())
+						bg = b->open_fp.peek()->get_g();
+					return ag > bg;
 				}
 				return afp < bfp;
 			}
@@ -93,7 +67,6 @@ namespace WPBNF {
 		unsigned int sigma;
 		ClosedList closed;
 		PQOpenList<State::PQOpsFPrime> open_fp;
-		PQOpenList<State::PQOpsF> open_f;
 		unsigned int sigma_hot;
 		int hot;
 		int inuse;

@@ -53,12 +53,10 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
-	f_min.set(0);
-	map.set_observer(this);
+	//map.set_observer(this);
 
 	NBlock *n = map.get(init_nblock);
 	n->open_fp.add(initial);
-	n->open_f.add(initial);
 	free_list.add(n);
 
 	done = false;
@@ -121,16 +119,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 			__print(cerr);
 		}
 		assert(finished->sigma == 0);
-
-		// Re-sort the nblock PQ so that we can get the f_min value.
-		set<unsigned int>::iterator iter;
-		for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
-			NBlock *n = map.find(*iter);
-			if (n)
-				nblock_pq.see_update(n->pq_index);
-		}
-		nblock_pq.see_update(finished->pq_index);
-		f_min.set(nblock_pq.front()->open_f.get_best_val());
 
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
@@ -247,14 +235,6 @@ fp_type NBlockGraph::best_free_val(void)
 	if (b)
 		return b->open_fp.get_best_val();
 	return 0.0;
-}
-
-/**
- * Get the global f_min value.
- */
-fp_type NBlockGraph::get_f_min(void)
-{
-	return f_min.read();
 }
 
 
@@ -439,12 +419,4 @@ void NBlockGraph::wont_release(NBlock *b)
 unsigned int NBlockGraph::get_ncreated_nblocks(void)
 {
 	return map.get_num_created();;
-}
-
-/**
- * This is where the NBlockMap notifies us of the creation of a new nblock.
- */
-void NBlockGraph::observe(NBlock *b)
-{
-	nblock_pq.add(b);
 }
