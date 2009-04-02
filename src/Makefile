@@ -43,11 +43,9 @@ SRC= \
 	dynamic_bounded_psdd.cc \
 	wpbnf/nblock.cc \
 	wpbnf/nblock_graph.cc \
-	wpbnf/nblock_free_list.cc \
 	wpbnf_search.cc \
 	pbnf/nblock.cc \
 	pbnf/nblock_graph.cc \
-	pbnf/nblock_free_list.cc \
 	pbnf_search.cc \
 	kbfs.cc \
 	pastar.cc \
@@ -93,9 +91,9 @@ DEBUG+=-O3 -DNDEBUG
 #DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
-LDFLAGS+=-lpthread $(PROFILE)
+#LDFLAGS+=-lpthread $(PROFILE)
 #LDFLAGS+=-lpthread $(PROFILE) -ltcmalloc
-#LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
+LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
 endif
 ############################################################
 

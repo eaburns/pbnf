@@ -133,7 +133,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 			if (free_list.empty())
 				new_f = fp_infinity;
 			else
-				new_f = free_list.best_val();
+				new_f = free_list.front()->open.get_best_val();
 			if (cur_f <= new_f) {
 				n = finished;
 				goto out;
@@ -231,11 +231,13 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
 /**
  * Get the value of the best nblock.
  */
-fp_type NBlockGraph::best_val(void){
-	if (free_list.empty())
-		return 0.0;
-	else
-		return free_list.best_val();
+fp_type NBlockGraph::best_val(void)
+{
+	NBlock *b = NULL;
+	b = free_list.front();
+	if (b)
+		return b->open.get_best_val();
+	return 0.0;
 }
 
 
@@ -247,10 +249,6 @@ void NBlockGraph::__print(ostream &o)
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
-	o << "--------------------" << endl;
-	o << "Free Blocks:" << endl;
-	free_list.print(o);
-	o << "--------------------" << endl;
 	o << "All Blocks:" << endl;
 	for (unsigned int i = 0; i < num_nblocks; i += 1)
 		if (map.find(i))
@@ -293,8 +291,8 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		NBlock *m = map.get(*iter);
 		if (m->sigma == 0) {
 			assert(delta > 0);
-			if (is_free(m))
-				free_list.remove(m);
+			if (is_free(m) && m->pq_index != -1)
+				free_list.remove(m->pq_index);
 			num_sigma_zero -= 1;
 		}
 		m->sigma += delta;
@@ -367,8 +365,8 @@ void NBlockGraph::set_hot(NBlock *b)
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
 			NBlock *m = map.get(*i);
-			if (is_free(m))
-				free_list.remove(m);
+			if (is_free(m) && m->pq_index != -1)
+				free_list.remove(m->pq_index);
 			if (m->hot)
 				set_cold(m);
 			m->sigma_hot += 1;

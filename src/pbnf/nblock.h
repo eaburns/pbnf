@@ -34,27 +34,41 @@ namespace PBNF {
 		bool operator<(NBlock *a);
 		void print(ostream &s);
 
-		class NBlockCompare {
-		public:
-			bool operator()(NBlock *a, NBlock *b)
-			{
-				assert(!a->open.empty());
-				assert(!b->open.empty());
-				fp_type fpa = a->open.get_best_val();
-				fp_type fpb = b->open.get_best_val();
-				if (fpa == fpb) {
-					fp_type fa = a->open.peek()->get_f();
-					fp_type fb = b->open.peek()->get_f();
-					if (fa == fb)
-						return a->open.peek()->get_g() < b->open.peek()->get_g();
-					else
-						return fa > fb;
+		struct NBlockPQFuncsFprime {
+			/* Predecessor operator. */
+			int inline operator()(NBlock *a, NBlock *b) {
+				fp_type afp = a->open.get_best_val();
+				fp_type bfp = b->open.get_best_val();
+
+				if (afp == bfp) {
+					fp_type af = a->open.get_best_val();
+					fp_type bf = b->open.get_best_val();
+					if (af == bf) {
+						fp_type ag = fp_infinity;
+						fp_type bg = fp_infinity;
+						if (!a->open.empty())
+							ag = a->open.peek()->get_g();
+						if (!b->open.empty())
+							bg = b->open.peek()->get_g();
+						return ag > bg;
+					}
+					return af < bf;
 				}
-				return fpa > fpb;
+				return afp < bfp;
+			}
+			/* Set the prio queue index. */
+			void inline operator()(NBlock *a, int i) {
+				a->pq_index = i;
+			}
+			/* Set the prio queue index. */
+			int inline operator()(NBlock *a) {
+				return a->pq_index;
+			}
+			/* Set the prio queue index. */
+			fp_type inline get_value(NBlock *a) {
+				return a->open.get_best_val();
 			}
 		};
-
-		static NBlockCompare compare;
 
 		unsigned int id;
 		unsigned int sigma;
@@ -64,6 +78,7 @@ namespace PBNF {
 		unsigned int sigma_hot;
 		int hot;
 		int inuse;
+		int pq_index;
 
 		set<unsigned int> interferes;
 		set<unsigned int> preds;

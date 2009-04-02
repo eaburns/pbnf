@@ -195,7 +195,7 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 	expansions = 0;
 
-	fp_type free = graph->next_nblock_value();
+	fp_type free = graph->best_free_val();
 	fp_type cur = n->open_fp.get_best_val();
 
 	NBlock *best_scope = graph->best_in_scope(n);
