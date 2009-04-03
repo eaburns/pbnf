@@ -115,29 +115,12 @@ vector<State *> *WBFPSDDSearch::WBFPSDDThread::search_nblock(NBlock *n)
 			State *dup = next_closed->lookup(*iter);
 			if (dup) {
 				if (dup->get_g() > (*iter)->get_g()) {
-					if (search->multiplier == 0
-					    && search->min_expansions == 1) {
-						// If the multiplier
-						// is zero, then we
-						// are doing a strict
-						// f' search and we
-						// can do duplicate
-						// dropping.
-
-						if (dup->is_open()) {
-							dup->update((*iter)->get_parent(),
-								    (*iter)->get_g());
-							next_open_fp->see_update(dup);
-						}
-						// else it will be dropped
+					dup->update((*iter)->get_parent(),
+						    (*iter)->get_g());
+					if (dup->is_open()) {
+						next_open_fp->see_update(dup);
 					} else {
-						dup->update((*iter)->get_parent(),
-							    (*iter)->get_g());
-						if (dup->is_open()) {
-							next_open_fp->see_update(dup);
-						} else {
-							next_open_fp->add(dup);
-						}
+						next_open_fp->add(dup);
 					}
 				}
 				delete *iter;
