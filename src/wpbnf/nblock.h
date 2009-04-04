@@ -24,29 +24,37 @@ using namespace std;
 namespace WPBNF {
 	struct NBlock {
 
-		/**
-		 * NBlocks compare on f', then f then g.
-		 *
-		 * This class is for the nblock_free_list.
-		 */
-		class NBlockCompare {
-		public:
-			bool operator()(NBlock *a, NBlock *b)
-			{
-				assert(!a->open_fp.empty());
-				assert(!b->open_fp.empty());
-				fp_type fpa = a->open_fp.get_best_val();
-				fp_type fpb = b->open_fp.get_best_val();
-				if (fpa == fpb) {
-					if (!a->open_fp.empty() && !b->open_fp.empty())
-						return a->open_fp.peek()->get_g() < b->open_fp.peek()->get_g();
+
+		struct NBlockPQFuncsFprime {
+			/* Predecessor operator. */
+			int inline operator()(NBlock *a, NBlock *b) {
+				fp_type afp = a->open_fp.get_best_val();
+				fp_type bfp = b->open_fp.get_best_val();
+
+				if (afp == bfp) {
+					fp_type ag = 0;
+					fp_type bg = 0;
+					if (!a->open_fp.empty())
+						ag = a->open_fp.peek()->get_g();
+					if (!b->open_fp.empty())
+						bg = b->open_fp.peek()->get_g();
+					return ag > bg;
 				}
-				return fpa > fpb;
+				return afp < bfp;
+			}
+			/* Set the prio queue index. */
+			void inline operator()(NBlock *a, int i) {
+				a->fp_pq_index = i;
+			}
+			/* Set the prio queue index. */
+			int inline operator()(NBlock *a) {
+				return a->fp_pq_index;
+			}
+			/* Set the prio queue index. */
+			fp_type inline get_value(NBlock *a) {
+				return a->open_fp.get_best_val();
 			}
 		};
-
-		static NBlockCompare compare;
-
 
 		NBlock(const Projection *p, unsigned int id);
 		~NBlock(void);
@@ -59,11 +67,11 @@ namespace WPBNF {
 		unsigned int sigma;
 		ClosedList closed;
 		PQOpenList<State::PQOpsFPrime> open_fp;
-		PQOpenList<State::PQOpsF> open_f;
 		unsigned int sigma_hot;
 		int hot;
 		int inuse;
 		int pq_index; // Index into the f_min PQ
+		int fp_pq_index; // Index into the free list PQ
 		set<unsigned int> interferes;
 		set<unsigned int> preds;
 		set<unsigned int> succs;

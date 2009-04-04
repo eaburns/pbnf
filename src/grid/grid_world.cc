@@ -623,16 +623,17 @@ GridWorld::CoarseProject::CoarseProject(const SearchDomain *d,
 
 	g = dynamic_cast<const GridWorld *>(d);
 
-	if (g->width % c)
-		c += 1;
-
-	if (g->height % r)
-		r += 1;
-
 	this->cols = c;
 	this->rows = r;
 	this->cols_div = g->width / c;
 	this->rows_div = g->height / r;
+
+	if (g->width % c)
+		cols_div += 1;
+
+	if (g->height % r)
+		rows_div += 1;
+
 	this->move_type = g->move_type;
 
 /*

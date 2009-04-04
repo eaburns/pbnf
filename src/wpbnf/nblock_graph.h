@@ -16,7 +16,6 @@
 #include <map>
 #include <vector>
 
-#include "nblock_free_list.h"
 #include "nblock.h"
 #include "../state.h"
 #include "../closed_list.h"
@@ -38,7 +37,6 @@ namespace WPBNF {
 		NBlock *next_nblock(NBlock *finished, bool trylock);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
-		fp_type next_nblock_value(void);
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 		void set_done(void);
@@ -74,7 +72,7 @@ namespace WPBNF {
 		unsigned int num_sigma_zero;
 
 		/* list of free nblock numbers */
-		NBlockFreeList free_list;
+		PriorityQueue<NBlock *, NBlock::NBlockPQFuncsFprime> free_list;
 
 		/* This flag is set when the search is completed to
 		 * signal to all waiting processess that the search

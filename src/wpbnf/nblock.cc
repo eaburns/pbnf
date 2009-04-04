@@ -30,7 +30,9 @@ NBlock::NBlock(const Projection *project, unsigned int ident)
 	  closed(1000),
 	  sigma_hot(0),
 	  hot(false),
-	  inuse(false)
+	  inuse(false),
+	  pq_index(-1),
+	  fp_pq_index(-1)
 {
 	assert(id < project->get_num_nblocks());
 

@@ -16,7 +16,6 @@
 #include <map>
 #include <vector>
 
-#include "nblock_free_list.h"
 #include "nblock.h"
 #include "../state.h"
 #include "../closed_list.h"
@@ -72,7 +71,7 @@ namespace PBNF {
 		unsigned int num_sigma_zero;
 
 		/* list of free nblock numbers */
-		NBlockFreeList free_list;
+		PriorityQueue<NBlock*, NBlock::NBlockPQFuncsFprime> free_list;
 
 		/* This flag is set when the search is completed to
 		 * signal to all waiting processess that the search
