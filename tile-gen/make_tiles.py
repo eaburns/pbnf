@@ -9,7 +9,7 @@
 import sys, shutil, fileinput, math, os, subprocess, hashlib
 
 def usage():
-    print "usage: make_tiles.py [-t] [MAX] [skip]"
+    print "usage: make_tiles.py [-t] [MAX] [weight]"
     print "-t test whether A* can solve boards and keep only solvable ones"
     print "provide tile boards on stdin in the following format:"
     print "\t[num] [tile1, tile2...]"
@@ -20,10 +20,9 @@ def usage():
 width, height, n = None, None, None
 dir, model, executable = "boards", "random", "/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
 search_exec = "/home/rai/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
-#search_exec = "../src/tiles_search.x86_64"
-ulimit = "ulimit -v 15000000"
-
 #search_exec = "../src/tiles_search.i386"
+#search_exec = "../src/tiles_search.i386"
+ulimit = "ulimit -v 15000000"
 
 def switch_rep(tiles):
     other = [0]*len(tiles)
@@ -32,10 +31,8 @@ def switch_rep(tiles):
         other[tile] = str(tiles.index(tile))
     return other
 
-def make_board(in_data, test):
+def make_board(in_data, test, weight):
     global width, height, n
-    m = hashlib.md5()
-    m.update(in_data[in_data.index(" ")+1:-1])
     in_data = in_data.split()
     num = in_data[0]
     tiles = switch_rep(in_data[1:])
@@ -60,11 +57,18 @@ def make_board(in_data, test):
     outfile.write("\n".join([str(x) for x in range(n)]))
     outfile.close()
     
+    m = hashlib.md5()
+    m.update(open(path).read())
     new_path = m.hexdigest()+".tile"
 
     if test:
-        #run A* to see if the board is solvable
-        results = subprocess.Popen(ulimit+"; "+search_exec+" astar <"+path, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
+        #run A* or wA* to see if the board is solvable
+        if weight > 1:
+            alg = "wastar-"+str(weight)
+        else:
+            alg = "astar"
+        cmd = ulimit+"; "+search_exec+" "+alg+" < "+path
+        results = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
         is_output = len(results) > 0
         shutil.move(path, new_path)
         path = new_path
@@ -108,18 +112,15 @@ if __name__ == '__main__':
         else:
             max = sys.maxint-2
         if len(sys.argv) > 2:
-            skip = int(sys.argv[2])
+            weight = float(sys.argv[2])
         else:
-            skip = 0
+            weight = 1
         
         sys.argv = []
         made = 0
         for line in fileinput.input():
-            if skip > 0:
-                skip = skip-1
-                continue
             made += 1
             if made > max:
                 sys.exit(0)
-            if not make_board(line, test):
+            if not make_board(line, test, weight):
                 made -= 1

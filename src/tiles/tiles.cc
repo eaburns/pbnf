@@ -38,22 +38,24 @@ Tiles::Tiles(istream &in)
 	unsigned int g_blank = 0;
 	char buff[1024];
 	vector<unsigned int> g;
-	unsigned int pow;
+	uint64_t pow;
 
 	in >> height;
 	in >> width;
 
-	// We need to compute this power without floats, so pow() and
-	// friends won't do.
-	pow = 1;
-	for (unsigned int i = 0; i < (width * height - 1); i += 1)
-		pow *= 2;
+/*
+	cout << "height = " << height << endl;
+	cout << "width = " << width << endl;
+*/
 
-	// Compute crazy Korf table.
+	assert((width * height - 1) <= (sizeof(pow) * 8));
+	// 2^(w*h-1)
+	pow = ((uint64_t) 1) << (width * height - 1);
+
 	ones.resize(pow + 1);
 	for (unsigned int i = 1; i <= pow; i += 1) {
-		unsigned int bits = 0;
-		unsigned int j = i;
+		uint64_t bits = 0;
+		uint64_t j = i;
 
 		while (j) {
 			bits += j & 0x1;
@@ -103,7 +105,7 @@ Tiles::Tiles(istream &in)
 	goal = new TilesState(this, NULL, 0, 0, g, g_blank);
 }
 
-const vector<unsigned int> *Tiles::get_ones() const
+const vector<uint64_t> *Tiles::get_ones() const
 {
 	return &ones;
 }
