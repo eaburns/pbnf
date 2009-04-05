@@ -12,6 +12,7 @@
 
 #include "state.h"
 #include "search.h"
+#include "closed_list.h"
 
 /**
  * An A* search class.
@@ -20,6 +21,8 @@ class AStar : public Search {
 public:
 	virtual ~AStar(void);
 	virtual vector<State *> *search(State *);
+private:
+	ClosedList closed;
 };
 
 #endif	/* !_A_STAR_H_ */

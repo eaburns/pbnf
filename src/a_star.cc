@@ -14,7 +14,11 @@
 #include "closed_list.h"
 #include "a_star.h"
 
-AStar::~AStar(void) {}
+AStar::~AStar(void)
+{
+	closed.delete_all_states();
+}
+
 
 /**
  * Perform an A* search.
@@ -23,7 +27,6 @@ vector<State *> *AStar::search(State *init)
 {
 	vector<State *> *path = NULL;
 	PQOpenList<State::PQOpsFPrime> open;
-	ClosedList closed;
 
 	open.add(init);
 
@@ -44,9 +47,10 @@ vector<State *> *AStar::search(State *init)
 					dup->update(c->get_parent(), c->get_g());
 					if (dup->is_open())
 						open.see_update(dup);
-					//drop expanded duplicates
-					/*else
-					  open.add(dup);*/
+					// Duplicate dropping
+					/*
+					else
+					open.add(dup);*/
 				}
 				delete c;
 			} else {
@@ -57,8 +61,6 @@ vector<State *> *AStar::search(State *init)
 		}
 		delete children;
 	}
-
-	closed.delete_all_states();
 
 	return path;
 }
