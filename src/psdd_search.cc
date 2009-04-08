@@ -253,15 +253,16 @@ vector<State *> *PSDDSearch::search(State *initial)
 		delete *iter;
 	}
 
-	if (num == 0)
-		cout << "expansions-per-nblock: -1" << endl;
-	else
-		cout << "expansions-per-nblock: " << sum / num << endl;
+/* This output should not happen here inside the search function */
+//	if (num == 0 )
+// 		cout << "expansions-per-nblock: -1" << endl;
+// 	else
+// 		cout << "expansions-per-nblock: " << sum / num << endl;
 
-	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
+// 	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
 
-	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
-	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
+// 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
+// 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
 	return path;
 }
