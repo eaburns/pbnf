@@ -13,6 +13,9 @@ NBDSDIR=nbds.$(NBDSVER)
 NBDSLIB=libnbds-$(MARCH).a
 LIBNBDS=$(NBDSDIR)/$(NBDSLIB)
 
+LOCKFREEDIR=lockfree
+LIBLOCKFREE=lockfree/liblockfree-$(MARCH).a
+
 OBJDIR=objs.$(MARCH)
 
 SRC= \
@@ -111,7 +114,7 @@ endif
 
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
-CXXFLAGS+=$(FLAGS)
+CXXFLAGS+=$(FLAGS) -I$(NBDSDIR)/include
 
 PROGS=$(addsuffix .$(MARCH), \
 	grid_search \
@@ -129,11 +132,11 @@ PROGS=$(addsuffix .$(MARCH), \
 
 all: objdirs $(PROGS)
 
-grid_search.$(MARCH): $(OBJ) $(LIBNBDS) grid_search.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBNBDS) grid_search.cc
+grid_search.$(MARCH): $(OBJ) $(LIBNBDS) $(LIBLOCKFREE) grid_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBNBDS) $(LIBLOCKFREE) grid_search.cc
 
-tiles_search.$(MARCH): $(OBJ) $(LIBNBDS) tiles_search.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBNBDS) tiles_search.cc
+tiles_search.$(MARCH): $(OBJ) $(LIBNBDS) $(LIBLOCKFREE) tiles_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBNBDS) $(LIBLOCKFREE) tiles_search.cc
 
 thread_test.$(MARCH): $(OBJ) util/thread_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/thread_test.cc
@@ -173,6 +176,9 @@ pq_test.$(MARCH): $(OBJ) util/pq_test.cc
 
 $(LIBNBDS):
 	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
+
+$(LIBLOCKFREE):
+	cd $(LOCKFREEDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
 
 create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
 	@echo
@@ -218,6 +224,7 @@ objdirs:
  clean:
 	rm -fr $(OBJDIR)
 	rm -f $(PROGS)
-	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) clean ; cd ..
+	cd $(NBDSDIR) ; $(MAKE) MARCH=$(MARCH) clean ; cd ..
+	cd $(LOCKFREEDIR) ; $(MAKE) MARCH=$(MARCH) clean ; cd ..
 
 -include .depend
