@@ -1,5 +1,18 @@
 MARCH=$(shell uname -m)
 
+# These are all really the same thing here
+ifeq ($(MARCH), i686)
+MARCH=i386
+endif
+ifeq ($(MARCH), i586)
+MARCH=i386
+endif
+
+NBDSVER=0.4.3
+NBDSDIR=nbds.$(NBDSVER)
+NBDSLIB=libnbds-$(MARCH).a
+LIBNBDS=$(NBDSDIR)/$(NBDSLIB)
+
 OBJDIR=objs.$(MARCH)
 
 SRC= \
@@ -63,9 +76,6 @@ OBJ+=$(OBJDIR)/util/sparc64_atomic_int.o
 else ifeq ($(MARCH), i386)
 OBJ+=$(OBJDIR)/util/i386_atomic_int.o
 OBJ+=$(OBJDIR)/util/cmpxchg_i386.o
-else ifeq ($(MARCH), i686)
-OBJ+=$(OBJDIR)/util/i386_atomic_int.o
-OBJ+=$(OBJDIR)/util/cmpxchg_i386.o
 else ifeq ($(MARCH), x86_64)
 OBJ+=$(OBJDIR)/util/x86_64_atomic_int.o
 CXXFLAGS+=-D_64_BIT_LONG
@@ -91,9 +101,9 @@ PROFILE+=
 DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
-#LDFLAGS+=-lpthread $(PROFILE)
+LDFLAGS+=-lpthread $(PROFILE)
 #LDFLAGS+=-lpthread $(PROFILE) -ltcmalloc
-LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
+#LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
 endif
 ############################################################
 
@@ -119,11 +129,11 @@ PROGS=$(addsuffix .$(MARCH), \
 
 all: objdirs $(PROGS)
 
-grid_search.$(MARCH): $(OBJ) grid_search.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) grid_search.cc
+grid_search.$(MARCH): $(OBJ) $(LIBNBDS) grid_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBNBDS) grid_search.cc
 
-tiles_search.$(MARCH): $(OBJ) tiles_search.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles_search.cc
+tiles_search.$(MARCH): $(OBJ) $(LIBNBDS) tiles_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBNBDS) tiles_search.cc
 
 thread_test.$(MARCH): $(OBJ) util/thread_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/thread_test.cc
@@ -160,6 +170,9 @@ pq_open_list_test.$(MARCH): $(OBJ) pq_open_list_test.cc
 
 pq_test.$(MARCH): $(OBJ) util/pq_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/pq_test.cc
+
+$(LIBNBDS):
+	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
 
 create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
 	@echo
@@ -205,5 +218,6 @@ objdirs:
  clean:
 	rm -fr $(OBJDIR)
 	rm -f $(PROGS)
+	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) clean ; cd ..
 
 -include .depend
