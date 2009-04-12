@@ -110,6 +110,8 @@ void lf_ordlist_print(FILE *f, struct lf_ordlist *lst);
  *************************************************************
  */
 
+struct lf_pq;
+
 /**
  * Create a new lock free priority queue.
  *
@@ -142,6 +144,14 @@ int lf_pq_insert(struct lf_pq *pq, void *val);
  *         if not.
  */
 void *lf_pq_delete_min(struct lf_pq *pq);
+
+/**
+ * Peek at the minimum value in the prio queue.
+ *
+ * \return NULL if the queue was empty, the value of the minimum entry
+ * if not.
+ */
+void *lf_pq_peek_min(struct lf_pq *pq);
 
 /**
  * Test if the PQ is empty.

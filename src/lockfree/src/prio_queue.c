@@ -567,6 +567,18 @@ int lf_pq_insert(struct lf_pq *pq, void *val)
 	return 0;
 }
 
+void *lf_pq_peek_min(struct lf_pq *pq)
+{
+	struct lf_pq_node *n;
+
+	n = (struct lf_pq_node *) NEXT(pq->head, 0);
+
+	if (n == pq->tail)
+		return NULL;
+
+	return n->value;
+}
+
 void *lf_pq_delete_min(struct lf_pq *pq)
 {
 	int i;

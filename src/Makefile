@@ -23,6 +23,7 @@ SRC= \
 	state.cc \
 	search_domain.cc \
 	open_list.cc \
+	lf_openlist.cc \
 	queue_open_list.cc \
 	closed_list.cc \
 	synch_closed_list.cc \
@@ -69,6 +70,7 @@ SRC= \
 	wprastar.cc
 
 OBJ=$(addprefix $(OBJDIR)/, $(SRC:.cc=.o))
+OBJ+=$(LIBNBDS) $(LIBLOCKFREE)
 
 ifeq ($(MARCH), sparc64)
 FLAGS+=-mcpu=v9
@@ -114,7 +116,7 @@ endif
 
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
-CXXFLAGS+=$(FLAGS) -I$(NBDSDIR)/include
+CXXFLAGS+=$(FLAGS) -I$(NBDSDIR)/include -I$(LOCKFREEDIR)/src
 
 PROGS=$(addsuffix .$(MARCH), \
 	grid_search \
@@ -132,11 +134,11 @@ PROGS=$(addsuffix .$(MARCH), \
 
 all: objdirs $(PROGS)
 
-grid_search.$(MARCH): $(OBJ) $(LIBNBDS) $(LIBLOCKFREE) grid_search.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBNBDS) $(LIBLOCKFREE) grid_search.cc
+grid_search.$(MARCH): $(OBJ) grid_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) grid_search.cc
 
-tiles_search.$(MARCH): $(OBJ) $(LIBNBDS) $(LIBLOCKFREE) tiles_search.cc
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBNBDS) $(LIBLOCKFREE) tiles_search.cc
+tiles_search.$(MARCH): $(OBJ) tiles_search.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles_search.cc
 
 thread_test.$(MARCH): $(OBJ) util/thread_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/thread_test.cc
