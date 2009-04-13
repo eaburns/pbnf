@@ -1,0 +1,8 @@
+* There is still an issue with the prio queue when the PREV field is
+   used when deleting nodes.  It seems to leak a reference.
+
+* Do Makefile dependencies properly
+
+* Make the prio_queue random number generator thread safe.
+
+* Implement a lock-free hash table.
