@@ -67,6 +67,7 @@ SRC= \
 	pbnf_search.cc \
 	kbfs.cc \
 	pastar.cc \
+	lpastar.cc \
 	prastar.cc \
 	wprastar.cc
 

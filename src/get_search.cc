@@ -13,6 +13,10 @@
 #include <limits>
 #include <iostream>
 
+// this has to come first because other includes may include the C++
+// STL map.
+#include "lpastar.h"
+
 #include "a_star.h"
 #include "multi_a_star.h"
 #include "breadth_first_search.h"
@@ -59,6 +63,8 @@ Search *get_search(int argc, char *argv[])
 		return new KBFS(threads);
 	} else if (argc > 1 && sscanf(argv[1], "pastar-%u", &threads) == 1) {
 		return new PAStar(threads);
+	} else if (argc > 1 && sscanf(argv[1], "lpastar-%u", &threads) == 1) {
+		return new LPAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "wprastar-%f-%u-%u", &weight, &threads, &nblocks) == 3) {
