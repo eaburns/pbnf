@@ -337,7 +337,7 @@ void ll_print (list_t *ll, int verbose) {
             node_t *item = STRIP_MARK(next);
             if (item == NULL)
                 break;
-            printf("%s%p:0x%llx ", HAS_MARK(item->next) ? "*" : "", item, (uint64_t)item->key);
+            printf("%s%p:0x%lx ", HAS_MARK(item->next) ? "*" : "", item, (uint64_t)item->key);
             fflush(stdout);
             if (i++ > 30) {
                 printf("...");
@@ -347,7 +347,7 @@ void ll_print (list_t *ll, int verbose) {
         }
         printf("\n");
     }
-    printf("count:%llu\n", (uint64_t)ll_count(ll));
+    printf("count:%lu\n", (uint64_t)ll_count(ll));
 }
 
 ll_iter_t *ll_iter_begin (list_t *ll, map_key_t key) {

@@ -443,7 +443,7 @@ void sl_print (skiplist_t *sl, int verbose) {
         int i = 0;
         while (item) {
             int is_marked = HAS_MARK(item->next[0]);
-            printf("%s%p:0x%llx ", is_marked ? "*" : "", item, (uint64_t)item->key);
+            printf("%s%p:0x%lx ", is_marked ? "*" : "", item, (uint64_t)item->key);
             if (item != sl->head) {
                 printf("[%d]", item->num_levels);
             } else {
@@ -465,7 +465,7 @@ void sl_print (skiplist_t *sl, int verbose) {
             }
         }
     }
-    printf("levels:%-2d  count:%-6lld \n", sl->high_water, (uint64_t)sl_count(sl));
+    printf("levels:%-2d  count:%-6ld \n", sl->high_water, (uint64_t)sl_count(sl));
 }
 
 sl_iter_t *sl_iter_begin (skiplist_t *sl, map_key_t key) {

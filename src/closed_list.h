@@ -21,10 +21,10 @@ class ClosedList {
 public:
 	ClosedList(void);
 	ClosedList(unsigned long size);
-	~ClosedList(void);
-	void add(State *);
-	State *lookup(State *);
-	void delete_all_states(void);
+	virtual ~ClosedList(void);
+	virtual void add(State *);
+	virtual State *lookup(State *);
+	virtual void delete_all_states(void);
 
 private:
 	void init(unsigned long size);

@@ -639,13 +639,13 @@ void ht_free (hashtable_t *ht) {
 }
 
 void ht_print (hashtable_t *ht, int verbose) {
-    printf("probe:%-2d density:%.1f%% count:%-8lld ", ht->probe, ht->density, (uint64_t)ht_count(ht));
+    printf("probe:%-2d density:%.1f%% count:%-8ld ", ht->probe, ht->density, (uint64_t)ht_count(ht));
     hti_t *hti = ht->hti;
     while (hti) {
         if (verbose) {
             for (int i = 0; i < (1ULL << hti->scale); ++i) {
                 volatile entry_t *ent = hti->table + i;
-                printf("[0x%x] 0x%llx:0x%llx\n", i, (uint64_t)ent->key, (uint64_t)ent->val);
+                printf("[0x%x] 0x%lx:0x%lx\n", i, (uint64_t)ent->key, (uint64_t)ent->val);
                 if (i > 30) {
                     printf("...\n");
                     break;
@@ -653,9 +653,9 @@ void ht_print (hashtable_t *ht, int verbose) {
             }
         }
         int scale = hti->scale;
-        printf("hti count:%lld scale:%d key density:%.1f%% value density:%.1f%% probe:%d\n",
+        printf("hti count:%ld scale:%d key density:%.1f%% value density:%.1f%% probe:%d\n",
                 (uint64_t)hti->count, scale, (double)hti->key_count / (1ULL << scale) * 100,
-                (double)hti->count / (1ULL << scale) * 100, hti->probe);
+                (double)hti->count / (1UL << scale) * 100, hti->probe);
         hti = hti->next;
     }
 }
