@@ -43,10 +43,6 @@ public:
 				continue;
 			}
 
-			State *dup = p->closed.lookup(s);
-			if (dup && dup->get_g() <= s->get_g())
-				continue;
-			p->closed.add(s);
 			if (s->get_f() >= p->bound.read())
 				continue;
 
@@ -58,7 +54,16 @@ public:
 			children = p->expand(s);
 			for (unsigned int i = 0; i < children->size(); i += 1) {
 				State *c = children->at(i);
-				p->open.add(c);
+				State *dup = p->closed.lookup(c);
+				if (dup) {
+					if (dup->get_g() > c->get_g()) {
+						p->closed.add(c);
+						p->open.add(c);
+					}
+				} else {
+					p->closed.add(c);
+					p->open.add(c);
+				}
 			}
 		}
     

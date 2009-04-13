@@ -19,6 +19,8 @@ extern "C" {
 #include "lockfree.h"
 }
 
+#define MAX_FILL 5000000
+
 static int state_pred_fun(void *a, void *b)
 {
 	State *sa = (State*) a;
@@ -38,7 +40,7 @@ static int state_pred_fun(void *a, void *b)
 LF_OpenList::LF_OpenList(void)
 	: fill(0)
 {
-	pq = lf_pq_create(100000, state_pred_fun);
+	pq = lf_pq_create(MAX_FILL, state_pred_fun);
 }
 
 LF_OpenList::~LF_OpenList(void)

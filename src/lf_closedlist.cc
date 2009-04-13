@@ -63,7 +63,7 @@ LF_ClosedList::~LF_ClosedList(void)
 
 void LF_ClosedList::add(State *s)
 {
-	map_add(map, (map_key_t) s, (map_val_t) s);
+	map_set(map, (map_key_t) s, (map_val_t) s);
 }
 
 State *LF_ClosedList::lookup(State *s)
