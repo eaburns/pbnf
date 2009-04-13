@@ -46,6 +46,10 @@ public:
 			if (s->get_f() >= p->bound.read())
 				continue;
 
+			State *dup = p->closed.lookup(s);
+			if (dup && dup->get_g() < s->get_g())
+				continue;
+
 			if (s->is_goal()) {
 				p->set_path(s->get_path());
 				cout << "solution found" << endl;

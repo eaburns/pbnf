@@ -178,9 +178,11 @@ pq_open_list_test.$(MARCH): $(OBJ) pq_open_list_test.cc
 pq_test.$(MARCH): $(OBJ) util/pq_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/pq_test.cc
 
+.PHONY: $(LIBNBDS)
 $(LIBNBDS):
 	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
 
+.PHONY: $(LIBLOCKFREE)
 $(LIBLOCKFREE):
 	cd $(LOCKFREEDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
 

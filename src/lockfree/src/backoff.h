@@ -19,7 +19,7 @@
 /** The max delay is multiplied by this value via a loop so that we
  * never run out of bits in our 'long' datatype (even on small 32-bit
  * machines). */
-#define DELAY_MULT 1000
+#define DELAY_MULT 100
 
 static __inline__ long backoff_init(long max)
 {
