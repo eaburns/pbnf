@@ -32,7 +32,9 @@ public:
 
 	virtual ~WPBNFSearch(void);
 
-	virtual vector<State *> *search(State *initial);
+	virtual vector<State *> *search(Timer *t, State *initial);
+
+	void output_stats(void);
 private:
 	void set_path(vector<State *> *path);
 
@@ -70,6 +72,14 @@ private:
 	static AtomicInt min_expansions;
 
 	fp_type weight;
+
+
+	/* stats tracking */
+	fp_type sum;
+	unsigned int num;
+	fp_type osum;
+	unsigned int onum;
+	Timer graph_timer;
 };
 
 #endif	/* !_PBNF_SEARCH_H_ */

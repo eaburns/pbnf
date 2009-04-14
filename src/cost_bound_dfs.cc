@@ -17,7 +17,7 @@ CostBoundDFS::CostBoundDFS(fp_type bound) : bound(bound), min_pruned(0) {}
 /**
  * A cost bounded DFS.
  */
-vector<State *> *CostBoundDFS::search(State *init)
+vector<State *> *CostBoundDFS::search(Timer *t, State *init)
 {
 	vector<State *> *path = NULL;
 	vector<State *> *children;
@@ -44,7 +44,7 @@ vector<State *> *CostBoundDFS::search(State *init)
 		    delete children->at(i);
 		    continue;
 		}
-		path = search(children->at(i));
+		path = search(t, children->at(i));
 		if (path) {
 			for (i += 1; i < children->size(); i += 1)
 				delete children->at(i);

@@ -14,7 +14,7 @@
 IDPSDDSearch::IDPSDDSearch(unsigned int n_threads)
 	: n_threads(n_threads) {}
 
-vector<State *> *IDPSDDSearch::search(State *init)
+vector<State *> *IDPSDDSearch::search(Timer *t, State *init)
 {
 	vector <State *> *path = NULL;
 	fp_type old_bound, bound = init->get_f();
@@ -24,7 +24,7 @@ vector<State *> *IDPSDDSearch::search(State *init)
 	do {
 //		cout << "bound: " << bound << endl;
 
-		path = psdd.search(init->clone());
+		path = psdd.search(t, init->clone());
 		set_expanded(get_expanded() + psdd.get_expanded());
 		set_generated(get_generated() + psdd.get_generated());
 		old_bound = bound;

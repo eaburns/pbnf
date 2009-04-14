@@ -24,7 +24,7 @@ class CostBoundDFS : public Search {
 public:
 	CostBoundDFS(fp_type bound);
 
-	virtual vector<State *> *search(State *);
+	virtual vector<State *> *search(Timer *, State *);
 
 	fp_type get_min_pruned(void) const;
 private:

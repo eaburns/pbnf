@@ -26,11 +26,16 @@ using namespace std;
 
 class WBFPSDDSearch : public Search {
 public:
-	WBFPSDDSearch(unsigned int n_threads, fp_type multiplier, unsigned int min_expansions);
-	WBFPSDDSearch(unsigned int n_threads, fp_type multiplier, unsigned int min_expansions, fp_type bound);
+	WBFPSDDSearch(unsigned int n_threads,
+		      fp_type multiplier,
+		      unsigned int min_expansions);
+	WBFPSDDSearch(unsigned int n_threads,
+		      fp_type multiplier,
+		      unsigned int min_expansions,
+		      fp_type bound);
 	virtual ~WBFPSDDSearch(void);
 
-	virtual vector<State *> *search(State *s);
+	virtual vector<State *> *search(Timer *t, State *s);
 
 	void set_bound(fp_type bound);
 private:

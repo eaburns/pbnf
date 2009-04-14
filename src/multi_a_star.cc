@@ -8,6 +8,7 @@
  */
 
 #include "util/thread.h"
+#include "util/timer.h"
 #include "state.h"
 #include "a_star.h"
 #include "multi_a_star.h"
@@ -20,8 +21,8 @@ MultiAStar::~MultiAStar(void) {}
 
 class MultiAStarThread : public Thread {
 public:
-	MultiAStarThread(State *init)
-		: init(init), path(NULL) {}
+	MultiAStarThread(Timer *t, State *init)
+		: timer(t), init(init), path(NULL) {}
 
 	vector<State *> *get_path(void) {
 		return path;
@@ -36,22 +37,23 @@ public:
 	}
 
 	void run(void) {
-		path = search.search(init->clone());
+		path = search.search(timer, init->clone());
 	}
 
 private:
 	AStar search;
+	Timer *timer;
 	State *init;
 	vector<State *> *path;
 };
 
-vector<State *> *MultiAStar::search(State *init)
+vector<State *> *MultiAStar::search(Timer *t, State *init)
 {
 	vector<MultiAStarThread *> threads;
 	vector<State *> *path = NULL;
 
 	for (unsigned int i = 0; i < n_threads; i += 1)
-		threads.push_back(new MultiAStarThread(init));
+		threads.push_back(new MultiAStarThread(t, init));
 
 	for(vector<MultiAStarThread *>::iterator i = threads.begin();
 	    i != threads.end(); i++)

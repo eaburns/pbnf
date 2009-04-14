@@ -212,7 +212,12 @@ WPBNFSearch::WPBNFSearch(unsigned int n_threads,
 	  path(NULL),
 	  bound(fp_infinity),
 	  done(false),
-	  graph(NULL)
+	  graph(NULL),
+	  sum(0),
+	  num(0),
+	  osum(0),
+	  onum(0)
+
 {
 	pthread_mutex_init(&path_mutex, NULL);
 	if (min_e == 0){
@@ -233,21 +238,16 @@ WPBNFSearch::~WPBNFSearch(void)
 }
 
 
-vector<State *> *WPBNFSearch::search(State *initial)
+vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
-	fp_type sum = 0.0;
-	unsigned int num = 0;
-	fp_type osum = 0.0;
-	unsigned int onum = 0;
-	Timer t;
 
-	t.start();
+	graph_timer.start();
 	graph = new NBlockGraph(project, initial);
-	t.stop();
+	graph_timer.stop();
 
 	weight = initial->get_domain()->get_heuristic()->get_weight();
 
@@ -273,6 +273,12 @@ vector<State *> *WPBNFSearch::search(State *initial)
 
 		delete *iter;
 	}
+
+	return path;
+}
+
+void WPBNFSearch::output_stats(void)
+{
 	if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
@@ -282,14 +288,11 @@ vector<State *> *WPBNFSearch::search(State *initial)
 	else
 		cout << "avg-open-list-size: " << osum / onum << endl;
 
-	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
+	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
-
-	return path;
 }
-
 
 /**
  * Set an incumbant solution.

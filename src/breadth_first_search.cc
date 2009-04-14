@@ -26,7 +26,7 @@ BreadthFirstSearch::BreadthFirstSearch(fp_type bound)
 
 BreadthFirstSearch::~BreadthFirstSearch(void) {}
 
-vector<State *> *BreadthFirstSearch::search(State *init)
+vector<State *> *BreadthFirstSearch::search(Timer *t, State *init)
 {
 	vector<State *> *path = NULL;
 	QueueOpenList open;

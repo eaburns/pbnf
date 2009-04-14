@@ -166,7 +166,9 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int mi
 	  path(NULL),
 	  graph(NULL),
 	  min_expansions(min_expansions),
-	  multiplier(mult)
+	  multiplier(mult),
+	  sum(0),
+	  num(0)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -208,23 +210,20 @@ bool BFPSDDSearch::path_found(void) const
 /**
  * Perform the search.
  */
-vector<State *> *BFPSDDSearch::search(State *initial)
+vector<State *> *BFPSDDSearch::search(Timer *t, State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
 	vector<BFPSDDThread *> threads;
 	vector<BFPSDDThread *>::iterator iter;
-	fp_type sum = 0.0;
-	unsigned int num = 0;
-	Timer t;
 
-	t.start();
+	graph_timer.start();
 	graph = new NBlockGraph<RealValNBlockPQ<State::PQOpsFPrime>,
 		State::PQOpsFPrime>(project,
 					n_threads,
 					multiplier,
 					initial);
-	t.stop();
+	graph_timer.stop();
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		BFPSDDThread *t = new BFPSDDThread(graph, this);
@@ -244,17 +243,21 @@ vector<State *> *BFPSDDSearch::search(State *initial)
 		delete *iter;
 	}
 
+	return path;
+}
+
+
+void BFPSDDSearch::output_stats(void)
+{
 	if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
 
-	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
+	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
-
-	return path;
 }
 
 /**

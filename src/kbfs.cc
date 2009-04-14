@@ -51,7 +51,7 @@ KBFS::KBFS(unsigned int n_th)
 /**
  * Perform a KBFS search.
  */
-vector<State *> *KBFS::search(State *init)
+vector<State *> *KBFS::search(Timer *t, State *init)
 {
  	vector<State *> *path = NULL;
         unsigned int worker, i;

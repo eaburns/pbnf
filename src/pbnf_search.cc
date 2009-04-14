@@ -19,6 +19,7 @@
 #include "state.h"
 #include "util/timer.h"
 #include "util/cumulative_ave.h"
+#include "util/sync_solution_stream.h"
 
 using namespace std;
 using namespace PBNF;
@@ -204,7 +205,6 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 		       bool detect_livelocks)
 	: n_threads(n_threads),
 	  project(NULL),
-	  path(NULL),
 	  bound(fp_infinity),
 	  detect_livelocks(detect_livelocks),
 	  graph(NULL),
@@ -214,7 +214,6 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	  onum(0)
 
 {
-	pthread_mutex_init(&path_mutex, NULL);
 	if (min_e == 0){
 		dynamic_m = true;
 		min_expansions = AtomicInt(MIN_M);
@@ -235,8 +234,9 @@ PBNFSearch::~PBNFSearch(void)
 }
 
 
-vector<State *> *PBNFSearch::search(State *initial)
+vector<State *> *PBNFSearch::search(Timer *t, State *initial)
 {
+	solutions = new SyncSolutionStream(t, 0.01);
 	project = initial->get_domain()->get_projection();
 
 	vector<PBNFThread *> threads;
@@ -267,7 +267,7 @@ vector<State *> *PBNFSearch::search(State *initial)
 		delete *iter;
 	}
 
-	return path;
+	return solutions->get_best_path();
 }
 
 
@@ -276,13 +276,19 @@ vector<State *> *PBNFSearch::search(State *initial)
  */
 void PBNFSearch::set_path(vector<State *> *p)
 {
-	pthread_mutex_lock(&path_mutex);
-	assert(p->at(0)->get_g() == p->at(0)->get_f());
-	if (p && bound.read() > p->at(0)->get_g()) {
-		this->path = p;
-		bound.set(p->at(0)->get_g());
-	}
-	pthread_mutex_unlock(&path_mutex);
+	fp_type b, oldb;
+
+	assert(solutions);
+
+	b = solutions->see_solution(p, get_generated(), get_expanded());
+
+	// CAS in our new solution bound if it is still indeed better
+	// than the previous bound.
+	do {
+		oldb = bound.read();
+		if (oldb <= b)
+			return;
+	} while (bound.cmp_and_swap(oldb, b) != oldb);
 }
 
 void PBNFSearch::inc_switch(bool f)
@@ -321,4 +327,7 @@ void PBNFSearch::output_stats(void)
 
 	cout << "failed-locks: " << PBNFSearch::failed.read() << endl;
 	cout << "succeeded-locks: " << PBNFSearch::succeeded.read() << endl;
+
+	if (solutions)
+		solutions->output(cout);
 }

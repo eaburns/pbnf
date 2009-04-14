@@ -31,7 +31,7 @@ public:
 
         virtual ~wPRAStar(void);
 
-        virtual vector<State *> *search(State *init);
+        virtual vector<State *> *search(Timer *t, State *init);
         void set_done();
         bool is_done();
         void set_path(vector<State *> *path);

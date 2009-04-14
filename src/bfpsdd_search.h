@@ -31,9 +31,10 @@ public:
 	BFPSDDSearch(unsigned int n_threads, fp_type multiplier, unsigned int min_expansions, fp_type bound);
 	virtual ~BFPSDDSearch(void);
 
-	virtual vector<State *> *search(State *s);
+	virtual vector<State *> *search(Timer *t, State *s);
 
 	void set_bound(fp_type bound);
+	virtual void output_stats(void);
 private:
 
 	void set_path(vector<State *> *path);
@@ -62,6 +63,11 @@ private:
 	pthread_mutex_t path_mutex;
 	unsigned int min_expansions;
 	fp_type multiplier;
+
+	/* stats tracking */
+	fp_type sum;
+	unsigned int num;
+	Timer graph_timer;
 };
 
 #endif	/* !_BFPSDD_H_ */

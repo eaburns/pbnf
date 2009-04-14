@@ -17,7 +17,7 @@ class IDPSDDSearch : public Search {
 public:
 	IDPSDDSearch(unsigned int n_threads);
 
-	virtual vector<State *> *search(State *s);
+	virtual vector<State *> *search(Timer *t, State *s);
 
 private:
 	unsigned int n_threads;

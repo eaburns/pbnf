@@ -22,7 +22,7 @@
 class PAStar : public Search {
 public:
 	PAStar(unsigned int);
-	virtual vector<State *> *search(State *);
+	virtual vector<State *> *search(Timer *, State *);
         void set_done();
         bool is_done();
         void set_path(vector<State *> *path);

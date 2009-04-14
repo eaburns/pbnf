@@ -23,7 +23,7 @@ AStar::~AStar(void)
 /**
  * Perform an A* search.
  */
-vector<State *> *AStar::search(State *init)
+vector<State *> *AStar::search(Timer *t, State *init)
 {
 	vector<State *> *path = NULL;
 	PQOpenList<State::PQOpsFPrime> open;

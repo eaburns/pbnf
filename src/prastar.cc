@@ -224,7 +224,7 @@ bool PRAStar::has_path()
         return ret;
 }
 
-vector<State *> *PRAStar::search(State *init)
+vector<State *> *PRAStar::search(Timer *t, State *init)
 {
         pthread_mutex_init(&mutex, NULL);
 	project = init->get_domain()->get_projection();

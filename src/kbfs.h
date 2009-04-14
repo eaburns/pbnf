@@ -23,7 +23,7 @@
 class KBFS : public Search {
 public:
 	KBFS(unsigned int);
-	virtual vector<State *> *search(State *);
+	virtual vector<State *> *search(Timer *, State *);
 private:
 	PQOpenList<State::PQOpsF> open;
 	ClosedList closed;

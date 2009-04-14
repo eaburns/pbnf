@@ -19,7 +19,7 @@ using namespace std;
 
 class IDAStar : public Search {
 public:
-	virtual vector<State *> *search(State *);
+	virtual vector<State *> *search(Timer *, State *);
 };
 
 #endif	/* !_IDA_STAR_H_ */

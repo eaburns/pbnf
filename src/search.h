@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "util/atomic_int.h"
+#include "util/timer.h"
 #include "state.h"
 
 using namespace std;
@@ -25,7 +26,7 @@ public:
 	Search(void);
 	virtual ~Search() {}
 
-	virtual vector<State *> *search(State *) = 0;
+	virtual vector<State *> *search(Timer *t, State *) = 0;
 	virtual void output_stats(void);
 
 	void clear_counts(void);

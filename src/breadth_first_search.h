@@ -25,7 +25,7 @@ public:
 
 	virtual ~BreadthFirstSearch(void);
 
-	virtual vector<State *> *search(State *);
+	virtual vector<State *> *search(Timer *, State *);
 
 private:
 	fp_type bound;

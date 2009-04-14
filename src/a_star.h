@@ -20,7 +20,7 @@
 class AStar : public Search {
 public:
 	virtual ~AStar(void);
-	virtual vector<State *> *search(State *);
+	virtual vector<State *> *search(Timer *, State *);
 private:
 	ClosedList closed;
 };

@@ -18,7 +18,7 @@ public:
         DynamicBoundedPSDD(unsigned int n_threads, fp_type weight);
 
 	virtual ~DynamicBoundedPSDD(void);
-	virtual vector<State *> *search(State *s);
+	virtual vector<State *> *search(Timer *t, State *s);
 private:
 	unsigned int n_threads;
 	fp_type weight;

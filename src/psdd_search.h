@@ -31,8 +31,8 @@ public:
 	PSDDSearch(unsigned int n_threads, fp_type bound);
 	virtual ~PSDDSearch(void);
 
-	vector<State *> *search(State *s);
-	vector<State *> *search(State *s, NBlockGraph *g);
+	vector<State *> *search(Timer *t, State *s);
+	vector<State *> *search(Timer *t, State *s, NBlockGraph *g);
 
 	void set_bound(fp_type bound);
 	fp_type get_lowest_out_of_bounds(void);

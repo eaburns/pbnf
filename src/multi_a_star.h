@@ -21,7 +21,7 @@ class MultiAStar : public Search {
 public:
 	MultiAStar(unsigned int n_threads);
 	virtual ~MultiAStar(void);
-	virtual vector<State *> *search(State *);
+	virtual vector<State *> *search(Timer *, State *);
 
 private:
 	unsigned int n_threads;

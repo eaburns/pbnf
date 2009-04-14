@@ -17,6 +17,7 @@
 #include "util/thread.h"
 #include "util/atomic_int.h"
 #include "util/cumulative_ave.h"
+#include "util/sync_solution_stream.h"
 #include "projection.h"
 #include "search.h"
 #include "state.h"
@@ -28,12 +29,13 @@ using namespace PBNF;
 
 class PBNFSearch : public Search {
 public:
-	PBNFSearch(unsigned int n_threads, unsigned int min_expansions,
+	PBNFSearch(unsigned int n_threads,
+		   unsigned int min_expansions,
 		   bool detect_livelocks);
 
 	virtual ~PBNFSearch(void);
 
-	virtual vector<State *> *search(State *initial);
+	virtual vector<State *> *search(Timer *t, State *initial);
 	virtual void output_stats(void);
 
 	static void inc_switch(bool failed);
@@ -64,9 +66,10 @@ private:
 
 	unsigned int n_threads;
 	const Projection *project;
-	pthread_mutex_t path_mutex;
-	vector<State *> *path;
+
+	SolutionStream *solutions;
 	AtomicInt bound;
+
 	bool detect_livelocks;
 	bool dynamic_m;
 

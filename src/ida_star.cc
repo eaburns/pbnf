@@ -14,7 +14,7 @@
 
 using namespace std;
 
-vector<State *> *IDAStar::search(State *init)
+vector<State *> *IDAStar::search(Timer *t, State *init)
 {
 	vector<State *> *path = NULL;
 	fp_type old_bound, bound = init->get_f();
@@ -22,7 +22,7 @@ vector<State *> *IDAStar::search(State *init)
 	do {
 		CostBoundDFS dfs(bound);
 		cout << "bound=" << bound << endl;
-		path = dfs.search(init->clone());
+		path = dfs.search(t, init->clone());
 		set_expanded(get_expanded() + dfs.get_expanded());
 		set_generated(get_generated() + dfs.get_generated());
 		old_bound = bound;
