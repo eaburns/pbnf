@@ -28,7 +28,7 @@
 /**
  * The max number of levels in the skiplist.
  */
-#define MAX_LEVEL 20
+#define MAX_LEVEL 24
 
 /**
  * Get the next node at the given level.

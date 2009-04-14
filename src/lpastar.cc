@@ -50,10 +50,8 @@ public:
 			if (dup && dup->get_g() < s->get_g())
 				continue;
 
-			if (s->is_goal()) {
+			if (s->is_goal())
 				p->set_path(s->get_path());
-				cout << "solution found" << endl;
-			}
 
 			children = p->expand(s);
 			for (unsigned int i = 0; i < children->size(); i += 1) {
