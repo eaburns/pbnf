@@ -28,7 +28,7 @@
 /**
  * The max number of levels in the skiplist.
  */
-#define MAX_LEVEL 16
+#define MAX_LEVEL 20
 
 /**
  * Get the next node at the given level.
@@ -314,15 +314,30 @@ static struct lf_pq_node *help_delete(struct lf_pq *pq,
  */
 static int random_level(struct lf_pq *pq)
 {
+/*
 	int flip;
+*/
 	int count = 0;
 	long result;
 
+/*
 	do {
 		lrand48_r(&pq->rand_buffer, &result);
 		flip = result % 2;
 		count += 1;
 	} while (flip && count < MAX_LEVEL - 1);
+*/
+
+	/* From lockfree-lib... apparently has 0.5 drop off rate
+	 * per-level.  Looks more efficient than the previous
+	 * implementation.  Gets a number between 1 <= level <=
+	 * MAX_LEVEL. */
+	lrand48_r(&pq->rand_buffer, &result);
+	result = (result >> 4) & ((1 << (MAX_LEVEL - 1)) - 1);
+	while (result & 0x1) {
+		result >>= 1;
+		count += 1;
+	}
 
 	return count;
 }
