@@ -19,6 +19,12 @@ public:
 	void stop(void);
 	double get_wall_time(void);
 	double get_processor_time(void);
+
+	/**
+	 * Get the elapsed time, but without stopping the timer.
+	 * (like on a stop watch... the lap button).
+	 */
+	double get_lap_time(void);
 private:
 	double compute_wall_elapsed(void);
 	double compute_processor_elapsed(void);

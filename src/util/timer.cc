@@ -40,6 +40,10 @@ void Timer::start(void)
 	running = true;
 }
 
+double Timer::get_lap_time(void)
+{
+	return compute_wall_elapsed();
+}
 
 double Timer::compute_wall_elapsed(void)
 {
