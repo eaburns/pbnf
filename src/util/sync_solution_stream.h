@@ -9,10 +9,13 @@
 #if !defined(_SYNC_SOLUTION_STREAM_H_)
 #define _SYNC_SOLUTION_STREAM_H_
 
-#include <pthread.t>
+#include <pthread.h>
 
 #include <queue>
 
+#include "../state.h"
+#include "solution_stream.h"
+#include "timer.h"
 #include "fixed_point.h"
 
 using namespace std;
@@ -51,6 +54,6 @@ public:
 
 private:
 	pthread_mutex_t mutex;
-}
+};
 
 #endif /* !_SYNC_SOLUTION_STREAM_H_ */

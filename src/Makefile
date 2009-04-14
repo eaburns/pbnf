@@ -47,6 +47,7 @@ SRC= \
 	util/atomic_float.cc \
 	util/cumulative_ave.cc \
 	util/solution_stream.cc \
+	util/sync_solution_stream.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	tiles/tiles_state.cc \
