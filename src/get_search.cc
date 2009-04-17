@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include <limits>
+#include <vector>
 #include <iostream>
 
 // this has to come first because other includes may include the C++
@@ -36,12 +37,66 @@
 
 #include "get_search.h"
 
+#include <limits.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#if !defined(LINE_MAX)
+#define LINE_MAX 255
+#endif
+
 using namespace std;
 
 unsigned int threads = 1;
 fp_type cost_bound = fp_infinity;
 unsigned int nblocks = 1;
 float weight = 1.0;
+
+/**
+ * Parse a weight schedule string.
+ */
+vector<double> *parse_weights(char *str)
+{
+	unsigned int i, j;
+	bool decimal_seen = false;
+	char buf[LINE_MAX];
+	vector<double> *weights = new vector<double>();
+
+	j = 0;
+	for (i = 0; i < strlen(str); i += 1) {
+		char c = str[i];
+		if (isdigit(c) || (c == '.' && !decimal_seen)) {
+			if (c == '.')
+				decimal_seen = true;
+			assert(j < LINE_MAX); // just bomb out if we overflow :(
+			buf[j] = c;
+			j += 1;
+		} else if (c == ',') {
+			double d;
+
+			assert(j < LINE_MAX); // just bomb out if we overflow :(
+			buf[j] = '\0';
+			j = 0;
+			decimal_seen = false;
+
+			sscanf(buf, "%lf", &d);
+			weights->push_back(d);
+		} else {
+			cerr << "Invalid weight list [" << str
+			     << "] at char: " << i << endl;
+			exit(1);
+		}
+	}
+	if (j > 0) {
+		double d;
+		buf[j] = '\0';
+		j = 0;
+		sscanf(buf, "%lf", &d);
+		weights->push_back(d);
+	}
+
+	return weights;
+}
 
 Search *get_search(int argc, char *argv[])
 {
@@ -50,6 +105,15 @@ Search *get_search(int argc, char *argv[])
 
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
+/****/
+	} else if (argc > 2 && sscanf(argv[1], "test") == 0) {
+		unsigned int i;
+		vector<double> *ds = parse_weights(argv[2]);
+		for (i = 0; i < ds->size(); i += 1)
+			cout << ds->at(i) << endl;
+		exit(0);
+/****/
+
 	} else if (argc > 1 && sscanf(argv[1], "wastar-%f", &weight) == 1) {
 		return new AStar();
 	} else if (argc > 1 && strcmp(argv[1], "idastar") == 0) {
