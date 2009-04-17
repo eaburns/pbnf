@@ -236,7 +236,7 @@ PBNFSearch::~PBNFSearch(void)
 
 vector<State *> *PBNFSearch::search(Timer *t, State *initial)
 {
-	solutions = new SyncSolutionStream(t, 0.0001);
+	solutions = new SyncSolutionStream(t, 0.005);
 	project = initial->get_domain()->get_projection();
 
 	vector<PBNFThread *> threads;
@@ -280,7 +280,8 @@ void PBNFSearch::set_path(vector<State *> *p)
 
 	assert(solutions);
 
-	b = solutions->see_solution(p, get_generated(), get_expanded());
+	solutions->see_solution(p, get_generated(), get_expanded());
+	b = solutions->get_best_path()->at(0)->get_g();
 
 	// CAS in our new solution bound if it is still indeed better
 	// than the previous bound.

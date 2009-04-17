@@ -23,52 +23,75 @@ extern "C" {
 #include "timer.h"
 
 SyncSolutionStream::SyncSolutionStream(Timer *t, double g)
-	: SolutionStream(t, g), lst(NULL)
+	: SolutionStream(t, g), lst(NULL), best(NULL)
 {
 }
 
-fp_type SyncSolutionStream::see_solution(vector<State *> *path,
+void SyncSolutionStream::see_solution(vector<State *> *path,
 					 unsigned int gen,
 					 unsigned int exp)
 {
+	bool can_free = true;
 	double time = timer->get_lap_time();
-	fp_type cost = path->at(0)->get_g();
-	int success = 0;
 
-	Solution *s = lst;
-
-	if (s && cost * granularity >= s->path->at(0)->get_g())
-		return lst->path->at(0)->get_g();
+	Solution *b = best;
+	if (!better(path, b))
+		return;
 
 	Solution *t = new Solution(path, gen, exp, time);
-	while (!s || cost * granularity < s->path->at(0)->get_g()) {
+
+	while (better(path, b)) {
+		if (compare_and_swap(&best, (intptr_t) b, (intptr_t) t)) {
+			can_free = false;
+			break;
+		}
+		b = best;
+	}
+
+	int success = 0;
+	Solution *s = lst;
+	while (within_gran(path, s)) {
 		t->next = s;
 
 		success = compare_and_swap(&lst, (intptr_t) s, (intptr_t) t);
-		if (success)
+		if (success) {
+			can_free = false;
 			break;
+		}
 
 		s = lst;
 	}
 
-	if (!success)
+	if (!can_free) {
+		// was either set as 'best' solution or was added to
+		// the list or both... hold on to it.
+		Solution *q = all;
+		while (!compare_and_swap(&all, (intptr_t) q, (intptr_t) t))
+			q = all;
+	} else {
+		// wasn't added to anything and it can be freed.
 		delete t;
-
-	return lst->path->at(0)->get_g();
+	}
 }
 
 vector<State *> *SyncSolutionStream::get_best_path(void)
 {
-	Solution *s = lst;
+	Solution *b = best;
 
-	if (s == NULL)
+	if (!b)
 		return NULL;
 
-	return s->path;
+	return b->path;
 }
 
+/**
+ * Not meant to be called atomically.
+ */
 void SyncSolutionStream::output(ostream &o)
 {
-	SolutionStream::do_output(o, lst);
+	if (best->next == NULL)
+		best->next = lst;
+
+	SolutionStream::do_output(o, best);
 }
 

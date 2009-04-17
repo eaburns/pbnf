@@ -19,7 +19,7 @@ using namespace std;
 
 SolutionStream::SolutionStream(Timer *t, double g)
 	: timer(t),
-	  granularity(g * fp_one)
+	  granularity((g * fp_one) + fp_one)
 {
 }
 
@@ -32,7 +32,7 @@ fp_type SolutionStream::see_solution(vector<State *> *path,
 	fp_type cost = path->at(0)->get_g();
 
 	if (!best_path || cost * granularity < best_cost) {
-		Solution s(cost, path->size(), gen, exp, time);
+	Solution s(cost, path->size(), gen, exp, time);
 
 		best_path = path;
 		best_cost = cost;
@@ -76,4 +76,24 @@ void SolutionStream::do_output(ostream &o, Solution *s)
 	do_output_recur(o, s);
 }
 
+bool SolutionStream::better(vector<State *> *path, Solution *cur)
+{
+	if (!cur)
+		return true;
 
+	fp_type cost = path->at(0)->get_g();
+	fp_type costc = cur->path->at(0)->get_g();
+
+	return cost < costc;
+}
+
+bool SolutionStream::within_gran(vector<State *> *path, Solution *cur)
+{
+	if (!cur)
+		return true;
+
+	fp_type cost = (path->at(0)->get_g() * granularity) / fp_one;
+	fp_type costc = cur->path->at(0)->get_g();
+
+	return cost < costc;
+}

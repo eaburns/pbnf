@@ -10,6 +10,7 @@
 #define _SYNC_SOLUTION_STREAM_H_
 
 #include "../state.h"
+#include "atomic_int.h"
 #include "solution_stream.h"
 #include "timer.h"
 #include "fixed_point.h"
@@ -39,14 +40,10 @@ public:
 	 * \param gen Nodes generated at the time the solution was found.
 	 *
 	 * \param exp Nodes expanded at the time the solution was found.
-	 *
-	 * \return The new pruning bound (may be the same if the
-	 *         incumbent turns out to be worse than the current
-	 *         incumbent).
 	 */
-	virtual fp_type see_solution(vector<State *> *path,
-				     unsigned int gen,
-				     unsigned int exp);
+	virtual void see_solution(vector<State *> *path,
+				  unsigned int gen,
+				  unsigned int exp);
 
 	/**
 	 * Get the best solution path.
@@ -59,7 +56,11 @@ public:
 	virtual void output(ostream &o);
 
 private:
+	Solution *all;
+
 	Solution *lst;
+
+	Solution *best;
 };
 
 #endif /* !_SYNC_SOLUTION_STREAM_H_ */

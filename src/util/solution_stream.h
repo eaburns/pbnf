@@ -45,14 +45,10 @@ public:
 	 * \param gen Nodes generated at the time the solution was found.
 	 *
 	 * \param exp Nodes expanded at the time the solution was found.
-	 *
-	 * \return The new pruning bound (may be the same if the
-	 *         incumbent turns out to be worse than the current
-	 *         incumbent).
 	 */
-	virtual fp_type see_solution(vector<State *> *path,
-				     unsigned int gen,
-				     unsigned int exp) = 0;
+	virtual void see_solution(vector<State *> *path,
+				  unsigned int gen,
+				  unsigned int exp) = 0;
 
 	/**
 	 * Get the best solution path.
@@ -90,6 +86,9 @@ protected:
 
 	void do_output_recur(ostream &o, Solution *s);
 	void do_output(ostream &o, Solution *s);
+
+	bool better(vector<State *> *path, Solution *cur);
+	bool within_gran(vector<State *> *path, Solution *cur);
 
 	/** The search timer */
 	Timer *timer;
