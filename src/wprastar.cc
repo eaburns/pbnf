@@ -233,7 +233,7 @@ bool wPRAStar::has_path()
         return ret;
 }
 
-vector<State *> *wPRAStar::search(State *init)
+vector<State *> *wPRAStar::search(Timer *t, State *init)
 {
         pthread_mutex_init(&mutex, NULL);
 	project = init->get_domain()->get_projection();

@@ -173,7 +173,9 @@ WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int 
 	  graph(NULL),
 	  min_expansions(min_expansions),
 	  multiplier(mult),
-	  done(false)
+	  done(false),
+	  sum(0),
+	  num(0)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -215,22 +217,19 @@ bool WBFPSDDSearch::path_found(void) const
 /**
  * Perform the search.
  */
-vector<State *> *WBFPSDDSearch::search(State *initial)
+vector<State *> *WBFPSDDSearch::search(Timer *t, State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
 	vector<WBFPSDDThread *> threads;
 	vector<WBFPSDDThread *>::iterator iter;
-	fp_type sum = 0.0;
-	unsigned int num = 0;
-	Timer t;
 
-	t.start();
+	graph_timer.start();
 	graph = new NBlockGraph(project,
 				n_threads,
 				multiplier,
 				initial);
-	t.stop();
+	graph_timer.stop();
 
 	weight = initial->get_domain()->get_heuristic()->get_weight();
 
@@ -252,17 +251,22 @@ vector<State *> *WBFPSDDSearch::search(State *initial)
 		delete *iter;
 	}
 
+
+	return path;
+}
+
+
+void WBFPSDDSearch::output_stats(void)
+{
 	if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
 
-	cout << "nblock-graph-creation-time: " << t.get_wall_time() << endl;
+	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
-
-	return path;
 }
 
 /**

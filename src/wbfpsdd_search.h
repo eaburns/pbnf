@@ -37,6 +37,8 @@ public:
 
 	virtual vector<State *> *search(Timer *t, State *s);
 
+	virtual void output_stats(void);
+
 	void set_bound(fp_type bound);
 private:
 
@@ -69,6 +71,11 @@ private:
 
 	bool done;
 	fp_type weight;
+
+	/** Stats tracking. */
+	fp_type sum;
+	unsigned int num;
+	Timer graph_timer;
 };
 
 #endif	/* !_WBFPSDD_H_ */

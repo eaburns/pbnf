@@ -118,7 +118,7 @@ bool LPAStar::has_path()
 /**
  * Perform a Parallel A* search.
  */
-vector<State *> *LPAStar::search(State *init)
+vector<State *> *LPAStar::search(Timer *t, State *init)
 {
  	open.add(init);
         pthread_mutex_init(&mutex, NULL);
