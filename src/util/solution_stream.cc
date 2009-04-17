@@ -18,13 +18,12 @@
 using namespace std;
 
 SolutionStream::SolutionStream(Timer *t, double g)
-	: best_path(NULL),
-	  best_cost(fp_infinity),
-	  timer(t),
+	: timer(t),
 	  granularity(g * fp_one)
 {
 }
 
+/*
 fp_type SolutionStream::see_solution(vector<State *> *path,
 				     unsigned int gen,
 				     unsigned int exp)
@@ -47,23 +46,34 @@ vector<State *> *SolutionStream::get_best_path(void)
 {
 	return best_path;
 }
+*/
 
-void SolutionStream::output(ostream &o)
+void SolutionStream::do_output_recur(ostream &o, Solution *s)
 {
+	if (!s)
+		return;
+
+	do_output_recur(o, s->next);
+
+	o << "row: "
+	  << s->path->at(0)->get_g() / fp_one << " "
+	  << s->path->size() << " "
+	  << s->generated << " "
+	  << s->expanded << " "
+	  << s->time << endl;
+}
+
+void SolutionStream::do_output(ostream &o, Solution *s)
+{
+
+	if (!s)
+		return;
+
 	o << "cols: \"sol cost\" \"sol length\" "
 	  << "\"nodes expanded\" \"nodes generated\" "
 	  << "\"raw cpu time\"" << endl;
 
-	while (!solutions.empty()) {
-		Solution s = solutions.front();
-		solutions.pop();
-		o << "row: "
-		  << s.cost / fp_one << " "
-		  << s.length << " "
-		  << s.generated << " "
-		  << s.expanded << " "
-		  << s.time << endl;
-	}
+	do_output_recur(o, s);
 }
 
 

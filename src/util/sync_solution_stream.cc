@@ -11,8 +11,11 @@
 
 using namespace std;
 
-#include <pthread.h>
 #include <stdlib.h>
+
+extern "C" {
+#include "../lockfree/include/atomic.h"
+}
 
 #include "../state.h"
 #include "sync_solution_stream.h"
@@ -20,20 +23,52 @@ using namespace std;
 #include "timer.h"
 
 SyncSolutionStream::SyncSolutionStream(Timer *t, double g)
-	: SolutionStream(t, g)
+	: SolutionStream(t, g), lst(NULL)
 {
-	pthread_mutex_init(&mutex, NULL);
 }
 
 fp_type SyncSolutionStream::see_solution(vector<State *> *path,
 					 unsigned int gen,
 					 unsigned int exp)
 {
-	fp_type ret;
+	double time = timer->get_lap_time();
+	fp_type cost = path->at(0)->get_g();
+	int success = 0;
 
-	pthread_mutex_lock(&mutex);
-	ret = SolutionStream::see_solution(path, gen, exp);
-	pthread_mutex_unlock(&mutex);
+	Solution *s = lst;
 
-	return ret;
+	if (s && cost * granularity >= s->path->at(0)->get_g())
+		return lst->path->at(0)->get_g();
+
+	Solution *t = new Solution(path, gen, exp, time);
+	while (!s || cost * granularity < s->path->at(0)->get_g()) {
+		t->next = s;
+
+		success = compare_and_swap(&lst, (intptr_t) s, (intptr_t) t);
+		if (success)
+			break;
+
+		s = lst;
+	}
+
+	if (!success)
+		delete t;
+
+	return lst->path->at(0)->get_g();
 }
+
+vector<State *> *SyncSolutionStream::get_best_path(void)
+{
+	Solution *s = lst;
+
+	if (s == NULL)
+		return NULL;
+
+	return s->path;
+}
+
+void SyncSolutionStream::output(ostream &o)
+{
+	SolutionStream::do_output(o, lst);
+}
+

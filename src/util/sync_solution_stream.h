@@ -9,10 +9,6 @@
 #if !defined(_SYNC_SOLUTION_STREAM_H_)
 #define _SYNC_SOLUTION_STREAM_H_
 
-#include <pthread.h>
-
-#include <queue>
-
 #include "../state.h"
 #include "solution_stream.h"
 #include "timer.h"
@@ -48,12 +44,22 @@ public:
 	 *         incumbent turns out to be worse than the current
 	 *         incumbent).
 	 */
-	fp_type see_solution(vector<State *> *path,
-			     unsigned int gen,
-			     unsigned int exp);
+	virtual fp_type see_solution(vector<State *> *path,
+				     unsigned int gen,
+				     unsigned int exp);
+
+	/**
+	 * Get the best solution path.
+	 */
+	virtual vector<State *> *get_best_path(void);
+
+	/**
+	 * Output the solution stream to the given output stream.
+	 */
+	virtual void output(ostream &o);
 
 private:
-	pthread_mutex_t mutex;
+	Solution *lst;
 };
 
 #endif /* !_SYNC_SOLUTION_STREAM_H_ */

@@ -10,8 +10,6 @@
 #if !defined(_SOLUTION_STREAM_H_)
 #define _SOLUTION_STREAM_H_
 
-#include <queue>
-
 #include "../state.h"
 #include "timer.h"
 #include "fixed_point.h"
@@ -54,46 +52,44 @@ public:
 	 */
 	virtual fp_type see_solution(vector<State *> *path,
 				     unsigned int gen,
-				     unsigned int exp);
+				     unsigned int exp) = 0;
 
 	/**
 	 * Get the best solution path.
 	 */
-	vector<State *> *get_best_path(void);
+	virtual vector<State *> *get_best_path(void) = 0;
 
 	/**
 	 * Output the solution stream to the given output stream.
 	 */
-	void output(ostream &o);
+	virtual void output(ostream &o) = 0;
 
-private:
+protected:
+
 	/**
 	 * A solution cost and time pair.
 	 */
 	struct Solution {
-		Solution(fp_type c, unsigned int l, unsigned int gen,
-			 unsigned int exp, double t) {
-			cost = c;
-			length = l;
-			generated = gen;
-			expanded = exp;
-			time = t;
-		}
-		fp_type cost;
-		unsigned int length;
+		Solution(vector<State *> *p, unsigned int gen,
+			 unsigned int exp, double t)
+			{
+				path = p;
+				generated = gen;
+				expanded = exp;
+				time = t;
+				next = NULL;
+			}
+		vector<State *> *path;
 		unsigned int generated;
 		unsigned int expanded;
 		double time;
+
+		Solution *next;
 	};
 
-	/** The current best solution path. */
-	vector<State *> *best_path;
 
-	/** The cost of the current best solution. */
-	fp_type best_cost;
-
-	/** The stream of solutions. */
-	queue<Solution> solutions;
+	void do_output_recur(ostream &o, Solution *s);
+	void do_output(ostream &o, Solution *s);
 
 	/** The search timer */
 	Timer *timer;
