@@ -14,7 +14,9 @@
 // If this is defined then lazy nblock creation will not happen.
 //#define UNLAZY
 
-#include <pthread.h>
+extern "C" {
+#include "../lockfree/include/atomic.h"
+}
 
 #include "../projection.h"
 
@@ -47,7 +49,6 @@ private:
 	NB **blocks;
 	unsigned int num_nblocks;
 	unsigned int num_created;
-	pthread_mutex_t mutex;
 
 	CreationObserver *observer;
 };
@@ -77,8 +78,6 @@ NBlockMap<NB>::NBlockMap(const Projection *p)
 #else
 	num_created = 0;
 #endif
-
-	pthread_mutex_init(&mutex, NULL);
 }
 
 /**
@@ -104,14 +103,14 @@ NB *NBlockMap<NB>::get(unsigned int id)
 	return blocks[id];
 #else
 	if (!blocks[id]) {
-		pthread_mutex_lock(&mutex);
-		if (!blocks[id]) {
-			blocks[id] = new NB(project, id);
+		NB *b = new NB(project, id);
+		if (compare_and_swap(&blocks[id], NULL, (intptr_t) b)) {
 			if (observer)
 				observer->observe(blocks[id]);
 			num_created += 1;
+		} else {
+			delete b;
 		}
-		pthread_mutex_unlock(&mutex);
 	}
 
 	return blocks[id];

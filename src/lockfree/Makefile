@@ -14,7 +14,7 @@
 # use the following to turn debugging off
 DEBUG=-DNDEBUG -O3
 
-CFLAGS=$(DEBUG) -Wall -Werror
+CFLAGS=$(DEBUG) -Wall -Werror -Iinclude
 
 SRC=				\
 	src/mem.c 		\

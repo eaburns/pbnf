@@ -106,8 +106,8 @@ LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
-#DEBUG+=-O3 -DNDEBUG
-DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+DEBUG+=-O3 -DNDEBUG
+#DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 #LDFLAGS+=-lpthread $(PROFILE)
@@ -120,7 +120,7 @@ endif
 
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
-CXXFLAGS+=$(FLAGS) -I$(NBDSDIR)/include -I$(LOCKFREEDIR)/src
+CXXFLAGS+=$(FLAGS) -I$(NBDSDIR)/include -I$(LOCKFREEDIR)/include
 
 PROGS=$(addsuffix .$(MARCH), \
 	grid_search \
