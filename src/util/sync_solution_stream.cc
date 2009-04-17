@@ -89,7 +89,7 @@ vector<State *> *SyncSolutionStream::get_best_path(void)
  */
 void SyncSolutionStream::output(ostream &o)
 {
-	if (best->next == NULL)
+	if (best->next == NULL && lst != best)
 		best->next = lst;
 
 	SolutionStream::do_output(o, best);
