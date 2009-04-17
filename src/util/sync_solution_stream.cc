@@ -7,6 +7,10 @@
  * \date 2009-04-14
  */
 
+#include <iostream>
+
+using namespace std;
+
 #include <pthread.h>
 #include <stdlib.h>
 
@@ -28,7 +32,7 @@ fp_type SyncSolutionStream::see_solution(vector<State *> *path,
 	fp_type ret;
 
 	pthread_mutex_lock(&mutex);
-	ret = SyncSolutionStream::see_solution(path, gen, exp);
+	ret = SolutionStream::see_solution(path, gen, exp);
 	pthread_mutex_unlock(&mutex);
 
 	return ret;

@@ -58,7 +58,7 @@ void SolutionStream::output(ostream &o)
 		Solution s = solutions.front();
 		solutions.pop();
 		o << "row: "
-		  << s.cost << " "
+		  << s.cost / fp_one << " "
 		  << s.length << " "
 		  << s.generated << " "
 		  << s.expanded << " "
