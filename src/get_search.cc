@@ -106,15 +106,6 @@ Search *get_search(int argc, char *argv[])
 
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
-/****/
-	} else if (argc > 2 && sscanf(argv[1], "test") == 0) {
-		unsigned int i;
-		vector<double> *ds = parse_weights(argv[2]);
-		for (i = 0; i < ds->size(); i += 1)
-			cout << ds->at(i) << endl;
-		exit(0);
-/****/
-
 	} else if (argc > 1 && sscanf(argv[1], "wastar-%f", &weight) == 1) {
 		return new AStar();
 	} else if (argc > 1 && strcmp(argv[1], "idastar") == 0) {
@@ -191,6 +182,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tpbnf-<weight>-<min_expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<weight>-<min-expansions>-<threads>-<nblocks>" << endl
+		     << "\tarpbnf-<min-expansions>-<threads>-<nblocks> <weight-list>" << endl
 		     << "\tmultiastar-<threads>" << endl
 		     << "\tmultiwastar-<weight>-<threads>" << endl
 		     << endl;
