@@ -10,6 +10,8 @@
 #if !defined(_CLOSED_LIST_H_)
 #define _CLOSED_LIST_H_
 
+#include <list>
+
 #include "state.h"
 
 using namespace std;
@@ -25,6 +27,9 @@ public:
 	virtual void add(State *);
 	virtual State *lookup(State *);
 	virtual void delete_all_states(void);
+
+	virtual void prune(void);
+	virtual list<State*> *get_states();
 
 private:
 	void init(unsigned long size);

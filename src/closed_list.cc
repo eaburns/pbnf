@@ -76,15 +76,7 @@ ClosedList::ClosedList(unsigned long s)
 
 ClosedList::~ClosedList(void)
 {
-	if (!table)
-		return;
-
-	for (unsigned int i = 0; i < size; i += 1) {
-		if (table[i])
-			delete table[i];
-		table[i] = NULL;
-	}
-	free(table);
+	prune();
 }
 
 /**
@@ -190,3 +182,46 @@ void ClosedList::delete_all_states(void)
 		table[i] = NULL;
 	}
 }
+
+/**
+ * Drop all states, but don't delete them.
+ */
+void ClosedList::prune(void)
+{
+	if (!table)
+		return;
+
+	for (unsigned int i = 0; i < size; i += 1) {
+		if (table[i])
+			delete table[i];
+		table[i] = NULL;
+	}
+	free(table);
+
+	this->table = NULL;
+	fill = 0;
+}
+
+/**
+ * Get a list of all of the states.
+ */
+list<State*> *ClosedList::get_states()
+{
+	list<State*> *states = new list<State*>();
+
+	if (!table)
+		return states;
+
+	for (unsigned int i = 0; i < size; i += 1) {
+		Bucket *b = table[i];
+		if (!b)
+			continue;
+		while (b) {
+			states->push_front(b->data);
+			b = b->next;
+		}
+	}
+
+	return states;
+}
+
