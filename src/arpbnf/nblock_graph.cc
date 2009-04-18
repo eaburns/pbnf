@@ -149,14 +149,14 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		pthread_cond_wait(&cond, &mutex);
 	}
 
+	if (done)
+		goto out;
+
 	if (resort_flag) {
 		pthread_mutex_unlock(&mutex);
 		resort(false);
 		next_nblock(NULL, false);
 	}
-
-	if (done)
-		goto out;
 
 	n = free_list.take();
 	nblocks_assigned += 1;
@@ -454,6 +454,10 @@ bool NBlockGraph::needs_resort()
 void NBlockGraph::call_for_resort()
 {
 	list<NBlock *>::iterator iter;
+
+	// don't bother resorting if we are done.
+	if (done)
+		return;
 
 	pthread_mutex_lock(&mutex);
 	if (resort_flag) {

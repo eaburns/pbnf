@@ -34,7 +34,7 @@ DynamicBoundedPSDD::~DynamicBoundedPSDD(void) {}
 vector<State *> *DynamicBoundedPSDD::search(Timer *t, State *init)
 {
 	SearchDomain *d = init->get_domain();
-	const Heuristic *h = d->get_heuristic();
+	Heuristic *h = d->get_heuristic();
 	WeightedHeuristic wh(d, h, weight);
 	AStar astar;
 	PSDDSearch psdd(n_threads);

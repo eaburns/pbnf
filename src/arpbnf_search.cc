@@ -47,8 +47,13 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 			expansions = 0;
 			path = search_nblock(n);
 
-			if (path)
-				search->set_path(path);
+			if (path) {
+				if (search->set_path(path)) {
+					graph->free_nblock(n);
+					n = NULL;
+					graph->call_for_resort();
+				}
+			}
 		}
 	} while (n);
 
@@ -63,7 +68,7 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::search_nblock(NBlock *n)
 	vector<State *> *path = NULL;
 	OpenList *open = &n->open;
 
-	while (!open->empty() && !should_switch(n)) {
+	while (!open->empty() && !should_switch(n) && !graph->needs_resort()) {
 		State *s = open->take();
 
 		if (s->get_f() >= search->bound.read())
@@ -182,8 +187,10 @@ ARPBNFSearch::ARPBNFSearch(unsigned int n_threads,
 	  graph(NULL),
 	  min_expansions(min_e),
 	  weights(w),
-	  next_weight(1)
+	  next_weight(1),
+	  domain(NULL)
 {
+	pthread_mutex_init(&wmutex, NULL);
 }
 
 
@@ -197,7 +204,8 @@ ARPBNFSearch::~ARPBNFSearch(void)
 vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
 {
 	solutions = new SyncSolutionStream(timer, 0.0001);
-	project = initial->get_domain()->get_projection();
+	domain = initial->get_domain();
+	project = domain->get_projection();
 
 	vector<ARPBNFSearch::ARPBNFThread*> threads;
 	vector<ARPBNFSearch::ARPBNFThread*>::iterator iter;
@@ -221,23 +229,41 @@ vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
 
 /**
  * Set an incumbant solution.
+ *
+ * If this function returns true than the calling thread must call for
+ * a resort.
  */
-void ARPBNFSearch::set_path(vector<State *> *p)
+bool ARPBNFSearch::set_path(vector<State *> *p)
 {
-	fp_type b, oldb;
-
 	assert(solutions);
 
-	solutions->see_solution(p, get_generated(), get_expanded());
-	b = solutions->get_best_path()->at(0)->get_g();
+	pthread_mutex_lock(&wmutex);
 
-	// CAS in our new solution bound if it is still indeed better
-	// than the previous bound.
-	do {
-		oldb = bound.read();
-		if (oldb <= b)
-			return;
-	} while (bound.cmp_and_swap(oldb, b) != oldb);
+	if (bound.read() <= p->at(0)->get_g()) {
+		pthread_mutex_unlock(&wmutex);
+		return false;
+	}
+
+	solutions->see_solution(p, get_generated(), get_expanded());
+	bound.set(p->at(0)->get_g());
+
+	// if we were already at a weight of 1.0, then just finish.
+	if (weights->at(next_weight - 1) == 1.0) {
+		graph->set_done();
+	} else {
+		double nw = 1.0;
+		if (next_weight < weights->size())
+			nw = weights->at(next_weight);
+		else
+			cerr << "Final weight is not 1.0, using 1.0" << endl;
+
+		domain->get_heuristic()->set_weight(nw);
+		next_weight += 1;
+	}
+
+	pthread_mutex_unlock(&wmutex);
+
+	return true;
 }
 
 /**

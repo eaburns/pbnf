@@ -28,8 +28,8 @@ public:
 
 	virtual ~SearchDomain();
 
-	virtual void set_heuristic(const Heuristic *h);
-	virtual const Heuristic* get_heuristic(void) const;
+	virtual void set_heuristic(Heuristic *h);
+	virtual Heuristic* get_heuristic(void) const;
 	virtual void set_projection(const Projection *p);
 	virtual const Projection *get_projection(void) const;
 
@@ -37,7 +37,7 @@ public:
 	virtual State *initial_state(void) = 0;
 	virtual vector<State*> *expand(State *s) = 0;
 private:
-	const Heuristic *heuristic;
+	Heuristic *heuristic;
 	const Projection *project;
 };
 

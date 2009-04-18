@@ -41,7 +41,14 @@ namespace ARPBNF {
 		virtual void output_stats(void);
 
 	private:
-		void set_path(vector<State *> *path);
+		/**
+		 * Set a new incumbent.
+		 *
+		 * \return true if this is the new incumbent, false if
+		 *         it is not (another, better, incumbent
+		 *         already exists).
+		 */
+		bool set_path(vector<State *> *path);
 
 		unsigned int n_threads;
 		const Projection *project;
@@ -69,10 +76,9 @@ namespace ARPBNF {
 		pthread_mutex_t wmutex;
 
 		/**
-		 * This flag is set to true when it is time to resort
-		 * the nblock graph.
+		 * The domain of the currently running search.
 		 */
-		bool do_resort;
+		SearchDomain *domain;
 
 		/********************************************/
 
