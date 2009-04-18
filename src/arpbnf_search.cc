@@ -40,6 +40,7 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
+	next:
 		n = graph->next_nblock(n, !set_hot);
 
 		set_hot = false;
@@ -52,6 +53,7 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 					graph->free_nblock(n);
 					n = NULL;
 					graph->call_for_resort();
+					goto next;
 				}
 			}
 		}
@@ -235,6 +237,7 @@ vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
  */
 bool ARPBNFSearch::set_path(vector<State *> *p)
 {
+	bool ret = false;
 	assert(solutions);
 
 	pthread_mutex_lock(&wmutex);
@@ -247,10 +250,7 @@ bool ARPBNFSearch::set_path(vector<State *> *p)
 	solutions->see_solution(p, get_generated(), get_expanded());
 	bound.set(p->at(0)->get_g());
 
-	// if we were already at a weight of 1.0, then just finish.
-	if (weights->at(next_weight - 1) == 1.0) {
-		graph->set_done();
-	} else {
+	if (weights->at(next_weight - 1) != 1.0) {
 		double nw = 1.0;
 		if (next_weight < weights->size())
 			nw = weights->at(next_weight);
@@ -259,11 +259,13 @@ bool ARPBNFSearch::set_path(vector<State *> *p)
 
 		domain->get_heuristic()->set_weight(nw);
 		next_weight += 1;
+
+		ret = true;
 	}
 
 	pthread_mutex_unlock(&wmutex);
 
-	return true;
+	return ret;
 }
 
 /**

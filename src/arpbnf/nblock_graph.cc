@@ -107,7 +107,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
-	if (trylock && finished && !finished->open.empty()) {
+	if (!resort_flag && trylock && finished && !finished->open.empty()) {
 		if (pthread_mutex_trylock(&mutex) == EBUSY)
 			return finished;
 	} else {
@@ -137,6 +137,12 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		}
 
 		__free_nblock(finished);
+
+		if (resort_flag) {
+			pthread_mutex_unlock(&mutex);
+			resort(false);
+			pthread_mutex_lock(&mutex);
+		}
 
 		if (free_list.empty() && num_sigma_zero == num_nblocks) {
 			__set_done();
@@ -478,11 +484,16 @@ void NBlockGraph::call_for_resort()
 	}
 
 	resort_flag = true;
+	pthread_cond_broadcast(&cond);
+	pthread_mutex_unlock(&mutex);
 
 	resort(true);
 
+	pthread_mutex_lock(&mutex);
 	// the blocks should now be resorted, clear the flag so that
 	// everyone can continue.
+	free_list.resort();
+
 	resort_flag = false;
 	pthread_mutex_unlock(&mutex);
 }
