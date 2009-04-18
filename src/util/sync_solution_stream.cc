@@ -23,7 +23,7 @@ extern "C" {
 #include "timer.h"
 
 SyncSolutionStream::SyncSolutionStream(Timer *t, double g)
-	: SolutionStream(t, g), lst(NULL), best(NULL)
+	: SolutionStream(t, g), all(NULL), lst(NULL), best(NULL)
 {
 }
 
