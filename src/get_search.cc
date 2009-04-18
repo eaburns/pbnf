@@ -25,6 +25,7 @@
 #include "ida_star.h"
 #include "kbfs.h"
 #include "psdd_search.h"
+#include "arpbnf_search.h"
 #include "bfpsdd_search.h"
 #include "wbfpsdd_search.h"
 #include "idpsdd_search.h"
@@ -159,6 +160,11 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1
 		   && sscanf(argv[1], "safepbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new PBNFSearch(threads, min_expansions, true);
+	} else if (argc > 2
+		   && sscanf(argv[1], "arpbnf-%u-%u-%u", &min_expansions, &threads, &nblocks) == 3) {
+		vector<double> *weights = parse_weights(argv[2]);
+		weight = weights->at(0);
+		return new ARPBNF::ARPBNFSearch(threads, min_expansions, weights);
 	} else if (argc > 1
 		   && sscanf(argv[1], "wpbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new WPBNFSearch(threads, min_expansions);
