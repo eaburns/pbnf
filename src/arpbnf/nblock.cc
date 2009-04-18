@@ -100,3 +100,10 @@ void NBlock::print(ostream &o)
 	o << endl;
 
 }
+
+/**
+ * Resort the nblock.
+ */
+void NBlock::resort(void)
+{
+}

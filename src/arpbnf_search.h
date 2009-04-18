@@ -43,9 +43,6 @@ namespace ARPBNF {
 	private:
 		void set_path(vector<State *> *path);
 
-		/*
-		 * Datamembers
-		 */
 		unsigned int n_threads;
 		const Projection *project;
 
@@ -55,8 +52,27 @@ namespace ARPBNF {
 		NBlockGraph *graph;
 		unsigned int min_expansions;
 
+		/**
+		 * The weight scheudle.
+		 */
 		vector<double> *weights;
+
+		/**
+		 * Index of the next weight in the weights vector to use.
+		 */
 		unsigned int next_weight;
+
+		/**
+		 * Mutex held by a thread moving to the next weight in
+		 * the schedule.
+		 */
+		pthread_mutex_t wmutex;
+
+		/**
+		 * This flag is set to true when it is time to resort
+		 * the nblock graph.
+		 */
+		bool do_resort;
 
 		/********************************************/
 

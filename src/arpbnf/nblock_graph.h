@@ -26,8 +26,12 @@
 
 using namespace std;
 
+extern "C" {
+#include "../lockfree/include/lockfree.h"
+}
+
 namespace ARPBNF {
-	class NBlockGraph {
+	class NBlockGraph : public NBlockMap<NBlock*>::CreationObserver {
 	public:
 		NBlockGraph(const Projection *p, State *init);
 
@@ -47,6 +51,21 @@ namespace ARPBNF {
 
 		fp_type best_val(void);
 
+		/**
+		 * Signal all threads to stop and resort the nblocks.
+		 */
+		void call_for_resort(void);
+
+		/**
+		 * Test if the resort bit is set.
+		 */
+		bool needs_resort(void);
+
+		/**
+		 * Observe the creation of a new nblock (add it to the
+		 * 'nblocks' list).
+		 */
+		void observe(NBlock *b);
 	private:
 		void cpp_is_a_bad_language(const Projection *p, State *initial);
 		NBlock *create_nblock(unsigned int id);
@@ -57,10 +76,20 @@ namespace ARPBNF {
 		void set_cold(NBlock *b);
 		void update_scope_sigmas(unsigned int y, int delta);
 
+		/**
+		 * Resort all of the nblocks.
+		 *
+		 * \param master Set by the master thread calling for
+		 *               the resort and false by all of the
+		 *               rest of the threads.
+		 */
+		void resort(bool master);
+
 		const Projection *project;
 
-		/* NBlocks (this may be incomplete because nblocks are created lazily). */
-//		NBlock **_blocks;
+		/**
+		 * NBlocks (this may be incomplete because nblocks are created lazily).
+		 */
 		NBlockMap<NBlock> map;
 
 		/* The total number of NBlocks. */
@@ -70,16 +99,44 @@ namespace ARPBNF {
 		/* The number of NBlocks with sigma values of zero. */
 		unsigned int num_sigma_zero;
 
-		/* list of free nblock numbers */
+		/**
+		 * List of free nblock numbers
+		 */
 		PriorityQueue<NBlock*, NBlock::NBlockPQFuncsFprime> free_list;
+
+		/**
+		 * List of all created nblocks.  When an nblock is
+		 * lazily created, it is added to this list so that it
+		 * can be resorted when the time comes.
+		 */
+		list<NBlock*> nblocks;
 
 		/* This flag is set when the search is completed to
 		 * signal to all waiting processess that the search
 		 * has completed. */
 		bool done;
 
+		/**
+		 * Locks the nblock graph.
+		 */
 		pthread_mutex_t mutex;
+
+		/**
+		 * Signals the condition that an nblock has become
+		 * free for searching.
+		 */
 		pthread_cond_t cond;
+
+		/**
+		 * When this is set, all of the threads get together
+		 * and resort the nblocks.
+		 */
+		bool resort_flag;
+
+		/**
+		 * Queue of nblocks which need to be resorted.
+		 */
+		lf_queue *resort_q;
 
 		/*
 		 * Statistics

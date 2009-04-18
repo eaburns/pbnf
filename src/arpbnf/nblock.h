@@ -34,6 +34,13 @@ namespace ARPBNF {
 		bool operator<(NBlock *a);
 		void print(ostream &s);
 
+		/**
+		 * Resort the nodes in this nblock.  This means that
+		 * the nodes will need to recompute their heuristic
+		 * values and the PQ will need to resort.
+		 */
+		void resort(void);
+
 		struct NBlockPQFuncsFprime {
 			/* Predecessor operator. */
 			int inline operator()(NBlock *a, NBlock *b) {

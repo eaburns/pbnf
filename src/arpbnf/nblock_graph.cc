@@ -54,6 +54,7 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
+	resort_q = lf_queue_create(num_nblocks);
 
 	NBlock *n = map.get(init_nblock);
 	n->open.add(initial);
@@ -73,7 +74,8 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
  * \param p The projection function.
  */
 NBlockGraph::NBlockGraph(const Projection *p, State *initial)
-	: map(p)
+	: map(p),
+	  resort_flag(false)
 {
 	cpp_is_a_bad_language(p, initial);
 }
@@ -83,6 +85,7 @@ NBlockGraph::NBlockGraph(const Projection *p, State *initial)
  */
 NBlockGraph::~NBlockGraph()
 {
+	lf_queue_destroy(resort_q);
 }
 
 
@@ -150,8 +153,15 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 
 	}
 
-	while (!done && free_list.empty())
+	while (!resort_flag && !done && free_list.empty()) {
 		pthread_cond_wait(&cond, &mutex);
+	}
+
+	if (resort_flag) {
+		pthread_mutex_unlock(&mutex);
+		resort(false);
+		next_nblock(NULL, false);
+	}
 
 	if (done)
 		goto out;
@@ -413,4 +423,73 @@ void NBlockGraph::wont_release(NBlock *b)
 unsigned int NBlockGraph::get_ncreated_nblocks(void)
 {
 	return map.get_num_created();;
+}
+
+
+/*
+ * The NBlockMap calls this when an nblock is lazily created.
+ */
+void NBlockGraph::observe(NBlock *b)
+{
+	pthread_mutex_lock(&mutex);
+	nblocks.push_front(b);
+	pthread_mutex_unlock(&mutex);
+}
+
+bool NBlockGraph::needs_resort()
+{
+	return resort_flag;
+}
+
+void NBlockGraph::call_for_resort()
+{
+	list<NBlock *>::iterator iter;
+
+	pthread_mutex_lock(&mutex);
+	if (resort_flag) {
+		// someone else got here first, just resort and leave
+		pthread_mutex_unlock(&mutex);
+		resort(false);
+		return;
+	}
+
+	// add all nblocks to the lock-free resort queue.
+	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+		int err;
+		err = lf_queue_enqueue(resort_q, *iter);
+		if (err) {
+			perror(__func__);
+			exit(1);
+		}
+	}
+
+	resort_flag = true;
+
+	resort(true);
+
+	// the blocks should now be resorted, clear the flag so that
+	// everyone can continue.
+	resort_flag = false;
+	pthread_mutex_unlock(&mutex);
+}
+
+void NBlockGraph::resort(bool master)
+{
+	/** Spin until all nblocks are released. */
+	while(num_sigma_zero != num_nblocks)
+		;
+
+	while (!lf_queue_empty(resort_q)) {
+		NBlock *b = (NBlock*) lf_queue_dequeue(resort_q);
+		assert(b->sigma == 0);
+		assert(b->sigma_hot == 0);
+
+		b->resort();
+	}
+
+	if (!master) {
+		// spin until the master thread resets the resort flag.
+		while(resort_flag)
+			;
+	}
 }
