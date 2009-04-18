@@ -250,15 +250,24 @@ bool ARPBNFSearch::set_path(vector<State *> *p)
 	solutions->see_solution(p, get_generated(), get_expanded());
 	bound.set(p->at(0)->get_g());
 
+#if !defined(NDEBUG) && 0
+	cout << "Solution of cost " << p->at(0)->get_g() / fp_one
+	     << " found at weight " << weights->at(next_weight - 1)
+	     << endl;
+#endif	// !NDEBUG
+
+	final_sol_weight = weights->at(next_weight - 1);
+
 	if (weights->at(next_weight - 1) != 1.0) {
 		double nw = 1.0;
-		if (next_weight < weights->size())
+		if (next_weight < weights->size()) {
 			nw = weights->at(next_weight);
-		else
+			next_weight += 1;
+		} else {
 			cerr << "Final weight is not 1.0, using 1.0" << endl;
+		}
 
 		domain->get_heuristic()->set_weight(nw);
-		next_weight += 1;
 
 		ret = true;
 	}
@@ -276,6 +285,7 @@ void ARPBNFSearch::output_stats(void)
 {
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
+	cout << "final-sol-weight: " << final_sol_weight << endl;
 
 	if (solutions)
 		solutions->output(cout);

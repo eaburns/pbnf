@@ -79,6 +79,11 @@ namespace ARPBNF {
 		 */
 		SearchDomain *domain;
 
+		/**
+		 * The weight at which the final solution was found.
+		 */
+		double final_sol_weight;
+
 		/********************************************/
 
 		/**
