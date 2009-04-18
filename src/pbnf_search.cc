@@ -234,9 +234,9 @@ PBNFSearch::~PBNFSearch(void)
 }
 
 
-vector<State *> *PBNFSearch::search(Timer *t, State *initial)
+vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 {
-	solutions = new SyncSolutionStream(t, 0.0001);
+	solutions = new SyncSolutionStream(timer, 0.0001);
 	project = initial->get_domain()->get_projection();
 
 	vector<PBNFThread *> threads;

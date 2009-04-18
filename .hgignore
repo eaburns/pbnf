@@ -22,3 +22,10 @@ src/tiles_read_test.*
 src/tiles_search.*
 src/two_tile_project_test.*
 src/pq_test.*
+src/lockfree/atomic_test-*
+src/lockfree/liblockfree-*
+src/lockfree/mem_test-*
+src/lockfree/ordlist_test-*
+src/lockfree/prio_queue_test-*
+src/lockfree/queue_test-*
+src/nbds.0.4.3/libnbds-*

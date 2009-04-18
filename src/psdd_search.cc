@@ -212,7 +212,7 @@ bool PSDDSearch::path_found(void) const
 /**
  * Perform the search.
  */
-vector<State *> *PSDDSearch::search(Timer *t, State *initial)
+vector<State *> *PSDDSearch::search(Timer *timer, State *initial)
 {
 	project = initial->get_domain()->get_projection();
 
@@ -220,12 +220,12 @@ vector<State *> *PSDDSearch::search(Timer *t, State *initial)
 	vector<PSDDThread *>::iterator iter;
 	fp_type sum = 0.0;
 	unsigned int num = 0;
-	Timer timer;
+	Timer graph_timer;
 
 	if (!graph) {
-		timer.start();
+		graph_timer.start();
 		graph = new NBlockGraph(project, initial);
-		timer.stop();
+		graph_timer.stop();
 	} else {
 		graph->reset(project, initial);
 	}

@@ -210,7 +210,7 @@ bool BFPSDDSearch::path_found(void) const
 /**
  * Perform the search.
  */
-vector<State *> *BFPSDDSearch::search(Timer *t, State *initial)
+vector<State *> *BFPSDDSearch::search(Timer *timer, State *initial)
 {
 	project = initial->get_domain()->get_projection();
 

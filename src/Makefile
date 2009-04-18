@@ -64,6 +64,9 @@ SRC= \
 	wpbnf/nblock.cc \
 	wpbnf/nblock_graph.cc \
 	wpbnf_search.cc \
+	arpbnf_search.cc \
+	arpbnf/nblock.cc \
+	arpbnf/nblock_graph.cc \
 	pbnf/nblock.cc \
 	pbnf/nblock_graph.cc \
 	pbnf_search.cc \
