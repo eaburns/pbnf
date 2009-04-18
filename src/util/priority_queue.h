@@ -43,6 +43,7 @@ public:
 	Elem front(void);
 	bool empty(void);
 	void reset(void);
+	void resort(void);
 
 	/** When the value of an element gets better (closer to the
 	 * front of the queue) this function re-sifts it. */
@@ -407,4 +408,26 @@ template<class Elem, class PQOps>
 	}
 	return true;
 }
+
+/**
+ * Run through the priority queue and resort all of its elements.
+ *
+ * This function should be called if *all* of the elements in the
+ * priority queue have changed in value.
+ */
+template<class Elem, class PQOps>
+	void PriorityQueue<Elem, PQOps>::resort(void)
+{
+	int old_fill = fill;
+	Elem *old_heap = heap;
+
+	heap = new Elem[size];
+	fill = 0;
+
+	for (int i = 0; i < old_fill; i += 1)
+		add(old_heap[i]);
+
+	delete [] old_heap;
+}
+
 #endif /* !_PRIORITY_QUEUE_H_ */

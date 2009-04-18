@@ -13,7 +13,7 @@
 #include <pthread.h>
 
 #include <iostream>
-#include <map>
+#include <list>
 #include <vector>
 
 #include "nblock.h"
@@ -31,13 +31,14 @@ extern "C" {
 }
 
 namespace ARPBNF {
-	class NBlockGraph : public NBlockMap<NBlock*>::CreationObserver {
+	class NBlockGraph : public NBlockMap<NBlock>::CreationObserver {
 	public:
 		NBlockGraph(const Projection *p, State *init);
 
 		~NBlockGraph();
 
 		NBlock *next_nblock(NBlock *finished, bool trylock);
+		void free_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
@@ -75,6 +76,11 @@ namespace ARPBNF {
 		bool is_free(NBlock *b);
 		void set_cold(NBlock *b);
 		void update_scope_sigmas(unsigned int y, int delta);
+
+		/**
+		 * Free an nblock
+		 */
+		void __free_nblock(NBlock *finished);
 
 		/**
 		 * Resort all of the nblocks.

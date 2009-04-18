@@ -39,6 +39,7 @@ public:
 	unsigned int size(void);
 	void remove(State *s);
 	void see_update(State *s);
+	void resort();
 private:
 	PriorityQueue<State *, PQCompare> pq;
 	PQCompare get_index;
@@ -158,6 +159,15 @@ template<class PQCompare>
 		set_best_val(fp_infinity);
 	else
 		set_best_val(comp.get_value(pq.front()));
+}
+
+/**
+ * Resort the whole thing.
+ */
+template<class PQCompare>
+void PQOpenList<PQCompare>::resort(void)
+{
+	pq.resort();
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */

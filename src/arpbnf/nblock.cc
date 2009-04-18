@@ -106,4 +106,5 @@ void NBlock::print(ostream &o)
  */
 void NBlock::resort(void)
 {
+	open.resort();
 }

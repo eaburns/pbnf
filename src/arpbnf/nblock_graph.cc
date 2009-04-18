@@ -136,18 +136,10 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 			}
 		}
 
-		nblocks_assigned -= 1;
-
-		if (is_free(finished)) {
-			free_list.add(finished);
-			pthread_cond_broadcast(&cond);
-		}
-		finished->inuse = false;
-		update_scope_sigmas(finished->id, -1);
+		__free_nblock(finished);
 
 		if (free_list.empty() && num_sigma_zero == num_nblocks) {
 			__set_done();
-//			__print(cerr);
 			goto out;
 		}
 
@@ -185,6 +177,24 @@ out:
 	return n;
 }
 
+void NBlockGraph::__free_nblock(NBlock *finished)
+{
+	nblocks_assigned -= 1;
+
+	if (is_free(finished)) {
+		free_list.add(finished);
+		pthread_cond_broadcast(&cond);
+	}
+	finished->inuse = false;
+	update_scope_sigmas(finished->id, -1);
+}
+
+void NBlockGraph::free_nblock(NBlock *finished)
+{
+	pthread_mutex_lock(&mutex);
+	__free_nblock(finished);
+	pthread_mutex_unlock(&mutex);
+}
 
 /**
  * Get the best NBlock in the interference scope of b which is not free.
