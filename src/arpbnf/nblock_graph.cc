@@ -123,7 +123,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		}
 		assert(finished->sigma == 0);
 
-		if (!finished->open.empty()) {
+		if (!resort_flag && !finished->open.empty()) {
 			fp_type cur_f = finished->open.get_best_val();
 			fp_type new_f;
 			if (free_list.empty())
