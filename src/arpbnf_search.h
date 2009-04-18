@@ -12,6 +12,8 @@
 
 #include <vector>
 
+using namespace std;
+
 #include "arpbnf/nblock_graph.h"
 #include "arpbnf/nblock.h"
 #include "util/thread.h"
@@ -30,7 +32,8 @@ namespace ARPBNF {
 	class ARPBNFSearch : public Search {
 	public:
 		ARPBNFSearch(unsigned int n_threads,
-			   unsigned int min_expansions);
+			     unsigned int min_expansions,
+			     vector<double> *w);
 
 		virtual ~ARPBNFSearch(void);
 
@@ -51,6 +54,9 @@ namespace ARPBNF {
 
 		NBlockGraph *graph;
 		unsigned int min_expansions;
+
+		vector<double> *weights;
+		unsigned int next_weight;
 
 		/********************************************/
 

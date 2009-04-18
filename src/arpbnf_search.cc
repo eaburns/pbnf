@@ -174,12 +174,15 @@ bool ARPBNFSearch::ARPBNFThread::should_switch(NBlock *n)
 
 
 ARPBNFSearch::ARPBNFSearch(unsigned int n_threads,
-			   unsigned int min_e)
+			   unsigned int min_e,
+			   vector<double> *w)
 	: n_threads(n_threads),
 	  project(NULL),
 	  bound(fp_infinity),
 	  graph(NULL),
-	  min_expansions(min_e)
+	  min_expansions(min_e),
+	  weights(w),
+	  next_weight(1)
 {
 }
 
