@@ -24,10 +24,9 @@ using namespace std;
 #include "search.h"
 #include "state.h"
 
-namespace ARPBNF {
+using namespace std;
 
-	using namespace std;
-	using namespace ARPBNF;
+namespace ARPBNF {
 
 	class ARPBNFSearch : public Search {
 	public:

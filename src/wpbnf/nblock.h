@@ -7,8 +7,8 @@
  * \date 2008-10-21
  */
 
-#if !defined(_NBLOCK_H_)
-#define _NBLOCK_H_
+#if !defined(_WPBNF_NBLOCK_H_)
+#define _WPBNF_NBLOCK_H_
 
 #include <pthread.h>
 #include <iostream>
@@ -77,4 +77,4 @@ namespace WPBNF {
 		set<unsigned int> succs;
 	};
 }	/* PBNF */
-#endif	/* !_NBLOCK_H_ */
+#endif	/* !_WPBNF_NBLOCK_H_ */

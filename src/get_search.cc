@@ -156,10 +156,10 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1
 		   && sscanf(argv[1], "pbnf-%f-%u-%u-%u",
 			     &weight, &min_expansions, &threads, &nblocks) == 4) {
-		return new PBNFSearch(threads, min_expansions, false);
+		return new PBNF::PBNFSearch(threads, min_expansions, false);
 	} else if (argc > 1
 		   && sscanf(argv[1], "safepbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
-		return new PBNFSearch(threads, min_expansions, true);
+		return new PBNF::PBNFSearch(threads, min_expansions, true);
 	} else if (argc > 2
 		   && sscanf(argv[1], "arpbnf-%u-%u-%u", &min_expansions, &threads, &nblocks) == 3) {
 		vector<double> *weights = parse_weights(argv[2]);
@@ -167,7 +167,7 @@ Search *get_search(int argc, char *argv[])
 		return new ARPBNF::ARPBNFSearch(threads, min_expansions, weights);
 	} else if (argc > 1
 		   && sscanf(argv[1], "wpbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
-		return new WPBNFSearch(threads, min_expansions);
+		return new WPBNF::WPBNFSearch(threads, min_expansions);
 	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
 		return new MultiAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "multiwastar-%f-%u", &weight, &threads) == 2) {

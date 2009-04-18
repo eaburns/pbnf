@@ -7,8 +7,8 @@
  * \date 2008-10-20
  */
 
-#if !defined(_NBLOCK_GRAPH_H_)
-#define _NBLOCK_GRAPH_H_
+#if !defined(_WPBNF_NBLOCK_GRAPH_H_)
+#define _WPBNF_NBLOCK_GRAPH_H_
 
 #include <pthread.h>
 
@@ -90,4 +90,4 @@ namespace WPBNF {
 	};
 } /* PBNF */
 
-#endif	/* !_NBLOCK_GRAPH_H_ */
+#endif	/* !_WPBNF_NBLOCK_GRAPH_H_ */
