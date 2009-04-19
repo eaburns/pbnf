@@ -23,8 +23,8 @@ using namespace std;
  * \param x The x-coordinate of this state.
  * \param y The y-coordinate of this state.
  */
-GridState::GridState(GridWorld *d, State *parent, fp_type g, int x, int y)
-	: State(d, parent, g), x(x), y(y)
+GridState::GridState(GridWorld *d, State *parent, fp_type c, fp_type g, int x, int y)
+	: State(d, parent, c, g), x(x), y(y)
 {
 	this->h = domain->get_heuristic()->compute(this);
 }
@@ -63,7 +63,7 @@ State *GridState::clone(void) const
 {
 	GridWorld *d = dynamic_cast<GridWorld *>(domain);
 
-	return new GridState(d, parent, g, x, y);
+	return new GridState(d, parent, c, g, x, y);
 }
 
 /**

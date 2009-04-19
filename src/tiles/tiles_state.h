@@ -19,10 +19,10 @@ using namespace std;
 
 class TilesState : public State {
 public:
-	TilesState(SearchDomain *d, State *parent, fp_type g,
+	TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 		   vector<unsigned int> tiles, unsigned int blank);
 
-	TilesState(SearchDomain *d, State *parent, fp_type g,
+	TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 		   fp_type h, vector<unsigned int> tiles,
 		   unsigned int blank);
 

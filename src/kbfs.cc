@@ -104,7 +104,7 @@ vector<State *> *KBFS::search(Timer *t, State *init)
 		      State *dup = closed.lookup(c);
 			if (dup){
 			  if (dup->get_g() > c->get_g()) {
-			    dup->update(c->get_parent(), c->get_g());
+				  dup->update(c->get_parent(), c->get_c(), c->get_g());
 			    if (dup->is_open())
 			      open.see_update(dup);
 			    else

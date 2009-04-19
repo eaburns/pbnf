@@ -67,7 +67,7 @@ public:
 	if (dup){
 	  pthread_mutex_lock(mut);
 	  if (dup->get_g() > c->get_g()) {
-	    dup->update(c->get_parent(), c->get_g());
+		  dup->update(c->get_parent(), c->get_c(), c->get_g());
 	    if (dup->is_open())
 	      p->open.see_update(dup);
 	    else

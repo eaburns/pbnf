@@ -37,10 +37,10 @@ void TilesState::compute_hash(void)
 }
 
 
-TilesState::TilesState(SearchDomain *d, State *parent, fp_type g,
+TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 		       fp_type h_val, vector<unsigned int> tiles,
 		       unsigned int blank)
-	: State(d, parent, g),
+	: State(d, parent, c, g),
 	  tiles(tiles),
 	  blank(blank)
 {
@@ -49,9 +49,9 @@ TilesState::TilesState(SearchDomain *d, State *parent, fp_type g,
 }
 
 
-TilesState::TilesState(SearchDomain *d, State *parent, fp_type g,
+TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 		       vector<unsigned int> t, unsigned int b)
-	: State(d, parent, g),
+	: State(d, parent, c, g),
 	  tiles(t),
 	  blank(b)
 {
@@ -81,7 +81,7 @@ uint64_t TilesState::hash(void) const
 
 State *TilesState::clone(void) const
 {
-	return new TilesState(domain, parent, g, tiles, blank);
+	return new TilesState(domain, parent, c, g, tiles, blank);
 }
 
 

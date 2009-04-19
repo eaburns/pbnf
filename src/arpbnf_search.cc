@@ -125,7 +125,7 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 
 	if (dup) {
 		if (dup->get_g() > ch->get_g()) {
-			dup->update(ch->get_parent(), ch->get_g());
+			dup->update(ch->get_parent(), ch->get_c(), ch->get_g());
 			if (dup->is_open()) {
 				copen->see_update(dup);
 			} else {

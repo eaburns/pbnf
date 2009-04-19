@@ -40,7 +40,7 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {
-				dup->update(c->get_parent(), c->get_g());
+				dup->update(c->get_parent(), c->get_c(), c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
 				else
@@ -105,7 +105,7 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {
-				dup->update(c->get_parent(), c->get_g());
+				dup->update(c->get_parent(), c->get_c(), c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
 				else

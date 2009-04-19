@@ -79,7 +79,7 @@ public:
 		PQOpsF f_cmp;
 	};
 
-	State(SearchDomain *d, State *parent, fp_type g);
+	State(SearchDomain *d, State *parent, fp_type c, fp_type g);
 
 	virtual ~State();
 
@@ -95,8 +95,9 @@ public:
 
 	fp_type get_f(void) const;
 	fp_type get_f_prime(void) const;
+	fp_type get_c(void) const;
 	fp_type get_g(void) const;
-	void update(State *parent, fp_type g);
+	void update(State *parent, fp_type c, fp_type g);
 	fp_type get_h(void) const;
 	State *get_parent(void) const;
 	vector<State *> *get_path(void);
@@ -105,6 +106,7 @@ public:
 //protected:
 	State *parent;
 	SearchDomain *domain;
+	fp_type c;
 	fp_type g;
 	fp_type h;
 	bool open;

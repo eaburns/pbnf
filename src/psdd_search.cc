@@ -109,6 +109,7 @@ vector<State *> *PSDDSearch::PSDDThread::search_nblock(NBlock *n)
 			if (dup) {
 				if (dup->get_g() > (*iter)->get_g()) {
 					dup->update((*iter)->get_parent(),
+						    (*iter)->get_c(),
 						    (*iter)->get_g());
 					if (!dup->is_open())
 						next_open->add(dup);

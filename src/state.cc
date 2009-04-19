@@ -11,9 +11,10 @@
 
 #include "state.h"
 
-State::State(SearchDomain *d, State *parent, fp_type g)
+State::State(SearchDomain *d, State *parent, fp_type c, fp_type g)
 	: parent(parent),
 	  domain(d),
+	  c(c),
 	  g(g),
 	  h(-1),
 	  open(false),
@@ -52,6 +53,14 @@ fp_type State::get_f_prime(void) const
 }
 
 /**
+ * Get the transition cost into this state.
+ * \return g
+ */
+fp_type State::get_c(void) const
+{
+	return c;
+}
+/**
  * Get the cost so far of the state.
  * \return g
  */
@@ -63,9 +72,10 @@ fp_type State::get_g(void) const
 /**
  * Set the g value for this state.
  */
-void State::update(State *p, fp_type g_val)
+void State::update(State *p, fp_type c_val, fp_type g_val)
 {
 	this->parent = p;
+	this->c = c_val;
 	this->g = g_val;
 }
 

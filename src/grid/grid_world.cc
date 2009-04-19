@@ -108,7 +108,7 @@ GridWorld::GridWorld(istream &s)
  */
 State *GridWorld::initial_state(void)
 {
-	return new GridState(this, NULL, 0, start_x, start_y);
+	return new GridState(this, NULL, 0, 0, start_x, start_y);
 }
 
 /**
@@ -126,18 +126,22 @@ vector<State*> *GridWorld::expand4(GridState *s)
 
 	if (x > 0 && !is_obstacle(x - 1, y)) {
 		children->push_back(new GridState(this, s,
+						  cost,
 						  g + cost, x - 1, y));
 	}
 	if (x < width - 1 && !is_obstacle(x + 1, y)) {
 		children->push_back(new GridState(this, s,
+						  cost,
 						  g + cost, x + 1, y));
 	}
 	if (y > 0 && !is_obstacle(x, y- 1)) {
 		children->push_back(new GridState(this, s,
+						  cost,
 						  g + cost, x, y - 1));
 	}
 	if (y < height - 1 && !is_obstacle(x, y+ 1)) {
 		children->push_back(new GridState(this, s,
+						  cost,
 						  g + cost, x, y + 1));
 	}
 
@@ -158,19 +162,19 @@ vector<State*> *GridWorld::expand8(GridState *s)
 	children = expand4(s);
 
 	if (x > 0 && y > 0 && !is_obstacle(x - 1, y - 1)) {
-		children->push_back(new GridState(this, s, g + cost,
+		children->push_back(new GridState(this, s, cost, g + cost,
 						  x - 1, y - 1));
 	}
 	if (x < width - 1 && y > 0 && !is_obstacle(x + 1, y - 1)) {
-		children->push_back(new GridState(this, s, g + cost,
+		children->push_back(new GridState(this, s, cost, g + cost,
 						  x + 1, y - 1));
 	}
 	if (x < width - 1 && y < height - 1 && !is_obstacle(x + 1, y + 1)) {
-		children->push_back(new GridState(this, s, g + cost,
+		children->push_back(new GridState(this, s, cost, g + cost,
 						  x + 1, y + 1));
 	}
 	if (x > 0 && y < height - 1 && !is_obstacle(x - 1, y+ 1)) {
-		children->push_back(new GridState(this, s, g + cost,
+		children->push_back(new GridState(this, s, cost, g + cost,
 						  x - 1, y + 1));
 	}
 

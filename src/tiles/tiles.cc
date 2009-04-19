@@ -142,7 +142,7 @@ Tiles::~Tiles(void)
  */
 State *Tiles::initial_state(void)
 {
-	return new TilesState(this, NULL, 0, initial, initial_blank);
+	return new TilesState(this, NULL, 0, 0, initial, initial_blank);
 }
 
 
@@ -179,25 +179,25 @@ vector<State *> *Tiles::expand(State *s)
 		dynamic_cast<TilesState *>(s->get_parent());
 
 	if (col > 0 && (!gp || gp->get_blank() != blank -1)) {
-		children->push_back(new TilesState(this, s, s->get_g() + cost,
+		children->push_back(new TilesState(this, s, cost, s->get_g() + cost,
 						   child(tiles, blank,
 							 blank - 1),
 						   blank - 1));
 	}
 	if (col < width - 1 && (!gp || gp->get_blank() != blank + 1)) {
-		children->push_back(new TilesState(this, s, s->get_g() + cost,
+		children->push_back(new TilesState(this, s, cost, s->get_g() + cost,
 						   child(tiles, blank,
 							 blank + 1),
 						   blank + 1));
 	}
 	if (row > 0 && (!gp || gp->get_blank() != blank - width)) {
-		children->push_back(new TilesState(this, s, s->get_g() + cost,
+		children->push_back(new TilesState(this, s, cost, s->get_g() + cost,
 						   child(tiles, blank,
 							 blank - width),
 						   blank - width));
 	}
 	if (row < height - 1 && (!gp || gp->get_blank() != blank + width)) {
-		children->push_back(new TilesState(this, s, s->get_g() + cost,
+		children->push_back(new TilesState(this, s, cost, s->get_g() + cost,
 						   child(tiles, blank,
 							 blank + width),
 						   blank + width));
