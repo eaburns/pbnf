@@ -299,7 +299,7 @@ bool ARPBNFSearch::set_path(vector<State *> *p)
 	solutions->see_solution(p, get_generated(), get_expanded());
 	bound.set(p->at(0)->get_g());
 
-#if !defined(NDEBUG) && 0
+#if !defined(NDEBUG)
 	cout << "Solution of cost " << p->at(0)->get_g() / fp_one
 	     << " found at weight " << weights->at(next_weight - 1)
 	     << endl;
