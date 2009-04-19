@@ -558,8 +558,11 @@ retry:
 void NBlockGraph::resort(bool master)
 {
 	/** Spin until the master thread declares the resort begun. */
-	while(!resort_start)
+	while(!resort_start && resort_flag)
 		;
+
+	if (!resort_flag)
+		return;
 
 	while (!lf_queue_empty(resort_q)) {
 		NBlock *b = (NBlock*) lf_queue_dequeue(resort_q);
