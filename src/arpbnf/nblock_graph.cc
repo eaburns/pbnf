@@ -149,6 +149,11 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 
 		if (free_list.empty()
 		    && num_sigma_zero.read() == num_nblocks) {
+#if !defined(NDEBUG)
+			list<NBlock*>::iterator iter;
+			for (iter = nblocks.begin(); iter != nblocks.end(); iter++)
+				assert((*iter)->open.empty());
+#endif	// !NDEBUG
 			n = NULL;
 			goto out;
 		}

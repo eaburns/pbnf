@@ -29,7 +29,7 @@ NBlock::NBlock(const Projection *project, unsigned int ident)
 	: id(ident),
 	  sigma(0),
 	  closed(1000),
-	  incons(1000),
+	  incons(100),
 	  sigma_hot(0),
 	  hot(false),
 	  inuse(false),
@@ -108,14 +108,12 @@ void NBlock::print(ostream &o)
  */
 void NBlock::resort(void)
 {
-	list<State*> *states;
-	list<State*>::iterator i;
-
 	open.resort();
 
+/*
 	states = incons.get_states();
 	for (i = states->begin(); i != states->end(); i++)
 		open.add(*i);
+*/
 	incons.prune();
-	delete states;
 }

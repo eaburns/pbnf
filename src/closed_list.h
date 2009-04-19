@@ -10,8 +10,7 @@
 #if !defined(_CLOSED_LIST_H_)
 #define _CLOSED_LIST_H_
 
-#include <list>
-
+#include "util/hash_table.h"
 #include "state.h"
 
 using namespace std;
@@ -30,31 +29,9 @@ public:
 	virtual bool empty();
 
 	virtual void prune(void);
-	virtual list<State*> *get_states();
 
 private:
-	void init(unsigned long size);
-	void new_table(void);
-	void resize(void);
-	void do_add(State *s);
-	unsigned long get_ind(State *s);
-
-	class Bucket {
-	public:
-		Bucket(State *data, Bucket *next);
-		~Bucket(void);
-
-		State *lookup(State *s);
-		Bucket *add(State *s);
-
-		State *data;
-		Bucket *next;
-		unsigned int size;
-	};
-
-	Bucket **table;
-	unsigned long size;
-	unsigned long fill;
+	HashTable<State> tbl;
 };
 
 #endif	/* !_CLOSED_LIST_H_ */
