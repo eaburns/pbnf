@@ -55,7 +55,7 @@ namespace ARPBNF {
 		/**
 		 * Signal all threads to stop and resort the nblocks.
 		 */
-		void call_for_resort(void);
+		void call_for_resort(AtomicInt *nincons);
 
 		/**
 		 * Test if the resort bit is set.

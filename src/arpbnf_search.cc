@@ -51,9 +51,14 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 				if (search->set_path(path)) {
 					graph->free_nblock(n);
 					n = NULL;
-					graph->call_for_resort();
+					graph->call_for_resort(&search->nincons);
 					goto next;
 				}
+			}
+		} else if (search->nincons.read() != 0) {
+			if (search->move_to_next_weight()) {
+				graph->call_for_resort(&search->nincons);
+				goto next;
 			}
 		}
 	} while (n);
@@ -115,15 +120,23 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 	unsigned int block = search->project->project(ch);
 	PQOpenList<State::PQOpsFPrime> *copen = &graph->get_nblock(block)->open;
 	ClosedList *cclosed = &graph->get_nblock(block)->closed;
+	ClosedList *cincons = &graph->get_nblock(block)->incons;
 	State *dup = cclosed->lookup(ch);
 
 	if (dup) {
 		if (dup->get_g() > ch->get_g()) {
 			dup->update(ch->get_parent(), ch->get_g());
-			if (dup->is_open())
+			if (dup->is_open()) {
 				copen->see_update(dup);
-			else
+			} else {
+				if (search->incons && !search->final_weight) {
+					if (cincons->empty())
+						search->nincons.inc();
+					cincons->add(dup);
+				} else {
 					copen->add(dup);
+				}
+			}
 		}
 		delete ch;
 	} else {
@@ -181,15 +194,19 @@ bool ARPBNFSearch::ARPBNFThread::should_switch(NBlock *n)
 
 ARPBNFSearch::ARPBNFSearch(unsigned int n_threads,
 			   unsigned int min_e,
+			   bool use_incons,
 			   vector<double> *w)
 	: n_threads(n_threads),
+	  incons(use_incons),
 	  project(NULL),
 	  bound(fp_infinity),
 	  graph(NULL),
 	  min_expansions(min_e),
 	  weights(w),
 	  next_weight(1),
-	  domain(NULL)
+	  domain(NULL),
+	  final_weight(false),
+	  nincons(0)
 {
 	pthread_mutex_init(&wmutex, NULL);
 }
@@ -241,6 +258,8 @@ bool ARPBNFSearch::__move_to_next_weight(void)
 		}
 
 		domain->get_heuristic()->set_weight(nw);
+		if (nw == 1.0 || next_weight == weights->size())
+			final_weight = true;
 
 		return true;
 	}

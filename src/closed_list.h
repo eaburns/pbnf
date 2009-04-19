@@ -27,7 +27,7 @@ public:
 	virtual void add(State *);
 	virtual State *lookup(State *);
 	virtual void delete_all_states(void);
-	virtual bool is_empty();
+	virtual bool empty();
 
 	virtual void prune(void);
 	virtual list<State*> *get_states();

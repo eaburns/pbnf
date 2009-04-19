@@ -32,6 +32,7 @@ namespace ARPBNF {
 	public:
 		ARPBNFSearch(unsigned int n_threads,
 			     unsigned int min_expansions,
+			     bool use_incons,
 			     vector<double> *w);
 
 		virtual ~ARPBNFSearch(void);
@@ -57,6 +58,7 @@ namespace ARPBNF {
 		bool __move_to_next_weight(void);
 
 		unsigned int n_threads;
+		bool incons;
 		const Projection *project;
 
 		SolutionStream *solutions;
@@ -90,6 +92,16 @@ namespace ARPBNF {
 		 * The weight at which the final solution was found.
 		 */
 		double final_sol_weight;
+
+		/**
+		 * Are we at the final weight of the search.
+		 */
+		bool final_weight;
+
+		/**
+		 * The number of nblocks with inconsistent states.
+		 */
+		AtomicInt nincons;
 
 		/********************************************/
 

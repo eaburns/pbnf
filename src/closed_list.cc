@@ -226,7 +226,7 @@ list<State*> *ClosedList::get_states()
 	return states;
 }
 
-bool ClosedList::is_empty()
+bool ClosedList::empty()
 {
 	return fill == 0;
 }
