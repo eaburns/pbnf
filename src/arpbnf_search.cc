@@ -129,8 +129,7 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 			if (dup->is_open()) {
 				copen->see_update(dup);
 			} else {
-				if (search->incons
-				    && !search->final_weight && !dup->incons) {
+				if (search->incons && !search->final_weight) {
 					if (cincons->empty())
 						search->nincons.inc();
 					cincons->add(dup);
