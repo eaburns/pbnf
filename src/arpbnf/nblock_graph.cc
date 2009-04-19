@@ -57,6 +57,7 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	resort_q = lf_queue_create(num_nblocks);
 
 	NBlock *n = map.get(init_nblock);
+	map.set_observer(this);
 	n->open.add(initial);
 	free_list.add(n);
 
@@ -145,7 +146,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		}
 
 		if (free_list.empty() && num_sigma_zero == num_nblocks) {
-			__set_done();
+			n = NULL;
 			goto out;
 		}
 
@@ -161,7 +162,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 	if (resort_flag) {
 		pthread_mutex_unlock(&mutex);
 		resort(false);
-		next_nblock(NULL, false);
+		return next_nblock(NULL, false);
 	}
 
 	n = free_list.take();
@@ -332,6 +333,13 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
  */
 void NBlockGraph::__set_done(void)
 {
+	list<NBlock*>::iterator iter;
+
+	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+		assert((*iter)->open.empty());
+		assert((*iter)->incons.is_empty());
+	}
+
 	done = true;
 	pthread_cond_broadcast(&cond);
 }
@@ -447,9 +455,7 @@ unsigned int NBlockGraph::get_ncreated_nblocks(void)
  */
 void NBlockGraph::observe(NBlock *b)
 {
-	pthread_mutex_lock(&mutex);
 	nblocks.push_front(b);
-	pthread_mutex_unlock(&mutex);
 }
 
 bool NBlockGraph::needs_resort()
@@ -492,7 +498,19 @@ void NBlockGraph::call_for_resort()
 	pthread_mutex_lock(&mutex);
 	// the blocks should now be resorted, clear the flag so that
 	// everyone can continue.
-	free_list.resort();
+
+	assert(num_sigma_zero == num_nblocks);
+	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+		assert((*iter)->sigma == 0);
+		assert((*iter)->sigma_hot == 0);
+		assert(!(*iter)->inuse);
+		if ((*iter)->pq_index != -1)
+			free_list.remove((*iter)->pq_index);
+		if (is_free(*iter))
+			free_list.add(*iter);
+
+		assert((*iter)->incons.is_empty());
+	}
 
 	resort_flag = false;
 	pthread_mutex_unlock(&mutex);
@@ -506,10 +524,12 @@ void NBlockGraph::resort(bool master)
 
 	while (!lf_queue_empty(resort_q)) {
 		NBlock *b = (NBlock*) lf_queue_dequeue(resort_q);
-		assert(b->sigma == 0);
-		assert(b->sigma_hot == 0);
+		if (b) {
+			assert(b->sigma == 0);
+			assert(b->sigma_hot == 0);
 
-		b->resort();
+			b->resort();
+		}
 	}
 
 	if (!master) {

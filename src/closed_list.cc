@@ -192,9 +192,10 @@ void ClosedList::prune(void)
 		return;
 
 	for (unsigned int i = 0; i < size; i += 1) {
-		if (table[i])
+		if (table[i]) {
 			delete table[i];
-		table[i] = NULL;
+			table[i] = NULL;
+		}
 	}
 	free(table);
 
@@ -225,3 +226,7 @@ list<State*> *ClosedList::get_states()
 	return states;
 }
 
+bool ClosedList::is_empty()
+{
+	return fill == 0;
+}

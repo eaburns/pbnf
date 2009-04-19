@@ -42,7 +42,6 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 	do {
 	next:
 		n = graph->next_nblock(n, !set_hot);
-
 		set_hot = false;
 		if (n) {
 			expansions = 0;
@@ -50,11 +49,19 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 
 			if (path) {
 				if (search->set_path(path)) {
+					cerr << "Resorting 1" << endl;
 					graph->free_nblock(n);
 					n = NULL;
 					graph->call_for_resort();
 					goto next;
 				}
+			}
+		} else if (!search->final_wt) {
+			if (search->move_to_next_weight()) {
+				cerr << "Resorting 2" << endl;
+				assert(!n);
+				graph->call_for_resort();
+				goto next;
 			}
 		}
 	} while (n);
@@ -116,15 +123,20 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 	unsigned int block = search->project->project(ch);
 	PQOpenList<State::PQOpsFPrime> *copen = &graph->get_nblock(block)->open;
 	ClosedList *cclosed = &graph->get_nblock(block)->closed;
+	ClosedList *cincons = &graph->get_nblock(block)->incons;
 	State *dup = cclosed->lookup(ch);
 
 	if (dup) {
 		if (dup->get_g() > ch->get_g()) {
 			dup->update(ch->get_parent(), ch->get_g());
-			if (dup->is_open())
+			if (dup->is_open()) {
 				copen->see_update(dup);
-			else
-				copen->add(dup);
+			} else {
+				if (search->use_incons && !search->final_wt)
+					cincons->add(dup);
+				else
+					copen->add(dup);
+			}
 		}
 		delete ch;
 	} else {
@@ -182,6 +194,7 @@ bool ARPBNFSearch::ARPBNFThread::should_switch(NBlock *n)
 
 ARPBNFSearch::ARPBNFSearch(unsigned int n_threads,
 			   unsigned int min_e,
+			   bool u_incons,
 			   vector<double> *w)
 	: n_threads(n_threads),
 	  project(NULL),
@@ -190,7 +203,9 @@ ARPBNFSearch::ARPBNFSearch(unsigned int n_threads,
 	  min_expansions(min_e),
 	  weights(w),
 	  next_weight(1),
-	  domain(NULL)
+	  domain(NULL),
+	  use_incons(u_incons),
+	  final_wt(false)
 {
 	pthread_mutex_init(&wmutex, NULL);
 }
@@ -228,6 +243,42 @@ vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
 	return solutions->get_best_path();
 }
 
+bool ARPBNFSearch::__move_to_next_weight(void)
+{
+	final_sol_weight = weights->at(next_weight - 1);
+
+	if (weights->at(next_weight - 1) != 1.0) {
+		double nw = 1.0;
+		if (next_weight < weights->size()) {
+			nw = weights->at(next_weight);
+			next_weight += 1;
+		} else {
+			cerr << "Final weight is not 1.0, using 1.0" << endl;
+		}
+
+		if (nw == 1.0 || next_weight == weights->size())
+			final_wt = true;
+
+		domain->get_heuristic()->set_weight(nw);
+
+		return true;
+	} else {
+		cout << "current weight is already 1.0" << endl;
+	}
+
+	return false;
+}
+
+bool ARPBNFSearch::move_to_next_weight(void)
+{
+	bool ret;
+
+	pthread_mutex_lock(&wmutex);
+	ret = __move_to_next_weight();
+	pthread_mutex_unlock(&wmutex);
+
+	return ret;
+}
 
 /**
  * Set an incumbant solution.
@@ -256,21 +307,7 @@ bool ARPBNFSearch::set_path(vector<State *> *p)
 	     << endl;
 #endif	// !NDEBUG
 
-	final_sol_weight = weights->at(next_weight - 1);
-
-	if (weights->at(next_weight - 1) != 1.0) {
-		double nw = 1.0;
-		if (next_weight < weights->size()) {
-			nw = weights->at(next_weight);
-			next_weight += 1;
-		} else {
-			cerr << "Final weight is not 1.0, using 1.0" << endl;
-		}
-
-		domain->get_heuristic()->set_weight(nw);
-
-		ret = true;
-	}
+	ret = __move_to_next_weight();
 
 	pthread_mutex_unlock(&wmutex);
 

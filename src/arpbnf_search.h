@@ -32,12 +32,15 @@ namespace ARPBNF {
 	public:
 		ARPBNFSearch(unsigned int n_threads,
 			     unsigned int min_expansions,
+			     bool u_incons,
 			     vector<double> *w);
 
 		virtual ~ARPBNFSearch(void);
 
 		virtual vector<State *> *search(Timer *t, State *initial);
 		virtual void output_stats(void);
+
+		bool move_to_next_weight(void);
 
 	private:
 		/**
@@ -48,6 +51,11 @@ namespace ARPBNF {
 		 *         already exists).
 		 */
 		bool set_path(vector<State *> *path);
+
+		/**
+		 * Progress the search to the next weight.
+		 */
+		bool __move_to_next_weight(void);
 
 		unsigned int n_threads;
 		const Projection *project;
@@ -83,6 +91,17 @@ namespace ARPBNF {
 		 * The weight at which the final solution was found.
 		 */
 		double final_sol_weight;
+
+		/**
+		 * Use INCONS lists instead of re-expanding
+		 * inconsistent states.
+		 */
+		bool use_incons;
+
+		/**
+		 * Is this the final wt (1.0)?
+		 */
+		bool final_wt;
 
 		/********************************************/
 
