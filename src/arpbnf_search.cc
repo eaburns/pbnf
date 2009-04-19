@@ -48,7 +48,7 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 			path = search_nblock(n);
 
 			if (path) {
-				if (search->set_path(path)) {
+				if (search->set_path(path) && !search->final_weight) {
 					graph->free_nblock(n);
 					n = NULL;
 					graph->call_for_resort(&search->nincons);
