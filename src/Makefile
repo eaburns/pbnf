@@ -26,6 +26,7 @@ SRC= \
 	lf_openlist.cc \
 	queue_open_list.cc \
 	closed_list.cc \
+	incons_list.cc \
 	lf_closedlist.cc \
 	synch_closed_list.cc \
 	search.cc \

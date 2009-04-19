@@ -17,6 +17,7 @@
 #include "../open_list.h"
 #include "../pq_open_list.h"
 #include "../closed_list.h"
+#include "../incons_list.h"
 #include "../projection.h"
 
 using namespace std;
@@ -80,7 +81,7 @@ namespace ARPBNF {
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		ClosedList incons;
+		InconsList incons;
 		PQOpenList<State::PQOpsFPrime> open;
 
 		unsigned int sigma_hot;

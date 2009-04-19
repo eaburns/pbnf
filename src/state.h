@@ -108,6 +108,7 @@ public:
 	fp_type g;
 	fp_type h;
 	bool open;
+	bool incons;
 
 	/* indexes into the pq open lists. */
 	int f_pq_index;

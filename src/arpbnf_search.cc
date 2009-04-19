@@ -120,7 +120,7 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 	unsigned int block = search->project->project(ch);
 	PQOpenList<State::PQOpsFPrime> *copen = &graph->get_nblock(block)->open;
 	ClosedList *cclosed = &graph->get_nblock(block)->closed;
-	ClosedList *cincons = &graph->get_nblock(block)->incons;
+	InconsList *cincons = &graph->get_nblock(block)->incons;
 	State *dup = cclosed->lookup(ch);
 
 	if (dup) {
@@ -129,7 +129,8 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 			if (dup->is_open()) {
 				copen->see_update(dup);
 			} else {
-				if (search->incons && !search->final_weight) {
+				if (search->incons
+				    && !search->final_weight && !dup->incons) {
 					if (cincons->empty())
 						search->nincons.inc();
 					cincons->add(dup);

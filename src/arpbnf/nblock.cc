@@ -110,10 +110,5 @@ void NBlock::resort(void)
 {
 	open.resort();
 
-/*
-	states = incons.get_states();
-	for (i = states->begin(); i != states->end(); i++)
-		open.add(*i);
-*/
-	incons.prune();
+	incons.re_open(&open);
 }

@@ -20,13 +20,14 @@ template <class Elm> class HashTable {
 public:
 	HashTable(void);
 	HashTable(unsigned long size);
-	virtual ~HashTable(void);
-	virtual void add(Elm *);
-	virtual Elm *lookup(Elm *);
-	virtual void delete_all(void);
-	virtual bool empty();
+	~HashTable(void);
+	void add(Elm *);
+	Elm *lookup(Elm *);
+	void delete_all(void);
+	bool empty();
 
-	virtual void prune(void);
+	void prune(void);
+	void for_each(void (*f)(void*, Elm*), void*);
 
 private:
 	void init(unsigned long size);
@@ -273,6 +274,18 @@ bool HashTable<Elm>::empty()
 	return fill == 0;
 }
 
+template<class Elm>
+void HashTable<Elm>::for_each(void (*f)(void*, Elm*), void *aux)
+{
+	if (!table)
+		return;
+
+	for (unsigned int i = 0; i < size; i += 1) {
+		Bucket *b;
+		for (b = table[i]; b; b = b->next)
+			f(aux, b->data);
+	}
+}
 
 #endif	/* !_HASH_TABLE_H_ */
 
