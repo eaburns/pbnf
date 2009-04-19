@@ -155,12 +155,7 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "arpbnf-%u-%u-%u", &min_expansions, &threads, &nblocks) == 3) {
 		vector<double> *weights = parse_weights(argv[2]);
 		weight = weights->at(0);
-		return new ARPBNF::ARPBNFSearch(threads, min_expansions, true, weights);
-	} else if (argc > 2
-		   && sscanf(argv[1], "arpbnf.orig-%u-%u-%u", &min_expansions, &threads, &nblocks) == 3) {
-		vector<double> *weights = parse_weights(argv[2]);
-		weight = weights->at(0);
-		return new ARPBNF::ARPBNFSearch(threads, min_expansions, false, weights);
+		return new ARPBNF::ARPBNFSearch(threads, min_expansions, weights);
 	} else if (argc > 1
 		   && sscanf(argv[1], "wpbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new WPBNF::WPBNFSearch(threads, min_expansions);

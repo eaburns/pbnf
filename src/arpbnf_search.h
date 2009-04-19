@@ -32,7 +32,6 @@ namespace ARPBNF {
 	public:
 		ARPBNFSearch(unsigned int n_threads,
 			     unsigned int min_expansions,
-			     bool u_incons,
 			     vector<double> *w);
 
 		virtual ~ARPBNFSearch(void);
@@ -91,17 +90,6 @@ namespace ARPBNF {
 		 * The weight at which the final solution was found.
 		 */
 		double final_sol_weight;
-
-		/**
-		 * Use INCONS lists instead of re-expanding
-		 * inconsistent states.
-		 */
-		bool use_incons;
-
-		/**
-		 * Is this the final wt (1.0)?
-		 */
-		bool final_wt;
 
 		/********************************************/
 

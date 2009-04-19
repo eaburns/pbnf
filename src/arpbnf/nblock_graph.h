@@ -103,7 +103,7 @@ namespace ARPBNF {
 		unsigned int nblocks_created;
 
 		/* The number of NBlocks with sigma values of zero. */
-		unsigned int num_sigma_zero;
+		AtomicInt num_sigma_zero;
 
 		/**
 		 * List of free nblock numbers
@@ -137,12 +137,27 @@ namespace ARPBNF {
 		 * When this is set, all of the threads get together
 		 * and resort the nblocks.
 		 */
-		bool resort_flag;
+		volatile bool resort_flag;
+
+		/**
+		 * Set to tell threads to begin sorting.
+		 */
+		volatile bool resort_start;
+
+		/**
+		 * Set to declare the resort finished.
+		 */
+		volatile bool resort_done;
 
 		/**
 		 * Queue of nblocks which need to be resorted.
 		 */
 		lf_queue *resort_q;
+
+		/**
+		 * The number of nblocks that need to be sorted.
+		 */
+		AtomicInt n_to_sort;
 
 		/*
 		 * Statistics

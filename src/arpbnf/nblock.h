@@ -80,7 +80,6 @@ namespace ARPBNF {
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
-		ClosedList incons;
 		PQOpenList<State::PQOpsFPrime> open;
 
 		unsigned int sigma_hot;

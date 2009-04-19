@@ -76,7 +76,9 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
  */
 NBlockGraph::NBlockGraph(const Projection *p, State *initial)
 	: map(p),
-	  resort_flag(false)
+	  resort_flag(false),
+	  resort_start(false),
+	  resort_done(false)
 {
 	cpp_is_a_bad_language(p, initial);
 }
@@ -145,7 +147,8 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 			pthread_mutex_lock(&mutex);
 		}
 
-		if (free_list.empty() && num_sigma_zero == num_nblocks) {
+		if (free_list.empty()
+		    && num_sigma_zero.read() == num_nblocks) {
 			n = NULL;
 			goto out;
 		}
@@ -268,7 +271,8 @@ void NBlockGraph::__print(ostream &o)
 {
 
 	o << "Number of NBlocks: " << num_nblocks << endl;
-	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
+	o << "Number of NBlocks with sigma zero: "
+	  << num_sigma_zero.read() << endl;
 	o << "All Blocks:" << endl;
 	for (unsigned int i = 0; i < num_nblocks; i += 1)
 		if (map.find(i))
@@ -313,7 +317,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 			assert(delta > 0);
 			if (is_free(m) && m->pq_index != -1)
 				free_list.remove(m->pq_index);
-			num_sigma_zero -= 1;
+			num_sigma_zero.dec();
 		}
 		m->sigma += delta;
 		if (m->sigma == 0) {
@@ -323,7 +327,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 				free_list.add(m);
 				pthread_cond_broadcast(&cond);
 			}
-			num_sigma_zero += 1;
+			num_sigma_zero.inc();
 		}
 	}
 }
@@ -335,10 +339,10 @@ void NBlockGraph::__set_done(void)
 {
 	list<NBlock*>::iterator iter;
 
-	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+#if !defined(NDEBUG)
+	for (iter = nblocks.begin(); iter != nblocks.end(); iter++)
 		assert((*iter)->open.empty());
-		assert((*iter)->incons.is_empty());
-	}
+#endif	// !NDEBUG
 
 	done = true;
 	pthread_cond_broadcast(&cond);
@@ -465,12 +469,17 @@ bool NBlockGraph::needs_resort()
 
 void NBlockGraph::call_for_resort()
 {
+	int n = 0;
 	list<NBlock *>::iterator iter;
 
 	// don't bother resorting if we are done.
 	if (done)
 		return;
 
+	/*
+	 * Try to set the resort flag.  If it is successfully set,
+	 * then we are the master thread.
+	 */
 	pthread_mutex_lock(&mutex);
 	if (resort_flag) {
 		// someone else got here first, just resort and leave
@@ -478,8 +487,29 @@ void NBlockGraph::call_for_resort()
 		resort(false);
 		return;
 	}
+	resort_flag = true;
+	pthread_cond_broadcast(&cond);
+	pthread_mutex_unlock(&mutex);
 
-	// add all nblocks to the lock-free resort queue.
+retry:
+	/*
+	 * wait for everything to release
+	 */
+	while (num_sigma_zero.read() != num_nblocks)
+		;
+
+	pthread_mutex_lock(&mutex);
+	if (num_sigma_zero.read() != num_nblocks) {
+		pthread_mutex_unlock(&mutex);
+		goto retry;
+	}
+
+	n_to_sort.set(0);
+
+	/*
+	 * At this point, all nblocks are released... lets initiate
+	 * the resort.
+	 */
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
 		int err;
 		err = lf_queue_enqueue(resort_q, *iter);
@@ -487,39 +517,35 @@ void NBlockGraph::call_for_resort()
 			perror(__func__);
 			exit(1);
 		}
+		n += 1;
 	}
+	n_to_sort.set(n);
 
-	resort_flag = true;
-	pthread_cond_broadcast(&cond);
-	pthread_mutex_unlock(&mutex);
+	// setting this signals the slave threads to begin sorting.
+	resort_start = true;
 
+	// master thread begins sorting.
 	resort(true);
 
-	pthread_mutex_lock(&mutex);
-	// the blocks should now be resorted, clear the flag so that
-	// everyone can continue.
+	while (n_to_sort.read() > 0)
+		;
 
-	assert(num_sigma_zero == num_nblocks);
-	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
-		assert((*iter)->sigma == 0);
-		assert((*iter)->sigma_hot == 0);
-		assert(!(*iter)->inuse);
-		if ((*iter)->pq_index != -1)
-			free_list.remove((*iter)->pq_index);
-		if (is_free(*iter))
-			free_list.add(*iter);
+	/*
+	 * The blocks should now be resorted.  The master resorts the
+	 * free_list then clears the flag so everyone can continue.
+	 */
 
-		assert((*iter)->incons.is_empty());
-	}
-
+	free_list.resort();
 	resort_flag = false;
+	resort_done = true;
+	resort_start = false;
 	pthread_mutex_unlock(&mutex);
 }
 
 void NBlockGraph::resort(bool master)
 {
-	/** Spin until all nblocks are released. */
-	while(num_sigma_zero != num_nblocks)
+	/** Spin until the master thread declares the resort begun. */
+	while(!resort_start)
 		;
 
 	while (!lf_queue_empty(resort_q)) {
@@ -527,14 +553,14 @@ void NBlockGraph::resort(bool master)
 		if (b) {
 			assert(b->sigma == 0);
 			assert(b->sigma_hot == 0);
-
 			b->resort();
+			n_to_sort.dec();
 		}
 	}
 
 	if (!master) {
 		// spin until the master thread resets the resort flag.
-		while(resort_flag)
+		while(!resort_done)
 			;
 	}
 }
