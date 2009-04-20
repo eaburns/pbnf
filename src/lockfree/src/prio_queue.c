@@ -9,13 +9,6 @@
  * \date 2009-03-27
  */
 
-/*
-  Note this is not POSIX_C_SOURCE 200112 compliant because it uses the
-  drand48_r extensions for a reentrant random number generator.
-
-  #define _POSIX_C_SOURCE 200112L
-*/
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +46,7 @@ struct lf_pq {
 	struct lf_pq_node *head;
 	struct lf_pq_node *tail;
 	size_t num_nodes;
-	struct drand48_data rand_buffer;
+	unsigned int seed;
 };
 
 static struct lf_pq_node *help_delete(struct lf_pq *pq,
@@ -332,7 +325,7 @@ static int random_level(struct lf_pq *pq)
 	 * per-level.  Looks more efficient than the previous
 	 * implementation.  Gets a number between 1 <= level <=
 	 * MAX_LEVEL. */
-	lrand48_r(&pq->rand_buffer, &result);
+	result = rand_r(&pq->seed);
 	result = (result >> 4) & ((1 << (MAX_LEVEL - 1)) - 1);
 	while (result & 0x1) {
 		result >>= 1;
@@ -694,7 +687,7 @@ struct lf_pq *lf_pq_create(size_t nbrelm, int (*pred)(void*, void*))
 	pq->num_nodes = nbrelm;
 	pq->pred = pred;
 
-	srand48_r(time(NULL), &pq->rand_buffer);
+	pq->seed = time(NULL);
 
 	/* MAX_LEVEL + 1 for the PREV link. */
 	pq->freelist = mem_freelist_create(nbrelm, MAX_LEVEL + 1,

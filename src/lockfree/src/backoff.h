@@ -11,6 +11,7 @@
 #if !defined(_BACKOFF_H_)
 #define _BACKOFF_H_
 
+#include <stdlib.h>
 #include <time.h>
 
 /** The max delay. */
@@ -36,16 +37,17 @@ static __inline__ long backoff_init(long max)
 static __inline__ long backoff(long max)
 {
 	static int seeded = 0;
-	static struct drand48_data rand_buf;
+	static unsigned int seed;
 
 	int j;
 	long i, delay;
 
 	if (!seeded) {
-		srand48_r(time(NULL), &rand_buf);
+		seed = time(NULL);
 		seeded = 1;
 	}
-	lrand48_r(&rand_buf, &delay);
+
+	delay = rand_r(&seed);
 	assert(max != 0);
 	delay %= max;
 
