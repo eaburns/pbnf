@@ -19,6 +19,7 @@
 #include "lpastar.h"
 
 #include "a_star.h"
+#include "awastar.h"
 #include "multi_a_star.h"
 #include "breadth_first_search.h"
 #include "cost_bound_dfs.h"
@@ -108,6 +109,8 @@ Search *get_search(int argc, char *argv[])
 		return new AStar();
 	} else if (argc > 1 && sscanf(argv[1], "wastar-%f", &weight) == 1) {
 		return new AStar();
+	} else if (argc > 1 && sscanf(argv[1], "awastar-%f", &weight) == 1) {
+		return new AwAStar();
 	} else if (argc > 1 && strcmp(argv[1], "idastar") == 0) {
 		return new IDAStar();
 	} else if (argc > 1 && strcmp(argv[1], "bfs") == 0) {

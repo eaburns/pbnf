@@ -8,11 +8,6 @@ ifeq ($(MARCH), i586)
 MARCH=i386
 endif
 
-NBDSVER=0.4.3
-NBDSDIR=nbds.$(NBDSVER)
-NBDSLIB=libnbds-$(MARCH).a
-LIBNBDS=$(NBDSDIR)/$(NBDSLIB)
-
 LOCKFREEDIR=lockfree
 LIBLOCKFREE=lockfree/liblockfree-$(MARCH).a
 
@@ -31,6 +26,7 @@ SRC= \
 	synch_closed_list.cc \
 	search.cc \
 	a_star.cc \
+	awastar.cc \
 	multi_a_star.cc \
 	breadth_first_search.cc \
 	cost_bound_dfs.cc \
@@ -78,7 +74,7 @@ SRC= \
 	wprastar.cc
 
 OBJ=$(addprefix $(OBJDIR)/, $(SRC:.cc=.o))
-OBJ+=$(LIBNBDS) $(LIBLOCKFREE)
+OBJ+= $(LIBLOCKFREE)
 
 ifeq ($(MARCH), sparc64)
 FLAGS+=-mcpu=v9
@@ -110,8 +106,8 @@ LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
-DEBUG+=-O3 -DNDEBUG
-#DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+#DEBUG+=-O3 -DNDEBUG
+DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 #LDFLAGS+=-lpthread $(PROFILE)
@@ -124,7 +120,7 @@ endif
 
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
-CXXFLAGS+=$(FLAGS) -I$(NBDSDIR)/include -I$(LOCKFREEDIR)/include
+CXXFLAGS+=$(FLAGS) -I$(LOCKFREEDIR)/include
 
 PROGS=$(addsuffix .$(MARCH), \
 	grid_search \
@@ -184,10 +180,6 @@ pq_open_list_test.$(MARCH): $(OBJ) pq_open_list_test.cc
 pq_test.$(MARCH): $(OBJ) util/pq_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/pq_test.cc
 
-.PHONY: $(LIBNBDS)
-$(LIBNBDS):
-	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
-
 .PHONY: $(LIBLOCKFREE)
 $(LIBLOCKFREE):
 	cd $(LOCKFREEDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
@@ -236,7 +228,6 @@ objdirs:
  clean:
 	rm -fr $(OBJDIR)
 	rm -f $(PROGS)
-	cd $(NBDSDIR) ; $(MAKE) MARCH=$(MARCH) clean ; cd ..
 	cd $(LOCKFREEDIR) ; $(MAKE) MARCH=$(MARCH) clean ; cd ..
 
 -include .depend

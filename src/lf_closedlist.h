@@ -15,11 +15,6 @@
 
 using namespace std;
 
-extern "C" {
-#include "map.h"
-#include "hashtable.h"
-}
-
 /**
  * A simple closed list class.
  */
@@ -33,7 +28,6 @@ public:
 	void delete_all_states(void);
 
 private:
-	map_t *map;
 };
 
 #endif	/* !_LF_CLOSEDLIST_H_ */
