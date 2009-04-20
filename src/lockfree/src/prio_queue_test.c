@@ -7,10 +7,6 @@
  * \date 2009-03-29
  */
 
-/* This uses drand48 and is con POSIX compliant
-#define _POSIX_C_SOURCE 200112L
-*/
-
 #include <sys/time.h>
 #include <sys/times.h>
 
@@ -25,7 +21,7 @@
 #include "lockfree.h"
 
 static int nodes_per_thread;
-static struct drand48_data drand48_buffer;
+static unsigned int seed;
 
 void *producer_thread_fun(void *arg)
 {
@@ -36,7 +32,7 @@ void *producer_thread_fun(void *arg)
 
 	for (i = 0; i < nodes_per_thread; i += 1) {
 		do {
-			lrand48_r(&drand48_buffer, &rand);
+			rand = rand_r(&seed);
 			rand %= 100;
 			/* 0 is reserved and the lowest bit must not be set. */
 		} while (rand == 0 || rand & 0x1);
@@ -103,7 +99,7 @@ int main(int argc, char *argv[])
 		seed = time(NULL);
 
 	printf("Seeding the random number generator: %ld\n", seed);
-	srand48_r(seed, &drand48_buffer);
+	seed = time(NULL);
 
 	nnodes = nthreads * nodes_per_thread;
 	printf("Creating a priority queue with %d nodes\n", nnodes);
