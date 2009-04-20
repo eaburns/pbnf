@@ -1,5 +1,5 @@
 /**
- * \file awastar.cc
+ * \file arastar.cc
  *
  *
  *
@@ -8,6 +8,7 @@
  */
 #include <assert.h>
 
+#include <vector>
 #include <iostream>
 
 using namespace std;
@@ -17,14 +18,14 @@ using namespace std;
 #include "state.h"
 #include "pq_open_list.h"
 #include "closed_list.h"
-#include "awastar.h"
+#include "arastar.h"
 
-AwAStar::AwAStar(void)
-	: solutions(NULL)
+ARAStar::ARAStar(vector<double> *ws)
+	: solutions(NULL), weights(ws)
 {
 }
 
-AwAStar::~AwAStar(void)
+ARAStar::~ARAStar(void)
 {
 	closed.delete_all_states();
 }
@@ -33,7 +34,7 @@ AwAStar::~AwAStar(void)
 /**
  * Perform an A* search.
  */
-vector<State *> *AwAStar::search(Timer *t, State *init)
+vector<State *> *ARAStar::search(Timer *t, State *init)
 {
 	fp_type incumbent_cost = fp_infinity;
 	PQOpenList<State::PQOpsFPrime> open;
@@ -80,7 +81,7 @@ vector<State *> *AwAStar::search(Timer *t, State *init)
 	return solutions->get_best_path();
 }
 
-void AwAStar::output_stats(void)
+void ARAStar::output_stats(void)
 {
 	if (solutions)
 		solutions->output(cout);

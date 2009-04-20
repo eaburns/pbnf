@@ -27,6 +27,7 @@ SRC= \
 	search.cc \
 	a_star.cc \
 	awastar.cc \
+	arastar.cc \
 	multi_a_star.cc \
 	breadth_first_search.cc \
 	cost_bound_dfs.cc \
@@ -45,6 +46,7 @@ SRC= \
 	util/cumulative_ave.cc \
 	util/solution_stream.cc \
 	util/sync_solution_stream.cc \
+	util/serial_solution_stream.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	tiles/tiles_state.cc \
@@ -106,8 +108,8 @@ LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
-#DEBUG+=-O3 -DNDEBUG
-DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+DEBUG+=-O3 -DNDEBUG
+#DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 #LDFLAGS+=-lpthread $(PROFILE)

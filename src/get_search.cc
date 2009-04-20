@@ -19,6 +19,7 @@
 #include "lpastar.h"
 
 #include "a_star.h"
+#include "arastar.h"
 #include "awastar.h"
 #include "multi_a_star.h"
 #include "breadth_first_search.h"
@@ -111,6 +112,10 @@ Search *get_search(int argc, char *argv[])
 		return new AStar();
 	} else if (argc > 1 && sscanf(argv[1], "awastar-%f", &weight) == 1) {
 		return new AwAStar();
+	} else if (argc > 2 && strcmp(argv[1], "arastar") == 0) {
+		vector<double> *weights = parse_weights(argv[2]);
+		weight = weights->at(0);
+		return new ARAStar(weights);
 	} else if (argc > 1 && strcmp(argv[1], "idastar") == 0) {
 		return new IDAStar();
 	} else if (argc > 1 && strcmp(argv[1], "bfs") == 0) {
@@ -179,6 +184,8 @@ Search *get_search(int argc, char *argv[])
 		     << "\tbfs" << endl
 		     << "\tcostbounddfs-<cost>" << endl
 		     << "\tkbfs-<threads>" << endl
+		     << "\tawastar-<weight>" << endl
+		     << "\tarastar <weight-list>" << endl
 		     << "\tpastar-<threads>" << endl
 		     << "\tprastar-<threads>-<nblocks>" << endl
 		     << "\twprastar-<weight>-<threads>-<nblocks>" << endl
