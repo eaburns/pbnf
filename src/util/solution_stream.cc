@@ -71,7 +71,7 @@ void SolutionStream::do_output(ostream &o, Solution *s)
 
 	o << "cols: \"sol cost\" \"sol length\" "
 	  << "\"nodes expanded\" \"nodes generated\" "
-	  << "\"raw cpu time\"" << endl;
+	  << "\"raw wall time\"" << endl;
 
 	do_output_recur(o, s);
 }
