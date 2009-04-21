@@ -20,6 +20,7 @@
  */
 class OpenList {
 public:
+	OpenList(){best.set(fp_infinity);}
 	virtual ~OpenList();
 
 	virtual void add(State *s) = 0;

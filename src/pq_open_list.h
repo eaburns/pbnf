@@ -51,6 +51,7 @@ private:
  */
 template<class PQCompare>
 	PQOpenList<PQCompare>::PQOpenList(void)
+:OpenList()
 {
 }
 

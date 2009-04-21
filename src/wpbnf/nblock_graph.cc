@@ -234,7 +234,7 @@ fp_type NBlockGraph::best_free_val(void)
 	b = free_list.front();
 	if (b)
 		return b->open_fp.get_best_val();
-	return 0.0;
+	return fp_infinity;
 }
 
 

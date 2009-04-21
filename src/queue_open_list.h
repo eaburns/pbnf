@@ -19,6 +19,7 @@ using namespace std;
 
 class QueueOpenList : public OpenList {
 public:
+	QueueOpenList(void);
 	void add(State *s);
 	State *take(void);
 	State *peek(void);

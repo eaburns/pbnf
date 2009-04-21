@@ -38,7 +38,8 @@ static int state_pred_fun(void *a, void *b)
 }
 
 LF_OpenList::LF_OpenList(void)
-	: fill(0)
+ :OpenList(),
+  fill(0)
 {
 	pq = lf_pq_create(MAX_FILL, state_pred_fun);
 }

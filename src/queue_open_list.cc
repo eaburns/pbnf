@@ -15,6 +15,11 @@
 
 using namespace std;
 
+QueueOpenList::QueueOpenList()
+ :OpenList()
+{
+}
+
 void QueueOpenList::add(State *s)
 {
 	s->set_open(true);

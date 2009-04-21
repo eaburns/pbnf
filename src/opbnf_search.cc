@@ -47,6 +47,7 @@ void OPBNFSearch::PBNFThread::run(void)
 
 	do {
 		if(graph->next_nblock_fp_value() < search->bound.read()){
+			cout << graph->next_nblock_fp_value() << endl;
 			n = graph->next_nblock_fp(n, !set_hot);
 		}
 		else{
@@ -117,6 +118,7 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 			open_f->remove(s);
 		}
 		else{
+			cout << "took based on f" << endl;
 			s = open_f->take();
 			open_fp->remove(s);
 		}
@@ -279,7 +281,7 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 	graph = new NBlockGraph(project, initial);
 	graph_timer.stop();
 
-	b = fp_type(1);
+	b = fp_type(1.0);
 	weight = initial->get_domain()->get_heuristic()->get_weight();
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {

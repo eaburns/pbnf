@@ -127,12 +127,12 @@ NBlock *NBlockGraph::next_nblock_fp(NBlock *finished, bool trylock)
 		set<unsigned int>::iterator iter;
 		for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
 			NBlock *n = map.find(*iter);
-			if (n)
+			if (n){
 				nblock_pq.see_update(n->pq_index);
+			}
 		}
 		nblock_pq.see_update(finished->pq_index);
 		f_min.set(nblock_pq.front()->open_f.get_best_val());
-		cout << "f_min in search: " << f_min.read() << endl;
 
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
@@ -238,7 +238,6 @@ NBlock *NBlockGraph::next_nblock_f(NBlock *finished, bool trylock)
 		}
 		nblock_pq.see_update(finished->pq_index);
 		f_min.set(nblock_pq.front()->open_f.get_best_val());
-		cout << "f_min in search: " << f_min.read() << endl;
 
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
@@ -352,7 +351,7 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
  */
 fp_type NBlockGraph::best_free_fp_val(void){
 	if (free_list_fp.empty())
-		return 0.0;
+		return fp_infinity;
 	else
 		return free_list_fp.front()->open_fp.get_best_val();
 }
@@ -362,7 +361,7 @@ fp_type NBlockGraph::best_free_fp_val(void){
  */
 fp_type NBlockGraph::best_free_f_val(void){
 	if (free_list_fp.empty())
-		return 0.0;
+		return fp_infinity;
 	else
 		return free_list_f.front()->open_f.get_best_val();
 }
@@ -457,7 +456,7 @@ fp_type NBlockGraph::next_nblock_fp_value(void)
 		return free_list_fp.front()->open_fp.get_best_val();
 	}
 	else{
-		return 0.0;
+		return fp_infinity;
 	}
 }
 
@@ -471,7 +470,7 @@ fp_type NBlockGraph::next_nblock_f_value(void)
 		return free_list_f.front()->open_f.get_best_val();
 	}
 	else{
-		return 0.0;
+		return fp_infinity;
 	}
 }
 
