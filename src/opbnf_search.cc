@@ -47,20 +47,16 @@ void OPBNFSearch::PBNFThread::run(void)
 
 	do {
 		if(graph->next_nblock_fp_value() < search->bound.read()){
-			cout << graph->next_nblock_fp_value() << endl;
+			cout << "f' was good: " << graph->next_nblock_fp_value() << endl;
 			n = graph->next_nblock_fp(n, !set_hot);
 		}
 		else{
-			cout << "that other thing" << endl;
+			//cout << "that other thing" << endl;
 			n = graph->next_nblock_f(n, !set_hot);
 		}
 
 		if ((search->b * graph->get_f_min()) > search->bound.read())
 			break;
-
-		if (n && search->dynamic_m){
-			next_best = graph->best_free_fp_val();
-		}
 
 		set_hot = false;
 		if (n) {
@@ -86,7 +82,7 @@ fp_type OPBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
 	return ave_exp_per_nblock.read();
 }
 
-/**p
+/**
  * Get the average size of open lists.
  */
 fp_type OPBNFSearch::PBNFThread::get_ave_open_size(void)
@@ -113,11 +109,14 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		}
 
 		State *s;
-		if(open_fp->get_best_val() >= search->bound.read()){
+		if(open_fp->get_best_val() < search->bound.read()){
+			//cout << "took based on f'" << endl;
 			s = open_fp->take();
 			open_f->remove(s);
 		}
 		else{
+			cout << "bound: " << search->bound.read() << endl;
+			cout << open_fp->get_best_val() << endl;
 			cout << "took based on f" << endl;
 			s = open_f->take();
 			open_fp->remove(s);
@@ -219,6 +218,7 @@ bool OPBNFSearch::PBNFThread::should_switch(NBlock *n)
 		else if (scope < free_fp) {
 			graph->set_hot(best_scope);
 			set_hot = true;
+			cout << "set something to hot" << endl;
 		}
 	} else {
 		if(cur_fp < search->bound.read() || free_fp < search->bound.read()){
@@ -248,14 +248,7 @@ OPBNFSearch::OPBNFSearch(unsigned int n_threads,
 	  graph(NULL)
 {
 	pthread_mutex_init(&path_mutex, NULL);
-	if (min_e == 0){
-		dynamic_m = true;
-		OPBNFSearch::min_expansions = AtomicInt(MIN_M);
-	}
-	else{
-		dynamic_m = false;
-		OPBNFSearch::min_expansions = AtomicInt(min_e);
-	}
+	OPBNFSearch::min_expansions = AtomicInt(min_e);
 }
 
 
@@ -332,6 +325,7 @@ void OPBNFSearch::set_path(vector<State *> *p)
 	pthread_mutex_lock(&path_mutex);
 	assert(p->at(0)->get_g() == p->at(0)->get_f());
 	if (p && bound.read() > p->at(0)->get_g()) {
+		cout << "NEW SOLUTION!" << endl;
 		this->path = p;
 		bound.set(p->at(0)->get_g());
 

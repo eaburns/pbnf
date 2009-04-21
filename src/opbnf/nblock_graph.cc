@@ -154,6 +154,7 @@ NBlock *NBlockGraph::next_nblock_fp(NBlock *finished, bool trylock)
 
 		// Possibly add this block back to the free list.
 		if (is_free(finished)) {
+			cout << "added it back to free" << endl;
 			free_list_fp.add(finished);
 			free_list_f.add(finished);
 			pthread_cond_broadcast(&cond);
@@ -360,7 +361,7 @@ fp_type NBlockGraph::best_free_fp_val(void){
  * Get the value of the best nblock on the free list.
  */
 fp_type NBlockGraph::best_free_f_val(void){
-	if (free_list_fp.empty())
+	if (free_list_f.empty())
 		return fp_infinity;
 	else
 		return free_list_f.front()->open_f.get_best_val();
@@ -436,7 +437,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		if (m->sigma == 0) {
 			if (m->hot)
 				set_cold(m);
-			if (is_free(m) && m->index_fp != -1) {
+			if (is_free(m)) {
 				free_list_fp.add(m);
 				free_list_f.add(m);
 				pthread_cond_broadcast(&cond);
@@ -553,7 +554,7 @@ void NBlockGraph::set_cold(NBlock *b)
 		assert(b->id != *i);
 		NBlock *m = map.get(*i);
 		m->sigma_hot -= 1;
-		if (is_free(m) && m->index_fp != -1) {
+		if (is_free(m)) {
 			free_list_fp.add(m);
 			free_list_f.add(m);
 			pthread_cond_broadcast(&cond);
