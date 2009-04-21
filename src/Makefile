@@ -66,6 +66,9 @@ SRC= \
 	arpbnf_search.cc \
 	arpbnf/nblock.cc \
 	arpbnf/nblock_graph.cc \
+	opbnf_search.cc \
+	opbnf/nblock.cc \
+	opbnf/nblock_graph.cc \
 	pbnf/nblock.cc \
 	pbnf/nblock_graph.cc \
 	pbnf_search.cc \
@@ -112,9 +115,9 @@ PROFILE+=
 DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
-#LDFLAGS+=-lpthread $(PROFILE)
+LDFLAGS+=-lpthread $(PROFILE)
 #LDFLAGS+=-lpthread $(PROFILE) -ltcmalloc
-LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
+#LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
 endif
 ############################################################
 

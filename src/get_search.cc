@@ -28,6 +28,7 @@
 #include "kbfs.h"
 #include "psdd_search.h"
 #include "arpbnf_search.h"
+#include "opbnf_search.h"
 #include "bfpsdd_search.h"
 #include "wbfpsdd_search.h"
 #include "idpsdd_search.h"
@@ -172,6 +173,9 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1
 		   && sscanf(argv[1], "wpbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new WPBNF::WPBNFSearch(threads, min_expansions);
+	} else if (argc > 1
+		   && sscanf(argv[1], "opbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
+		return new OPBNF::OPBNFSearch(threads, min_expansions);
 	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
 		return new MultiAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "multiwastar-%f-%u", &weight, &threads) == 2) {
@@ -198,6 +202,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<weight>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tarpbnf-<min-expansions>-<threads>-<nblocks> <weight-list>" << endl
+		     << "\topbnf-<weight>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tmultiastar-<threads>" << endl
 		     << "\tmultiwastar-<weight>-<threads>" << endl
 		     << endl;
