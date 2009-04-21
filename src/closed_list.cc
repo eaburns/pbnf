@@ -52,7 +52,11 @@ State *ClosedList::lookup(State *c)
  */
 void ClosedList::delete_all_states(void)
 {
+	list<State*>::iterator iter;
 	tbl.delete_all();
+
+	for (iter = nodes.begin(); iter != nodes.end(); iter++)
+		delete *iter;
 }
 
 /**
@@ -66,4 +70,31 @@ void ClosedList::prune(void)
 bool ClosedList::empty()
 {
 	return tbl.empty();
+}
+
+/**
+ * Removes all nodes that do not have their 'open' flag or 'incons'
+ * flag set.
+ */
+void ClosedList::remove_closed_nodes()
+{
+	list<State*>::iterator iter;
+	list<State*> closed;
+
+	tbl.for_each(__remove_closed, (void*) &closed);
+
+	for (iter = closed.begin(); iter != closed.end(); iter++)
+		tbl.remove(*iter);
+
+	nodes.splice(nodes.begin(), closed);
+}
+
+void ClosedList::__remove_closed(void *aux, State *s)
+{
+	list<State*> *nodes = (list<State*>*) aux;
+
+	if (s->open || s->incons)
+		return;
+	else
+		nodes->push_front(s);
 }

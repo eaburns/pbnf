@@ -21,7 +21,11 @@ using namespace std;
 #include "arastar.h"
 
 ARAStar::ARAStar(vector<double> *ws)
-	: solutions(NULL), weights(ws)
+	: solutions(NULL),
+	  weights(ws),
+	  heuristic(NULL),
+	  next_weight(1),
+	  cur_weight(ws->at(0))
 {
 }
 
@@ -37,12 +41,29 @@ ARAStar::~ARAStar(void)
 vector<State *> *ARAStar::search(Timer *t, State *init)
 {
 	fp_type incumbent_cost = fp_infinity;
-	PQOpenList<State::PQOpsFPrime> open;
+
+	heuristic = init->get_domain()->get_heuristic();
+	next_weight = 1;
+	cur_weight = heuristic->get_weight();
 
 	solutions = new SerialSolutionStream(t, 0.0001);
 	open.add(init);
 
-	while (!open.empty()) {
+	while (!open.empty() || !incons.empty()) {
+		if (open.empty()) {
+			if (!solutions->get_best_path())
+				return NULL;
+			else {
+#if !defined(NDEBUG)
+				cout << "No Solution found at weight "
+				     << weights->at(next_weight - 1)
+				     << endl;
+#endif	// !NDEBUG
+				move_to_next_weight();
+			}
+		}
+
+
 		State *s = open.take();
 
 		if (s->get_f() >= incumbent_cost)
@@ -53,6 +74,15 @@ vector<State *> *ARAStar::search(Timer *t, State *init)
 			solutions->see_solution(path,
 						get_generated(),
 						get_expanded());
+#if !defined(NDEBUG)
+			cout << "Solution of cost " << path->at(0)->get_g() / fp_one
+			     << " found at weight " << weights->at(next_weight - 1)
+			     << endl;
+#endif	// !NDEBUG
+			if (cur_weight == 1.0)
+				return path;
+
+			move_to_next_weight();
 			incumbent_cost = s->get_g();
 		}
 
@@ -66,7 +96,7 @@ vector<State *> *ARAStar::search(Timer *t, State *init)
 					if (dup->is_open())
 						open.see_update(dup);
 					else
-						open.add(dup);
+						incons.add(dup);
 				}
 				delete c;
 			} else {
@@ -87,3 +117,21 @@ void ARAStar::output_stats(void)
 		solutions->output(cout);
 }
 
+void ARAStar::move_to_next_weight()
+{
+	double wt = 1.0;
+	if (next_weight == weights->size()) {
+		cerr << "Final weight in sched is not 1.0"
+		     << endl;
+	} else {
+		wt = weights->at(next_weight);
+		next_weight += 1;
+	}
+
+	cur_weight = wt;
+	heuristic->set_weight(wt);
+
+	open.resort();
+	incons.re_open(&open);
+	closed.remove_closed_nodes();
+}

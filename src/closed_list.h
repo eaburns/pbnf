@@ -26,12 +26,20 @@ public:
 	virtual void add(State *);
 	virtual State *lookup(State *);
 	virtual void delete_all_states(void);
+	virtual void remove_closed_nodes(void);
 	virtual bool empty();
 
 	virtual void prune(void);
 
 private:
+	static void __remove_closed(void*, State*);
+
 	HashTable<State> tbl;
+
+	/** List of all nodes removed from the hashtbl with
+	 * 'remove_closed_nodes'.  These will need to be freed at the
+	 * end of the search. */
+	list<State*> nodes;
 };
 
 #endif	/* !_CLOSED_LIST_H_ */

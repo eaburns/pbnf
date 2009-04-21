@@ -14,9 +14,11 @@
 using namespace std;
 
 #include "util/solution_stream.h"
+#include "pq_open_list.h"
 #include "state.h"
 #include "search.h"
 #include "closed_list.h"
+#include "incons_list.h"
 
 /**
  * An A* search class.
@@ -28,9 +30,18 @@ public:
 	virtual vector<State *> *search(Timer *, State *);
 	void output_stats(void);
 private:
+	void move_to_next_weight();
+
 	SolutionStream *solutions;
+	PQOpenList<State::PQOpsFPrime> open;
 	ClosedList closed;
+	InconsList incons;
 	vector<double> *weights;
+
+
+	Heuristic *heuristic;
+	unsigned int next_weight;
+	double cur_weight;
 };
 
 #endif	/* !_ARASTAR_H_ */

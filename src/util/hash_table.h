@@ -22,6 +22,7 @@ public:
 	HashTable(unsigned long size);
 	~HashTable(void);
 	void add(Elm *);
+	void remove(Elm *);
 	Elm *lookup(Elm *);
 	void delete_all(void);
 	bool empty();
@@ -48,6 +49,12 @@ private:
 		 * the templates to actually do that.
 		 */
 		void *add(Elm *s);
+
+		/*
+		 * This really returns a Bucket*, but I couldn't get
+		 * the templates to actually do that.
+		 */
+		void *remove(Elm *s);
 
 		Elm *data;
 		Bucket *next;
@@ -108,6 +115,23 @@ void* HashTable<Elm>::Bucket::add(Elm *s)
 }
 
 template<class Elm>
+void *HashTable<Elm>::Bucket::remove(Elm *s)
+{
+	if (s->hash() == data->hash())
+		return next;
+
+	Bucket *n = next;
+	if (n) {
+		Bucket *nnext = (Bucket*) n->remove(s);
+		if (nnext != n)
+			delete n;
+		next = nnext;
+	}
+
+	return this;
+}
+
+template<class Elm>
 void HashTable<Elm>::init(unsigned long s)
 {
 	this->table = NULL;
@@ -156,6 +180,18 @@ void HashTable<Elm>::add(Elm *s)
 
 	do_add(s);
 	fill += 1;
+}
+
+template<class Elm>
+void HashTable<Elm>::remove(Elm *s)
+{
+	unsigned long i = get_ind(s);
+	Bucket *b = table[i];
+	if (!b || !b->lookup(s))
+		return;
+
+	fill -= 1;
+	table[i] = (Bucket *) b->remove(s);
 }
 
 /**
