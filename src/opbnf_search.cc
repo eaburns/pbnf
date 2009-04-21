@@ -47,7 +47,6 @@ void OPBNFSearch::PBNFThread::run(void)
 
 	do {
 		if(graph->next_nblock_fp_value() < search->bound.read()){
-			cout << "that happened once" << endl;
 			n = graph->next_nblock_fp(n, !set_hot);
 		}
 		else{
@@ -334,8 +333,10 @@ void OPBNFSearch::set_path(vector<State *> *p)
 		this->path = p;
 		bound.set(p->at(0)->get_g());
 
-		if ((b * graph->get_f_min()) > p->at(0)->get_g())
+		cout << "f_min: " << graph->get_f_min() << endl;
+		if ((b * graph->get_f_min()) > p->at(0)->get_g()){
 			done = true;
+		}
 	}
 	pthread_mutex_unlock(&path_mutex);
 }

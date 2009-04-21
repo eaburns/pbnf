@@ -132,6 +132,7 @@ NBlock *NBlockGraph::next_nblock_fp(NBlock *finished, bool trylock)
 		}
 		nblock_pq.see_update(finished->pq_index);
 		f_min.set(nblock_pq.front()->open_f.get_best_val());
+		cout << "f_min in search: " << f_min.read() << endl;
 
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
@@ -237,6 +238,7 @@ NBlock *NBlockGraph::next_nblock_f(NBlock *finished, bool trylock)
 		}
 		nblock_pq.see_update(finished->pq_index);
 		f_min.set(nblock_pq.front()->open_f.get_best_val());
+		cout << "f_min in search: " << f_min.read() << endl;
 
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
@@ -425,7 +427,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		NBlock *m = map.get(*iter);
 		if (m->sigma == 0) {
 			assert(delta > 0);
-			if (is_free(m)){
+			if (is_free(m) && m->index_fp != -1){
 				free_list_fp.remove(m->index_fp);
 				free_list_f.remove(m->index_f);
 			}
@@ -435,7 +437,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		if (m->sigma == 0) {
 			if (m->hot)
 				set_cold(m);
-			if (is_free(m)) {
+			if (is_free(m) && m->index_fp != -1) {
 				free_list_fp.add(m);
 				free_list_f.add(m);
 				pthread_cond_broadcast(&cond);
@@ -526,7 +528,7 @@ void NBlockGraph::set_hot(NBlock *b)
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
 			NBlock *m = map.get(*i);
-			if (is_free(m)){
+			if (is_free(m) && m->index_fp != -1){
 				free_list_fp.remove(m->index_fp);
 				free_list_f.remove(m->index_f);
 			}
@@ -552,7 +554,7 @@ void NBlockGraph::set_cold(NBlock *b)
 		assert(b->id != *i);
 		NBlock *m = map.get(*i);
 		m->sigma_hot -= 1;
-		if (is_free(m)) {
+		if (is_free(m) && m->index_fp != -1) {
 			free_list_fp.add(m);
 			free_list_f.add(m);
 			pthread_cond_broadcast(&cond);
