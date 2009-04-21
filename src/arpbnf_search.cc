@@ -55,13 +55,19 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 					goto next;
 				}
 			}
-		} else if (search->nincons.read() != 0) {
-			if (search->move_to_next_weight()) {
-				graph->call_for_resort(&search->nincons);
-				goto next;
-			}
+		} else if (search->nincons.read() > 0) {
+			search->move_to_next_weight();
+			graph->call_for_resort(&search->nincons);
+#if !defined(NDEBUG)
+			cout << "No solution found at weight "
+			     << search->weights->at(search->next_weight - 1)
+			     << endl;
+#endif	// !NDEBUG
+			goto next;
 		}
 	} while (n);
+
+	assert(search->nincons.read() == 0);
 
 	graph->set_done();
 }
@@ -129,12 +135,12 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 			if (dup->is_open()) {
 				copen->see_update(dup);
 			} else {
-				if (search->incons && !search->final_weight) {
+				if (search->final_weight) {
+					copen->add(dup);
+				} else {
 					if (cincons->empty())
 						search->nincons.inc();
 					cincons->add(dup);
-				} else {
-					copen->add(dup);
 				}
 			}
 		}

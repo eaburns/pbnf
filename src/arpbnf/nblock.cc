@@ -109,6 +109,6 @@ void NBlock::print(ostream &o)
 void NBlock::resort(void)
 {
 	open.resort();
-
 	incons.re_open(&open);
+	closed.remove_closed_nodes();
 }
