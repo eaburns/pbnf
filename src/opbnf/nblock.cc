@@ -111,3 +111,72 @@ bool NBlock::better(NBlock* a, NBlock* b, fp_type bound){
 		|| (!(a_fp < bound) 
 		    && a_f < b_f);
 }
+
+void NBlock::add(State *s)
+{
+	open_fp.add(s);
+	open_f.add(s);
+	set_best_values();
+}
+
+void NBlock::see_update(State *s)
+{
+	open_fp.see_update(s);
+	open_f.see_update(s);
+	set_best_values();
+}
+
+State *NBlock::take_f(void)
+{
+	State *s = open_f.take();
+	if (!s)
+		return NULL;
+
+	open_fp.remove(s);
+	set_best_values();
+
+	return s;
+}
+
+State *NBlock::take_fp(void)
+{
+	State *s = open_fp.take();
+	if (!s)
+		return NULL;
+
+	open_f.remove(s);
+	set_best_values();
+
+	return s;
+}
+
+void NBlock::prune(void)
+{
+	open_fp.prune();
+	open_f.prune();
+}
+
+fp_type NBlock::get_best_f(void)
+{
+	return best_f.read();
+}
+
+fp_type NBlock::get_best_fp(void)
+{
+	return best_fp.read();
+}
+
+void NBlock::set_best_values(void)
+{
+	best_f.set(open_f.get_best_val());
+	best_fp.set(open_fp.get_best_val());
+}
+
+
+bool NBlock::empty(void)
+{
+	assert(!open_f.empty() || open_fp.empty());
+	assert(!open_fp.empty() || open_f.empty());
+
+	return open_f.empty();
+}

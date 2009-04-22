@@ -37,8 +37,6 @@ namespace OPBNF {
 		NBlock *next_nblock(NBlock *finished, bool trylock, fp_type bound);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
-		fp_type next_nblock_fp_value(void);
-		fp_type next_nblock_f_value(void);
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 		void set_done(void);

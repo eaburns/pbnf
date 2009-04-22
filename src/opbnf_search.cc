@@ -46,8 +46,12 @@ void OPBNFSearch::PBNFThread::run(void)
 	do {
 		n = graph->next_nblock(n, !set_hot, search->bound.read());
 
-		if ((search->b * graph->get_f_min()) > search->bound.read())
+		if ((search->b * graph->get_f_min()) > search->bound.read()) {
+			cout << "Exiting because we have hit the bound: "
+			     << search->b << " * " << graph->get_f_min()
+			     << " > " << search->bound.read() << endl;
 			break;
+		}
 
 		set_hot = false;
 		if (n) {
@@ -69,27 +73,20 @@ void OPBNFSearch::PBNFThread::run(void)
 vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 {
 	vector<State *> *path = NULL;
-	PQOpenList<State::PQOpsFPrime> *open_fp = &n->open_fp;
-	PQOpenList<State::PQOpsF> *open_f = &n->open_f;
 //	ClosedList *closed = &n->closed;
 
-	while (!search->done && !open_fp->empty() && !should_switch(n)) {
+	while (!search->done && !n->empty() && !should_switch(n)) {
 		// If the best f value in this nblock is bad, prune everything.
-		if (search->b * open_f->get_best_val() >= search->bound.read()) {
-			open_f->prune();
-			open_fp->prune();
+		if (search->b * n->get_best_f() >= search->bound.read()) {
+			n->prune();
 			break;
 		}
 
 		State *s;
-		if(open_fp->get_best_val() < search->bound.read()){
-			s = open_fp->take();
-			open_f->remove(s);
-		}
-		else{
-			s = open_f->take();
-			open_fp->remove(s);
-		}
+		if(n->get_best_fp() < search->bound.read())
+			s = n->take_fp();
+		else
+			s = n->take_f();
 
 		// If the individual f value is bad, prune the single node.
 		if (search->b * s->get_f() >= search->bound.read())
@@ -110,23 +107,19 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 				delete *iter;
 				continue;
 			}
-			unsigned int block = search->project->project(*iter);
-			PQOpenList<State::PQOpsFPrime> *next_open_fp = &graph->get_nblock(block)->open_fp;
-			PQOpenList<State::PQOpsF> *next_open_f = &graph->get_nblock(block)->open_f;
-			ClosedList *next_closed = &graph->get_nblock(block)->closed;
+			unsigned int blocknum = search->project->project(*iter);
+			NBlock *cblock = graph->get_nblock(blocknum);
+			ClosedList *next_closed = &cblock->closed;
 			State *dup = next_closed->lookup(*iter);
 			if (dup) {
 				if (dup->get_g() > (*iter)->get_g()) {
 					dup->update((*iter)->get_parent(),
 						    (*iter)->get_c(),
 						    (*iter)->get_g());
-					if (dup->is_open()) {
-						next_open_fp->see_update(dup);
-						next_open_f->see_update(dup);
-					} else {
-						next_open_fp->add(dup);
-						next_open_f->add(dup);
-					}
+					if (dup->is_open())
+						cblock->see_update(dup);
+					else
+						cblock->add(dup);
 				}
 				delete *iter;
 			} else {
@@ -136,8 +129,7 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 					delete children;
 					return path;
 				}
-				next_open_fp->add(*iter);
-				next_open_f->add(*iter);
+				cblock->add(*iter);
 			}
 		}
 		delete children;
@@ -158,13 +150,8 @@ bool OPBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (next_best == 0.0 || graph->best_free_fp_val() != 0.0){
-		if (expansions < search->min_expansions)
-			return false;
-	}
-	else{
-		return n->open_fp.get_best_val() > next_best;
-	}
+	if (expansions < search->min_expansions)
+		return false;
 
 	expansions = 0;
 
