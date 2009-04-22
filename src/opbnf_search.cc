@@ -208,15 +208,20 @@ bool OPBNFSearch::PBNFThread::should_switch(NBlock *n)
 	fp_type free_f = graph->next_nblock_f_value();
 	fp_type cur_f = n->open_f.get_best_val();
 
-	NBlock *best_scope = graph->best_in_scope(n);
+	NBlock *best_scope = graph->best_in_scope(n, search->bound.read());
 	if (best_scope) {
-		fp_type scope = best_scope->open_fp.get_best_val();
+		fp_type scope_fp = best_scope->open_fp.get_best_val();
+		fp_type scope_f = best_scope->open_f.get_best_val();
 
-		ret = free_fp < cur_fp || scope < cur_fp;
+		bool scope = NBlock::compare(best_scope, n);
+		bool free = NBlock::compare(free_fp, n)
+			|| NBlock::compare(free_f, n);
+		ret = free || scope;
 		if (!ret)
 			graph->wont_release(n);
-		else if (scope < free_fp) {
-			graph->set_hot(best_scope);
+		else if (scope && (NBlock::better(best_scope, free_fp)
+				   && NBlock::better(best_scope, free_f))) {
+			graph->set_hot(best_scope, search->bound.read());
 			set_hot = true;
 			cout << "set something to hot" << endl;
 		}
@@ -299,7 +304,7 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 
 		delete *iter;
 	}
-	if (num == 0)
+	/*if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
@@ -311,7 +316,7 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
-	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
+	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;*/
 
 	return path;
 }
