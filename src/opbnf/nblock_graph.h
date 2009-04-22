@@ -43,9 +43,11 @@ namespace OPBNF {
 		void print(ostream &o);
 		unsigned int get_max_assigned_nblocks(void) const;
 		void set_done(void);
-		NBlock *best_in_scope(NBlock *b);
+		NBlock *best_in_scope(NBlock *b, fp_type bound);
 		void wont_release(NBlock *b);
-		void set_hot(NBlock *b);
+		void set_hot(NBlock *b, fp_type bound);
+		NBlock next_nblock_fp_peek();
+		NBlock next_nblock_f_peek()
 
 		void observe(NBlock *b);
 
