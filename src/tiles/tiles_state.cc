@@ -56,7 +56,10 @@ TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 	  blank(b)
 {
 	assert(t[b] == 0);
-	this->h = domain->get_heuristic()->compute(this);
+	if (domain->get_heuristic())
+		this->h = domain->get_heuristic()->compute(this);
+	else
+		this->h = 0;
 	assert(this->h == 0 ? is_goal() : 1);
 	compute_hash();
 }

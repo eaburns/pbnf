@@ -102,7 +102,7 @@ Tiles::Tiles(istream &in)
 	for (unsigned int i = 1; i < (width * height) + 1; i += 1)
 		fact_ary[i] = fact_ary[i - 1] * i;
 
-	goal = new TilesState(this, NULL, 0, 0, g, g_blank);
+	goal = new TilesState(this, NULL, 0, 0, 0, g, g_blank);
 }
 
 const vector<uint64_t> *Tiles::get_ones() const
