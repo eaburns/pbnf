@@ -47,9 +47,6 @@ void OPBNFSearch::PBNFThread::run(void)
 		n = graph->next_nblock(n, !set_hot, search->bound.read());
 
 		if ((search->b * graph->get_f_min()) > search->bound.read()) {
-			cout << "Exiting because we have hit the bound: "
-			     << search->b << " * " << graph->get_f_min()
-			     << " > " << search->bound.read() << endl;
 			break;
 		}
 
@@ -212,6 +209,10 @@ OPBNFSearch::~OPBNFSearch(void)
 vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 {
 	project = initial->get_domain()->get_projection();
+	Heuristic *h = initial->get_domain()->get_heuristic();
+
+	b = h->get_weight();
+	h->set_weight(((b - fp_one) * 2) + fp_one);
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
@@ -220,7 +221,6 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 	graph = new NBlockGraph(project, initial);
 	graph_timer.stop();
 
-	b = fp_type(1.0);
 	weight = initial->get_domain()->get_heuristic()->get_weight();
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
@@ -249,7 +249,6 @@ void OPBNFSearch::set_path(vector<State *> *p)
 		bound.set(p->at(0)->get_g());
 
 		if ((b * graph->get_f_min()) > p->at(0)->get_g()){
-			cout << "terminated based on f_min!!!" << endl;
 			done = true;
 		}
 	}

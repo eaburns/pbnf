@@ -202,7 +202,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<weight>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tarpbnf-<min-expansions>-<threads>-<nblocks> <weight-list>" << endl
-		     << "\topbnf-<weight>-<min-expansions>-<threads>-<nblocks>" << endl
+		     << "\topbnf-<bound>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tmultiastar-<threads>" << endl
 		     << "\tmultiwastar-<weight>-<threads>" << endl
 		     << endl;

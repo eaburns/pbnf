@@ -74,7 +74,7 @@ namespace OPBNF {
 		struct NBlockPQFuncs {
 			/* Predecessor operator. */
 			int inline operator()(NBlock *a, NBlock *b) {
-				return a->open_f.get_best_val() < b->open_f.get_best_val();
+				return a->get_local_f_min() < b->get_local_f_min();
 			}
 			/* Set the prio queue index. */
 			void inline operator()(NBlock *a, int i) {
@@ -86,7 +86,7 @@ namespace OPBNF {
 			}
 			/* Set the prio queue index. */
 			fp_type inline get_value(NBlock *a) {
-				return a->open_f.get_best_val();
+				return a->get_local_f_min();
 			}
 		};
 
@@ -122,6 +122,16 @@ namespace OPBNF {
 		/* Test if this nblock is empty. */
 		bool empty();
 
+		/* Read the f_min value local to this nblock. */
+		fp_type get_local_f_min();
+
+		/* Update the local local_f_min of this nblock for
+		 * tracking the global f_min.  This should only be
+		 * called when the nblock graph's mutex is held so
+		 * that it doesn't change on us after the nblock PQ
+		 * has been updated. */
+		void update_local_f_min();
+
 		unsigned int id;
 		unsigned int sigma;
 		ClosedList closed;
@@ -156,6 +166,13 @@ namespace OPBNF {
 
 		AtomicInt best_f;
 		AtomicInt best_fp;
+
+		/**
+		 * This is set only when the nblock graph's mutex is
+		 * held (when the block is released).  This is used
+		 * for getting a lower bound on the global f_min.
+		 */
+		fp_type local_f_min;
 	};
 }	/* PBNF */
 #endif	/* !_NBLOCK_H_ */

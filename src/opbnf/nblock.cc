@@ -30,7 +30,10 @@ NBlock::NBlock(const Projection *project, unsigned int ident)
 	  closed(1000),
 	  sigma_hot(0),
 	  hot(false),
-	  inuse(false)
+	  inuse(false),
+	  best_f(fp_infinity),
+	  best_fp(fp_infinity),
+	  local_f_min(fp_infinity)
 {
 	assert(id < project->get_num_nblocks());
 
@@ -168,8 +171,13 @@ fp_type NBlock::get_best_fp(void)
 
 void NBlock::set_best_values(void)
 {
-	best_f.set(open_f.get_best_val());
-	best_fp.set(open_fp.get_best_val());
+	if (!empty()) {
+		best_f.set(open_f.get_best_val());
+		best_fp.set(open_fp.get_best_val());
+	} else {
+		best_f.set(fp_infinity);
+		best_fp.set(fp_infinity);
+	}
 }
 
 
@@ -179,4 +187,14 @@ bool NBlock::empty(void)
 	assert(!open_fp.empty() || open_f.empty());
 
 	return open_f.empty();
+}
+
+fp_type NBlock::get_local_f_min()
+{
+	return local_f_min;
+}
+
+void NBlock::update_local_f_min()
+{
+	local_f_min = best_f.read();
 }

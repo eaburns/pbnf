@@ -123,19 +123,24 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 		set<unsigned int>::iterator iter;
 		for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
 			NBlock *n = map.find(*iter);
-			if (n)
+			if (n) {
+				n->update_local_f_min();
 				nblock_pq.see_update(n->pq_index);
+			}
 		}
+		finished->update_local_f_min();
 		nblock_pq.see_update(finished->pq_index);
-		assert(!nblock_pq.empty());
-#if !defined(NDEBUG)
-		if (nblock_pq.front()->empty()) {
-			list<NBlock*>::iterator i;
-			for (i = nblocks.begin(); i != nblocks.end(); i++)
-				assert((*i)->empty());
-		}
-#endif	// !NDEBUG
-		f_min.set(nblock_pq.front()->get_best_f());
+
+		/* don't get_best_f() here, since this could've
+		 * changed out from under us.  Instead,
+		 * get_local_f_min() which only changes when an nblock
+		 * is released.  This is going to be an underestimate.
+		 * The issue is that, if a processor is searching the
+		 * f_min nblock, it may have emptied it... we don't
+		 * want to read fp_inifinity here because the best
+		 * nblock was emptied, better to read an old
+		 * local_f_min value. */
+		f_min.set(nblock_pq.front()->get_local_f_min());
 
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
@@ -163,7 +168,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 		update_scope_sigmas(finished->id, -1);
 
 		if (free_list_fp.empty() && num_sigma_zero == num_nblocks) {
-			cout << "Exiting because free list is empty" << endl;
 			__set_done();
 //			__print(cerr);
 			goto out;
