@@ -32,6 +32,7 @@ public:
 	virtual ~OPBNFSearch(void);
 
 	virtual vector<State *> *search(Timer *t, State *initial);
+	virtual void output_stats(void);
 private:
 	void set_path(vector<State *> *path);
 
@@ -40,8 +41,6 @@ private:
 		PBNFThread(NBlockGraph *graph, OPBNFSearch *search);
 		~PBNFThread(void);
 		void run(void);
-		fp_type get_ave_exp_per_nblock(void);
-		fp_type get_ave_open_size(void);
 	private:
 		vector<State *> *search_nblock(NBlock *n);
 		bool should_switch(NBlock *n);
@@ -50,9 +49,6 @@ private:
 		NBlockGraph *graph;
 		OPBNFSearch *search;
 		bool set_hot;
-		unsigned long exp_this_block;
-		CumulativeAverage ave_exp_per_nblock;
-		CumulativeAverage ave_open_size;
 		fp_type next_best;
 	};
 
@@ -63,10 +59,8 @@ private:
 	AtomicInt bound;
 	bool done;
 
-	bool dynamic_m;
-
 	NBlockGraph *graph;
-	static AtomicInt min_expansions;
+	unsigned int min_expansions;
 	Timer graph_timer;
 
 	fp_type weight;

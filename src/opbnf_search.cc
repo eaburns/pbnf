@@ -26,8 +26,6 @@ using namespace OPBNF;
 #define MIN_M 1
 #define MAX_INT std::numeric_limits<int>::max()
 
-AtomicInt OPBNFSearch::min_expansions(MIN_M);
-
 OPBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, OPBNFSearch *search)
 	: graph(graph), search(search), set_hot(false) {
 	next_best = 0.0;
@@ -54,33 +52,15 @@ void OPBNFSearch::PBNFThread::run(void)
 		set_hot = false;
 		if (n) {
 			expansions = 0;
-			exp_this_block = 0;
 			path = search_nblock(n);
 
 			if (path)
 				search->set_path(path);
-			ave_exp_per_nblock.add_val(exp_this_block);
 		}
 	} while (!search->done && n);
 
 	search->done = true;
 	graph->set_done();
-}
-
-/**
- * Get the average number of expansions per-nblock.
- */
-fp_type OPBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
-{
-	return ave_exp_per_nblock.read();
-}
-
-/**
- * Get the average size of open lists.
- */
-fp_type OPBNFSearch::PBNFThread::get_ave_open_size(void)
-{
-	return ave_open_size.read();
 }
 
 /**
@@ -110,7 +90,6 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 			s = open_f->take();
 			open_fp->remove(s);
 		}
-		ave_open_size.add_val(open_fp->size());
 
 		// If the individual f value is bad, prune the single node.
 		if (search->b * s->get_f() >= search->bound.read())
@@ -122,7 +101,6 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		}
 
 		expansions += 1;
-		exp_this_block += 1;
 
 		vector<State *> *children = search->expand(s);
 		vector<State *>::iterator iter;
@@ -149,7 +127,6 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 						next_open_fp->add(dup);
 						next_open_f->add(dup);
 					}
-					ave_open_size.add_val(next_open_fp->size());
 				}
 				delete *iter;
 			} else {
@@ -161,7 +138,6 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 				}
 				next_open_fp->add(*iter);
 				next_open_f->add(*iter);
-				ave_open_size.add_val(next_open_fp->size());
 			}
 		}
 		delete children;
@@ -183,7 +159,7 @@ bool OPBNFSearch::PBNFThread::should_switch(NBlock *n)
 	bool ret;
 
 	if (next_best == 0.0 || graph->best_free_fp_val() != 0.0){
-		if (expansions < search->min_expansions.read())
+		if (expansions < search->min_expansions)
 			return false;
 	}
 	else{
@@ -232,10 +208,10 @@ OPBNFSearch::OPBNFSearch(unsigned int n_threads,
 	  path(NULL),
 	  bound(fp_infinity),
 	  done(false),
-	  graph(NULL)
+	  graph(NULL),
+	  min_expansions(min_e)
 {
 	pthread_mutex_init(&path_mutex, NULL);
-	OPBNFSearch::min_expansions = AtomicInt(min_e);
 }
 
 
@@ -252,10 +228,6 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
-	fp_type sum = 0.0;
-	unsigned int num = 0;
-	fp_type osum = 0.0;
-	unsigned int onum = 0;
 
 	graph_timer.start();
 	graph = new NBlockGraph(project, initial);
@@ -272,34 +244,8 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
-
-		fp_type ave = (*iter)->get_ave_exp_per_nblock();
-		if (ave != 0) {
-			sum += ave;
-			num += 1;
-		}
-		fp_type oave = (*iter)->get_ave_open_size();
-		if (oave != 0) {
-			osum += oave;
-			onum += 1;
-		}
-
 		delete *iter;
 	}
-	if (num == 0)
-		cout << "expansions-per-nblock: -1" << endl;
-	else
-		cout << "expansions-per-nblock: " << sum / num << endl;
-	if (onum == 0)
-		cout << "avg-open-list-size: -1" << endl;
-	else
-		cout << "avg-open-list-size: " << osum / onum << endl;
-
-	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
-
-	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
-	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
-
 	return path;
 }
 
@@ -321,4 +267,11 @@ void OPBNFSearch::set_path(vector<State *> *p)
 		}
 	}
 	pthread_mutex_unlock(&path_mutex);
+}
+
+void OPBNFSearch::output_stats(void)
+{
+	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
+	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
+	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 }
