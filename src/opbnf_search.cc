@@ -46,14 +46,7 @@ void OPBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		if(graph->next_nblock_fp_value() < search->bound.read()){
-			cout << "f' was good: " << graph->next_nblock_fp_value() << endl;
-			n = graph->next_nblock_fp(n, !set_hot);
-		}
-		else{
-			//cout << "that other thing" << endl;
-			n = graph->next_nblock_f(n, !set_hot);
-		}
+		n = graph->next_nblock(n, !set_hot, search->bound.read());
 
 		if ((search->b * graph->get_f_min()) > search->bound.read())
 			break;
@@ -110,14 +103,10 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 
 		State *s;
 		if(open_fp->get_best_val() < search->bound.read()){
-			//cout << "took based on f'" << endl;
 			s = open_fp->take();
 			open_f->remove(s);
 		}
 		else{
-			cout << "bound: " << search->bound.read() << endl;
-			cout << open_fp->get_best_val() << endl;
-			cout << "took based on f" << endl;
 			s = open_f->take();
 			open_fp->remove(s);
 		}
@@ -203,35 +192,28 @@ bool OPBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 	expansions = 0;
 
-	fp_type free_fp = graph->next_nblock_fp_value();
-	fp_type cur_fp = n->open_fp.get_best_val();
-	fp_type free_f = graph->next_nblock_f_value();
-	fp_type cur_f = n->open_f.get_best_val();
+	fp_type bound = search->bound.read();
 
-	NBlock *best_scope = graph->best_in_scope(n, search->bound.read());
+	NBlock *best_scope = graph->best_in_scope(n, bound);
+	NBlock *free_fp = graph->next_nblock_fp_peek();
+	NBlock *free_f = graph->next_nblock_f_peek();
+	bool free_exist = free_fp != NULL;
+	bool free = free_exist && (NBlock::better(free_fp, n, bound)
+				   || NBlock::better(free_f, n, bound));
 	if (best_scope) {
-		fp_type scope_fp = best_scope->open_fp.get_best_val();
-		fp_type scope_f = best_scope->open_f.get_best_val();
-
-		bool scope = NBlock::compare(best_scope, n);
-		bool free = NBlock::compare(free_fp, n)
-			|| NBlock::compare(free_f, n);
+		bool scope = NBlock::better(best_scope, n, bound);
 		ret = free || scope;
 		if (!ret)
 			graph->wont_release(n);
-		else if (scope && (NBlock::better(best_scope, free_fp)
-				   && NBlock::better(best_scope, free_f))) {
+		else if (scope
+			 && (!free_exist
+			     || (NBlock::better(best_scope, free_fp, bound)
+				 && NBlock::better(best_scope, free_f, bound)))) {
 			graph->set_hot(best_scope, search->bound.read());
 			set_hot = true;
-			cout << "set something to hot" << endl;
 		}
 	} else {
-		if(cur_fp < search->bound.read() || free_fp < search->bound.read()){
-			ret = free_fp < cur_fp;
-		}
-		else{
-			ret = free_f < cur_f;
-		}
+		ret = free;
 	}
 
 	return ret;
@@ -304,7 +286,7 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 
 		delete *iter;
 	}
-	/*if (num == 0)
+	if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
@@ -316,7 +298,7 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
-	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;*/
+	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
 	return path;
 }
@@ -330,12 +312,11 @@ void OPBNFSearch::set_path(vector<State *> *p)
 	pthread_mutex_lock(&path_mutex);
 	assert(p->at(0)->get_g() == p->at(0)->get_f());
 	if (p && bound.read() > p->at(0)->get_g()) {
-		cout << "NEW SOLUTION!" << endl;
 		this->path = p;
 		bound.set(p->at(0)->get_g());
 
-		cout << "f_min: " << graph->get_f_min() << endl;
 		if ((b * graph->get_f_min()) > p->at(0)->get_g()){
+			cout << "terminated based on f_min!!!" << endl;
 			done = true;
 		}
 	}

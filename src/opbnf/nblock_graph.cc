@@ -101,7 +101,7 @@ NBlockGraph::~NBlockGraph()
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock_fp(NBlock *finished, bool trylock)
+NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 {
 	NBlock *n = NULL;
 
@@ -154,7 +154,6 @@ NBlock *NBlockGraph::next_nblock_fp(NBlock *finished, bool trylock)
 
 		// Possibly add this block back to the free list.
 		if (is_free(finished)) {
-			cout << "added it back to free" << endl;
 			free_list_fp.add(finished);
 			free_list_f.add(finished);
 			pthread_cond_broadcast(&cond);
@@ -175,114 +174,15 @@ NBlock *NBlockGraph::next_nblock_fp(NBlock *finished, bool trylock)
 
 	if (done)
 		goto out;
-
-	n = free_list_fp.take();
-	free_list_f.remove(n->index_f);
-	nblocks_assigned += 1;
-	if (nblocks_assigned > nblocks_assigned_max)
-		nblocks_assigned_max = nblocks_assigned;
-	n->inuse = true;
-	update_scope_sigmas(n->id, 1);
-
-/*
-  for (set<NBlock *>::iterator iter = n->interferes.begin();
-  iter != n->interferes.end();
-  iter++)
-  assert((*iter)->sigma > 0);
-*/
-out:
-	pthread_mutex_unlock(&mutex);
-
-	return n;
-}
-
-/**
- * Get the next nblock for expansion, possibly release a finished
- * nblock.  The next nblock is the one with the minimum f-value.
- *
- * \note This call will block if there are currently no free nblocks.
- * \param finished If non-NULL, the finished nblock will be released
- *        into the next level's free_list.
- * \param trylock Set to true if a trylock should be attempted instead
- *                of a lock.
- * \return The next NBlock to expand or NULL if there is nothing left
- *         to do.
- */
-NBlock *NBlockGraph::next_nblock_f(NBlock *finished, bool trylock)
-{
-	NBlock *n = NULL;
-
-	// Take the lock, but if someone else already has it, just
-	// keep going.
-	if (trylock && finished && !finished->open_fp.empty()) {
-		if (pthread_mutex_trylock(&mutex) == EBUSY)
-			return finished;
-	} else if(pthread_mutex_trylock(&mutex) == EBUSY)
-		pthread_mutex_lock(&mutex);
-
-	if (finished) {		// Release an NBlock
-		// Sanity check.
-		if (finished->sigma != 0) {
-			cerr << "A proc had an NBlock with sigma != 0" << endl;
-			finished->print(cerr);
-			cerr << endl << endl << endl;
-			__print(cerr);
-		}
-		assert(finished->sigma == 0);
-
-		// Re-sort the nblock PQ so that we can get the f_min value.
-		set<unsigned int>::iterator iter;
-		for (iter = finished->succs.begin(); iter != finished->succs.end(); iter++) {
-			NBlock *n = map.find(*iter);
-			if (n)
-				nblock_pq.see_update(n->pq_index);
-		}
-		nblock_pq.see_update(finished->pq_index);
-		f_min.set(nblock_pq.front()->open_f.get_best_val());
-
-		// Test if this nblock is still worse than the front
-		// of the free list.  If not, then just keep searching
-		// it.
-		if (!finished->open_fp.empty()) {
-			fp_type cur_f = finished->open_f.get_best_val();
-			fp_type new_f;
-			if (free_list_fp.empty())
-				new_f = fp_infinity;
-			else
-				new_f = free_list_f.front()->open_f.get_best_val();
-			if (cur_f <= new_f) {
-				n = finished;
-				goto out;
-			}
-		}
-
-		nblocks_assigned -= 1;
-
-		// Possibly add this block back to the free list.
-		if (is_free(finished)) {
-			free_list_fp.add(finished);
-			free_list_f.add(finished);
-			pthread_cond_broadcast(&cond);
-		}
-		finished->inuse = false;
-		update_scope_sigmas(finished->id, -1);
-
-		if (free_list_fp.empty() && num_sigma_zero == num_nblocks) {
-			__set_done();
-//			__print(cerr);
-			goto out;
-		}
-
+	
+	if(next_nblock_fp_value() < bound){
+		n = free_list_fp.take();
+		free_list_f.remove(n->index_f);
 	}
-
-	while (!done && free_list_fp.empty())
-		pthread_cond_wait(&cond, &mutex);
-
-	if (done)
-		goto out;
-
-	n = free_list_f.take();
-	free_list_fp.remove(n->index_fp);
+	else{
+		n = free_list_f.take();
+		free_list_fp.remove(n->index_fp);
+	}
 	nblocks_assigned += 1;
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
@@ -300,7 +200,6 @@ out:
 
 	return n;
 }
-
 
 /**
  * Get the best NBlock in the interference scope of b which is not free.
@@ -318,12 +217,7 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b, fp_type bound)
 			continue;
 		if (b->open_fp.empty())
 			continue;
-		fp_type b_fp = b->open_fp.get_best_val();
-		fp_type b_f = b->open_f.get_best_val();
-		fp_type best_fp = best_b->open_fp.get_best_val();
-		fp_type best_f = best_b->open_f.get_best_val();
-		if (!best_b || ((b_fp < bound && b_fp < best_fp) ||  < best_f) {
-			best_val = b->open_fp.get_best_val();
+		if (!best_b || NBlock::better(b, best_b, bound)) {
 			best_b = b;
 		}
 	}
@@ -512,8 +406,6 @@ bool NBlockGraph::is_free(NBlock *b)
 void NBlockGraph::set_hot(NBlock *b, fp_type bound)
 {
 	set<unsigned int>::iterator i;
-	fp_type fp = b->open_fp.get_best_val();
-	fp_type f = b->open_f.get_best_val();
 
 	if(pthread_mutex_trylock(&mutex) == EBUSY)
 		pthread_mutex_lock(&mutex);
@@ -522,13 +414,8 @@ void NBlockGraph::set_hot(NBlock *b, fp_type bound)
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
 			NBlock *m = map.get(*i);
-			if (fp < bound){
-				if (m->hot && m->open_fp.get_best_val() < fp)
-					goto out;
-			}
-			else{
-				if (m->hot && m->open_f.get_best_val() < f)
-					goto out;
+			if (m->hot && NBlock::better(m, b, bound)){
+				goto out;
 			}
 		}
 
@@ -614,16 +501,12 @@ NBlock *NBlockGraph::next_nblock_fp_peek()
 {
 	NBlock *b = NULL;
 	b = free_list_fp.front();
-	if (b)
-		return b->open_fp.get_best_val();
-	return fp_infinity;
+	return b;
 }
 
 NBlock *NBlockGraph::next_nblock_f_peek()
 {
 	NBlock *b = NULL;
 	b = free_list_f.front();
-	if (b)
-		return b->open_f.get_best_val();
-	return fp_infinity;
+	return b;
 }

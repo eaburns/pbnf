@@ -34,8 +34,7 @@ namespace OPBNF {
 
 		~NBlockGraph();
 
-		NBlock *next_nblock_fp(NBlock *finished, bool trylock);
-		NBlock *next_nblock_f(NBlock *finished, bool trylock);
+		NBlock *next_nblock(NBlock *finished, bool trylock, fp_type bound);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
 		fp_type next_nblock_fp_value(void);
@@ -46,8 +45,8 @@ namespace OPBNF {
 		NBlock *best_in_scope(NBlock *b, fp_type bound);
 		void wont_release(NBlock *b);
 		void set_hot(NBlock *b, fp_type bound);
-		NBlock next_nblock_fp_peek();
-		NBlock next_nblock_f_peek()
+		NBlock *next_nblock_fp_peek();
+		NBlock *next_nblock_f_peek();
 
 		void observe(NBlock *b);
 

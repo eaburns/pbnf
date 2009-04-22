@@ -91,7 +91,7 @@ namespace OPBNF {
 		};
 
 
-		static bool better(NBlock* a, NBlock* b, fp_type bound)
+		static bool better(NBlock* a, NBlock* b, fp_type bound);
 		NBlock(const Projection *p, unsigned int id);
 		~NBlock(void);
 		void next_iteration(void);
