@@ -13,7 +13,7 @@
 #include <pthread.h>
 
 #include <iostream>
-#include <map>
+#include <list>
 #include <vector>
 
 #include "nblock.h"
@@ -90,6 +90,12 @@ namespace OPBNF {
 
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
+
+#if !defined(NDEBUG)
+		/* List of all created nblocks. */
+		list<NBlock*> nblocks;
+#endif	/* !NDEBUG */
+
 	};
 } /* PBNF */
 

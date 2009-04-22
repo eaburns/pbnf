@@ -125,7 +125,7 @@ endif
 
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
-CXXFLAGS+=$(FLAGS) -I$(LOCKFREEDIR)/include
+CXXFLAGS+=$(FLAGS)
 
 PROGS=$(addsuffix .$(MARCH), \
 	grid_search \

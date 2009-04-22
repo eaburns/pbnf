@@ -13,7 +13,7 @@
 #include "open_list.h"
 
 extern "C" {
-#include "lockfree.h"
+#include "lockfree/include/lockfree.h"
 }
 
 class LF_OpenList : public OpenList {

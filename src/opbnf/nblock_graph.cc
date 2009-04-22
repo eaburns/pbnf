@@ -128,7 +128,13 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 		}
 		nblock_pq.see_update(finished->pq_index);
 		assert(!nblock_pq.empty());
-		assert(!nblock_pq.front()->empty());
+#if !defined(NDEBUG)
+		if (nblock_pq.front()->empty()) {
+			list<NBlock*>::iterator i;
+			for (i = nblocks.begin(); i != nblocks.end(); i++)
+				assert((*i)->empty());
+		}
+#endif	// !NDEBUG
 		f_min.set(nblock_pq.front()->get_best_f());
 
 		// Test if this nblock is still worse than the front
@@ -455,6 +461,9 @@ unsigned int NBlockGraph::get_ncreated_nblocks(void)
 void NBlockGraph::observe(NBlock *b)
 {
 	nblock_pq.add(b);
+#if !defined(NDEBUG)
+	nblocks.push_front(b);
+#endif	// !NDEBUG
 }
 
 NBlock *NBlockGraph::next_nblock_fp_peek()

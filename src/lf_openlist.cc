@@ -16,7 +16,7 @@
 #include "open_list.h"
 
 extern "C" {
-#include "lockfree.h"
+#include "lockfree/include/lockfree.h"
 }
 
 #define MAX_FILL 5000000
