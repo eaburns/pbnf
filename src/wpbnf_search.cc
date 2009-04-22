@@ -104,7 +104,7 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		}
 
 		// If the individual f value is bad, prune the single node.
-		if (search->weight * s->get_f() >= search->bound.read())
+		if ((search->weight * s->get_f()) / fp_one >= search->bound.read())
 			continue;
 
 		if (s->is_goal()) {
@@ -119,7 +119,7 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		vector<State *>::iterator iter;
 
  		for (iter = children->begin(); iter != children->end(); iter++) {
-			if (search->weight * (*iter)->get_f() >= search->bound.read()) {
+			if ((search->weight * (*iter)->get_f()) / fp_one >= search->bound.read()) {
 				delete *iter;
 				continue;
 			}
@@ -245,6 +245,11 @@ vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
+#if !defined(NDEBUG)
+	Heuristic *h = initial->get_domain()->get_heuristic();
+
+	cout << "weight: " << h->get_weight() << endl;
+#endif	// !NDEBUG
 
 	graph_timer.start();
 	graph = new NBlockGraph(project, initial);

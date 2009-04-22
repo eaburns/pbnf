@@ -26,7 +26,10 @@ using namespace std;
 GridState::GridState(GridWorld *d, State *parent, fp_type c, fp_type g, int x, int y)
 	: State(d, parent, c, g), x(x), y(y)
 {
-	this->h = domain->get_heuristic()->compute(this);
+	if (domain->get_heuristic())
+		this->h = domain->get_heuristic()->compute(this);
+	else
+		this->h = 0;
 }
 
 /**

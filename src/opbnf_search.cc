@@ -46,7 +46,13 @@ void OPBNFSearch::PBNFThread::run(void)
 	do {
 		n = graph->next_nblock(n, !set_hot, search->bound.read());
 
-		if ((search->b * graph->get_f_min()) > search->bound.read()) {
+		if ((search->b * graph->get_f_min()) / fp_one > search->bound.read()) {
+/*
+			cout << "Exiting because we have hit the bound: ("
+			     << search->b << " * " << graph->get_f_min()
+			     << ") / " << fp_one << " > "
+			     << search->bound.read() << endl;
+*/
 			break;
 		}
 
@@ -74,7 +80,7 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 
 	while (!search->done && !n->empty() && !should_switch(n)) {
 		// If the best f value in this nblock is bad, prune everything.
-		if (search->b * n->get_best_f() >= search->bound.read()) {
+		if ((search->b * n->get_best_f()) / fp_one >= search->bound.read()) {
 			n->prune();
 			break;
 		}
@@ -86,7 +92,7 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 			s = n->take_f();
 
 		// If the individual f value is bad, prune the single node.
-		if (search->b * s->get_f() >= search->bound.read())
+		if ((search->b * s->get_f()) / fp_one >= search->bound.read())
 			continue;
 
 		if (s->is_goal()) {
@@ -100,7 +106,7 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		vector<State *>::iterator iter;
 
  		for (iter = children->begin(); iter != children->end(); iter++) {
-			if (search->b * (*iter)->get_f() >= search->bound.read()) {
+			if ((search->b * (*iter)->get_f()) / fp_one >= search->bound.read()) {
 				delete *iter;
 				continue;
 			}
@@ -211,11 +217,19 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 	project = initial->get_domain()->get_projection();
 	Heuristic *h = initial->get_domain()->get_heuristic();
 
-	b = h->get_weight();
-	h->set_weight(((b - fp_one) * 2) + fp_one);
+	double b_float = (double) h->get_weight() / (double) fp_one;
+	h->set_weight(((b_float - 1.0) * 2.0) + 1.0);
+	b = b_float * fp_one;
+
+#if !defined(NDEBUG)
+	cout << "b_float: " << b_float << endl;
+	cout << "bound: " << b << endl;
+	cout << "weight: " << h->get_weight() << endl;
+#endif	// !NDEBUG
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
+
 
 	graph_timer.start();
 	graph = new NBlockGraph(project, initial);
@@ -248,7 +262,7 @@ void OPBNFSearch::set_path(vector<State *> *p)
 		this->path = p;
 		bound.set(p->at(0)->get_g());
 
-		if ((b * graph->get_f_min()) > p->at(0)->get_g()){
+		if ((b * graph->get_f_min()) / fp_one > p->at(0)->get_g()){
 			done = true;
 		}
 	}
