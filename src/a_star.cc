@@ -14,6 +14,10 @@
 #include "closed_list.h"
 #include "a_star.h"
 
+AStar::AStar(void) : dd(false) { }
+
+AStar::AStar(bool d) : dd(d) { }
+
 AStar::~AStar(void)
 {
 	closed.delete_all_states();
@@ -47,10 +51,8 @@ vector<State *> *AStar::search(Timer *t, State *init)
 					dup->update(c->get_parent(), c->get_c(), c->get_g());
 					if (dup->is_open())
 						open.see_update(dup);
-					// Duplicate dropping
-					/*
-					else
-					open.add(dup);*/
+					else if (!dd)
+						open.add(dup);
 				}
 				delete c;
 			} else {

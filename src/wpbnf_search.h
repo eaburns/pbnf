@@ -27,7 +27,7 @@ namespace WPBNF {
 
 	class WPBNFSearch : public Search {
 	public:
-		WPBNFSearch(unsigned int n_threads, unsigned int min_expansions);
+		WPBNFSearch(unsigned int n_threads, unsigned int min_expansions, bool dd);
 
 		virtual ~WPBNFSearch(void);
 
@@ -79,6 +79,9 @@ namespace WPBNF {
 		fp_type osum;
 		unsigned int onum;
 		Timer graph_timer;
+
+		/* duplicate dropping? */
+		bool dd;
 	};
 }
 

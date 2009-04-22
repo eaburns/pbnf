@@ -146,13 +146,8 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 		// of the free list.  If not, then just keep searching
 		// it.
 		if (!finished->empty()) {
-			fp_type cur_f = finished->get_best_fp();
-			fp_type new_f;
-			if (free_list_fp.empty())
-				new_f = fp_infinity;
-			else
-				new_f = free_list_fp.front()->get_best_fp();
-			if (cur_f <= new_f) {
+			if (!NBlock::better(free_list_fp.front(), finished, bound)
+			    && !NBlock::better(free_list_f.front(), finished, bound)) {
 				n = finished;
 				goto out;
 			}

@@ -110,7 +110,9 @@ Search *get_search(int argc, char *argv[])
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
 	} else if (argc > 1 && sscanf(argv[1], "wastar-%f", &weight) == 1) {
-		return new AStar();
+		return new AStar(false);
+	} else if (argc > 1 && sscanf(argv[1], "wastardd-%f", &weight) == 1) {
+		return new AStar(true);
 	} else if (argc > 1 && sscanf(argv[1], "awastar-%f", &weight) == 1) {
 		return new AwAStar();
 	} else if (argc > 2 && strcmp(argv[1], "arastar") == 0) {
@@ -133,7 +135,9 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "wprastar-%f-%u-%u", &weight, &threads, &nblocks) == 3) {
-		return new wPRAStar(threads);
+		return new wPRAStar(threads, false);
+	} else if (argc > 1 && sscanf(argv[1], "wprastardd-%f-%u-%u", &weight, &threads, &nblocks) == 3) {
+		return new wPRAStar(threads, true);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
@@ -145,7 +149,12 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "wbfpsdd-%f-%u-%u-%u-%u", &weight,
 			     &multiplier, &min_expansions,
 			     &threads, &nblocks) == 5) {
-		return new WBFPSDDSearch(threads, multiplier, min_expansions);
+		return new WBFPSDDSearch(threads, multiplier, min_expansions, false);
+	} else if (argc > 1
+		   && sscanf(argv[1], "wbfpsdddd-%f-%u-%u-%u-%u", &weight,
+			     &multiplier, &min_expansions,
+			     &threads, &nblocks) == 5) {
+		return new WBFPSDDSearch(threads, multiplier, min_expansions, true);
 	} else if (argc > 1
 		   && sscanf(argv[1], "idpsdd-%u-%u", &threads, &nblocks) == 2) {
 		return new IDPSDDSearch(threads);
@@ -172,7 +181,10 @@ Search *get_search(int argc, char *argv[])
 		return new ARPBNF::ARPBNFSearch(threads, min_expansions, true, weights);
 	} else if (argc > 1
 		   && sscanf(argv[1], "wpbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
-		return new WPBNF::WPBNFSearch(threads, min_expansions);
+		return new WPBNF::WPBNFSearch(threads, min_expansions, false);
+	} else if (argc > 1
+		   && sscanf(argv[1], "wpbnfdd-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
+		return new WPBNF::WPBNFSearch(threads, min_expansions, true);
 	} else if (argc > 1
 		   && sscanf(argv[1], "opbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new OPBNF::OPBNFSearch(threads, min_expansions);
@@ -193,12 +205,16 @@ Search *get_search(int argc, char *argv[])
 		     << "\tpastar-<threads>" << endl
 		     << "\tprastar-<threads>-<nblocks>" << endl
 		     << "\twprastar-<weight>-<threads>-<nblocks>" << endl
+		     << "\twprastardd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\twbfpsdd-<weight>-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
+		     << "\twbfpsdddd-<weight>-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tidpsdd-<threads>-<nblocks>" << endl
 		     << "\tpbnf-<weight>-<min_expansions>-<threads>-<nblocks>" << endl
+		     << "\twpbnf-<weight>-<min_expansions>-<threads>-<nblocks>" << endl
+		     << "\twpbnfdd-<weight>-<min_expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tsafepbnf-<weight>-<min-expansions>-<threads>-<nblocks>" << endl
 		     << "\tarpbnf-<min-expansions>-<threads>-<nblocks> <weight-list>" << endl

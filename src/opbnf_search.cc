@@ -258,7 +258,9 @@ void OPBNFSearch::set_path(vector<State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
 	assert(p->at(0)->get_g() == p->at(0)->get_f());
+	cout << "Trying to set a path" << endl;
 	if (p && bound.read() > p->at(0)->get_g()) {
+		cout << "Setting a path" << endl;
 		this->path = p;
 		bound.set(p->at(0)->get_g());
 

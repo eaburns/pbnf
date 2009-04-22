@@ -28,11 +28,13 @@ class WBFPSDDSearch : public Search {
 public:
 	WBFPSDDSearch(unsigned int n_threads,
 		      fp_type multiplier,
-		      unsigned int min_expansions);
+		      unsigned int min_expansions,
+		      bool dd);
 	WBFPSDDSearch(unsigned int n_threads,
 		      fp_type multiplier,
 		      unsigned int min_expansions,
-		      fp_type bound);
+		      fp_type bound,
+		      bool dd);
 	virtual ~WBFPSDDSearch(void);
 
 	virtual vector<State *> *search(Timer *t, State *s);
@@ -76,6 +78,8 @@ private:
 	fp_type sum;
 	unsigned int num;
 	Timer graph_timer;
+
+	bool dd;
 };
 
 #endif	/* !_WBFPSDD_H_ */

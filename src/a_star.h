@@ -19,10 +19,13 @@
  */
 class AStar : public Search {
 public:
+	AStar(void);
+	AStar(bool dd);
 	virtual ~AStar(void);
 	virtual vector<State *> *search(Timer *, State *);
 private:
 	ClosedList closed;
+	bool dd;		/* dup dropping */
 };
 
 #endif	/* !_A_STAR_H_ */

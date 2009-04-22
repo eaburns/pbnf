@@ -108,31 +108,34 @@ vector<State *> *WBFPSDDSearch::WBFPSDDThread::search_nblock(NBlock *n)
 				delete *iter;
 				continue;
 			}
-			unsigned int block = search->project->project(*iter);
+			State *ch = *iter;
+			unsigned int block = search->project->project(ch);
 			NBlock *b = graph->get_nblock(block);
 			PQOpenList<State::PQOpsFPrime> *next_open_fp = &b->open_fp;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
-			State *dup = next_closed->lookup(*iter);
+			State *dup = next_closed->lookup(ch);
 			if (dup) {
-				if (dup->get_g() > (*iter)->get_g()) {
-					dup->update((*iter)->get_parent(),
-						    (*iter)->get_c(),
-						    (*iter)->get_g());
+				if (dup->get_g() > ch->get_g()) {
+					fp_type old_g = ch->get_g();
+					dup->update(ch->get_parent(),
+						    ch->get_c(),
+						    ch->get_g());
 					if (dup->is_open()) {
 						next_open_fp->see_update(dup);
-					} else {
+					} else if (!search->dd || (old_g > s->get_g() + ((search->weight * ch->get_c()) / fp_one))){
+						// This is Wheeler's duplicate dropping technique.
 						next_open_fp->add(dup);
 					}
 				}
-				delete *iter;
+				delete ch;
 			} else {
-				next_closed->add(*iter);
-				if ((*iter)->is_goal()) {
-					path = (*iter)->get_path();
+				next_closed->add(ch);
+				if ((ch)->is_goal()) {
+					path = ch->get_path();
 					delete children;
 					return path;
 				}
-				next_open_fp->add(*iter);
+				next_open_fp->add(ch);
 			}
 		}
 		delete children;
@@ -149,7 +152,7 @@ vector<State *> *WBFPSDDSearch::WBFPSDDThread::search_nblock(NBlock *n)
 /**
  * Create a new Parallel Structured Duplicate Detection search.
  */
-WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int min_expansions)
+WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int min_expansions, bool d)
 	: bound(fp_infinity),
 	  n_threads(n_threads),
 	  project(NULL),
@@ -157,7 +160,8 @@ WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int 
 	  graph(NULL),
 	  min_expansions(min_expansions),
 	  multiplier(mult),
-	  done(false)
+	  done(false),
+	  dd(d)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }
@@ -166,7 +170,7 @@ WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int 
  * Create a new Parallel Structured Duplicate Detection search with a
  * given bound.
  */
-WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int min_expansions, fp_type bound)
+WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int min_expansions, fp_type bound, bool d)
 	: bound(bound),
 	  n_threads(n_threads),
 	  project(NULL),
@@ -176,7 +180,8 @@ WBFPSDDSearch::WBFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int 
 	  multiplier(mult),
 	  done(false),
 	  sum(0),
-	  num(0)
+	  num(0),
+	  dd(d)
 {
 	pthread_mutex_init(&path_mutex, NULL);
 }

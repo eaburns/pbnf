@@ -123,31 +123,32 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 				delete *iter;
 				continue;
 			}
-			unsigned int block = search->project->project(*iter);
+			State *ch = *iter;
+			unsigned int block = search->project->project(ch);
 			PQOpenList<State::PQOpsFPrime> *next_open_fp = &graph->get_nblock(block)->open_fp;
 			ClosedList *next_closed = &graph->get_nblock(block)->closed;
-			State *dup = next_closed->lookup(*iter);
+			State *dup = next_closed->lookup(ch);
 			if (dup) {
-				if (dup->get_g() > (*iter)->get_g()) {
-					dup->update((*iter)->get_parent(),
-						    (*iter)->get_c(),
-						    (*iter)->get_g());
+				if (dup->get_g() > ch->get_g()) {
+					fp_type old_g = dup->get_g();
+					dup->update(ch->get_parent(), ch->get_c(), ch->get_g());
 					if (dup->is_open()) {
 						next_open_fp->see_update(dup);
-					} else {
+					} else if (!search->dd || (old_g > s->get_g() + ((search->weight * ch->get_c()) / fp_one))) {
+						// this is Wheeler's duplicate dropping test.
 						next_open_fp->add(dup);
 					}
 					ave_open_size.add_val(next_open_fp->size());
 				}
-				delete *iter;
+				delete ch;
 			} else {
-				next_closed->add(*iter);
-				if ((*iter)->is_goal()) {
-					path = (*iter)->get_path();
+				next_closed->add(ch);
+				if (ch->is_goal()) {
+					path = ch->get_path();
 					delete children;
 					return path;
 				}
-				next_open_fp->add(*iter);
+				next_open_fp->add(ch);
 				ave_open_size.add_val(next_open_fp->size());
 			}
 		}
@@ -207,7 +208,7 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 
 
 WPBNFSearch::WPBNFSearch(unsigned int n_threads,
-			 unsigned int min_e)
+			 unsigned int min_e, bool dup_drop)
 	: n_threads(n_threads),
 	  project(NULL),
 	  path(NULL),
@@ -217,7 +218,8 @@ WPBNFSearch::WPBNFSearch(unsigned int n_threads,
 	  sum(0),
 	  num(0),
 	  osum(0),
-	  onum(0)
+	  onum(0),
+	  dd(dup_drop)
 
 {
 	pthread_mutex_init(&path_mutex, NULL);

@@ -40,11 +40,16 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {
+				fp_type old_g = dup->get_g();
+				fp_type parent_g = c->get_g() - c->get_c();
+
 				dup->update(c->get_parent(), c->get_c(), c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
-				else
+				else if (old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
+					//  Wheeler's dup dropping
 					open.add(dup);
+				}
 			}
 			delete c;
 		}
@@ -105,11 +110,15 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {
+				fp_type old_g = dup->get_g();
+				fp_type parent_g = c->get_g() - c->get_c();
 				dup->update(c->get_parent(), c->get_c(), c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
-				else
+				else if (old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
+					// Wheeler's dup dropping
 					open.add(dup);
+				}
 			}
 			delete c;
 		}
@@ -177,20 +186,22 @@ void wPRAStar::wPRAStarThread::run(void){
 /************************************************************/
 
 
-wPRAStar::wPRAStar(unsigned int n_threads) 
+wPRAStar::wPRAStar(unsigned int n_threads, bool d) 
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
-	  path(NULL){
+	  path(NULL),
+	  dd(d){
         done = false;
 }
 
 
-wPRAStar::wPRAStar(unsigned int n_threads, fp_type bound) 
+wPRAStar::wPRAStar(unsigned int n_threads, fp_type bound, bool d) 
 	: n_threads(n_threads),
           bound(bound),
 	  project(NULL),
-	  path(NULL){
+	  path(NULL),
+	  dd(d) {
         done = false;
 }
 
