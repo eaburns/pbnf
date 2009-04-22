@@ -65,9 +65,6 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
-
-	nblocks_assigned = 0;
-	nblocks_assigned_max = 0;
 }
 
 /**
@@ -150,8 +147,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 			}
 		}
 
-		nblocks_assigned -= 1;
-
 		// Possibly add this block back to the free list.
 		if (is_free(finished)) {
 			free_list_fp.add(finished);
@@ -184,9 +179,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 		n = free_list_f.take();
 		free_list_fp.remove(n->index_fp);
 	}
-	nblocks_assigned += 1;
-	if (nblocks_assigned > nblocks_assigned_max)
-		nblocks_assigned_max = nblocks_assigned;
 	n->inuse = true;
 	update_scope_sigmas(n->id, 1);
 
@@ -234,15 +226,6 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b, fp_type bound)
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
 	return map.get(hash);
-}
-
-/**
- * Get the statistics on the maximum number of NBlocks assigned at one time.
- */
-unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
-{
-
-	return nblocks_assigned_max;
 }
 
 /**

@@ -90,12 +90,6 @@ namespace OPBNF {
 
 		pthread_mutex_t mutex;
 		pthread_cond_t cond;
-
-		/*
-		 * Statistics
-		 */
-		unsigned int nblocks_assigned;
-		unsigned int nblocks_assigned_max;
 	};
 } /* PBNF */
 
