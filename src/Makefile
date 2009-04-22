@@ -104,15 +104,15 @@ CC=cc
 CXX=CC
 #DEBUG=-g -xO0   # use the dbx debugger
 DEBUG+=-DNDEBUG
-FLAGS+=-mt -errwarn=%all $(DEBUG)
+FLAGS+=-mt -errwarn=%all $(Debug)
 ASFLAGS+=-xc99=%none
 CFLAGS+=-xc99=%none
 LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
-#DEBUG+=-O3 -DNDEBUG
-DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+DEBUG+=-O3 -DNDEBUG
+#DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 LDFLAGS+=-lpthread $(PROFILE)

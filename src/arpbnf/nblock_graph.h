@@ -145,11 +145,6 @@ namespace ARPBNF {
 		volatile bool resort_start;
 
 		/**
-		 * Set to declare the resort finished.
-		 */
-		volatile bool resort_done;
-
-		/**
 		 * Queue of nblocks which need to be resorted.
 		 */
 		lf_queue *resort_q;

@@ -77,8 +77,7 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 NBlockGraph::NBlockGraph(const Projection *p, State *initial)
 	: map(p),
 	  resort_flag(false),
-	  resort_start(false),
-	  resort_done(false)
+	  resort_start(false)
 {
 	cpp_is_a_bad_language(p, initial);
 }
@@ -550,7 +549,6 @@ retry:
 	}
 
 	resort_flag = false;
-	resort_done = true;
 	resort_start = false;
 	pthread_mutex_unlock(&mutex);
 }
@@ -574,9 +572,6 @@ void NBlockGraph::resort(bool master)
 		}
 	}
 
-	if (!master) {
-		// spin until the master thread resets the resort flag.
-		while(!resort_done)
-			;
-	}
+	// at this point, the master has the lock, so we won't get any
+	// searching done until the master is finished.
 }
