@@ -205,6 +205,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tawastar-<weight>" << endl
 		     << "\tarastar <weight-list>" << endl
 		     << "\tpastar-<threads>" << endl
+		     << "\tlpastar-<threads>" << endl
 		     << "\tprastar-<threads>-<nblocks>" << endl
 		     << "\twprastar-<weight>-<threads>-<nblocks>" << endl
 		     << "\twprastardd-<weight>-<threads>-<nblocks>" << endl
