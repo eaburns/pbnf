@@ -41,7 +41,7 @@ public:
 					}
 					break;
 				}
-				
+
 				if (s->is_goal()) {
 					search->set_path(s->get_path());
 					if (s->domain->get_heuristic()->get_weight() == 1.0){
@@ -49,7 +49,7 @@ public:
 					}
 					break;
 				}
-				
+
 				vector<State *> *children = search->expand(s);
 				for (unsigned int i = 0; i < children->size(); i += 1) {
 					State *c = children->at(i);
@@ -67,15 +67,15 @@ public:
 						open.add(c);
 						closed.add(c);
 					}
-					
+
 				}
 				delete children;
 			}
-			
+
 			init = search->get_next_init();
 		}
 	}
-	
+
 private:
 	SyncWAStar *search;
 	ClosedList closed;
@@ -101,7 +101,7 @@ bool SyncWAStar::is_done()
 void SyncWAStar::set_path(vector<State *> *p)
 {
         pthread_mutex_lock(&mutex);
-        if (this->path == NULL || 
+        if (this->path == NULL ||
 	    this->path->at(0)->get_g() > p->at(0)->get_g()){
 		this->path = p;
 		bound.set(p->at(0)->get_g());
@@ -123,8 +123,8 @@ State *SyncWAStar::get_next_init(){
 	else{
 		ret = NULL;
 	}
-	pthread_mutex_lock(&mutex);
-	
+	pthread_mutex_unlock(&mutex);
+
 	return ret;
 }
 

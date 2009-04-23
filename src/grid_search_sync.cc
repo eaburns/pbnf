@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
 		memcpy(g, g_orig, sizeof(*g_orig));
 		g->set_projection(&project);
 
-		GridWorld::ManhattanDist manhattan(g);
-		manhattan.set_weight(*i);
-		g->set_heuristic(&manhattan);
+		GridWorld::ManhattanDist *manhattan = new GridWorld::ManhattanDist(g);
+		manhattan->set_weight(*i);
+		g->set_heuristic(manhattan);
 		inits->push_back(g->initial_state());
 	}
 		
