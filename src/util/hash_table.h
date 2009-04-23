@@ -50,12 +50,6 @@ private:
 		 */
 		void *add(Elm *s);
 
-		/*
-		 * This really returns a Bucket*, but I couldn't get
-		 * the templates to actually do that.
-		 */
-		void *remove(Elm *s);
-
 		Elm *data;
 		Bucket *next;
 		unsigned int size;
@@ -80,8 +74,6 @@ HashTable<Elm>::Bucket::Bucket(Elm *d, HashTable<Elm>::Bucket *n)
 template<class Elm>
 HashTable<Elm>::Bucket::~Bucket(void)
 {
-	if (next)
-		delete next;
 }
 
 template<class Elm>
@@ -109,23 +101,6 @@ void* HashTable<Elm>::Bucket::add(Elm *s)
 	else {
 		next = (Bucket*) next->add(s);
 		size += 1;
-	}
-
-	return this;
-}
-
-template<class Elm>
-void *HashTable<Elm>::Bucket::remove(Elm *s)
-{
-	if (s->hash() == data->hash())
-		return next;
-
-	Bucket *n = next;
-	if (n) {
-		Bucket *nnext = (Bucket*) n->remove(s);
-		if (nnext != n)
-			delete n;
-		next = nnext;
 	}
 
 	return this;
@@ -187,11 +162,26 @@ void HashTable<Elm>::remove(Elm *s)
 {
 	unsigned long i = get_ind(s);
 	Bucket *b = table[i];
-	if (!b || !b->lookup(s))
+	if (!b)
 		return;
 
-	fill -= 1;
-	table[i] = (Bucket *) b->remove(s);
+	uint64_t hash = s->hash();
+	Bucket *prev = b;
+	while (b) {
+		if (b->data->hash() == hash)
+			break;
+		prev = b;
+		b = b->next;
+	}
+
+	if (b) {
+		if (table[i] == b)
+			table[i] = b->next;
+		else
+			prev->next = b->next;
+		delete b;
+		fill -= 1;
+	}
 }
 
 /**
@@ -274,8 +264,12 @@ void HashTable<Elm>::delete_all(void)
 	for (unsigned int i = 0; i < size; i += 1) {
 		for (b = table[i]; b; b = b->next)
 			delete b->data;
-		if (table[i])
-			delete table[i];
+		Bucket *b = table[i];
+		while (b) {
+			Bucket *c = b;
+			b = b->next;
+			delete c;
+		}
 		table[i] = NULL;
 	}
 }
@@ -291,7 +285,12 @@ void HashTable<Elm>::prune(void)
 
 	for (unsigned int i = 0; i < size; i += 1) {
 		if (table[i]) {
-			delete table[i];
+			Bucket *b = table[i];
+			while (b) {
+				Bucket *c = b;
+				b = b->next;
+				delete c;
+			}
 			table[i] = NULL;
 		}
 	}
