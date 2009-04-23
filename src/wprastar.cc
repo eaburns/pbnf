@@ -46,7 +46,7 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 				dup->update(c->get_parent(), c->get_c(), c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
-				else if (old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
+				else if (!p->dd || old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
 					//  Wheeler's dup dropping
 					open.add(dup);
 				}
@@ -115,7 +115,7 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 				dup->update(c->get_parent(), c->get_c(), c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
-				else if (old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
+				else if (!p->dd || old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
 					// Wheeler's dup dropping
 					open.add(dup);
 				}

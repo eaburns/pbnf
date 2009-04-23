@@ -130,7 +130,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 				new_f = fp_infinity;
 			else
 				new_f = free_list.front()->open.get_best_val();
-			if (cur_f <= new_f) {
+			if (cur_f <= new_f && cur_f < bound->read()) {
 				n = finished;
 				goto out;
 			}
