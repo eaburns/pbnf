@@ -1,3 +1,4 @@
+ 
 /**
  * \file hash_table.h
  *
@@ -10,6 +11,8 @@
 #define _HASH_TABLE_H_
 
 #include <list>
+#include <stdlib.h>
+#include <stdint.h>
 
 using namespace std;
 
