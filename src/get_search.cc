@@ -123,9 +123,11 @@ Search *get_search(int argc, char *argv[])
 		return new IDAStar();
 	} else if (argc > 1 && strcmp(argv[1], "bfs") == 0) {
 		return new BreadthFirstSearch();
+/*
 	} else if (argc > 1
-		   && sscanf(argv[1], "costbounddfs-%ju", &cost_bound) == 1) {
+		   && sscanf(argv[1], "costbounddfs-%lf", &cost_bound) == 1) {
 		return new CostBoundDFS(cost_bound);
+*/
 	} else if (argc > 1 && sscanf(argv[1], "kbfs-%u", &threads) == 1) {
 		return new KBFS(threads);
 	} else if (argc > 1 && sscanf(argv[1], "pastar-%u", &threads) == 1) {

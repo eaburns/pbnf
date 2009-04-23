@@ -113,7 +113,9 @@ vector<State *> *State::get_path(void)
 	vector<State *> *path = new vector<State *>;
 	State *p;
 	State *copy, *last = NULL;
+/*
 	fp_type c_sum = 0;
+*/
 
 	for (p = this; p; p = p->parent) {
 		copy = p->clone();
@@ -122,13 +124,17 @@ vector<State *> *State::get_path(void)
 		if (last)
 			last->parent = copy;
 
+/*
 		c_sum += copy->get_c();
+*/
 		path->push_back(copy);
 		last = copy;
 	}
 
+/*
 	assert (c_sum <= g);
 	g = c_sum;
+*/
 
 	return path;
 }

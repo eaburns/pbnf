@@ -9,9 +9,10 @@
 #if !defined(_SYNC_SOLUTION_STREAM_H_)
 #define _SYNC_SOLUTION_STREAM_H_
 
+#include <pthread.h>
+
 #include "../state.h"
-#include "atomic_int.h"
-#include "solution_stream.h"
+#include "serial_solution_stream.h"
 #include "timer.h"
 #include "fixed_point.h"
 
@@ -21,7 +22,7 @@ using namespace std;
  * Holds a stream of solutions along with the time at which the
  * solution was arrived.
  */
-class SyncSolutionStream : public SolutionStream {
+class SyncSolutionStream : public SerialSolutionStream {
 public:
 	/**
 	 * Create a new solution stream that uses the given timer and
@@ -49,18 +50,8 @@ public:
 	 * Get the best solution path.
 	 */
 	virtual vector<State *> *get_best_path(void);
-
-	/**
-	 * Output the solution stream to the given output stream.
-	 */
-	virtual void output(ostream &o);
-
 private:
-	Solution *all;
-
-	Solution *lst;
-
-	Solution *best;
+	pthread_mutex_t mutex;
 };
 
 #endif /* !_SYNC_SOLUTION_STREAM_H_ */

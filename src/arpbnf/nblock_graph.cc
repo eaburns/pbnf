@@ -130,7 +130,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 				new_f = fp_infinity;
 			else
 				new_f = free_list.front()->open.get_best_val();
-			if (cur_f <= new_f && cur_f < bound->read()) {
+			if (cur_f <= new_f && cur_f <= bound->read()) {
 				n = finished;
 				goto out;
 			}
@@ -183,7 +183,7 @@ out:
 void NBlockGraph::__free_if_free(NBlock *finished)
 {
 	if (is_free(finished)) {
-		if (finished->open.get_best_val() >= bound->read()) {
+		if (finished->open.get_best_val() > bound->read()) {
 			free_but_poor = true;
 		} else {
 			free_list.add(finished);
@@ -447,7 +447,7 @@ bool NBlockGraph::needs_resort()
 	return resort_flag;
 }
 
-void NBlockGraph::call_for_resort(AtomicInt *nincons)
+void NBlockGraph::call_for_resort(AtomicInt *nincons, bool final_weight)
 {
 	int n = 0;
 	list<NBlock *>::iterator iter;
@@ -526,7 +526,7 @@ retry:
 	bool in_bound = false;
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
 		assert((*iter)->incons.empty());
-		if ((*iter)->open.get_best_val() < bound->read())
+		if ((*iter)->open.get_best_val() <= bound->read())
 			in_bound = true;
 		if (!(*iter)->open.empty())
 			all_empty = false;
@@ -534,7 +534,7 @@ retry:
 			__free_if_free(*iter);
 	}
 
-	if (all_empty)
+	if (all_empty || (!in_bound && final_weight))
 		__set_done();
 
 	resort_flag = false;
@@ -568,4 +568,9 @@ void NBlockGraph::resort(bool master)
 bool NBlockGraph::has_free_nblocks(void)
 {
 	return !free_list.empty() || free_but_poor;
+}
+
+bool NBlockGraph::is_done(void)
+{
+	return done;
 }

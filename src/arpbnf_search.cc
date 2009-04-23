@@ -41,6 +41,8 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 
 	do {
 	next:
+		if (graph->is_done())
+			break;
 		n = graph->next_nblock(n, !set_hot);
 		set_hot = false;
 		if (n) {
@@ -51,13 +53,13 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 				if (search->set_path(path) && !search->final_weight) {
 					graph->free_nblock(n);
 					n = NULL;
-					graph->call_for_resort(&search->nincons);
+					graph->call_for_resort(&search->nincons, search->final_weight);
 					goto next;
 				}
 			}
-		} else if (search->nincons.read() > 0 || !search->final_weight) {
+		} else {
 			search->move_to_next_weight();
-			graph->call_for_resort(&search->nincons);
+			graph->call_for_resort(&search->nincons, search->final_weight);
 #if !defined(NDEBUG)
 			cout << "No solution found at weight "
 			     << search->weights->at(search->next_weight - 1)
@@ -65,7 +67,7 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 #endif	// !NDEBUG
 			goto next;
 		}
-	} while (n);
+	} while (n && !graph->is_done());
 
 	assert(search->nincons.read() == 0);
 
@@ -87,7 +89,7 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::search_nblock(NBlock *n)
 			continue;
 
 		// stop with this nblock if it is worse than our bound.
-		if (s->get_f_prime() >= search->bound.read())
+		if (s->get_f_prime() > search->bound.read())
 			return NULL;
 
 		if (s->is_goal()) {

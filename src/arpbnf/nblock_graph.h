@@ -43,6 +43,7 @@ namespace ARPBNF {
 		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
 		void set_done(void);
+		bool is_done(void);
 		NBlock *best_in_scope(NBlock *b);
 		void wont_release(NBlock *b);
 		void set_hot(NBlock *b);
@@ -59,7 +60,7 @@ namespace ARPBNF {
 		/**
 		 * Signal all threads to stop and resort the nblocks.
 		 */
-		void call_for_resort(AtomicInt *nincons);
+		void call_for_resort(AtomicInt *nincons, bool final_weight);
 
 		/**
 		 * Test if the resort bit is set.
