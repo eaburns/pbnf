@@ -15,6 +15,11 @@
 
 using namespace std;
 
+extern "C" {
+#include "nbds.0.4.3/include/map.h"
+#include "nbds.0.4.3/include/hashtable.h"
+}
+
 /**
  * A simple closed list class.
  */
@@ -28,6 +33,7 @@ public:
 	void delete_all_states(void);
 
 private:
+	map_t *map;
 };
 
 #endif	/* !_LF_CLOSEDLIST_H_ */

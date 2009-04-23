@@ -9,7 +9,10 @@ MARCH=i386
 endif
 
 LOCKFREEDIR=lockfree
-LIBLOCKFREE=lockfree/liblockfree-$(MARCH).a
+LIBLOCKFREE=$(LOCKFREEDIR)/liblockfree-$(MARCH).a
+
+NBDSDIR=nbds.0.4.3
+LIBNBDS=$(NBDSDIR)/libnbds-$(MARCH).a
 
 OBJDIR=objs.$(MARCH)
 
@@ -80,7 +83,8 @@ SRC= \
 	wprastar.cc
 
 OBJ=$(addprefix $(OBJDIR)/, $(SRC:.cc=.o))
-OBJ+= $(LIBLOCKFREE)
+OBJ+=$(LIBLOCKFREE)
+OBJ+=$(LIBNBDS)
 
 ifeq ($(MARCH), sparc64)
 FLAGS+=-mcpu=v9
@@ -198,6 +202,10 @@ pq_test.$(MARCH): $(OBJ) util/pq_test.cc
 $(LIBLOCKFREE):
 	cd $(LOCKFREEDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
 
+.PHONY: $(LIBNBDS)
+$(LIBNBDS):
+	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
+
 create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
 	@echo
 	@echo
@@ -243,5 +251,6 @@ objdirs:
 	rm -fr $(OBJDIR)
 	rm -f $(PROGS)
 	cd $(LOCKFREEDIR) ; $(MAKE) MARCH=$(MARCH) clean ; cd ..
+	cd $(NBDSDIR) ; $(MAKE) MARCH=$(MARCH) clean ; cd ..
 
 -include .depend
