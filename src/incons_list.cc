@@ -35,8 +35,8 @@ void InconsList::add(State *s)
 {
 	if (s->incons)
 		return;
-	tbl.add(s);
 	s->incons = true;
+	tbl.add(s);
 }
 
 /**
@@ -66,6 +66,6 @@ void InconsList::re_open(OpenList *o)
 void InconsList::__do_re_open(void *aux, State *s)
 {
 	OpenList *o = (OpenList*)aux;
-	s->incons = false;
 	o->add(s);
+	s->incons = false;
 }

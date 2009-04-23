@@ -185,6 +185,8 @@ void HashTable<Elm>::remove(Elm *s)
 		delete b;
 		fill -= 1;
 	}
+
+	assert(lookup(s) == NULL);
 }
 
 /**

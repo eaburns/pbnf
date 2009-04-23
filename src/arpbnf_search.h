@@ -98,11 +98,6 @@ namespace ARPBNF {
 		 */
 		bool final_weight;
 
-		/**
-		 * The number of nblocks with inconsistent states.
-		 */
-		AtomicInt nincons;
-
 		/********************************************/
 
 		/**

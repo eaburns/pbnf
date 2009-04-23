@@ -447,7 +447,7 @@ bool NBlockGraph::needs_resort()
 	return resort_flag;
 }
 
-void NBlockGraph::call_for_resort(AtomicInt *nincons, bool final_weight)
+void NBlockGraph::call_for_resort(bool final_weight)
 {
 	int n = 0;
 	list<NBlock *>::iterator iter;
@@ -510,9 +510,6 @@ retry:
 
 	while (n_to_sort.read() > 0)
 		;
-
-	// reset the inconsistent nblock count.
-	nincons->set(0);
 
 	/*
 	 * The blocks should now be resorted.  The master resorts the

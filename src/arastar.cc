@@ -64,8 +64,7 @@ vector<State *> *ARAStar::search(Timer *t, State *init)
 		}
 
 
-		State *s = open.take();
-		if (s->get_f_prime() > incumbent_cost) {
+		if (open.get_best_val() > incumbent_cost) {
 #if !defined(NDEBUG)
 			cout << "No Solution found at weight "
 			     << weights->at(next_weight - 1)
@@ -74,6 +73,7 @@ vector<State *> *ARAStar::search(Timer *t, State *init)
 			move_to_next_weight();
 			continue;
 		}
+		State *s = open.take();
 
 		if (s->get_f() >= incumbent_cost)
 			continue;

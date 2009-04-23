@@ -53,13 +53,13 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 				if (search->set_path(path) && !search->final_weight) {
 					graph->free_nblock(n);
 					n = NULL;
-					graph->call_for_resort(&search->nincons, search->final_weight);
+					graph->call_for_resort(search->final_weight);
 					goto next;
 				}
 			}
 		} else {
 			search->move_to_next_weight();
-			graph->call_for_resort(&search->nincons, search->final_weight);
+			graph->call_for_resort( search->final_weight);
 #if !defined(NDEBUG)
 			cout << "No solution found at weight "
 			     << search->weights->at(search->next_weight - 1)
@@ -68,8 +68,6 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 			goto next;
 		}
 	} while (n && !graph->is_done());
-
-	assert(search->nincons.read() == 0);
 
 	graph->set_done();
 }
@@ -89,8 +87,10 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::search_nblock(NBlock *n)
 			continue;
 
 		// stop with this nblock if it is worse than our bound.
-		if (s->get_f_prime() > search->bound.read())
+		if (s->get_f_prime() > search->bound.read()) {
+			n->incons.add(s);
 			return NULL;
+		}
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -104,7 +104,6 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::search_nblock(NBlock *n)
 
  		for (iter = children->begin(); iter != children->end(); iter++) {
 			State *ch = *iter;
-			// First check if we can prune!
 			if (ch->get_f() >= search->bound.read()) {
 				delete ch;
 				continue;
@@ -144,8 +143,6 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 				if (search->final_weight) {
 					copen->add(dup);
 				} else {
-					if (cincons->empty())
-						search->nincons.inc();
 					cincons->add(dup);
 				}
 			}
@@ -217,8 +214,7 @@ ARPBNFSearch::ARPBNFSearch(unsigned int n_threads,
 	  weights(w),
 	  next_weight(1),
 	  domain(NULL),
-	  final_weight(false),
-	  nincons(0)
+	  final_weight(false)
 {
 	pthread_mutex_init(&wmutex, NULL);
 }
