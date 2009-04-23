@@ -55,7 +55,7 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 					goto next;
 				}
 			}
-		} else if (search->nincons.read() > 0) {
+		} else if (search->nincons.read() > 0 || !search->final_weight) {
 			search->move_to_next_weight();
 			graph->call_for_resort(&search->nincons);
 #if !defined(NDEBUG)
@@ -85,6 +85,10 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::search_nblock(NBlock *n)
 
 		if (s->get_f() >= search->bound.read())
 			continue;
+
+		// stop with this nblock if it is worse than our bound.
+		if (s->get_f_prime() >= search->bound.read())
+			return NULL;
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -234,7 +238,7 @@ vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
 	vector<ARPBNFSearch::ARPBNFThread*> threads;
 	vector<ARPBNFSearch::ARPBNFThread*>::iterator iter;
 
-	graph = new NBlockGraph(project, initial);
+	graph = new NBlockGraph(project, initial, &bound);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		ARPBNFThread *t = new ARPBNFThread(graph, this);

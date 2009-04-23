@@ -33,7 +33,7 @@ extern "C" {
 namespace ARPBNF {
 	class NBlockGraph : public NBlockMap<NBlock>::CreationObserver {
 	public:
-		NBlockGraph(const Projection *p, State *init);
+		NBlockGraph(const Projection *p, State *init, AtomicInt *bound);
 
 		~NBlockGraph();
 
@@ -42,7 +42,6 @@ namespace ARPBNF {
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
-		unsigned int get_max_assigned_nblocks(void) const;
 		void set_done(void);
 		NBlock *best_in_scope(NBlock *b);
 		void wont_release(NBlock *b);
@@ -51,6 +50,11 @@ namespace ARPBNF {
 		unsigned int get_ncreated_nblocks(void);
 
 		fp_type best_val(void);
+
+		/**
+		 * Return true if there are free nblocks.
+		 */
+		bool has_free_nblocks(void);
 
 		/**
 		 * Signal all threads to stop and resort the nblocks.
@@ -83,6 +87,11 @@ namespace ARPBNF {
 		void __free_nblock(NBlock *finished);
 
 		/**
+		 * Actually add the nblock to the freelist (if it is free)
+		 */
+		void __free_if_free(NBlock *finished);
+
+		/**
 		 * Resort all of the nblocks.
 		 *
 		 * \param master Set by the master thread calling for
@@ -109,6 +118,12 @@ namespace ARPBNF {
 		 * List of free nblock numbers
 		 */
 		PriorityQueue<NBlock*, NBlock::NBlockPQFuncsFprime> free_list;
+
+		/**
+		 * True if there are free canditates but their f'
+		 * values are worse than the bound.
+		 */
+		bool free_but_poor;
 
 		/**
 		 * List of all created nblocks.  When an nblock is
@@ -154,11 +169,8 @@ namespace ARPBNF {
 		 */
 		AtomicInt n_to_sort;
 
-		/*
-		 * Statistics
-		 */
-		unsigned int nblocks_assigned;
-		unsigned int nblocks_assigned_max;
+		/** The current search bound. */
+		AtomicInt *bound;
 	};
 } /* ARPBNF */
 

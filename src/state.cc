@@ -49,7 +49,7 @@ fp_type State::get_f(void) const
  */
 fp_type State::get_f_prime(void) const
 {
-	return g + (domain->get_heuristic()->get_weight() * (h / fp_one));
+	return g + ((domain->get_heuristic()->get_weight() * h) / fp_one);
 }
 
 /**

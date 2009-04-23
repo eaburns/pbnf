@@ -65,19 +65,17 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
-
-	nblocks_assigned = 0;
-	nblocks_assigned_max = 0;
 }
 
 /**
  * Create a new NBlock graph.
  * \param p The projection function.
  */
-NBlockGraph::NBlockGraph(const Projection *p, State *initial)
+NBlockGraph::NBlockGraph(const Projection *p, State *initial, AtomicInt *b)
 	: map(p),
 	  resort_flag(false),
-	  resort_start(false)
+	  resort_start(false),
+	  bound(b)
 {
 	cpp_is_a_bad_language(p, initial);
 }
@@ -145,18 +143,12 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 			resort(false);
 			pthread_mutex_lock(&mutex);
 		}
+	}
 
-		if (free_list.empty()
-		    && num_sigma_zero.read() == num_nblocks) {
-#if !defined(NDEBUG)
-			list<NBlock*>::iterator iter;
-			for (iter = nblocks.begin(); iter != nblocks.end(); iter++)
-				assert((*iter)->open.empty());
-#endif	// !NDEBUG
-			n = NULL;
-			goto out;
-		}
-
+	if (free_list.empty()
+	    && num_sigma_zero.read() == num_nblocks) {
+		n = NULL;
+		goto out;
 	}
 
 	while (!resort_flag && !done && free_list.empty()) {
@@ -173,9 +165,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 	}
 
 	n = free_list.take();
-	nblocks_assigned += 1;
-	if (nblocks_assigned > nblocks_assigned_max)
-		nblocks_assigned_max = nblocks_assigned;
 	n->inuse = true;
 	update_scope_sigmas(n->id, 1);
 
@@ -191,14 +180,21 @@ out:
 	return n;
 }
 
+void NBlockGraph::__free_if_free(NBlock *finished)
+{
+	if (is_free(finished)) {
+		if (finished->open.get_best_val() >= bound->read()) {
+			free_but_poor = true;
+		} else {
+			free_list.add(finished);
+			pthread_cond_broadcast(&cond);
+		}
+	}
+}
+
 void NBlockGraph::__free_nblock(NBlock *finished)
 {
-	nblocks_assigned -= 1;
-
-	if (is_free(finished)) {
-		free_list.add(finished);
-		pthread_cond_broadcast(&cond);
-	}
+	__free_if_free(finished);
 	finished->inuse = false;
 	update_scope_sigmas(finished->id, -1);
 }
@@ -244,15 +240,6 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 NBlock *NBlockGraph::get_nblock(unsigned int hash)
 {
 	return map.get(hash);
-}
-
-/**
- * Get the statistics on the maximum number of NBlocks assigned at one time.
- */
-unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
-{
-
-	return nblocks_assigned_max;
 }
 
 /**
@@ -327,10 +314,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		if (m->sigma == 0) {
 			if (m->hot)
 				set_cold(m);
-			if (is_free(m)) {
-				free_list.add(m);
-				pthread_cond_broadcast(&cond);
-			}
+			__free_if_free(m);
 			num_sigma_zero.inc();
 		}
 	}
@@ -342,11 +326,6 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 void NBlockGraph::__set_done(void)
 {
 	list<NBlock*>::iterator iter;
-
-#if !defined(NDEBUG)
-	for (iter = nblocks.begin(); iter != nblocks.end(); iter++)
-		assert((*iter)->open.empty());
-#endif	// !NDEBUG
 
 	done = true;
 	pthread_cond_broadcast(&cond);
@@ -419,10 +398,7 @@ void NBlockGraph::set_cold(NBlock *b)
 		assert(b->id != *i);
 		NBlock *m = map.get(*i);
 		m->sigma_hot -= 1;
-		if (is_free(m)) {
-			free_list.add(m);
-			pthread_cond_broadcast(&cond);
-		}
+		__free_if_free(m);
 	}
 }
 
@@ -510,6 +486,7 @@ retry:
 
 	n_to_sort.set(0);
 
+
 	/*
 	 * At this point, all nblocks are released... lets initiate
 	 * the resort.
@@ -543,10 +520,22 @@ retry:
 	 */
 
 	free_list.resort();
+
+	free_but_poor = false;
+	bool all_empty = true;
+	bool in_bound = false;
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
-		if ((*iter)->pq_index == -1 && is_free(*iter))
-			free_list.add(*iter);
+		assert((*iter)->incons.empty());
+		if ((*iter)->open.get_best_val() < bound->read())
+			in_bound = true;
+		if (!(*iter)->open.empty())
+			all_empty = false;
+		if ((*iter)->pq_index == -1)
+			__free_if_free(*iter);
 	}
+
+	if (all_empty)
+		__set_done();
 
 	resort_flag = false;
 	resort_start = false;
@@ -574,4 +563,9 @@ void NBlockGraph::resort(bool master)
 
 	// at this point, the master has the lock, so we won't get any
 	// searching done until the master is finished.
+}
+
+bool NBlockGraph::has_free_nblocks(void)
+{
+	return !free_list.empty() || free_but_poor;
 }

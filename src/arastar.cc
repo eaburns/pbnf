@@ -129,10 +129,7 @@ void ARAStar::output_stats(void)
 void ARAStar::move_to_next_weight()
 {
 	double wt = 1.0;
-	if (next_weight == weights->size()) {
-		cerr << "Final weight in sched is not 1.0"
-		     << endl;
-	} else {
+	if (next_weight < weights->size()) {
 		wt = weights->at(next_weight);
 		next_weight += 1;
 	}
