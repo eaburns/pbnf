@@ -132,7 +132,7 @@ Search *get_search(int argc, char *argv[])
 		return new KBFS(threads);
 	} else if (argc > 1 && sscanf(argv[1], "pastar-%u", &threads) == 1) {
 		return new PAStar(threads);
-	} else if (argc > 1 && sscanf(argv[1], "lpastar-%u", &threads) == 1) {
+	} else if (argc > 1 && sscanf(argv[1], "lpastar-%f-%u", &weight, &threads) == 2) {
 		return new LPAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads);
@@ -205,7 +205,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\tawastar-<weight>" << endl
 		     << "\tarastar <weight-list>" << endl
 		     << "\tpastar-<threads>" << endl
-		     << "\tlpastar-<threads>" << endl
+		     << "\tlpastar-<weight>-<threads>" << endl
 		     << "\tprastar-<threads>-<nblocks>" << endl
 		     << "\twprastar-<weight>-<threads>-<nblocks>" << endl
 		     << "\twprastardd-<weight>-<threads>-<nblocks>" << endl

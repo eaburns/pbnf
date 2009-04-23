@@ -25,16 +25,21 @@ static int state_pred_fun(void *a, void *b)
 {
 	State *sa = (State*) a;
 	State *sb = (State*) b;
-	fp_type af = sa->get_f();
-	fp_type bf = sb->get_f();
+	fp_type afp = sa->get_f_prime();
+	fp_type bfp = sb->get_f_prime();
 
-	if (af == bf) {
-		fp_type ag = sa->get_g();
-		fp_type bg = sb->get_g();
-		return ag > bg;
+	if (afp == bfp) {
+		fp_type af = sa->get_f();
+		fp_type bf = sb->get_f();
+		if (af == bf) {
+			fp_type ag = sa->get_g();
+			fp_type bg = sb->get_g();
+			return ag > bg;
+		}
+		return af < bf;
 	}
 
-	return af < bf;
+	return afp < bfp;
 }
 
 LF_OpenList::LF_OpenList(void)

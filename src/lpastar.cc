@@ -43,7 +43,7 @@ public:
 				continue;
 			}
 
-			if (s->get_f() >= p->bound.read())
+			if (s->get_f_prime() >= p->bound.read())
 				continue;
 
 			State *dup = p->closed.lookup(s);
