@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 		g->set_heuristic(manhattan);
 		inits->push_back(g->initial_state());
 	}
-		
+
 	search = new SyncWAStar::SyncWAStar(threads, inits, dd);
 
 	//timeout(timelimit);

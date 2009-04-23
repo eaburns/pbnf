@@ -36,7 +36,6 @@ private:
 	unsigned int n_threads;
         bool done;
 	pthread_mutex_t mutex;
-        vector<State *> *path;
 	AtomicInt bound;
 	SolutionStream *solutions;
 

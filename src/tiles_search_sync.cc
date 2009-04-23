@@ -72,13 +72,13 @@ int main(int argc, char *argv[])
 		Tiles *g = (Tiles*)malloc(sizeof(*g_orig));
 		memcpy(g, g_orig, sizeof(*g_orig));
 		g->set_projection(project);
-		
-		Tiles::ManhattanDist manhattan(g);
-		manhattan.set_weight(*i);
-		g->set_heuristic(&manhattan);
+
+		Tiles::ManhattanDist *manhattan = new Tiles::ManhattanDist(g);
+		manhattan->set_weight(*i);
+		g->set_heuristic(manhattan);
 		inits->push_back(g->initial_state());
 	}
-		
+
 	search = new SyncWAStar::SyncWAStar(threads, inits, dd);
 
 	timeout(timelimit);

@@ -101,9 +101,8 @@ bool SyncWAStar::is_done()
 void SyncWAStar::set_path(vector<State *> *p)
 {
         pthread_mutex_lock(&mutex);
-        if (this->path == NULL ||
-	    this->path->at(0)->get_g() > p->at(0)->get_g()){
-		this->path = p;
+        if (bound.read() > p->at(0)->get_g()){
+		solutions->see_solution(p, get_generated(), get_expanded());
 		bound.set(p->at(0)->get_g());
         }
         pthread_mutex_unlock(&mutex);
@@ -132,6 +131,7 @@ vector<State *> *SyncWAStar::search(Timer *t, State *init)
 {
 	vector<SyncWAStarThread *> threads;
 	next_init = 0;
+	done = false;
 	final_weight = false;
 	bound.set(fp_infinity);
 	solutions = new SyncSolutionStream(new Timer(), 0.0001);
