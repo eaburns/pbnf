@@ -14,6 +14,7 @@ LIBLOCKFREE=lockfree/liblockfree-$(MARCH).a
 OBJDIR=objs.$(MARCH)
 
 SRC= \
+	sync_wastar.cc \
 	get_search.cc \
 	state.cc \
 	search_domain.cc \
@@ -111,8 +112,8 @@ LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
-DEBUG+=-O3 -DNDEBUG
-#DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+#DEBUG+=-O3 -DNDEBUG
+DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 LDFLAGS+=-lpthread $(PROFILE)
@@ -138,6 +139,8 @@ PROGS=$(addsuffix .$(MARCH), \
 	tiles_read_test \
 	atomic_float_test \
 	pq_test \
+	grid_search_sync \
+	tiles_search_sync \
 	one_tile_project_test \
 	two_tile_project_test)
 
@@ -148,6 +151,12 @@ grid_search.$(MARCH): $(OBJ) grid_search.cc
 
 tiles_search.$(MARCH): $(OBJ) tiles_search.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles_search.cc
+
+grid_search_sync.$(MARCH): $(OBJ) grid_search_sync.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) grid_search_sync.cc
+
+tiles_search_sync.$(MARCH): $(OBJ) tiles_search_sync.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles_search_sync.cc
 
 thread_test.$(MARCH): $(OBJ) util/thread_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) util/thread_test.cc

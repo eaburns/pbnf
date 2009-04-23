@@ -11,6 +11,9 @@
 #define _GET_SEARCH_H_
 
 #include "util/fixed_point.h"
+#include <vector>
+
+using namespace std;
 
 class Search;
 
@@ -20,5 +23,6 @@ extern unsigned int nblocks;
 extern float weight;
 
 Search *get_search(int argc, char *argv[]);
+vector<double> *parse_weights(char *str);
 
 #endif	/* !_GET_SEARCH_H_ */
