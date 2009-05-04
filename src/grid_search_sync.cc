@@ -114,9 +114,5 @@ int main(int argc, char *argv[])
 
 	delete search;
 
-#if ENABLE_IMAGES
-	g.export_eps("output.eps");
-#endif	// ENABLE_IMAGES
-
 	return EXIT_SUCCESS;
 }
