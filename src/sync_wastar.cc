@@ -134,7 +134,7 @@ vector<State *> *SyncWAStar::search(Timer *t, State *init)
 	done = false;
 	final_weight = false;
 	bound.set(fp_infinity);
-	solutions = new SyncSolutionStream(new Timer(), 0.0001);
+	solutions = new SyncSolutionStream(t, 0.0001);
 
 	for (unsigned int i = 0; i < n_threads; i += 1)
 		threads.push_back(new SyncWAStarThread(this, dd));
@@ -149,4 +149,9 @@ vector<State *> *SyncWAStar::search(Timer *t, State *init)
 	}
 
 	return solutions->get_best_path();
+}
+
+void SyncWAStar::output_stats(void)
+{
+	solutions->output(cout);
 }

@@ -32,6 +32,7 @@ public:
         void set_path(vector<State *> *path);
 	State *get_next_init();
 
+	void output_stats(void);
 private:
 	unsigned int n_threads;
         bool done;
