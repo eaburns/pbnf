@@ -95,7 +95,7 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		if ((search->b * s->get_f()) / fp_one >= search->bound.read())
 			continue;
 
-		if (s->is_goal()) {
+ 		if (s->is_goal()) {
 			path = s->get_path();
 			break;
 		}
@@ -106,33 +106,36 @@ vector<State *> *OPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		vector<State *>::iterator iter;
 
  		for (iter = children->begin(); iter != children->end(); iter++) {
-			if ((search->b * (*iter)->get_f()) / fp_one >= search->bound.read()) {
-				delete *iter;
+			State *c = *iter;
+			if ((search->b * c->get_f()) / fp_one >= search->bound.read()) {
+				delete c;
 				continue;
 			}
-			unsigned int blocknum = search->project->project(*iter);
+			unsigned int blocknum = search->project->project(c);
 			NBlock *cblock = graph->get_nblock(blocknum);
 			ClosedList *next_closed = &cblock->closed;
-			State *dup = next_closed->lookup(*iter);
+			State *dup = next_closed->lookup(c);
 			if (dup) {
-				if (dup->get_g() > (*iter)->get_g()) {
-					dup->update((*iter)->get_parent(),
-						    (*iter)->get_c(),
-						    (*iter)->get_g());
+				if (dup->get_g() > c->get_g()) {
+					dup->update(c->get_parent(),
+						    c->get_c(),
+						    c->get_g());
 					if (dup->is_open())
 						cblock->see_update(dup);
 					else
 						cblock->add(dup);
 				}
-				delete *iter;
+
+
+				delete c;
 			} else {
-				next_closed->add(*iter);
-				if ((*iter)->is_goal()) {
-					path = (*iter)->get_path();
+				next_closed->add(c);
+				if (c->is_goal()) {
+					path = c->get_path();
 					delete children;
 					return path;
 				}
-				cblock->add(*iter);
+				cblock->add(c);
 			}
 		}
 		delete children;
@@ -235,8 +238,6 @@ vector<State *> *OPBNFSearch::search(Timer *t, State *initial)
 	graph = new NBlockGraph(project, initial);
 	graph_timer.stop();
 
-	weight = initial->get_domain()->get_heuristic()->get_weight();
-
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PBNFThread *t = new PBNFThread(graph, this);
 		threads.push_back(t);
@@ -258,9 +259,7 @@ void OPBNFSearch::set_path(vector<State *> *p)
 {
 	pthread_mutex_lock(&path_mutex);
 	assert(p->at(0)->get_g() == p->at(0)->get_f());
-	cout << "Trying to set a path" << endl;
 	if (p && bound.read() > p->at(0)->get_g()) {
-		cout << "Setting a path" << endl;
 		this->path = p;
 		bound.set(p->at(0)->get_g());
 

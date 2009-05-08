@@ -105,14 +105,21 @@ void NBlock::print(ostream &o)
 
 bool NBlock::better(NBlock* a, NBlock* b, fp_type bound){
 	fp_type a_f, a_fp, b_f, b_fp;
-	a_f = a->open_f.get_best_val();
+
 	a_fp = a->open_fp.get_best_val();
-	b_f = a->open_f.get_best_val();
-	b_fp = a->open_fp.get_best_val();
-	return (a_fp < bound 
-		&& a_fp < b_fp)
-		|| (!(a_fp < bound) 
-		    && a_f < b_f);
+	b_fp = b->open_fp.get_best_val();
+
+	if (a_fp < bound)
+		return a_fp < b_fp;
+
+	if (b_fp < bound)	// (a_fp >= bound) and is therefore worse
+		return false;
+
+	a_f = a->open_f.get_best_val();
+	b_f = b->open_f.get_best_val();
+
+	return a_f < b_f;
+
 }
 
 void NBlock::add(State *s)

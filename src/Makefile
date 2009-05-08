@@ -116,8 +116,8 @@ LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
-DEBUG+=-O3 -DNDEBUG
-#DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+#DEBUG+=-O3 -DNDEBUG
+DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 #LDFLAGS+=-lpthread $(PROFILE)
@@ -126,7 +126,7 @@ LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
 endif
 ############################################################
 
-#FLAGS+=-DENABLE_IMAGES
+FLAGS+=-DENABLE_IMAGES
 
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
@@ -206,7 +206,7 @@ $(LIBLOCKFREE):
 $(LIBNBDS):
 	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
 
-create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
+create_bins: grid_search.$(MARCH) tiles_search.$(MARCH) grid_search_sync.$(MARCH) tiles_search_sync.$(MARCH)
 	@echo
 	@echo
 	@echo
@@ -225,6 +225,8 @@ create_bins: grid_search.$(MARCH) tiles_search.$(MARCH)
 	@echo
 	cp grid_search.$(MARCH) grid_search.$(MARCH).bin
 	cp tiles_search.$(MARCH) tiles_search.$(MARCH).bin
+	cp grid_search_sync.$(MARCH) grid_search_sync.$(MARCH).bin
+	cp tiles_search_sync.$(MARCH) tiles_search_sync.$(MARCH).bin
 
 $(OBJDIR)/%.o: %.cc
 	$(COMPILE.cc) $< -o $@

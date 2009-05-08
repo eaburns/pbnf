@@ -25,47 +25,46 @@ using namespace std;
 
 namespace OPBNF {
 
-class OPBNFSearch : public Search {
-public:
-	OPBNFSearch(unsigned int n_threads, unsigned int min_expansions);
-
-	virtual ~OPBNFSearch(void);
-
-	virtual vector<State *> *search(Timer *t, State *initial);
-	virtual void output_stats(void);
-private:
-	void set_path(vector<State *> *path);
-
-	class PBNFThread : public Thread {
+	class OPBNFSearch : public Search {
 	public:
-		PBNFThread(NBlockGraph *graph, OPBNFSearch *search);
-		~PBNFThread(void);
-		void run(void);
+		OPBNFSearch(unsigned int n_threads, unsigned int min_expansions);
+
+		virtual ~OPBNFSearch(void);
+
+		virtual vector<State *> *search(Timer *t, State *initial);
+		virtual void output_stats(void);
 	private:
-		vector<State *> *search_nblock(NBlock *n);
-		bool should_switch(NBlock *n);
+		void set_path(vector<State *> *path);
 
-		unsigned int expansions; /* for testing switch */
+		class PBNFThread : public Thread {
+		public:
+			PBNFThread(NBlockGraph *graph, OPBNFSearch *search);
+			~PBNFThread(void);
+			void run(void);
+		private:
+			vector<State *> *search_nblock(NBlock *n);
+			bool should_switch(NBlock *n);
+
+			unsigned int expansions; /* for testing switch */
+			NBlockGraph *graph;
+			OPBNFSearch *search;
+			bool set_hot;
+			fp_type next_best;
+		};
+
+		unsigned int n_threads;
+		const Projection *project;
+		pthread_mutex_t path_mutex;
+		vector<State *> *path;
+		AtomicInt bound;
+		bool done;
+
 		NBlockGraph *graph;
-		OPBNFSearch *search;
-		bool set_hot;
-		fp_type next_best;
+		unsigned int min_expansions;
+		Timer graph_timer;
+
+		fp_type b;
 	};
-
-	unsigned int n_threads;
-	const Projection *project;
-	pthread_mutex_t path_mutex;
-	vector<State *> *path;
-	AtomicInt bound;
-	bool done;
-
-	NBlockGraph *graph;
-	unsigned int min_expansions;
-	Timer graph_timer;
-
-	fp_type weight;
-	fp_type b;
-};
 }
 
 #endif	/* !_PBNF_SEARCH_H_ */

@@ -36,11 +36,11 @@ namespace OPBNF {
 			void inline operator()(NBlock *a, int i) {
 				a->index_fp = i;
 			}
-			/* Set the prio queue index. */
+			/* Get the prio queue index. */
 			int inline operator()(NBlock *a) {
 				return a->index_fp;
 			}
-			/* Set the prio queue index. */
+			/* Get the value. */
 			fp_type inline get_value(NBlock *a) {
 				return a->open_fp.get_best_val();
 			}
@@ -58,11 +58,11 @@ namespace OPBNF {
 			void inline operator()(NBlock *a, int i) {
 				a->index_f = i;
 			}
-			/* Set the prio queue index. */
+			/* Get the prio queue index. */
 			int inline operator()(NBlock *a) {
 				return a->index_f;
 			}
-			/* Set the prio queue index. */
+			/* Get the value. */
 			fp_type inline get_value(NBlock *a) {
 				return a->open_f.get_best_val();
 			}
@@ -80,11 +80,11 @@ namespace OPBNF {
 			void inline operator()(NBlock *a, int i) {
 				a->pq_index = i;
 			}
-			/* Set the prio queue index. */
+			/* Get the prio queue index. */
 			int inline operator()(NBlock *a) {
 				return a->pq_index;
 			}
-			/* Set the prio queue index. */
+			/* Get the value. */
 			fp_type inline get_value(NBlock *a) {
 				return a->get_local_f_min();
 			}
@@ -92,9 +92,9 @@ namespace OPBNF {
 
 
 		static bool better(NBlock* a, NBlock* b, fp_type bound);
+
 		NBlock(const Projection *p, unsigned int id);
 		~NBlock(void);
-		void next_iteration(void);
 		bool operator<(NBlock *a);
 		void print(ostream &s);
 

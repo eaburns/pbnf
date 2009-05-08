@@ -142,6 +142,8 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 		 * local_f_min value. */
 		f_min.set(nblock_pq.front()->get_local_f_min());
 
+//		cout << "f_{min}: " << f_min.read() << endl;
+
 		// Test if this nblock is still worse than the front
 		// of the free list.  If not, then just keep searching
 		// it.
@@ -179,11 +181,11 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 	if(best_free_fp_val() < bound){
 		n = free_list_fp.take();
 		free_list_f.remove(n->index_f);
-	}
-	else{
+	} else {
 		n = free_list_f.take();
 		free_list_fp.remove(n->index_fp);
 	}
+
 	n->inuse = true;
 	update_scope_sigmas(n->id, 1);
 
