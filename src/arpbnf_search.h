@@ -40,7 +40,7 @@ namespace ARPBNF {
 		virtual vector<State *> *search(Timer *t, State *initial);
 		virtual void output_stats(void);
 
-		bool move_to_next_weight(void);
+		void move_to_next_weight(void);
 
 	private:
 		/**
@@ -51,11 +51,6 @@ namespace ARPBNF {
 		 *         already exists).
 		 */
 		bool set_path(vector<State *> *path);
-
-		/**
-		 * Progress the search to the next weight.
-		 */
-		bool __move_to_next_weight(void);
 
 		unsigned int n_threads;
 		bool incons;

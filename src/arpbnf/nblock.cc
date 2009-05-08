@@ -108,7 +108,18 @@ void NBlock::print(ostream &o)
  */
 void NBlock::resort(void)
 {
+	unsigned long nopen, nincons;
+
+#if !defined(NDEBUG)
+	nopen = open.size();
+	nincons = incons.size();
+#endif
+
 	open.resort();
 	incons.re_open(&open);
 	closed.remove_closed_nodes();
+
+#if !defined(NDEBUG)
+	assert(open.size() == nopen + nincons);
+#endif
 }

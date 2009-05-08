@@ -53,13 +53,12 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 				if (search->set_path(path) && !search->final_weight) {
 					graph->free_nblock(n);
 					n = NULL;
-					graph->call_for_resort(search->final_weight);
+					graph->call_for_resort(search->final_weight, search);
 					goto next;
 				}
 			}
-		} else {
-			search->move_to_next_weight();
-			graph->call_for_resort( search->final_weight);
+		} else if (!search->final_weight) {
+			graph->call_for_resort(search->final_weight, search);
 #if !defined(NDEBUG)
 			cout << "No solution found at weight "
 			     << search->weights->at(search->next_weight - 1)
@@ -81,16 +80,14 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::search_nblock(NBlock *n)
 	OpenList *open = &n->open;
 
 	while (!open->empty() && !should_switch(n) && !graph->needs_resort()) {
+
+		if (n->open.peek()->get_f_prime() > search->bound.read())
+			return NULL;
+
 		State *s = open->take();
 
 		if (s->get_f() >= search->bound.read())
 			continue;
-
-		// stop with this nblock if it is worse than our bound.
-		if (s->get_f_prime() > search->bound.read()) {
-			n->incons.add(s);
-			return NULL;
-		}
 
 		if (s->is_goal()) {
 			path = s->get_path();
@@ -137,9 +134,10 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 	if (dup) {
 		if (dup->get_g() > ch->get_g()) {
 			dup->update(ch->get_parent(), ch->get_c(), ch->get_g());
+			assert(!dup->is_incons() || !dup->is_open());
 			if (dup->is_open()) {
 				copen->see_update(dup);
-			} else {
+			} else if (!dup->is_incons()) {
 				if (search->final_weight) {
 					copen->add(dup);
 				} else {
@@ -252,7 +250,7 @@ vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
 	return solutions->get_best_path();
 }
 
-bool ARPBNFSearch::__move_to_next_weight(void)
+void ARPBNFSearch::move_to_next_weight(void)
 {
 	final_sol_weight = weights->at(next_weight - 1);
 
@@ -268,22 +266,7 @@ bool ARPBNFSearch::__move_to_next_weight(void)
 		domain->get_heuristic()->set_weight(nw);
 		if (nw == 1.0 || next_weight == weights->size())
 			final_weight = true;
-
-		return true;
 	}
-
-	return false;
-}
-
-bool ARPBNFSearch::move_to_next_weight(void)
-{
-	bool ret;
-
-	pthread_mutex_lock(&wmutex);
-	ret = __move_to_next_weight();
-	pthread_mutex_unlock(&wmutex);
-
-	return ret;
 }
 
 /**
@@ -294,7 +277,6 @@ bool ARPBNFSearch::move_to_next_weight(void)
  */
 bool ARPBNFSearch::set_path(vector<State *> *p)
 {
-	bool ret = false;
 	assert(solutions);
 
 	pthread_mutex_lock(&wmutex);
@@ -306,6 +288,7 @@ bool ARPBNFSearch::set_path(vector<State *> *p)
 
 	solutions->see_solution(p, get_generated(), get_expanded());
 	bound.set(p->at(0)->get_g());
+	graph->new_bound();
 
 #if !defined(NDEBUG)
 	cout << "Solution of cost " << p->at(0)->get_g() / fp_one
@@ -313,11 +296,9 @@ bool ARPBNFSearch::set_path(vector<State *> *p)
 	     << endl;
 #endif	// !NDEBUG
 
-	ret = __move_to_next_weight();
-
 	pthread_mutex_unlock(&wmutex);
 
-	return ret;
+	return true;
 }
 
 /**

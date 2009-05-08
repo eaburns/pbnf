@@ -31,6 +31,9 @@ extern "C" {
 }
 
 namespace ARPBNF {
+	class ARPBNFSearch;
+
+
 	class NBlockGraph : public NBlockMap<NBlock>::CreationObserver {
 	public:
 		NBlockGraph(const Projection *p, State *init, AtomicInt *bound);
@@ -60,7 +63,7 @@ namespace ARPBNF {
 		/**
 		 * Signal all threads to stop and resort the nblocks.
 		 */
-		void call_for_resort(bool final_weight);
+		void call_for_resort(bool final_weight, ARPBNFSearch *s);
 
 		/**
 		 * Test if the resort bit is set.
@@ -72,6 +75,13 @@ namespace ARPBNF {
 		 * 'nblocks' list).
 		 */
 		void observe(NBlock *b);
+
+		/**
+		 * There is a new bound... check if there are any good
+		 * nblocks.
+		 */
+		void new_bound(void);
+
 	private:
 		void cpp_is_a_bad_language(const Projection *p, State *initial);
 		NBlock *create_nblock(unsigned int id);

@@ -145,11 +145,21 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		}
 	}
 
-	if (free_list.empty()
-	    && num_sigma_zero.read() == num_nblocks) {
+again:
+
+	if (num_sigma_zero.read() == num_nblocks
+	    && (free_list.empty()
+		|| free_list.front()->open.get_best_val() > bound->read())) {
+		list<NBlock*>::iterator iter;
+
+		for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+			assert((*iter)->open.empty() || (*iter)->open.get_best_val() > bound->read());
+		}
+
 		n = NULL;
 		goto out;
 	}
+
 
 	while (!resort_flag && !done && free_list.empty()) {
 		pthread_cond_wait(&cond, &mutex);
@@ -165,6 +175,10 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 	}
 
 	n = free_list.take();
+
+	if (n->open.get_best_val() > bound->read())
+		goto again;
+
 	n->inuse = true;
 	update_scope_sigmas(n->id, 1);
 
@@ -183,19 +197,30 @@ out:
 void NBlockGraph::__free_if_free(NBlock *finished)
 {
 	if (is_free(finished)) {
-		if (finished->open.get_best_val() > bound->read()) {
-			free_but_poor = true;
-		} else {
-			free_list.add(finished);
-			pthread_cond_broadcast(&cond);
-		}
+//		cout << "Freeing: " << finished << endl;
+		free_list.add(finished);
+		pthread_cond_broadcast(&cond);
+/*
+	} else {
+		cout << "Not freeing: " << finished;
+		NBlock *b = finished;
+		if (b->inuse)
+			cout << " inuse";
+		if (b->sigma != 0)
+			cout << " sigma=" << b->sigma;
+		if (b->sigma_hot != 0)
+			cout << " sigma_hot=" << b->sigma_hot;
+		if (b->open.empty())
+			cout << " empty";
+		cout << endl;
+*/
 	}
 }
 
 void NBlockGraph::__free_nblock(NBlock *finished)
 {
-	__free_if_free(finished);
 	finished->inuse = false;
+	__free_if_free(finished);
 	update_scope_sigmas(finished->id, -1);
 }
 
@@ -327,6 +352,11 @@ void NBlockGraph::__set_done(void)
 {
 	list<NBlock*>::iterator iter;
 
+	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+		assert((*iter)->incons.empty());
+		assert((*iter)->open.empty() || (*iter)->open.get_best_val() > bound->read());
+	}
+
 	done = true;
 	pthread_cond_broadcast(&cond);
 }
@@ -447,13 +477,13 @@ bool NBlockGraph::needs_resort()
 	return resort_flag;
 }
 
-void NBlockGraph::call_for_resort(bool final_weight)
+void NBlockGraph::call_for_resort(bool final_weight, ARPBNFSearch *s)
 {
 	int n = 0;
 	list<NBlock *>::iterator iter;
 
 	// don't bother resorting if we are done.
-	if (done)
+	if (done || final_weight)
 		return;
 
 	/*
@@ -486,6 +516,7 @@ retry:
 
 	n_to_sort.set(0);
 
+	s->move_to_next_weight();
 
 	/*
 	 * At this point, all nblocks are released... lets initiate
@@ -516,7 +547,7 @@ retry:
 	 * free_list then clears the flag so everyone can continue.
 	 */
 
-	free_list.resort();
+	free_list.reset();
 
 	free_but_poor = false;
 	bool all_empty = true;
@@ -527,8 +558,9 @@ retry:
 			in_bound = true;
 		if (!(*iter)->open.empty())
 			all_empty = false;
-		if ((*iter)->pq_index == -1)
-			__free_if_free(*iter);
+		assert((*iter)->incons.empty());
+		assert((*iter)->pq_index == -1);
+		__free_if_free(*iter);
 	}
 
 	if (all_empty || (!in_bound && final_weight))
@@ -570,4 +602,9 @@ bool NBlockGraph::has_free_nblocks(void)
 bool NBlockGraph::is_done(void)
 {
 	return done;
+}
+
+void NBlockGraph::new_bound(void)
+{
+	pthread_cond_signal(&cond);
 }

@@ -103,6 +103,7 @@ public:
 	vector<State *> *get_path(void);
 	void set_open(bool b);
 	bool is_open(void) const;
+	bool is_incons(void) const;
 //protected:
 	State *parent;
 	SearchDomain *domain;

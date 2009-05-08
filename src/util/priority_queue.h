@@ -358,6 +358,11 @@ template<class Elem, class PQOps>
 template<class Elem, class PQOps>
 	void PriorityQueue<Elem, PQOps>::reset(void)
 {
+	if (heap) {
+		for (int i = 0; i < fill; i += 1)
+			set_index(heap[i], -1);
+	}
+
 	fill = 0;
 	size = 100;
 	if (heap)

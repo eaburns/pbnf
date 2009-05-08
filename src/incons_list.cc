@@ -66,6 +66,11 @@ void InconsList::re_open(OpenList *o)
 void InconsList::__do_re_open(void *aux, State *s)
 {
 	OpenList *o = (OpenList*)aux;
-	o->add(s);
 	s->incons = false;
+	o->add(s);
+}
+
+unsigned long InconsList::size(void)
+{
+	return tbl.get_fill();
 }

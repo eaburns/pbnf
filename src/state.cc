@@ -162,3 +162,8 @@ bool State::is_open(void) const
 {
 	return open;
 }
+
+bool State::is_incons(void) const
+{
+	return incons;
+}

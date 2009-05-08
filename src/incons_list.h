@@ -27,6 +27,8 @@ public:
 	virtual State *lookup(State *);
 	virtual bool empty();
 
+	unsigned long size(void);
+
 	virtual void re_open(OpenList *);
 
 private:

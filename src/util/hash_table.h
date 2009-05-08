@@ -1,4 +1,3 @@
- 
 /**
  * \file hash_table.h
  *
@@ -29,6 +28,8 @@ public:
 	Elm *lookup(Elm *);
 	void delete_all(void);
 	bool empty();
+
+	unsigned long get_fill(void);
 
 	void prune(void);
 	void for_each(void (*f)(void*, Elm*), void*);
@@ -327,5 +328,10 @@ void HashTable<Elm>::for_each(void (*f)(void*, Elm*), void *aux)
 	}
 }
 
-#endif	/* !_HASH_TABLE_H_ */
+template<class Elm>
+unsigned long HashTable<Elm>::get_fill(void)
+{
+	return fill;
+}
 
+#endif	/* !_HASH_TABLE_H_ */
