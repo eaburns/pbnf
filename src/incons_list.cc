@@ -33,8 +33,10 @@ InconsList::~InconsList(void)
  */
 void InconsList::add(State *s)
 {
-	if (s->incons)
+	if (s->incons) {
+		assert(lookup(s) == s);
 		return;
+	}
 	s->incons = true;
 	tbl.add(s);
 }

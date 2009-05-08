@@ -137,12 +137,11 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 			assert(!dup->is_incons() || !dup->is_open());
 			if (dup->is_open()) {
 				copen->see_update(dup);
-			} else if (!dup->is_incons()) {
-				if (search->final_weight) {
+			} else {
+				if (search->final_weight)
 					copen->add(dup);
-				} else {
+				else if (!dup->is_incons())
 					cincons->add(dup);
-				}
 			}
 		}
 		delete ch;
@@ -201,10 +200,8 @@ bool ARPBNFSearch::ARPBNFThread::should_switch(NBlock *n)
 
 ARPBNFSearch::ARPBNFSearch(unsigned int n_threads,
 			   unsigned int min_e,
-			   bool use_incons,
 			   vector<double> *w)
 	: n_threads(n_threads),
-	  incons(use_incons),
 	  project(NULL),
 	  bound(fp_infinity),
 	  graph(NULL),

@@ -108,9 +108,9 @@ void NBlock::print(ostream &o)
  */
 void NBlock::resort(void)
 {
+#if !defined(NDEBUG)
 	unsigned long nopen, nincons;
 
-#if !defined(NDEBUG)
 	nopen = open.size();
 	nincons = incons.size();
 #endif

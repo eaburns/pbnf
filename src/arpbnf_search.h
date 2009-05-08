@@ -32,7 +32,6 @@ namespace ARPBNF {
 	public:
 		ARPBNFSearch(unsigned int n_threads,
 			     unsigned int min_expansions,
-			     bool use_incons,
 			     vector<double> *w);
 
 		virtual ~ARPBNFSearch(void);
