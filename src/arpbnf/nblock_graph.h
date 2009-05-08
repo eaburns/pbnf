@@ -56,11 +56,6 @@ namespace ARPBNF {
 		fp_type best_val(void);
 
 		/**
-		 * Return true if there are free nblocks.
-		 */
-		bool has_free_nblocks(void);
-
-		/**
 		 * Signal all threads to stop and resort the nblocks.
 		 */
 		void call_for_resort(bool final_weight, ARPBNFSearch *s);
@@ -129,12 +124,6 @@ namespace ARPBNF {
 		 * List of free nblock numbers
 		 */
 		PriorityQueue<NBlock*, NBlock::NBlockPQFuncsFprime> free_list;
-
-		/**
-		 * True if there are free canditates but their f'
-		 * values are worse than the bound.
-		 */
-		bool free_but_poor;
 
 		/**
 		 * List of all created nblocks.  When an nblock is

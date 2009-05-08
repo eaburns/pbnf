@@ -549,7 +549,6 @@ retry:
 
 	free_list.reset();
 
-	free_but_poor = false;
 	bool all_empty = true;
 	bool in_bound = false;
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
@@ -573,7 +572,7 @@ retry:
 
 void NBlockGraph::resort(bool master)
 {
-	/** Spin until the master thread declares the resort begun. */
+	/** Spin until the master thread declares the resort has started. */
 	while(!resort_start && resort_flag)
 		;
 
@@ -592,11 +591,6 @@ void NBlockGraph::resort(bool master)
 
 	// at this point, the master has the lock, so we won't get any
 	// searching done until the master is finished.
-}
-
-bool NBlockGraph::has_free_nblocks(void)
-{
-	return !free_list.empty() || free_but_poor;
 }
 
 bool NBlockGraph::is_done(void)
