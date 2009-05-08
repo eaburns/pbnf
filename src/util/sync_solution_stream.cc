@@ -23,6 +23,7 @@ using namespace std;
 SyncSolutionStream::SyncSolutionStream(Timer *t, double g)
 	: SerialSolutionStream(t, g)
 {
+	pthread_mutex_init(&mutex, NULL);
 }
 
 void SyncSolutionStream::see_solution(vector<State *> *path,
