@@ -162,15 +162,15 @@ int lf_ordlist_empty(struct lf_ordlist *lst)
 	return ((struct lf_ordlist_node *) NEXT(lst->head)) == lst->tail;
 }
 
-int lf_ordlist_find(struct lf_ordlist *lst, void *value)
+void *lf_ordlist_find(struct lf_ordlist *lst, void *value)
 {
-	int ret = 1;
+	void *ret = NULL;
 	struct lf_ordlist_node *right_node, *left_node;
 
 	right_node = search(lst, value, &left_node);
-	if (right_node == lst->tail
-	    || lst->cmp(right_node->value, value) != 0)
-		ret = 0;
+	if (right_node != lst->tail
+	    && lst->cmp(right_node->value, value) == 0)
+		ret = right_node->value;
 
 	mem_release(lst->fl, right_node);
 	mem_release(lst->fl, left_node);
@@ -233,6 +233,8 @@ int lf_ordlist_add(struct lf_ordlist *lst, void *value)
 {
 	struct lf_ordlist_node *new_node;
 	struct lf_ordlist_node *right_node, *left_node;
+
+	assert(value);
 
 	new_node = mem_new(lst->fl);
 	new_node->value = value;

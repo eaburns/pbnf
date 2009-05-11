@@ -270,7 +270,7 @@ static struct lf_pq_node *help_delete(struct lf_pq *pq,
 	int i;
 	struct lf_pq_node *prev, *node2;
 
-	assert(level < node->level);
+	assert(level <= node->level);
 	assert(IS_MARKED(node->value));
 
 	for (i = level; i < node->level; i += 1) {
@@ -562,10 +562,10 @@ int lf_pq_insert(struct lf_pq *pq, void *val)
 	}
 
 	assert(new_node->level == level);
-#if !defined(NDEBUG)
-	for (i = new_node->level; i < MAX_LEVEL; i += 1)
-		assert(!NEXT(new_node, i));
-#endif	/* !NDEBUG */
+/* #if !defined(NDEBUG) */
+/* 	for (i = new_node->level; i < MAX_LEVEL; i += 1) */
+/* 		assert(!NEXT(new_node, i)); */
+/* #endif	/\* !NDEBUG *\/ */
 
 	new_node->valid_level = level;
 	if (IS_MARKED(new_node->value))

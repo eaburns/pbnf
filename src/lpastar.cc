@@ -68,10 +68,10 @@ public:
 				}
 			}
 		}
-    
+
 		delete children;
 	}
-  
+
 private:
 	LPAStar *p;
 	friend class LPAStar;
@@ -101,7 +101,7 @@ void LPAStar::set_path(vector<State *> *p)
 {
 	// unfortunately have to lock here (should be the rare case).
         pthread_mutex_lock(&mutex);
-        if (this->path == NULL || 
+        if (this->path == NULL ||
 	    this->path->at(0)->get_g() > p->at(0)->get_g()){
 		this->path = p;
 		bound.set(p->at(0)->get_g());

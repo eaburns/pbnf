@@ -10,47 +10,42 @@
 
 #define _POSIX_C_SOURCE 200112L
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "atomic.h"
 #include "lockfree.h"		/* for lf_ordlist */
 
 struct lf_hashtbl {
 	uint64_t (*hash)(void*);
+	int (*cmp)(void *, void*);
 
+	size_t e_per_bucket;
 	size_t nbuckets;
 	struct lf_ordlist **buckets;
-}
+};
 
-struct lf_hashtbl *lf_hashtbl_create(size_t nbrelm,
-				     size_t nbuckets,
+struct lf_hashtbl *lf_hashtbl_create(size_t nbuckets,
+				     size_t e_per_bucket,
 				     int (*cmp)(void *, void*),
 				     uint64_t (*hash)(void*))
 {
-	int i;
 	struct lf_hashtbl *tbl;
 
 	tbl = calloc(1, sizeof(*tbl));
 	if (!tbl)
 		return NULL;
-	tbl->nbuckets = nbuckets;
 	tbl->hash = hash;
+	tbl->cmp = cmp;
+	tbl->e_per_bucket = e_per_bucket;
+	tbl->nbuckets = nbuckets;
 	tbl->buckets = calloc(nbuckets, sizeof(*tbl->buckets));
 	if (!tbl->buckets)
 		goto err_buckets;
 
-	for (i = 0; i < nbuckets; i += 1) {
-		tbl->buckets = lf_ordlist_create(nbrelm, cmp);
-		if (!tbl->buckets)
-			goto err_lists;
-	}
-
 	return tbl;
-
-err_lists:
-	for (i -= 1; i >= 0; i -= 1)
-		lf_ordlist_destroy(tbl->buckets[i]);
 
 err_buckets:
 	free(tbl);
@@ -61,9 +56,41 @@ void lf_hashtbl_destroy(struct lf_hashtbl *tbl)
 {
 	int i;
 
-	for (i = 0; i < tbl->nbuckets; i += 1)
-		lf_ordlist_destroy(tbl->buckets[i]);
+	for (i = 0; i < tbl->nbuckets; i += 1) {
+		if (tbl->buckets[i])
+			lf_ordlist_destroy(tbl->buckets[i]);
+	}
 
 	free(tbl->buckets);
 	free(tbl);
+}
+
+void lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm)
+{
+	int b = tbl->hash(elm) % tbl->nbuckets;
+
+	assert(elm);
+
+	if (!tbl->buckets[b]) {
+		struct lf_ordlist *l = lf_ordlist_create(tbl->e_per_bucket,
+							 tbl->cmp);
+
+		if (!compare_and_swap(&tbl->buckets[b],
+				      (intptr_t) NULL,
+				      (intptr_t) l))
+			lf_ordlist_destroy(l);
+	}
+
+	lf_ordlist_add(tbl->buckets[b], elm);
+}
+
+void *lf_hashtbl_lookup(struct lf_hashtbl *tbl, void *elm)
+{
+	int b = tbl->hash(elm) % tbl->nbuckets;
+	void *e = NULL;
+
+	if (tbl->buckets[b])
+		e = lf_ordlist_find(tbl->buckets[b], elm);
+
+	return e;
 }

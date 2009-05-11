@@ -10,49 +10,55 @@
 #include "lf_closedlist.h"
 
 extern "C" {
-#include "nbds.0.4.3/include/common.h"
-#include "nbds.0.4.3/include/map.h"
-#include "nbds.0.4.3/include/hashtable.h"
+#include "lockfree/include/lockfree.h"
+}
+
+static int state_cmp_fun(void *a, void *b)
+{
+	State *sa = (State*)a;
+	State *sb = (State*)b;
+
+	if (!sa && !sb)
+		return 0;
+	if (!sa)
+		return 1;
+	if (!sb)
+		return -1;
+
+	return sa->hash() - sb->hash();
+}
+
+static uint64_t state_hash_fun(void *a)
+{
+	State *sa = (State*)a;
+
+	return sa->hash();
 }
 
 LF_ClosedList::LF_ClosedList(void)
 {
-	map = map_alloc(&MAP_IMPL_HT, NULL);
+	tbl = lf_hashtbl_create(50000,
+				100,
+				state_cmp_fun,
+				state_hash_fun);
 }
 
 LF_ClosedList::~LF_ClosedList(void)
 {
-	map_free(map);
+	lf_hashtbl_destroy(tbl);
 }
 
 void LF_ClosedList::add(State *s)
 {
-	map_set(map, (map_key_t) s->hash(), (map_val_t) s);
+	lf_hashtbl_add(tbl, (void*) s);
 }
 
 State *LF_ClosedList::lookup(State *s)
 {
-	State *t;
-
-	t = (State *) map_get(map, (map_key_t) s->hash());
-	if (t == DOES_NOT_EXIST)
-		return NULL;
-
-	return t;
+	return (State*) lf_hashtbl_lookup(tbl, (void*) s);
 }
 
 void LF_ClosedList::delete_all_states(void)
 {
-	map_iter_t *it = map_iter_begin(map, 0);
-	map_val_t vl;
-
-	vl = map_iter_next(it, NULL);
-	while (vl != DOES_NOT_EXIST) {
-		State *s = (State *) vl;
-		delete s;
-
-		vl = map_iter_next(it, NULL);
-	}
-
-	map_iter_free(it);
+	// Not implemented yet...
 }

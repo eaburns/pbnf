@@ -175,4 +175,46 @@ int lf_pq_property_holds(FILE *f, struct lf_pq *pq);
  *************************************************************
  */
 
+/**
+ * Create a new hashtable.  The hashtable uses an array of lf_ordlist
+ * buckets.  The array does not grow, so you need to pick a good
+ * initial size.
+ *
+ * \param e_per_bucket The number of elements per bucket.
+ *
+ * \param cmp Returns <0 if the first element is less than the second,
+ *            0 if the elements are equal and >0 if the second element
+ *            is larger.
+ *
+ * \return A new hash table on success or NULL on error.
+ */
+struct lf_hashtbl *lf_hashtbl_create(size_t nbuckets,
+				     size_t e_per_bucket,
+				     int (*cmp)(void *, void*),
+				     uint64_t (*hash)(void*));
+
+
+/**
+ * Destroy the hash table.
+ */
+void lf_hashtbl_destroy(struct lf_hashtbl *tbl);
+
+/**
+ * Add an element to the hashtable.
+ */
+void lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm);
+
+/**
+ * Test if an element with the same hash value as the given element is
+ * in the table.  If so, return the one from the table.
+ *
+ * \return NULL if elm is not in the table, or the element from the
+ *         table if it is there.
+ */
+void *lf_hashtbl_lookup(struct lf_hashtbl *tbl, void *elm);
+
+/*
+ *************************************************************
+ */
+
 #endif	/* !_LOCKFREE_H_ */

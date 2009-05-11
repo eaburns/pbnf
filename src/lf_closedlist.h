@@ -16,8 +16,7 @@
 using namespace std;
 
 extern "C" {
-#include "nbds.0.4.3/include/map.h"
-#include "nbds.0.4.3/include/hashtable.h"
+#include "lockfree/include/lockfree.h"
 }
 
 /**
@@ -33,7 +32,7 @@ public:
 	void delete_all_states(void);
 
 private:
-	map_t *map;
+	struct lf_hashtbl *tbl;
 };
 
 #endif	/* !_LF_CLOSEDLIST_H_ */

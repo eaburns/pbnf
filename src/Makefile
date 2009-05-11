@@ -11,9 +11,6 @@ endif
 LOCKFREEDIR=lockfree
 LIBLOCKFREE=$(LOCKFREEDIR)/liblockfree-$(MARCH).a
 
-NBDSDIR=nbds.0.4.3
-LIBNBDS=$(NBDSDIR)/libnbds-$(MARCH).a
-
 OBJDIR=objs.$(MARCH)
 
 SRC= \
@@ -84,7 +81,6 @@ SRC= \
 
 OBJ=$(addprefix $(OBJDIR)/, $(SRC:.cc=.o))
 OBJ+=$(LIBLOCKFREE)
-OBJ+=$(LIBNBDS)
 
 ifeq ($(MARCH), sparc64)
 FLAGS+=-mcpu=v9
@@ -126,7 +122,7 @@ LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
 endif
 ############################################################
 
-FLAGS+=-DENABLE_IMAGES
+#FLAGS+=-DENABLE_IMAGES
 
 CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
@@ -202,10 +198,6 @@ pq_test.$(MARCH): $(OBJ) util/pq_test.cc
 $(LIBLOCKFREE):
 	cd $(LOCKFREEDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
 
-.PHONY: $(LIBNBDS)
-$(LIBNBDS):
-	cd $(NBDSDIR); $(MAKE) MARCH=$(MARCH) ; cd ..
-
 create_bins: grid_search.$(MARCH) tiles_search.$(MARCH) grid_search_sync.$(MARCH) tiles_search_sync.$(MARCH)
 	@echo
 	@echo
@@ -253,6 +245,5 @@ objdirs:
 	rm -fr $(OBJDIR)
 	rm -f $(PROGS)
 	cd $(LOCKFREEDIR) ; $(MAKE) MARCH=$(MARCH) clean ; cd ..
-	cd $(NBDSDIR) ; $(MAKE) MARCH=$(MARCH) clean ; cd ..
 
 -include .depend

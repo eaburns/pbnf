@@ -9,10 +9,10 @@
 # endif
 
 # use the following to turn debugging on
-#DEBUG=-g -O0
+DEBUG=-g -O0
 
 # use the following to turn debugging off
-DEBUG=-DNDEBUG -O3
+#DEBUG=-DNDEBUG -O3
 
 CFLAGS=$(DEBUG) -Wall -Werror -Iinclude
 
@@ -20,6 +20,7 @@ SRC=				\
 	src/mem.c 		\
 	src/queue.c		\
 	src/prio_queue.c	\
+	src/hashtbl.c	\
 	src/ordlist_harris.c
 
 # this is the deprecated ordered list
