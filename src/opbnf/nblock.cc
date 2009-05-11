@@ -106,6 +106,11 @@ void NBlock::print(ostream &o)
 bool NBlock::better(NBlock* a, NBlock* b, fp_type bound){
 	fp_type a_f, a_fp, b_f, b_fp;
 
+	if (!a)
+		return false;
+	if (!b)
+		return true;
+
 	a_fp = a->open_fp.get_best_val();
 	b_fp = b->open_fp.get_best_val();
 
