@@ -34,9 +34,7 @@ public:
 				State *s = open.take();
 
 				if(s->get_f_prime() >= search->bound.read()){
-					open.prune();
-					closed.prune();
-					if (s->domain->get_heuristic()->get_weight() == 1.0){
+					if (s->domain->get_heuristic()->get_weight() == fp_one){
 						search->set_done();
 					}
 					break;
@@ -44,7 +42,7 @@ public:
 
 				if (s->is_goal()) {
 					search->set_path(s->get_path());
-					if (s->domain->get_heuristic()->get_weight() == 1.0){
+					if (s->domain->get_heuristic()->get_weight() == fp_one){
 						search->set_done();
 					}
 					break;
@@ -72,6 +70,8 @@ public:
 				delete children;
 			}
 
+			open.prune();
+			closed.delete_all_states();
 			init = search->get_next_init();
 		}
 	}

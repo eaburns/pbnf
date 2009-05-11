@@ -18,7 +18,7 @@
 // STL map.
 #include "lpastar.h"
 
-#include "a_star.h"
+#include "astar.h"
 #include "arastar.h"
 #include "awastar.h"
 #include "multi_a_star.h"

@@ -12,7 +12,7 @@
 #include "state.h"
 #include "pq_open_list.h"
 #include "closed_list.h"
-#include "a_star.h"
+#include "astar.h"
 
 AStar::AStar(void) : dd(false) { }
 

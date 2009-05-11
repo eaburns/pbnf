@@ -12,7 +12,7 @@
 #include "search_domain.h"
 #include "state.h"
 #include "heuristic.h"
-#include "a_star.h"
+#include "astar.h"
 #include "weighted_heuristic.h"
 #include "psdd_search.h"
 #include "dynamic_bounded_psdd.h"

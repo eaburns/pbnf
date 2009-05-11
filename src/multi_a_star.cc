@@ -10,7 +10,7 @@
 #include "util/thread.h"
 #include "util/timer.h"
 #include "state.h"
-#include "a_star.h"
+#include "astar.h"
 #include "multi_a_star.h"
 
 
