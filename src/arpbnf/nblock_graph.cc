@@ -59,6 +59,7 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	NBlock *n = map.get(init_nblock);
 	map.set_observer(this);
 	n->open.add(initial);
+	n->closed.add(initial);
 	free_list.add(n);
 
 	done = false;
