@@ -90,6 +90,11 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::search_nblock(NBlock *n)
 
 		State *s = open->take();
 
+#if !defined(NDEBUG)
+		State *dup = n->closed.lookup(s);
+		assert (!dup || dup == s);
+#endif	// !NDEBUG
+
 		if (s->get_f() >= search->bound.read())
 			continue;
 
@@ -130,9 +135,10 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::search_nblock(NBlock *n)
 vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 {
 	unsigned int block = search->project->project(ch);
-	PQOpenList<State::PQOpsFPrime> *copen = &graph->get_nblock(block)->open;
-	ClosedList *cclosed = &graph->get_nblock(block)->closed;
-	InconsList *cincons = &graph->get_nblock(block)->incons;
+	NBlock *cblock = graph->get_nblock(block);
+	PQOpenList<State::PQOpsFPrime> *copen = &cblock->open;
+	ClosedList *cclosed = &cblock->closed;
+	InconsList *cincons = &cblock->incons;
 	State *dup = cclosed->lookup(ch);
 
 	if (dup) {
@@ -150,6 +156,10 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 					copen->add(dup);
 				else if (!dup->is_incons())
 					cincons->add(dup);
+#if !defined(NDEBUG)
+				else
+					assert(cincons->lookup(dup) == dup);
+#endif // !NDEBUG
 			}
 		}
 		delete ch;
@@ -241,6 +251,10 @@ vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
 
 	graph = new NBlockGraph(project, initial, &bound);
 
+	if (domain->get_heuristic()->get_weight() == fp_one)
+		final_weight = true;
+	final_sol_weight = domain->get_heuristic()->get_weight();
+
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		ARPBNFThread *t = new ARPBNFThread(graph, this);
 		threads.push_back(t);
@@ -257,7 +271,8 @@ vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
 
 void ARPBNFSearch::move_to_next_weight(void)
 {
-	final_sol_weight = weights->at(next_weight);
+	if (next_weight < weights->size())
+		final_sol_weight = weights->at(next_weight);
 
 	if (weights->at(next_weight - 1) != 1.0) {
 		double nw = 1.0;

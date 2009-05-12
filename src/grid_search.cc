@@ -28,7 +28,7 @@
 using namespace std;
 
 int main(int argc, char *argv[])
-p{
+{
 	unsigned int timelimit = 90;	// seconds
 	vector<State *> *path;
 	Search *search = get_search(argc, argv);

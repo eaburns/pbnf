@@ -74,6 +74,8 @@ fp_type State::get_g(void) const
  */
 void State::update(State *p, fp_type c_val, fp_type g_val)
 {
+	assert(g > g_val);
+
 	this->parent = p;
 	this->c = c_val;
 	this->g = g_val;

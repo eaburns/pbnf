@@ -152,9 +152,11 @@ again:
 		|| free_list.front()->open.get_best_val() > bound->read())) {
 		list<NBlock*>::iterator iter;
 
+#if !defined(NDEBUG)
 		for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
 			assert((*iter)->open.empty() || (*iter)->open.get_best_val() > bound->read());
 		}
+#endif	// !NDEBUG
 
 		n = NULL;
 		goto out;
@@ -197,23 +199,8 @@ out:
 void NBlockGraph::__free_if_free(NBlock *finished)
 {
 	if (is_free(finished)) {
-//		cout << "Freeing: " << finished << endl;
 		free_list.add(finished);
 		pthread_cond_broadcast(&cond);
-/*
-	} else {
-		cout << "Not freeing: " << finished;
-		NBlock *b = finished;
-		if (b->inuse)
-			cout << " inuse";
-		if (b->sigma != 0)
-			cout << " sigma=" << b->sigma;
-		if (b->sigma_hot != 0)
-			cout << " sigma_hot=" << b->sigma_hot;
-		if (b->open.empty())
-			cout << " empty";
-		cout << endl;
-*/
 	}
 }
 
@@ -240,8 +227,6 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 	fp_type best_val = fp_infinity;
 	set<unsigned int>::iterator i;
 
-//	pthread_mutex_lock(&mutex);
-
 	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 		NBlock *b = map.find(*i);
 		if (!b)
@@ -253,8 +238,6 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 			best_b = b;
 		}
 	}
-
-//	pthread_mutex_unlock(&mutex);
 
 	return best_b;
 }
@@ -353,10 +336,22 @@ void NBlockGraph::__set_done(void)
 	list<NBlock*>::iterator iter;
 
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+
 		assert(!(*iter)->hot);
+
 		assert((*iter)->incons.empty());
-		(*iter)->resort();
-		assert((*iter)->open.empty() || (*iter)->open.get_best_val() > bound->read());
+
+		assert((*iter)->open.empty() || (*iter)->open.get_best_val() >= bound->read());
+
+		(*iter)->open.verify();
+/*
+		if (!(*iter)->open.empty())
+			cout << "nblock pruned: "
+			     << (*iter)->open.get_best_val()
+			     << " >= "
+			     << bound->read()
+			     << endl;
+*/
 	}
 
 	done = true;
@@ -482,6 +477,9 @@ bool NBlockGraph::needs_resort()
 void NBlockGraph::call_for_resort(bool final_weight, ARPBNFSearch *s)
 {
 	int n = 0;
+#if !defined(NDEBUG)
+	unsigned long nodes_before, nodes_after;
+#endif	// NDEBUG
 	list<NBlock *>::iterator iter;
 
 	// don't bother resorting if we are done.
@@ -524,8 +522,15 @@ retry:
 	 * At this point, all nblocks are released... let's initiate
 	 * the resort.
 	 */
+#if !defined(NDEBUG)
+	nodes_before = 0;
+#endif	// !NDEBUG
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
 		int err;
+#if !defined(NDEBUG)
+		nodes_before += (*iter)->open.size();
+		nodes_before += (*iter)->incons.size();
+#endif	// !NDEBUG
 		err = lf_queue_enqueue(resort_q, *iter);
 		if (err) {
 			perror(__func__);
@@ -553,7 +558,14 @@ retry:
 
 	bool all_empty = true;
 	bool in_bound = false;
+#if !defined(NDEBUG)
+	nodes_after = 0;
+#endif	// !NDEBUG
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+#if !defined(NDEBUG)
+		nodes_after += (*iter)->open.size();
+		nodes_after += (*iter)->incons.size();
+#endif	// !NDEBUG
 		assert((*iter)->incons.empty());
 		if ((*iter)->open.get_best_val() <= bound->read())
 			in_bound = true;
@@ -563,6 +575,8 @@ retry:
 		assert((*iter)->pq_index == -1);
 		__free_if_free(*iter);
 	}
+
+	assert(nodes_before == nodes_after);
 
 	if (all_empty || (!in_bound && final_weight))
 		__set_done();

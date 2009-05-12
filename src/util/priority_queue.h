@@ -55,6 +55,9 @@ public:
 	/* only for testing purposes. */
 	Elem *get_vec() { return heap; }
 
+	bool heap_holds(int, int);
+	bool indexes_match(void);
+
 private:
 	int left_of(int i);
 	int right_of(int i);
@@ -64,9 +67,6 @@ private:
 	int sift_up(int i);
 	int try_push(Elem e, int i);
 	int sift_down(Elem e, int i);
-
-	bool heap_holds(int, int);
-	bool indexes_match(void);
 
 	int fill;
 	int size;
@@ -385,7 +385,8 @@ template<class Elem, class PQOps>
 				  << " right: " << right
 				  << " val: " << pred.get_value(heap[right])
 				  << " i: " << i
-				  << " val: " << pred.get_value(heap[i]) << std::endl;;
+				  << " val: " << pred.get_value(heap[i])
+				  << std::endl;
 			return false;
 		}
 		if (left < fill && pred(heap[left], heap[i])) {
@@ -393,7 +394,8 @@ template<class Elem, class PQOps>
 				  <<  " left: " << left
 				  << " val: " << pred.get_value(heap[left])
 				  << " i: " << i
-				  << " val: " << pred.get_value(heap[i]) << std::endl;;
+				  << " val: " << pred.get_value(heap[i])
+				  << std::endl;
 			return false;
 		}
 	}
@@ -405,8 +407,10 @@ template<class Elem, class PQOps>
 	bool PriorityQueue<Elem, PQOps>::indexes_match(void)
 {
 	for (int i = 0; i < fill; i += 1) {
-		if (cmp(heap[i]) != i) {
-			std::cerr << "ind=" << cmp(heap[i]) << " should be: " << i << std::endl;
+		if (pred(heap[i]) != i) {
+			std::cerr << "ind=" << pred(heap[i])
+				  << " should be: " << i
+				  << std::endl;
 			return false;
 		}
 	}

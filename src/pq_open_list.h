@@ -40,6 +40,9 @@ public:
 	void remove(State *s);
 	void see_update(State *s);
 	void resort();
+
+	/* Verify the heap property holds */
+	void verify();
 private:
 	PriorityQueue<State *, PQCompare> pq;
 	PQCompare get_index;
@@ -174,6 +177,13 @@ void PQOpenList<PQCompare>::resort(void)
 		set_best_val(fp_infinity);
 	else
 		set_best_val(comp.get_value(pq.front()));
+}
+
+template<class PQCompare>
+void PQOpenList<PQCompare>::verify(void)
+{
+	assert(pq.heap_holds(0, pq.get_fill() - 1));
+	assert(pq.indexes_match());
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */
