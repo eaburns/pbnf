@@ -140,7 +140,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 
 		if (resort_flag) {
 			pthread_mutex_unlock(&mutex);
-			resort(false);
+			resort();
 			pthread_mutex_lock(&mutex);
 		}
 	}
@@ -170,7 +170,7 @@ again:
 
 	if (resort_flag) {
 		pthread_mutex_unlock(&mutex);
-		resort(false);
+		resort();
 		return next_nblock(NULL, false);
 	}
 
@@ -353,7 +353,9 @@ void NBlockGraph::__set_done(void)
 	list<NBlock*>::iterator iter;
 
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+		assert(!(*iter)->hot);
 		assert((*iter)->incons.empty());
+		(*iter)->resort();
 		assert((*iter)->open.empty() || (*iter)->open.get_best_val() > bound->read());
 	}
 
@@ -494,7 +496,7 @@ void NBlockGraph::call_for_resort(bool final_weight, ARPBNFSearch *s)
 	if (resort_flag) {
 		// someone else got here first, just resort and leave
 		pthread_mutex_unlock(&mutex);
-		resort(false);
+		resort();
 		return;
 	}
 	resort_flag = true;
@@ -519,7 +521,7 @@ retry:
 	s->move_to_next_weight();
 
 	/*
-	 * At this point, all nblocks are released... lets initiate
+	 * At this point, all nblocks are released... let's initiate
 	 * the resort.
 	 */
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
@@ -537,7 +539,7 @@ retry:
 	resort_start = true;
 
 	// master thread begins sorting.
-	resort(true);
+	resort();
 
 	while (n_to_sort.read() > 0)
 		;
@@ -570,7 +572,7 @@ retry:
 	pthread_mutex_unlock(&mutex);
 }
 
-void NBlockGraph::resort(bool master)
+void NBlockGraph::resort(void)
 {
 	/** Spin until the master thread declares the resort has started. */
 	while(!resort_start && resort_flag)

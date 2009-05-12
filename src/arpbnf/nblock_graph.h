@@ -99,12 +99,8 @@ namespace ARPBNF {
 
 		/**
 		 * Resort all of the nblocks.
-		 *
-		 * \param master Set by the master thread calling for
-		 *               the resort and false by all of the
-		 *               rest of the threads.
 		 */
-		void resort(bool master);
+		void resort(void);
 
 		const Projection *project;
 
