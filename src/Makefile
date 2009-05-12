@@ -128,21 +128,23 @@ CFLAGS+=$(FLAGS)
 ASFLAGS+=$(FLAGS)
 CXXFLAGS+=$(FLAGS)
 
+# Other progs
+# 	thread_tes
+# 	atomic_int_test
+# 	psdd_nblock_graph_test
+# 	pbnf_nblock_graph_test
+# 	tiles_hash_test
+# 	tiles_read_test
+# 	atomic_float_test
+# 	pq_test
+# 	one_tile_project_test
+# 	two_tile_project_test
 PROGS=$(addsuffix .$(MARCH), \
 	grid_search \
 	tiles_search \
-	thread_test \
-	atomic_int_test \
-	psdd_nblock_graph_test \
-	pbnf_nblock_graph_test \
-	tiles_hash_test \
-	tiles_read_test \
-	atomic_float_test \
-	pq_test \
 	grid_search_sync \
 	tiles_search_sync \
-	one_tile_project_test \
-	two_tile_project_test)
+)
 
 all: objdirs $(PROGS)
 
