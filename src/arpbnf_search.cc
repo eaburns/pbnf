@@ -65,6 +65,10 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 			     << endl;
 #endif	// !NDEBUG
 			goto next;
+		} else {
+#if !defined(NDEBUG)
+			cout << "Done" << endl;
+#endif	// !NDEBUG
 		}
 	} while (n && !graph->is_done());
 
@@ -138,6 +142,10 @@ vector<State *> *ARPBNFSearch::ARPBNFThread::process_child(State *ch)
 			if (dup->is_open()) {
 				copen->see_update(dup);
 			} else {
+				// Since we aren't searching in
+				// strict-f' order, when the weight is
+				// 1.0 we must re-open these
+				// inconsistent states.
 				if (search->final_weight)
 					copen->add(dup);
 				else if (!dup->is_incons())
@@ -249,7 +257,7 @@ vector<State *> *ARPBNFSearch::search(Timer *timer, State *initial)
 
 void ARPBNFSearch::move_to_next_weight(void)
 {
-	final_sol_weight = weights->at(next_weight - 1);
+	final_sol_weight = weights->at(next_weight);
 
 	if (weights->at(next_weight - 1) != 1.0) {
 		double nw = 1.0;
