@@ -12,6 +12,7 @@ syntax: glob
 
 src/atomic_float_test.*
 src/atomic_int_test.*
+src/grid_search_sync.*
 src/grid_search.*
 src/one_tile_project_test.*
 src/pbnf_nblock_graph_test.*
@@ -20,6 +21,7 @@ src/thread_test.*
 src/tiles_hash_test.*
 src/tiles_read_test.*
 src/tiles_search.*
+src/tiles_search_sync.*
 src/two_tile_project_test.*
 src/pq_test.*
 src/lockfree/atomic_test-*
