@@ -56,8 +56,8 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 
 	resort_q = lf_queue_create(num_nblocks);
 
-	NBlock *n = map.get(init_nblock);
 	map.set_observer(this);
+	NBlock *n = map.get(init_nblock);
 	n->open.add(initial);
 	n->closed.add(initial);
 	free_list.add(n);
