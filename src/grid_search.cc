@@ -28,7 +28,7 @@
 using namespace std;
 
 int main(int argc, char *argv[])
-{
+p{
 	unsigned int timelimit = 90;	// seconds
 	vector<State *> *path;
 	Search *search = get_search(argc, argv);
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	manhattan.set_weight(weight);
 	g.set_heuristic(&manhattan);
 
-	//timeout(timelimit);
+	timeout(timelimit);
 	timer.start();
 	path = search->search(&timer, g.initial_state());
 	timer.stop();

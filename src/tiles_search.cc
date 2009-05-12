@@ -30,7 +30,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	// 90 seconds is too small to solve the 96 instance optimally in a consistent manner.
-	unsigned int timelimit = 18000;	// seconds
+	unsigned int timelimit = 90;	// seconds
 	vector<State *> *path;
 	Search *search = get_search(argc, argv);
 	Tiles g(cin);
