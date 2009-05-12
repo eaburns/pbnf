@@ -377,7 +377,6 @@ template<class Elem, class PQOps>
 template<class Elem, class PQOps>
 	bool PriorityQueue<Elem, PQOps>::heap_holds(int ind_start, int ind_end)
 {
-	int c;
 	for (int i = ind_start; i <= ind_end; i += 1) {
 		int right = right_of(i);
 		int left = left_of(i);
@@ -433,6 +432,8 @@ template<class Elem, class PQOps>
 		add(old_heap[i]);
 
 	delete [] old_heap;
+
+	assert(heap_holds(0, fill - 1));
 }
 
 #endif /* !_PRIORITY_QUEUE_H_ */
