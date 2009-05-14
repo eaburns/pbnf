@@ -34,7 +34,7 @@ public:
 				State *s = open.take();
 
 				if(s->get_f_prime() >= search->bound.read()){
-					if (s->domain->get_heuristic()->get_weight() == fp_one){
+					if (s->get_domain()->get_heuristic()->get_weight() == fp_one){
 						search->set_done();
 					}
 					break;
@@ -42,7 +42,7 @@ public:
 
 				if (s->is_goal()) {
 					search->set_path(s->get_path());
-					if (s->domain->get_heuristic()->get_weight() == fp_one){
+					if (s->get_domain()->get_heuristic()->get_weight() == fp_one){
 						search->set_done();
 					}
 					break;

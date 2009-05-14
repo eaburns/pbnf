@@ -33,11 +33,11 @@ InconsList::~InconsList(void)
  */
 void InconsList::add(State *s)
 {
-	if (s->incons) {
+	if (s->is_incons()) {
 		assert(lookup(s) == s);
 		return;
 	}
-	s->incons = true;
+	s->set_incons(true);
 	tbl.add(s);
 }
 
@@ -68,7 +68,7 @@ void InconsList::re_open(OpenList *o)
 void InconsList::__do_re_open(void *aux, State *s)
 {
 	OpenList *o = (OpenList*)aux;
-	s->incons = false;
+	s->set_incons(false);
 	o->add(s);
 }
 
