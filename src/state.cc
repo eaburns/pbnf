@@ -11,20 +11,51 @@
 
 #include "state.h"
 
-State::State(SearchDomain *d, State *parent, fp_type c, fp_type g)
-	: parent(parent),
-	  domain(d),
-	  c(c),
-	  g(g),
+extern "C" {
+#include "lockfree/include/mem.h"
+#include "lockfree/include/atomic.h"
+}
+
+struct State::atomic_vals *State::get_avs(State *p, fp_type g, fp_type c)
+{
+	struct atomic_vals *a;
+
+	a = (struct atomic_vals*) mem_new(free_avs);
+
+	if (!a) {
+		perror(__func__);
+		abort();
+	}
+
+	a->parent = p;
+	a->g = g;
+	a->c = c;
+
+	return a;
+}
+
+State::State(SearchDomain *d, State *p, fp_type c, fp_type g)
+	: domain(d),
 	  h(-1),
 	  open(false),
 	  incons(false),
 	  f_pq_index(-1),
 	  f_prime_pq_index(-1)
 {
+	free_avs = mem_freelist_create(5, 1, sizeof(struct atomic_vals));
+	if (!free_avs) {
+		perror(__func__);
+		abort();
+	}
+	avs = NULL;
+	avs = get_avs(p, g, c);
 }
 
-State::~State() {}
+State::~State()
+{
+	mem_release(free_avs, avs);
+	mem_freelist_destroy(free_avs);
+}
 
 /**
  * Get the search domain for this state.
@@ -38,35 +69,49 @@ SearchDomain *State::get_domain(void) const
  * Get the estimated cost of a path that uses this node.
  * \return g + h
  */
-fp_type State::get_f(void) const
+fp_type State::get_f(void)
 {
-	return g + h;
+	return get_g() + h;
 }
 
 /**
  * Get the estimated cost of a path that uses this node.
  * \return g + wh
  */
-fp_type State::get_f_prime(void) const
+fp_type State::get_f_prime(void)
 {
-	return g + ((domain->get_heuristic()->get_weight() * h) / fp_one);
+	return get_g() + ((domain->get_heuristic()->get_weight() * h) / fp_one);
 }
 
 /**
  * Get the transition cost into this state.
  * \return g
  */
-fp_type State::get_c(void) const
+fp_type State::get_c(void)
 {
-	return c;
+	fp_type ret = fp_infinity;
+
+	struct atomic_vals *a =
+		(struct atomic_vals*) mem_safe_read(free_avs, &avs);
+	ret = a->c;
+	mem_release(free_avs, a);
+
+	return ret;
 }
 /**
  * Get the cost so far of the state.
  * \return g
  */
-fp_type State::get_g(void) const
+fp_type State::get_g(void)
 {
-	return g;
+	fp_type ret = fp_infinity;
+
+	struct atomic_vals *a =
+		(struct atomic_vals*) mem_safe_read(free_avs, &avs);
+	ret = a->g;
+	mem_release(free_avs, a);
+
+	return ret;
 }
 
 /**
@@ -74,11 +119,25 @@ fp_type State::get_g(void) const
  */
 void State::update(State *p, fp_type c_val, fp_type g_val)
 {
-	assert(g > g_val);
+	struct atomic_vals *o, *n;
 
-	this->parent = p;
-	this->c = c_val;
-	this->g = g_val;
+	n = get_avs(p, g_val, c_val);
+	for ( ; ; ) {
+		o = (struct atomic_vals*) mem_safe_read(free_avs, &avs);
+		if (o->g <= n->g) {
+			mem_release(free_avs, n);
+			mem_release(free_avs, o);
+			return;
+		}
+
+		if (compare_and_swap(&avs, (intptr_t) o, (intptr_t) n)) {
+			mem_release(free_avs, o);
+			mem_release(free_avs, o); // double release
+			return;
+		}
+
+		mem_release(free_avs, o);
+	}
 }
 
 /**
@@ -116,12 +175,12 @@ vector<State *> *State::get_path(void)
 	State *p;
 	State *copy, *last = NULL;
 
-	for (p = this; p; p = p->parent) {
+	for (p = this; p; p = p->get_parent()) {
 		copy = p->clone();
-		copy->parent = NULL;
+		copy->set_parent(NULL);
 
 		if (last)
-			last->parent = copy;
+			last->set_parent(copy);
 
 		path->push_back(copy);
 		last = copy;
@@ -133,9 +192,28 @@ vector<State *> *State::get_path(void)
 /**
  * Get the parent of this state.
  */
-State *State::get_parent(void) const
+State *State::get_parent(void)
 {
-	return parent;
+	State *ret = NULL;
+
+	struct atomic_vals *a =
+		(struct atomic_vals*) mem_safe_read(free_avs, &avs);
+	ret = a->parent;
+	mem_release(free_avs, a);
+
+	return ret;
+}
+
+
+/**
+ * Set the parent.
+ */
+void State::set_parent(State *p)
+{
+	struct atomic_vals *a =
+		(struct atomic_vals*) mem_safe_read(free_avs, &avs);
+	a->parent = p;
+	mem_release(free_avs, a);
 }
 
 /**

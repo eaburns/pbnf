@@ -84,10 +84,11 @@ void *lf_ordlist_find(struct lf_ordlist *lst, void *value);
 /**
  * Add the given value to the ordlist.
  *
- * \return !0 if this call just added the element, 0 if someone else
- *         got to it first.
+ * \return A pointer to the element in the list.  If another thread
+ *         beat this thread to the add, then the returned pointer will
+ *         differ from the pointed of the argument.
  */
-int lf_ordlist_add(struct lf_ordlist *lst, void *value);
+void *lf_ordlist_add(struct lf_ordlist *lst, void *value);
 
 /**
  * Remove the element with the given value from the list.
@@ -201,8 +202,12 @@ void lf_hashtbl_destroy(struct lf_hashtbl *tbl);
 
 /**
  * Add an element to the hashtable.
+ *
+ * \return A pointer to the element in the table.  If another thread
+ *         beat this thread to the add, then the returned pointer will
+ *         differ from the pointed of the argument.
  */
-void lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm);
+void *lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm);
 
 /**
  * Test if an element with the same hash value as the given element is

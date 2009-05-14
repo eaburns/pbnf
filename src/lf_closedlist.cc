@@ -48,6 +48,11 @@ LF_ClosedList::~LF_ClosedList(void)
 	lf_hashtbl_destroy(tbl);
 }
 
+State *LF_ClosedList::add_return(State *s)
+{
+	return (State*) lf_hashtbl_add(tbl, (void*) s);
+}
+
 void LF_ClosedList::add(State *s)
 {
 	lf_hashtbl_add(tbl, (void*) s);

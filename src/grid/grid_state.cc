@@ -62,21 +62,21 @@ uint64_t GridState::hash(void) const
  * Create a copy of this state.
  * \return A copy of this state.
  */
-State *GridState::clone(void) const
+State *GridState::clone(void)
 {
 	GridWorld *d = dynamic_cast<GridWorld *>(domain);
 
-	return new GridState(d, parent, c, g, x, y);
+	return new GridState(d, get_parent(), get_c(), get_g(), x, y);
 }
 
 /**
  * Print this state.
  * \param o The ostream to print to.
  */
-void GridState::print(ostream &o) const
+void GridState::print(ostream &o)
 {
-	o << "x=" << x << ", y=" << y << ", g=" << g << ", h=" << h
-	  << ", f=" << g + h << endl;
+	o << "x=" << x << ", y=" << y << ", g=" << get_g() << ", h=" << h
+	  << ", f=" << get_g() + h << endl;
 }
 
 /**

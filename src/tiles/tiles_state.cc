@@ -82,13 +82,13 @@ uint64_t TilesState::hash(void) const
 }
 
 
-State *TilesState::clone(void) const
+State *TilesState::clone(void)
 {
-	return new TilesState(domain, parent, c, g, tiles, blank);
+	return new TilesState(domain, get_parent(), get_c(), get_g(), tiles, blank);
 }
 
 
-void TilesState::print(ostream &o) const
+void TilesState::print(ostream &o)
 {
 	Tiles *t = dynamic_cast<Tiles*>(domain);
 	unsigned int i = 0;

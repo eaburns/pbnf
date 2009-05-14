@@ -59,12 +59,21 @@ public:
 				State *dup = p->closed.lookup(c);
 				if (dup) {
 					if (dup->get_g() > c->get_g()) {
-						p->closed.add(c);
+						dup->update(c->get_parent(), c->get_c(), c->get_g());
 						p->open.add(c);
 					}
 				} else {
-					p->closed.add(c);
-					p->open.add(c);
+					dup = p->closed.add_return(c);
+
+					// Someone may have added to
+					// closed before we did.  If
+					// this was the case, then we
+					// want to only use the copy
+					// of the node that made it
+					// into closed.
+					if (dup->get_g() > c->get_g())
+						dup->update(c->get_parent(), c->get_c(), c->get_g());
+					p->open.add(dup);
 				}
 			}
 		}

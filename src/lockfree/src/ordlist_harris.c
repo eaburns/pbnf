@@ -35,7 +35,13 @@ struct lf_ordlist {
 	/* number of elements that this list can have. */
 	size_t nelms;
 };
-
+/*
+#define mem_release(fl, elm) \
+	do {		     \
+		mem_release((fl), (elm));	\
+		assert(lst->tail->n.refct_claim >= 4);	\
+	} while (0)
+*/
 
 /** The next field of a node is the first (and only) link field. */
 #define NEXT(node) (((struct lf_ordlist_node*) (node))->n.links[0])
@@ -121,10 +127,14 @@ search_again:
 			}
 		}
 
-		/* 3: Remove one or more marked nodes. */
+		/* 3: Remove one or more marked nodes
+		 *
+		 * Here, left_node_next, right_node and *left_node are
+		 * referenced. */
 
 		/* in case CAS succeeds. */
 		mem_incr_ref(right_node);
+		assert(*left_node != lst->tail);
 		if (compare_and_swap(&NEXT(*left_node),
 				     (intptr_t) left_node_next,
 				     (intptr_t) right_node)) {
@@ -194,6 +204,7 @@ int lf_ordlist_remove(struct lf_ordlist *lst, void *value)
 		right_node_next = mem_safe_read(lst->fl, &NEXT(right_node));
 
 		if (!IS_MARKED(right_node_next)) {
+			assert(right_node != lst->tail);
 			if (compare_and_swap(&NEXT(right_node),
 					     (intptr_t) right_node_next,
 					     (intptr_t)
@@ -207,6 +218,7 @@ int lf_ordlist_remove(struct lf_ordlist *lst, void *value)
 
 	/* if the CAS succeeds, NEXT(left_node) gets our ref to
 	 * 'right_node_next' */
+	assert(left_node != lst->tail);
 	if (!compare_and_swap(&NEXT(left_node),
 			      (intptr_t) right_node,
 			      (intptr_t) right_node_next)) {
@@ -229,7 +241,7 @@ int lf_ordlist_remove(struct lf_ordlist *lst, void *value)
 	return 1;
 }
 
-int lf_ordlist_add(struct lf_ordlist *lst, void *value)
+void *lf_ordlist_add(struct lf_ordlist *lst, void *value)
 {
 	struct lf_ordlist_node *new_node;
 	struct lf_ordlist_node *right_node, *left_node;
@@ -246,7 +258,7 @@ int lf_ordlist_add(struct lf_ordlist *lst, void *value)
 			mem_release(lst->fl, right_node);
 			mem_release(lst->fl, left_node);
 			mem_release(lst->fl, new_node);
-			return 0;
+			return right_node->value;
 		}
 
 		/* NEXT(left_node) gets our reference if CAS succeeds,
@@ -254,12 +266,13 @@ int lf_ordlist_add(struct lf_ordlist *lst, void *value)
 		 * CAS succeeds */
 		NEXT(new_node) = (struct node *) right_node;
 
+		assert(left_node != lst->tail);
 		if (compare_and_swap(&NEXT(left_node),
 				     (intptr_t) right_node,
 				     (intptr_t) new_node)) {
 			mem_release(lst->fl, right_node);
 			mem_release(lst->fl, left_node);
-			return 1;
+			return value;
 		}
 		mem_release(lst->fl, right_node);
 		mem_release(lst->fl, left_node);
@@ -326,6 +339,7 @@ void lf_ordlist_destroy(struct lf_ordlist *lst)
 	size_t nfreed;
 
 	mem_release(lst->fl, lst->head);
+	assert(lst->tail->n.refct_claim == 2);
 	mem_release(lst->fl, lst->tail);
 	nfreed = mem_freelist_destroy(lst->fl);
 

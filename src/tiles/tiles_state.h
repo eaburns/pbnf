@@ -28,8 +28,8 @@ public:
 
 	virtual bool is_goal(void);
 	virtual uint64_t hash(void) const;
-	virtual State *clone(void) const;
-	virtual void print(ostream &o) const;
+	virtual State *clone(void);
+	virtual void print(ostream &o);
 	virtual bool equals(State *s) const;
 
 	const vector<unsigned int> *get_tiles(void) const;

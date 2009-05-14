@@ -17,6 +17,10 @@
 
 using namespace std;
 
+extern "C" {
+#include "lockfree/include/mem.h"
+}
+
 /**
  * An abstract search state class.
  */
@@ -87,29 +91,41 @@ public:
 
 	virtual uint64_t hash(void) const = 0;
 	virtual bool is_goal(void) = 0;
-	virtual State *clone(void) const = 0;
-	virtual void print(ostream &o) const = 0;
+	virtual State *clone(void) = 0;
+	virtual void print(ostream &o) = 0;
 	virtual bool equals(State *s) const = 0;
 
 	virtual vector<State*> *expand(void);
 
-	fp_type get_f(void) const;
-	fp_type get_f_prime(void) const;
-	fp_type get_c(void) const;
-	fp_type get_g(void) const;
+	fp_type get_f(void);
+	fp_type get_f_prime(void);
+	fp_type get_c(void);
+	fp_type get_g(void);
 	void update(State *parent, fp_type c, fp_type g);
 	fp_type get_h(void) const;
-	State *get_parent(void) const;
+	State *get_parent(void);
 	vector<State *> *get_path(void);
+	void set_parent(State *p);
 	void set_open(bool b);
 	bool is_open(void) const;
 	bool is_incons(void) const;
 //protected:
-	State *parent;
+
 	SearchDomain *domain;
-	fp_type c;
-	fp_type g;
 	fp_type h;
+
+	/* values that must be atomically updated. */
+	struct atomic_vals {
+		struct node n;
+		State *parent;
+		fp_type g;
+		fp_type c;
+	};
+	struct atomic_vals *get_avs(State *p, fp_type g, fp_type c);
+
+	struct atomic_vals *avs;
+	freelist *free_avs;
+
 	bool open;
 	bool incons;
 
