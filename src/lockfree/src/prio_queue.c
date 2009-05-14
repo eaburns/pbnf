@@ -38,6 +38,7 @@ struct lf_pq_node {
 	int level;
 	int valid_level;
 	void *value;
+	void *key;
 };
 
 struct lf_pq {
@@ -97,9 +98,9 @@ static inline struct lf_pq_node *COPY_NODE(void *_n)
  */
 static int is_pred(struct lf_pq *pq, struct lf_pq_node *a, struct lf_pq_node *b)
 {
-	int p = pq->pred(GET_UNMARKED(a->value), GET_UNMARKED(b->value));
+	int p = pq->pred(GET_UNMARKED(a->key), GET_UNMARKED(b->key));
 
-	if (p == pq->pred(GET_UNMARKED(b->value), GET_UNMARKED(a->value))) {
+	if (p == pq->pred(GET_UNMARKED(b->key), GET_UNMARKED(a->key))) {
 		/* Nodes have equal priority. */
 		return a > b;
 	}
@@ -338,7 +339,7 @@ static int random_level(struct lf_pq *pq)
 /**
  * Create a new node, with one reference to it.
  */
-static struct lf_pq_node *create_node(struct lf_pq *pq, int level, void *value)
+static struct lf_pq_node *create_node(struct lf_pq *pq, int level, void *value, void *key)
 {
 	struct lf_pq_node *n = mem_new(pq->freelist);
 	if (!n)
@@ -346,6 +347,7 @@ static struct lf_pq_node *create_node(struct lf_pq *pq, int level, void *value)
 
 	n->level = level;
 	n->value = value;
+	n->key = key;
 	n->valid_level = 0;
 	PREV(n) = DELETED_REFERENCE;
 
@@ -426,7 +428,7 @@ int lf_pq_property_holds(FILE *f, struct lf_pq *pq)
 	return 1;
 }
 
-int lf_pq_insert(struct lf_pq *pq, void *val)
+int lf_pq_insert(struct lf_pq *pq, void *val, void *key)
 {
 	int i, level;
 	void *value2;
@@ -438,7 +440,7 @@ int lf_pq_insert(struct lf_pq *pq, void *val)
 	max_delay = backoff_init(max_delay);
 
 	level = random_level(pq);
-	new_node = create_node(pq, level, val);
+	new_node = create_node(pq, level, val, key);
 	if (!new_node)
 		return -1;
 
@@ -695,10 +697,10 @@ struct lf_pq *lf_pq_create(size_t nbrelm, int (*pred)(void*, void*))
 	if (!pq->freelist)
 		goto err_fl;
 
-	pq->head = create_node(pq, MAX_LEVEL, NULL);
+	pq->head = create_node(pq, MAX_LEVEL, NULL, NULL);
 	if (!pq->head)
 		goto err_head;
-	pq->tail = create_node(pq, MAX_LEVEL, NULL);
+	pq->tail = create_node(pq, MAX_LEVEL, NULL, NULL);
 	if (!pq->tail)
 		goto err_tail;
 

@@ -65,7 +65,7 @@ void lf_hashtbl_destroy(struct lf_hashtbl *tbl)
 	free(tbl);
 }
 
-void lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm)
+void *lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm)
 {
 	int b = tbl->hash(elm) % tbl->nbuckets;
 
@@ -81,7 +81,7 @@ void lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm)
 			lf_ordlist_destroy(l);
 	}
 
-	lf_ordlist_add(tbl->buckets[b], elm);
+	return lf_ordlist_add(tbl->buckets[b], elm);
 }
 
 void *lf_hashtbl_lookup(struct lf_hashtbl *tbl, void *elm)

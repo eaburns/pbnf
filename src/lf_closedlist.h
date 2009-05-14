@@ -28,6 +28,7 @@ public:
 	~LF_ClosedList(void);
 
 	void add(State *);
+	State *add_return(State *);
 	State *lookup(State *);
 	void delete_all_states(void);
 

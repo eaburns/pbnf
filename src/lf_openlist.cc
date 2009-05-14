@@ -63,7 +63,7 @@ void LF_OpenList::add(State *s)
 {
 	int err;
 
-	err = lf_pq_insert(pq, s);
+	err = lf_pq_insert(pq, s, s);
 
 	assert(!err);
 

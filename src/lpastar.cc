@@ -59,6 +59,11 @@ public:
 				State *dup = p->closed.lookup(c);
 				if (dup) {
 					if (dup->get_g() > c->get_g()) {
+						// This sucks... we
+						// really want to
+						// update 'dup' and
+						// add dup back to
+						// open.
 						p->closed.add(c);
 						p->open.add(c);
 					}
