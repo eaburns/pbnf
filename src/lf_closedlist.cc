@@ -40,7 +40,7 @@ static uint64_t state_hash_fun(void *a)
 LF_ClosedList::LF_ClosedList(void)
 {
 	tbl = lf_hashtbl_create(50000,
-				100,
+				500,
 				state_cmp_fun,
 				state_hash_fun);
 }

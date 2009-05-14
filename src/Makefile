@@ -112,8 +112,8 @@ LDFLAGS+=-lpthread -lmtmalloc
 else                   # GNU compilers
 PROFILE+=
 #PROFILE+=-pg
-#DEBUG+=-O3 -DNDEBUG
-DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
+DEBUG+=-O3 -DNDEBUG
+#DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor 
 #LDFLAGS+=-lpthread $(PROFILE)
@@ -209,6 +209,22 @@ create_bins: grid_search.$(MARCH) tiles_search.$(MARCH) grid_search_sync.$(MARCH
 	@echo
 	@echo
 	@echo Is debugging turned off?
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo Is lockfree debugging turned off?
 	@echo
 	@echo
 	@echo
