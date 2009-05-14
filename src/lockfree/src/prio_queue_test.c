@@ -36,7 +36,7 @@ void *producer_thread_fun(void *arg)
 			rand %= 100;
 			/* 0 is reserved and the lowest bit must not be set. */
 		} while (rand == 0 || rand & 0x1);
-		err = lf_pq_insert(pq, (void*)rand);
+		err = lf_pq_insert(pq, (void*)rand, (void*)rand);
 		if (err) {
 			perror(__func__);
 			exit(EXIT_FAILURE);
