@@ -39,18 +39,6 @@ void TilesState::compute_hash(void)
 
 TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 		       fp_type h_val, vector<unsigned int> tiles,
-		       unsigned int blank, bool lockfree)
-	: State(d, parent, c, g, lockfree),
-	  tiles(tiles),
-	  blank(blank)
-{
-	this->h = h_val;
-	compute_hash();
-}
-
-
-TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
-		       fp_type h_val, vector<unsigned int> tiles,
 		       unsigned int blank)
 	: State(d, parent, c, g),
 	  tiles(tiles),
@@ -60,21 +48,6 @@ TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 	compute_hash();
 }
 
-
-TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
-		       vector<unsigned int> t, unsigned int b, bool lockfree)
-	: State(d, parent, c, g, lockfree),
-	  tiles(t),
-	  blank(b)
-{
-	assert(t[b] == 0);
-	if (domain->get_heuristic())
-		this->h = domain->get_heuristic()->compute(this);
-	else
-		this->h = 0;
-	assert(this->h == 0 ? is_goal() : 1);
-	compute_hash();
-}
 
 TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 		       vector<unsigned int> t, unsigned int b)
@@ -109,13 +82,13 @@ uint64_t TilesState::hash(void) const
 }
 
 
-State *TilesState::clone(void)
+State *TilesState::clone(void) const
 {
-	return new TilesState(domain, get_parent(), get_c(), get_g(), tiles, blank);
+	return new TilesState(domain, parent, c, g, tiles, blank);
 }
 
 
-void TilesState::print(ostream &o)
+void TilesState::print(ostream &o) const
 {
 	Tiles *t = dynamic_cast<Tiles*>(domain);
 	unsigned int i = 0;

@@ -33,23 +33,6 @@ GridState::GridState(GridWorld *d, State *parent, fp_type c, fp_type g, int x, i
 }
 
 /**
- * Create a new grid state.
- * \param d The search domain.
- * \param parent The parent of this state.
- * \param g The g-value of this state.
- * \param x The x-coordinate of this state.
- * \param y The y-coordinate of this state.
- */
-GridState::GridState(GridWorld *d, State *parent, fp_type c, fp_type g, int x, int y, bool lockfree)
-	: State(d, parent, c, g, lockfree), x(x), y(y)
-{
-	if (domain->get_heuristic())
-		this->h = domain->get_heuristic()->compute(this);
-	else
-		this->h = 0;
-}
-
-/**
  * Test if this state is the goal.
  * \return True if this is a goal, false if not.
  */
@@ -79,21 +62,21 @@ uint64_t GridState::hash(void) const
  * Create a copy of this state.
  * \return A copy of this state.
  */
-State *GridState::clone(void)
+State *GridState::clone(void) const
 {
 	GridWorld *d = dynamic_cast<GridWorld *>(domain);
 
-	return new GridState(d, get_parent(), get_c(), get_g(), x, y);
+	return new GridState(d, parent, c, g, x, y);
 }
 
 /**
  * Print this state.
  * \param o The ostream to print to.
  */
-void GridState::print(ostream &o)
+void GridState::print(ostream &o) const
 {
-	o << "x=" << x << ", y=" << y << ", g=" << get_g() << ", h=" << h
-	  << ", f=" << get_g() + h << endl;
+	o << "x=" << x << ", y=" << y << ", g=" << g << ", h=" << h
+	  << ", f=" << g + h << endl;
 }
 
 /**

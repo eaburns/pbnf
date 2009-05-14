@@ -11,98 +11,20 @@
 
 #include "state.h"
 
-extern "C" {
-#include "lockfree/include/mem.h"
-#include "lockfree/include/atomic.h"
-}
-
-struct State::atomic_vals *State::get_avs(State *p, fp_type g, fp_type c)
+State::State(SearchDomain *d, State *parent, fp_type c, fp_type g)
+	: parent(parent),
+	  domain(d),
+	  c(c),
+	  g(g),
+	  h(-1),
+	  open(false),
+	  incons(false),
+	  f_pq_index(-1),
+	  f_prime_pq_index(-1)
 {
-	struct atomic_vals *a;
-
-	a = (struct atomic_vals*) mem_new(free_avs);
-
-	if (!a) {
-		perror(__func__);
-		abort();
-	}
-
-	a->parent = p;
-	a->g = g;
-	a->c = c;
-
-	return a;
 }
 
-void State::init(SearchDomain *d, State *p, fp_type c, fp_type g, bool lf)
-{
-	domain = d;
-	h = -1;
-	lockfree = lf;
-	open = false;
-	incons = false;
-	f_pq_index = -1;
-	f_prime_pq_index = -1;
-
-	if (p) {
-		lockfree = p->lockfree;
-		get_c_fun = p->get_c_fun;
-		get_g_fun = p->get_g_fun;
-		set_parent_fun = p->set_parent_fun;
-		get_parent_fun = p->get_parent_fun;
-		update_fun = p->update_fun;
-	}
-
-
-	if (lockfree) {
-		free_avs = mem_freelist_create(10, 1, sizeof(struct atomic_vals));
-		if (!free_avs) {
-			perror(__func__);
-			abort();
-		}
-		avs = NULL;
-		avs = get_avs(p, g, c);
-
-		if (!p) {
-			get_c_fun = __lf_get_c;
-			get_g_fun = __lf_get_g;
-			set_parent_fun = __lf_set_parent;
-			get_parent_fun = __lf_get_parent;
-			update_fun = __lf_update;
-		}
-
-	} else {
-		this->g = g;
-		this->parent = p;
-		this->c = c;
-		if (!p) {
-			get_c_fun = __get_c;
-			get_g_fun = __get_g;
-			set_parent_fun = __set_parent;
-			get_parent_fun = __get_parent;
-			update_fun = __update;
-		}
-	}
-}
-
-State::State(SearchDomain *d, State *p, fp_type c, fp_type g)
-{
-	init(d, p, c, g, false /* will be overridden if 'p != NULL' */);
-}
-
-
-State::State(SearchDomain *d, State *p, fp_type c, fp_type g, bool lf)
-{
-	init(d, p, c, g, lf);
-}
-
-State::~State()
-{
-	if (lockfree) {
-		mem_release(free_avs, avs);
-		mem_freelist_destroy(free_avs);
-	}
-}
+State::~State() {}
 
 /**
  * Get the search domain for this state.
@@ -116,18 +38,47 @@ SearchDomain *State::get_domain(void) const
  * Get the estimated cost of a path that uses this node.
  * \return g + h
  */
-fp_type State::get_f(void)
+fp_type State::get_f(void) const
 {
-	return get_g() + h;
+	return g + h;
 }
 
 /**
  * Get the estimated cost of a path that uses this node.
  * \return g + wh
  */
-fp_type State::get_f_prime(void)
+fp_type State::get_f_prime(void) const
 {
-	return get_g() + ((domain->get_heuristic()->get_weight() * h) / fp_one);
+	return g + ((domain->get_heuristic()->get_weight() * h) / fp_one);
+}
+
+/**
+ * Get the transition cost into this state.
+ * \return g
+ */
+fp_type State::get_c(void) const
+{
+	return c;
+}
+/**
+ * Get the cost so far of the state.
+ * \return g
+ */
+fp_type State::get_g(void) const
+{
+	return g;
+}
+
+/**
+ * Set the g value for this state.
+ */
+void State::update(State *p, fp_type c_val, fp_type g_val)
+{
+	assert(g > g_val);
+
+	this->parent = p;
+	this->c = c_val;
+	this->g = g_val;
 }
 
 /**
@@ -165,12 +116,12 @@ vector<State *> *State::get_path(void)
 	State *p;
 	State *copy, *last = NULL;
 
-	for (p = this; p; p = p->get_parent()) {
+	for (p = this; p; p = p->parent) {
 		copy = p->clone();
-		copy->set_parent(NULL);
+		copy->parent = NULL;
 
 		if (last)
-			last->set_parent(copy);
+			last->parent = copy;
 
 		path->push_back(copy);
 		last = copy;
@@ -180,19 +131,19 @@ vector<State *> *State::get_path(void)
 }
 
 /**
+ * Get the parent of this state.
+ */
+State *State::get_parent(void) const
+{
+	return parent;
+}
+
+/**
  * Set the open status of the state.
  */
 void State::set_open(bool b)
 {
 	open = b;
-}
-
-/**
- * Set the incons status of the state.
- */
-void State::set_incons(bool b)
-{
-	incons = b;
 }
 
 /**
@@ -206,102 +157,4 @@ bool State::is_open(void) const
 bool State::is_incons(void) const
 {
 	return incons;
-}
-
-// -----------------------------------------------
-
-fp_type State::__get_c(State *t)
-{
-	return t->c;
-}
-
-fp_type State::__lf_get_c(State *t)
-{
-	fp_type ret = fp_infinity;
-
-
-	struct atomic_vals *a =
-		(struct atomic_vals*) mem_safe_read(t->free_avs, &t->avs);
-	ret = a->c;
-	mem_release(t->free_avs, a);
-
-	return ret;
-}
-
-fp_type State::__get_g(State *t)
-{
-	return t->g;
-}
-
-fp_type State::__lf_get_g(State *t)
-{
-	fp_type ret = fp_infinity;
-
-	struct atomic_vals *a =
-		(struct atomic_vals*) mem_safe_read(t->free_avs, &t->avs);
-	ret = a->g;
-	mem_release(t->free_avs, a);
-
-	return ret;
-}
-
-void State::__update(State *t, State *p, fp_type c_val, fp_type g_val)
-{
-	assert(t->g > g_val);
-	t->g = g_val;
-	t->c = c_val;
-	t->parent = p;
-}
-
-void State::__lf_update(State *t, State *p, fp_type c_val, fp_type g_val)
-{
-	struct atomic_vals *o, *n;
-
-	n = t->get_avs(p, g_val, c_val);
-	for ( ; ; ) {
-		o = (struct atomic_vals*) mem_safe_read(t->free_avs, &t->avs);
-		if (o->g <= n->g) {
-			mem_release(t->free_avs, n);
-			mem_release(t->free_avs, o);
-			return;
-		}
-
-		if (compare_and_swap(&t->avs, (intptr_t) o, (intptr_t) n)) {
-			mem_release(t->free_avs, o);
-			mem_release(t->free_avs, o); // double release
-			return;
-		}
-
-		mem_release(t->free_avs, o);
-	}
-}
-
-State *State::__get_parent(State *t)
-{
-	return t->parent;
-}
-
-State *State::__lf_get_parent(State *t)
-{
-	State *ret = NULL;
-
-	struct atomic_vals *a =
-		(struct atomic_vals*) mem_safe_read(t->free_avs, &t->avs);
-	ret = a->parent;
-	mem_release(t->free_avs, a);
-
-	return ret;
-}
-
-void State::__set_parent(State *t, State *p)
-{
-	t->parent = p;
-}
-
-void State::__lf_set_parent(State *t, State *p)
-{
-	struct atomic_vals *a =
-		(struct atomic_vals*) mem_safe_read(t->free_avs, &t->avs);
-	a->parent = p;
-	mem_release(t->free_avs, a);
 }

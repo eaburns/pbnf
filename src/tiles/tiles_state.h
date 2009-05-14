@@ -20,14 +20,7 @@ using namespace std;
 class TilesState : public State {
 public:
 	TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
-		   vector<unsigned int> tiles, unsigned int blank, bool lockfree);
-
-	TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 		   vector<unsigned int> tiles, unsigned int blank);
-
-	TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
-		   fp_type h, vector<unsigned int> tiles,
-		   unsigned int blank, bool lockfree);
 
 	TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
 		   fp_type h, vector<unsigned int> tiles,
@@ -35,8 +28,8 @@ public:
 
 	virtual bool is_goal(void);
 	virtual uint64_t hash(void) const;
-	virtual State *clone(void);
-	virtual void print(ostream &o);
+	virtual State *clone(void) const;
+	virtual void print(ostream &o) const;
 	virtual bool equals(State *s) const;
 
 	const vector<unsigned int> *get_tiles(void) const;

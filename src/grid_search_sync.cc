@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 		GridWorld::ManhattanDist *manhattan = new GridWorld::ManhattanDist(g);
 		manhattan->set_weight(*i);
 		g->set_heuristic(manhattan);
-		inits->push_back(g->initial_state(lockfree));
+		inits->push_back(g->initial_state());
 	}
 
 	search = new SyncWAStar::SyncWAStar(threads, inits, dd);

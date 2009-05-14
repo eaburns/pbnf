@@ -93,7 +93,7 @@ void ClosedList::__remove_closed(void *aux, State *s)
 {
 	list<State*> *nodes = (list<State*>*) aux;
 
-	if (s->is_open() || s->is_incons())
+	if (s->open || s->incons)
 		return;
 	else
 		nodes->push_front(s);

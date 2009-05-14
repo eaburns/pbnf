@@ -29,7 +29,7 @@ public:
 	Tiles(unsigned int width, unsigned int height);
 	virtual ~Tiles(void);
 
-	virtual State *initial_state(bool lockfree);
+	virtual State *initial_state(void);
 	virtual vector<State *> *expand(State *s);
 
 	void print(ostream &o) const;

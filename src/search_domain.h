@@ -34,7 +34,7 @@ public:
 	virtual const Projection *get_projection(void) const;
 
 	/* Abstract methods */
-	virtual State *initial_state(bool lockfree) = 0;
+	virtual State *initial_state(void) = 0;
 	virtual vector<State*> *expand(State *s) = 0;
 private:
 	Heuristic *heuristic;
