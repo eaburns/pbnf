@@ -35,6 +35,7 @@ struct lf_ordlist {
 	/* number of elements that this list can have. */
 	size_t nelms;
 };
+
 /*
 #define mem_release(fl, elm) \
 	do {		     \
@@ -115,14 +116,13 @@ search_again:
 
 		/* 2: Check nodes are adjacent */
 		if (left_node_next == right_node) {
+			mem_release(lst->fl, left_node_next);
 			if (right_node != lst->tail
 			    && IS_MARKED(NEXT(right_node))) {
 				mem_release(lst->fl, right_node);
 				mem_release(lst->fl, *left_node);
-				mem_release(lst->fl, left_node_next);
 				goto search_again;
 			} else {
-				mem_release(lst->fl, left_node_next);
 				return right_node;
 			}
 		}
@@ -300,6 +300,10 @@ void *lf_ordlist_cond_update(struct lf_ordlist *lst,
 		}
 		mem_release(lst->fl, right_node);
 		mem_release(lst->fl, left_node);
+
+		/* If we release 'new_node' later, don't also release
+		 * right_node. */
+		NEXT(new_node) = NULL;
 	}
 }
 
@@ -381,8 +385,8 @@ struct lf_ordlist *lf_ordlist_create(size_t nbrelm,
 	if (!lst->tail)
 		goto err_tail;
 
-	NEXT(lst->head) = (struct node *) lst->tail;
 	mem_incr_ref(lst->tail);
+	NEXT(lst->head) = (struct node *) lst->tail;
 
 	return lst;
 
@@ -401,6 +405,9 @@ void lf_ordlist_destroy(struct lf_ordlist *lst)
 {
 	size_t nfreed;
 
+	if (lst->tail->n.refct_claim != 4)
+		lf_ordlist_print(stdout, lst);
+	assert(lst->tail->n.refct_claim == 4);
 	mem_release(lst->fl, lst->head);
 	assert(lst->tail->n.refct_claim == 2);
 	mem_release(lst->fl, lst->tail);
