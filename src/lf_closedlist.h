@@ -28,11 +28,20 @@ public:
 	~LF_ClosedList(void);
 
 	void add(State *);
-	State *add_return(State *);
+
+	/**
+	 * Conditionally update the closed list if the new state is
+	 * still better than the previous state.
+	 */
+	State *cond_update(State *);
+
 	State *lookup(State *);
 	void delete_all_states(void);
 
 private:
+
+	static int better(void *, void *);
+
 	struct lf_hashtbl *tbl;
 };
 

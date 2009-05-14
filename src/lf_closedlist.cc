@@ -7,6 +7,8 @@
  * \date 2009-04-12
  */
 
+#include <assert.h>
+
 #include "lf_closedlist.h"
 
 extern "C" {
@@ -48,9 +50,20 @@ LF_ClosedList::~LF_ClosedList(void)
 	lf_hashtbl_destroy(tbl);
 }
 
-State *LF_ClosedList::add_return(State *s)
+// STATIC
+int LF_ClosedList::better(void *a, void *b)
 {
-	return (State*) lf_hashtbl_add(tbl, (void*) s);
+	State *sa = (State*) a;
+	State *sb = (State*) b;
+	assert(a);
+	assert(b);
+
+	return sa->get_g() < sb->get_g();
+}
+
+State *LF_ClosedList::cond_update(State *s)
+{
+	return (State*) lf_hashtbl_cond_update(tbl, better, (void*) s);
 }
 
 void LF_ClosedList::add(State *s)

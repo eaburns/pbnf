@@ -91,6 +91,23 @@ void *lf_ordlist_find(struct lf_ordlist *lst, void *value);
 void *lf_ordlist_add(struct lf_ordlist *lst, void *value);
 
 /**
+ * Conditionally update the given value in the ordlist.  If the value
+ * is not already in the list, then add it.
+ *
+ * \param f The predicate to test whether on not to update the value
+ *          in the list.  The first argument is the new node, the
+ *          second argument is the node already in the list.  If [f]
+ *          is NULL then this function has the same semantics as
+ *          lf_ordlist_add.
+ *
+ * \return A pointer to the element in the list.  If another thread
+ *         beat this thread to the add, then the returned pointer will
+ *         differ from the pointed of the argument.
+ */
+void *lf_ordlist_cond_update(struct lf_ordlist *lst, int (*f)(void *, void*),
+			     void *value);
+
+/**
  * Remove the element with the given value from the list.
  *
  * \return !0 if this call just removed the element, 0 if someone else
@@ -201,13 +218,30 @@ struct lf_hashtbl *lf_hashtbl_create(size_t nbuckets,
 void lf_hashtbl_destroy(struct lf_hashtbl *tbl);
 
 /**
- * Add an element to the hashtable.
+ * Conditionally update the given value in the hash table.  If the
+ * value is not already in the list, then add it.
+ *
+ * \param f The predicate to test whether on not to update the value
+ *          in the table.  The first argument is the new node, the
+ *          second argument is the node already in the table.  If [f]
+ *          is NULL then this function has the same semantics as
+ *          lf_hashtbl_add.
  *
  * \return A pointer to the element in the table.  If another thread
  *         beat this thread to the add, then the returned pointer will
  *         differ from the pointed of the argument.
  */
 void *lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm);
+
+/**
+ * Add an element to the hashtable.
+ *
+ * \return A pointer to the element in the table.  If another thread
+ *         beat this thread to the add, then the returned pointer will
+ *         differ from the pointed of the argument.
+ */
+void *lf_hashtbl_cond_update(struct lf_hashtbl *tbl, int (*f)(void *, void*),
+			     void *elm);
 
 /**
  * Test if an element with the same hash value as the given element is

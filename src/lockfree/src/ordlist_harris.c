@@ -241,7 +241,9 @@ int lf_ordlist_remove(struct lf_ordlist *lst, void *value)
 	return 1;
 }
 
-void *lf_ordlist_add(struct lf_ordlist *lst, void *value)
+void *lf_ordlist_cond_update(struct lf_ordlist *lst,
+			     int (*f)(void *, void*),
+			     void *value)
 {
 	struct lf_ordlist_node *new_node;
 	struct lf_ordlist_node *right_node, *left_node;
@@ -255,10 +257,32 @@ void *lf_ordlist_add(struct lf_ordlist *lst, void *value)
 		right_node = search(lst, value, &left_node);
 		if (right_node != lst->tail
 		    && lst->cmp(right_node->value, value) == 0) {
-			mem_release(lst->fl, right_node);
+
 			mem_release(lst->fl, left_node);
 			mem_release(lst->fl, new_node);
-			return right_node->value;
+
+
+			void *ret = right_node->value;
+			while (f /* Never changes */) {
+				void *v = right_node->value;
+
+ 				if (!f(v, value)) {
+					ret = v;
+					break;
+				}
+
+				if (compare_and_swap(&right_node->value,
+						     (intptr_t) v,
+						     (intptr_t) value)) {
+					ret = value;
+					break;
+				}
+			}
+
+
+			mem_release(lst->fl, right_node);
+
+			return ret;
 		}
 
 		/* NEXT(left_node) gets our reference if CAS succeeds,
@@ -279,6 +303,45 @@ void *lf_ordlist_add(struct lf_ordlist *lst, void *value)
 	}
 }
 
+void *lf_ordlist_add(struct lf_ordlist *lst, void *value)
+{
+/* 	struct lf_ordlist_node *new_node; */
+/* 	struct lf_ordlist_node *right_node, *left_node; */
+
+/* 	assert(value); */
+
+/* 	new_node = mem_new(lst->fl); */
+/* 	new_node->value = value; */
+
+/* 	for ( ; ; ) { */
+/* 		right_node = search(lst, value, &left_node); */
+/* 		if (right_node != lst->tail */
+/* 		    && lst->cmp(right_node->value, value) == 0) { */
+/* 			mem_release(lst->fl, right_node); */
+/* 			mem_release(lst->fl, left_node); */
+/* 			mem_release(lst->fl, new_node); */
+/* 			return right_node->value; */
+/* 		} */
+
+/* 		/\* NEXT(left_node) gets our reference if CAS succeeds, */
+/* 		 * and NEXT(new_node) gets the ref to right_node if */
+/* 		 * CAS succeeds *\/ */
+/* 		NEXT(new_node) = (struct node *) right_node; */
+
+/* 		assert(left_node != lst->tail); */
+/* 		if (compare_and_swap(&NEXT(left_node), */
+/* 				     (intptr_t) right_node, */
+/* 				     (intptr_t) new_node)) { */
+/* 			mem_release(lst->fl, right_node); */
+/* 			mem_release(lst->fl, left_node); */
+/* 			return value; */
+/* 		} */
+/* 		mem_release(lst->fl, right_node); */
+/* 		mem_release(lst->fl, left_node); */
+/* 	} */
+
+	return lf_ordlist_cond_update(lst, NULL, value);
+}
 
 void lf_ordlist_print(FILE *f, struct lf_ordlist *lst)
 {

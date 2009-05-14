@@ -43,12 +43,16 @@ public:
 				continue;
 			}
 
-			if (s->get_f_prime() >= p->bound.read())
+			if (s->get_f_prime() >= p->bound.read()) {
+				delete s;
 				continue;
+			}
 
 			State *dup = p->closed.lookup(s);
-			if (dup && dup->get_g() < s->get_g())
+			if (dup && dup->get_g() < s->get_g()) {
+				delete s;
 				continue;
+			}
 
 			if (s->is_goal())
 				p->set_path(s->get_path());
@@ -59,17 +63,17 @@ public:
 				State *dup = p->closed.lookup(c);
 				if (dup) {
 					if (dup->get_g() > c->get_g()) {
-						// This sucks... we
-						// really want to
-						// update 'dup' and
-						// add dup back to
-						// open.
-						p->closed.add(c);
+						p->closed.cond_update(c);
 						p->open.add(c);
+					} else {
+						delete c;
 					}
 				} else {
-					p->closed.add(c);
-					p->open.add(c);
+					dup = p->closed.cond_update(c);
+					if (dup == c)
+						p->open.add(c);
+					else
+						delete c;
 				}
 			}
 		}
@@ -85,9 +89,9 @@ private:
 
 
 LPAStar::LPAStar(unsigned int n_threads)
-  : n_threads(n_threads),
-    path(NULL),
-    bound(fp_infinity)
+	: n_threads(n_threads),
+	  path(NULL),
+	  bound(fp_infinity)
 {
 	done = false;
 }

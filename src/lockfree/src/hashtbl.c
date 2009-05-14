@@ -67,6 +67,27 @@ void lf_hashtbl_destroy(struct lf_hashtbl *tbl)
 
 void *lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm)
 {
+/* 	int b = tbl->hash(elm) % tbl->nbuckets; */
+
+/* 	assert(elm); */
+
+/* 	if (!tbl->buckets[b]) { */
+/* 		struct lf_ordlist *l = lf_ordlist_create(tbl->e_per_bucket, */
+/* 							 tbl->cmp); */
+
+/* 		if (!compare_and_swap(&tbl->buckets[b], */
+/* 				      (intptr_t) NULL, */
+/* 				      (intptr_t) l)) */
+/* 			lf_ordlist_destroy(l); */
+/* 	} */
+
+/* 	return lf_ordlist_add(tbl->buckets[b], elm); */
+	return lf_hashtbl_cond_update(tbl, NULL, elm);
+}
+
+void *lf_hashtbl_cond_update(struct lf_hashtbl *tbl, int (*f)(void *, void *),
+			     void *elm)
+{
 	int b = tbl->hash(elm) % tbl->nbuckets;
 
 	assert(elm);
@@ -81,7 +102,7 @@ void *lf_hashtbl_add(struct lf_hashtbl *tbl, void *elm)
 			lf_ordlist_destroy(l);
 	}
 
-	return lf_ordlist_add(tbl->buckets[b], elm);
+	return lf_ordlist_cond_update(tbl->buckets[b], f, elm);
 }
 
 void *lf_hashtbl_lookup(struct lf_hashtbl *tbl, void *elm)
