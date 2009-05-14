@@ -55,6 +55,7 @@ unsigned int threads = 1;
 fp_type cost_bound = fp_infinity;
 unsigned int nblocks = 1;
 float weight = 1.0;
+bool lockfree = false;
 
 /**
  * Parse a weight schedule string.
@@ -133,6 +134,7 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "pastar-%u", &threads) == 1) {
 		return new PAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "lpastar-%f-%u", &weight, &threads) == 2) {
+		lockfree = true;
 		return new LPAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads);

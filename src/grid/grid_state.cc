@@ -33,6 +33,23 @@ GridState::GridState(GridWorld *d, State *parent, fp_type c, fp_type g, int x, i
 }
 
 /**
+ * Create a new grid state.
+ * \param d The search domain.
+ * \param parent The parent of this state.
+ * \param g The g-value of this state.
+ * \param x The x-coordinate of this state.
+ * \param y The y-coordinate of this state.
+ */
+GridState::GridState(GridWorld *d, State *parent, fp_type c, fp_type g, int x, int y, bool lockfree)
+	: State(d, parent, c, g, lockfree), x(x), y(y)
+{
+	if (domain->get_heuristic())
+		this->h = domain->get_heuristic()->compute(this);
+	else
+		this->h = 0;
+}
+
+/**
  * Test if this state is the goal.
  * \return True if this is a goal, false if not.
  */

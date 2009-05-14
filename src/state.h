@@ -86,6 +86,9 @@ public:
 	};
 
 	State(SearchDomain *d, State *parent, fp_type c, fp_type g);
+	State(SearchDomain *d, State *parent, fp_type c, fp_type g, bool lf);
+
+ 	void init(SearchDomain *d, State *parent, fp_type c, fp_type g, bool lf);
 
 	virtual ~State();
 
@@ -107,8 +110,6 @@ public:
 	void set_incons(bool b);
 	bool is_open(void) const;
 	bool is_incons(void) const;
-
-	void set_lockfree(bool);
 
 	/* use indirection for lockfree switching */
 	inline fp_type get_c(void)

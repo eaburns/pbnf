@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 		Tiles::ManhattanDist *manhattan = new Tiles::ManhattanDist(g);
 		manhattan->set_weight(*i);
 		g->set_heuristic(manhattan);
-		inits->push_back(g->initial_state());
+		inits->push_back(g->initial_state(lockfree));
 	}
 
 	search = new SyncWAStar::SyncWAStar(threads, inits, dd);

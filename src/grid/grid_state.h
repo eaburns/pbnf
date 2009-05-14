@@ -21,6 +21,7 @@ using namespace std;
 class GridState : public State {
 public:
 	GridState(GridWorld *d, State *parent, fp_type c, fp_type g, int x, int y);
+	GridState(GridWorld *d, State *parent, fp_type c, fp_type g, int x, int y, bool lockfree);
 
 	virtual bool is_goal(void);
 	virtual uint64_t hash(void) const;

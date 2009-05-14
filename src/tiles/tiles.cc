@@ -140,9 +140,9 @@ Tiles::~Tiles(void)
  * This will be NULL if the puzzle was constructed with the 2-argument
  * width-by-height constructor.
  */
-State *Tiles::initial_state(void)
+State *Tiles::initial_state(bool lockfree)
 {
-	return new TilesState(this, NULL, 0, 0, initial, initial_blank);
+	return new TilesState(this, NULL, 0, 0, initial, initial_blank, lockfree);
 }
 
 

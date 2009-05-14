@@ -34,17 +34,24 @@ struct State::atomic_vals *State::get_avs(State *p, fp_type g, fp_type c)
 	return a;
 }
 
-State::State(SearchDomain *d, State *p, fp_type c, fp_type g)
-	: domain(d),
-	  h(-1),
-	  lockfree(false),
-	  open(false),
-	  incons(false),
-	  f_pq_index(-1),
-	  f_prime_pq_index(-1)
+void State::init(SearchDomain *d, State *p, fp_type c, fp_type g, bool lf)
 {
-	if (p)
+	domain = d;
+	h = -1;
+	lockfree = lf;
+	open = false;
+	incons = false;
+	f_pq_index = -1;
+	f_prime_pq_index = -1;
+
+	if (p) {
 		lockfree = p->lockfree;
+		get_c_fun = p->get_c_fun;
+		get_g_fun = p->get_g_fun;
+		set_parent_fun = p->set_parent_fun;
+		get_parent_fun = p->get_parent_fun;
+		update_fun = p->update_fun;
+	}
 
 
 	if (lockfree) {
@@ -56,25 +63,37 @@ State::State(SearchDomain *d, State *p, fp_type c, fp_type g)
 		avs = NULL;
 		avs = get_avs(p, g, c);
 
-		get_c_fun = __lf_get_c;
-		get_g_fun = __lf_get_g;
-		set_parent_fun = __lf_set_parent;
-		get_parent_fun = __lf_get_parent;
-		update_fun = __lf_update;
-
+		if (!p) {
+			get_c_fun = __lf_get_c;
+			get_g_fun = __lf_get_g;
+			set_parent_fun = __lf_set_parent;
+			get_parent_fun = __lf_get_parent;
+			update_fun = __lf_update;
+		}
 
 	} else {
 		this->g = g;
 		this->parent = p;
 		this->c = c;
-
-		get_c_fun = __get_c;
-		get_g_fun = __get_g;
-		set_parent_fun = __set_parent;
-		get_parent_fun = __get_parent;
-		update_fun = __update;
-
+		if (!p) {
+			get_c_fun = __get_c;
+			get_g_fun = __get_g;
+			set_parent_fun = __set_parent;
+			get_parent_fun = __get_parent;
+			update_fun = __update;
+		}
 	}
+}
+
+State::State(SearchDomain *d, State *p, fp_type c, fp_type g)
+{
+	init(d, p, c, g, false /* will be overridden if 'p != NULL' */);
+}
+
+
+State::State(SearchDomain *d, State *p, fp_type c, fp_type g, bool lf)
+{
+	init(d, p, c, g, lf);
 }
 
 State::~State()
@@ -187,11 +206,6 @@ bool State::is_open(void) const
 bool State::is_incons(void) const
 {
 	return incons;
-}
-
-void State::set_lockfree(bool b)
-{
-	lockfree = b;
 }
 
 // -----------------------------------------------

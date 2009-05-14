@@ -106,9 +106,9 @@ GridWorld::GridWorld(istream &s)
  * \return A new state (that must be deleted by the caller) that
  *         represents the initial state.
  */
-State *GridWorld::initial_state(void)
+State *GridWorld::initial_state(bool lockfree)
 {
-	return new GridState(this, NULL, 0, 0, start_x, start_y);
+	return new GridState(this, NULL, 0, 0, start_x, start_y, lockfree);
 }
 
 /**

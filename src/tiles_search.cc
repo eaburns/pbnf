@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
 	timeout(timelimit);
 	timer.start();
-	path = search->search(&timer, g.initial_state());
+	path = search->search(&timer, g.initial_state(lockfree));
 	timer.stop();
 
 	search->output_stats();
