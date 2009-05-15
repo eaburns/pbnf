@@ -59,14 +59,14 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 			}
 		} else if (!search->final_weight) {
 			graph->call_for_resort(search->final_weight, search);
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) && 0
 			cout << "No solution found at weight "
 			     << search->weights->at(search->next_weight - 1)
 			     << endl;
 #endif	// !NDEBUG
 			goto next;
 		} else {
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) && 0
 			cout << "Done" << endl;
 #endif	// !NDEBUG
 		}
@@ -310,7 +310,7 @@ bool ARPBNFSearch::set_path(vector<State *> *p)
 	bound.set(p->at(0)->get_g());
 	graph->new_bound();
 
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) && 0
 	cout << "Solution of cost " << p->at(0)->get_g() / fp_one
 	     << " found at weight " << weights->at(next_weight - 1)
 	     << endl;
