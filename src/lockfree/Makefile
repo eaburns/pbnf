@@ -45,8 +45,6 @@ LIBLOCKFREE=liblockfree-$(MARCH).a
 $(LIBLOCKFREE): $(OBJS)
 	$(AR) crs $@ $^
 
-$(OBJDIR)/prio_queue.o: src/backoff.h
-
 prio_queue_test-$(MARCH): $(OBJDIR)/prio_queue_test.o $(LIBLOCKFREE)
 	$(CC) $(CFLAGS) -lpthread $^ -o $@
 
