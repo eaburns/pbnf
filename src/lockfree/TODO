@@ -1,8 +1,8 @@
-* There is still an issue with the prio queue when the PREV field is
-   used when deleting nodes.  It seems to leak a reference.
+* Fix a reference leak in the prio. queue
+  - Using the PREV pointer seems to exasterbate this problem
 
 * Do Makefile dependencies properly
 
 * Make the prio_queue random number generator thread safe.
 
-* Implement a lock-free hash table.
+* Implement an _extentable_ lock-free hash table.
