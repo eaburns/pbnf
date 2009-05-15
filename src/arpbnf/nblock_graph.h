@@ -131,7 +131,7 @@ namespace ARPBNF {
 		/* This flag is set when the search is completed to
 		 * signal to all waiting processess that the search
 		 * has completed. */
-		volatise bool done;
+		volatile bool done;
 
 		/**
 		 * Locks the nblock graph.
