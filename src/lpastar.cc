@@ -51,13 +51,11 @@ public:
 			}
 
 			if (s->get_f_prime() >= p->bound.read()) {
-				delete s;
 				continue;
 			}
 
 			State *dup = p->closed.lookup(s);
 			if (dup && dup->get_g() < s->get_g()) {
-				delete s;
 				continue;
 			}
 
