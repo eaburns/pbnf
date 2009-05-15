@@ -16,8 +16,13 @@
 
 using namespace std;
 
+static volatile bool timeout_stopped = false;
+
 extern "C" void alarm_action(int sig)
 {
+	if (timeout_stopped)
+		return;
+
 	cout << "# Time out" << endl
 	     << "cost: infinity" << endl
 	     << "length: infinity" << endl
@@ -39,5 +44,11 @@ void timeout(unsigned int sec)
 	sigfillset(&sa.sa_mask);
 	sigaction(SIGALRM, &sa, NULL);
 
+	timeout_stopped = false;
 	alarm(sec);
+}
+
+void timeout_stop(void)
+{
+	timeout_stopped = true;
 }

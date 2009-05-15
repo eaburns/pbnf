@@ -8,3 +8,5 @@
  */
 
 void timeout(unsigned int sec);
+
+void timeout_stop(void);

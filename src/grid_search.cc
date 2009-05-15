@@ -54,6 +54,10 @@ int main(int argc, char *argv[])
 	path = search->search(&timer, g.initial_state());
 	timer.stop();
 
+#if defined(NDEBUG)
+	timeout_stop();
+#endif	// NDEBUG
+
 	search->output_stats();
 
 	/* Print the graph to the terminal */
