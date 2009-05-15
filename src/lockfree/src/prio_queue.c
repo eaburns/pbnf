@@ -224,11 +224,10 @@ static void remove_node(struct lf_pq *pq, struct lf_pq_node *node,
 			struct lf_pq_node **prev, int level)
 {
 	struct lf_pq_node *last;
-	long max_delay = DELAY_MAX;
 
 	assert(IS_MARKED(node->value));
 
-	max_delay = backoff_init(max_delay);
+	backoff_decrease();
 
 	for ( ; ; ) {
 		if (NEXT(node, level) == DELETED_REFERENCE)
@@ -254,7 +253,7 @@ static void remove_node(struct lf_pq *pq, struct lf_pq_node *node,
 			break;
 		}
 
-		max_delay = backoff(max_delay);
+		backoff();
 	}
 }
 
@@ -435,9 +434,8 @@ int lf_pq_insert(struct lf_pq *pq, void *val, void *key)
 	struct lf_pq_node *new_node;
 	struct lf_pq_node *node1, *node2;
 	struct lf_pq_node *saved_nodes[MAX_LEVEL];
-	long max_delay = DELAY_MAX;
 
-	max_delay = backoff_init(max_delay);
+	backoff_decrease();
 
 	level = random_level(pq);
 	new_node = create_node(pq, level, val, key);
@@ -494,7 +492,7 @@ int lf_pq_insert(struct lf_pq *pq, void *val, void *key)
 		 * stuck. */
 		RELEASE_NODE(pq, new_node);
 
-		max_delay = backoff(max_delay);
+		backoff();
 	}
 
 	assert(new_node->level == level);
@@ -558,7 +556,7 @@ int lf_pq_insert(struct lf_pq *pq, void *val, void *key)
 #endif	/* !NDEBUG */
 			RELEASE_NODE(pq, node2);
 
-			max_delay = backoff(max_delay);
+			backoff();
 		}
 
 	}
@@ -594,9 +592,8 @@ void *lf_pq_delete_min(struct lf_pq *pq)
 	int i;
 	void *value;
 	struct lf_pq_node *prev, *node1, *node2;
-	long max_delay = DELAY_MAX;
 
-	max_delay = backoff_init(max_delay);
+	backoff_decrease();
 
 	prev = COPY_NODE(pq->head);
 	for ( ; ; ) {
@@ -640,7 +637,7 @@ reference.
 				 * node1->value. */
 				assert(IS_MARKED(node1->value));
 
-				max_delay = backoff(max_delay);
+				backoff();
 				goto retry;
 			}
 		}
@@ -649,7 +646,7 @@ reference.
 		RELEASE_NODE(pq, prev);
 		prev = node1;
 
-		max_delay = backoff(max_delay);
+		backoff();
 	}
 
 	for (i = 0; i < node1->level; i += 1 ) {

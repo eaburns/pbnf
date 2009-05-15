@@ -11,8 +11,11 @@
 #if !defined(_BACKOFF_H_)
 #define _BACKOFF_H_
 
+#include <pthread.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include "atomic.h"
 
 /** The max delay. */
 #define DELAY_MAX 1000
@@ -22,22 +25,41 @@
  * machines). */
 #define DELAY_MULT 100
 
-static __inline__ long backoff_init(long max)
-{
-	if (max > 1)
-		return max / 2;
+static pthread_key_t key_buffer;
+static pthread_once_t once_buffer = PTHREAD_ONCE_INIT;
 
-	return max;
+static void init_keys(void)
+{
+	pthread_key_create(&key_buffer, NULL);
+}
+
+static __inline__ void backoff_decrease(void)
+{
+	long max;
+
+	pthread_once(&once_buffer, init_keys);
+
+	max = (long) pthread_getspecific(key_buffer);
+	if (max == 0)
+		max = DELAY_MAX;
+
+	if (max > 1)
+		max = max / 2;
+	if (max == 0)
+		max = 1;
+
+	pthread_setspecific(key_buffer, (void*) max);
 }
 
 /**
  * Delays for a random amount (less than [max]) and returns the new
  * max value.
  */
-static __inline__ long backoff(long max)
+static __inline__ void backoff(void)
 {
 	static int seeded = 0;
 	static unsigned int seed;
+	long max;
 
 	int j;
 	long i, delay;
@@ -46,6 +68,8 @@ static __inline__ long backoff(long max)
 		seed = time(NULL);
 		seeded = 1;
 	}
+
+	max = (long) pthread_getspecific(key_buffer);
 
 	delay = rand_r(&seed);
 	assert(max != 0);
@@ -56,7 +80,8 @@ static __inline__ long backoff(long max)
 			__asm__ __volatile__ ("");
 	}
 
-	return max < DELAY_MAX ? max * 2 : max;
+	max = max < DELAY_MAX ? max * 2 : max;
+	pthread_setspecific(key_buffer, (void*) max);
 }
 
 #endif	/* !_BACKOFF_H_ */
