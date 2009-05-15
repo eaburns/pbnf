@@ -18,7 +18,7 @@
 #include "atomic.h"
 
 /** The max delay. */
-#define DELAY_MAX 1000
+#define DELAY_MAX 100000
 
 /** The max delay is multiplied by this value via a loop so that we
  * never run out of bits in our 'long' datatype (even on small 32-bit
