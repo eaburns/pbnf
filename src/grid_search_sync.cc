@@ -73,7 +73,10 @@ int main(int argc, char *argv[])
 
 	search = new SyncWAStar::SyncWAStar(threads, inits, dd);
 
-	//timeout(timelimit);
+#if defined(NDEBUG)
+	timeout(timelimit);
+#endif	// NDEBUG
+
 	timer.start();
 	path = search->search(&timer, NULL);
 	timer.stop();

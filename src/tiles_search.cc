@@ -64,7 +64,10 @@ int main(int argc, char *argv[])
 	manhattan.set_weight(weight);
 	g.set_heuristic(&manhattan);
 
+#if defined(NDEBUG)
 	timeout(timelimit);
+#endif	// NDEBUG
+
 	timer.start();
 	path = search->search(&timer, g.initial_state());
 	timer.stop();

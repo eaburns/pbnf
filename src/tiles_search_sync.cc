@@ -30,7 +30,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	// 90 seconds is too small to solve the 96 instance optimally in a consistent manner.
-	unsigned int timelimit = 18000;	// seconds
+	unsigned int timelimit = 180;	// seconds
 	vector<State *> *path;
 	SyncWAStar *search;
 	Tiles *g_orig = new Tiles(cin);
@@ -81,7 +81,10 @@ int main(int argc, char *argv[])
 
 	search = new SyncWAStar::SyncWAStar(threads, inits, dd);
 
+#if defined(NDEBUG)
 	timeout(timelimit);
+#endif	// NDEBUG
+
 	timer.start();
 	path = search->search(&timer, NULL);
 	timer.stop();
