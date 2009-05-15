@@ -7,9 +7,16 @@
  * \date 2009-04-12
  */
 
+#include <assert.h>
+
 #include "util/thread.h"
+#include "util/atomic_int.h"
 #include "state.h"
 #include "lpastar.h"
+
+extern "C" {
+#include "lockfree/include/atomic.h"
+}
 
 class LPAStarThread : public Thread {
 public:
@@ -69,11 +76,8 @@ public:
 						delete c;
 					}
 				} else {
-					dup = p->closed.cond_update(c);
-					if (dup == c)
-						p->open.add(c);
-					else
-						delete c;
+					p->closed.cond_update(c);
+					p->open.add(c);
 				}
 			}
 		}
@@ -108,21 +112,27 @@ bool LPAStar::is_done()
 
 void LPAStar::set_path(vector<State *> *p)
 {
-	// unfortunately have to lock here (should be the rare case).
-        pthread_mutex_lock(&mutex);
-        if (this->path == NULL ||
-	    this->path->at(0)->get_g() > p->at(0)->get_g()){
-		this->path = p;
-		bound.set(p->at(0)->get_g());
-        }
-        pthread_mutex_unlock(&mutex);
-}
+	fp_type cost = p->at(0)->get_g();
+	fp_type old_cost;
+	vector<State *> *old_path;
 
-bool LPAStar::has_path()
-{
-        return path != NULL;
-}
+	old_path = path;
+	while (old_path == NULL
+	       || old_path->at(0)->get_g() > cost) {
+		if (compare_and_swap((void*) &path,
+				     (intptr_t) old_path,
+				     (intptr_t) p)) {
+			break;
+		}
+		old_path = path;
+	}
 
+	old_cost = bound.read();
+	while (old_cost > cost)
+		old_cost = bound.cmp_and_swap(old_cost, cost);
+
+	assert(bound.read() <= path->at(0)->get_g());
+}
 
 /**
  * Perform a Parallel A* search.
@@ -130,7 +140,6 @@ bool LPAStar::has_path()
 vector<State *> *LPAStar::search(Timer *t, State *init)
 {
  	open.add(init);
-        pthread_mutex_init(&mutex, NULL);
 
 	AtomicInt working(n_threads);
 

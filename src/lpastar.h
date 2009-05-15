@@ -26,19 +26,14 @@ public:
         void set_done();
         bool is_done();
         void set_path(vector<State *> *path);
-        bool has_path();
 private:
 	LF_OpenList open;
 	LF_ClosedList closed;
-        bool done;
+        volatile bool done;
         friend class LPAStarThread;
         const unsigned int n_threads;
 
-	/* Currently we need a lock for setting incumbent
-	 * solutions. */
-	pthread_mutex_t mutex;
-
-        vector<State *> *path;
+        vector<State *> * volatile path;
 	AtomicInt bound;
 };
 
