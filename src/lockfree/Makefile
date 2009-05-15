@@ -9,10 +9,10 @@
 # endif
 
 # use the following to turn debugging on
-DEBUG=-g -O0
+#DEBUG=-g -O0
 
 # use the following to turn debugging off
-#DEBUG=-DNDEBUG -O3
+DEBUG=-DNDEBUG -O3
 
 CFLAGS=$(DEBUG) -Wall -Werror -Iinclude
 
