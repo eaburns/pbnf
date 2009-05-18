@@ -73,10 +73,10 @@ NBlock::~NBlock(void)
  */
 void NBlock::print(ostream &o)
 {
-	fp_type best_f;
+	fp_type best_val;
 	set<unsigned int>::const_iterator iter;
 
-	best_f = open.empty() ? fp_infinity : open.peek()->get_f();
+	best_val = open.empty() ? fp_infinity : open.get_best_val();
 
 	o << "nblock " << id << endl;
 	o << "\tsigma: " << sigma << endl;
@@ -84,7 +84,9 @@ void NBlock::print(ostream &o)
 	o << "\thot: " << hot << endl;
 	o << "\tinuse: " << inuse << endl;
 	o << "\topen: " << (open.empty() ? "false" : "true") << endl;
-	o << "\tbest f(n): " << best_f << endl;
+	o << "\tincons: " << (incons.empty() ? "false" : "true") << endl;
+	o << "\tpq_index: " << pq_index << endl;
+	o << "\tbest val: " << best_val << endl;
 
 	o << "\tinterferes with: ";
 	for (iter = interferes.begin(); iter != interferes.end(); iter++)

@@ -352,7 +352,13 @@ void NBlockGraph::__set_done(void)
  */
 void NBlockGraph::set_done(void)
 {
+	if (done)
+		return;
 	pthread_mutex_lock(&mutex);
+	if (done) {
+		pthread_mutex_unlock(&mutex);
+		return;
+	}
 	__set_done();
 	pthread_mutex_unlock(&mutex);
 }

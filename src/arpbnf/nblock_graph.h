@@ -40,12 +40,10 @@ namespace ARPBNF {
 
 		~NBlockGraph();
 
-		NBlock *next_nblock(NBlock *finished, bool trylock);
-		void free_nblock(NBlock *finished);
+		NBlock *next_nblock(NBlock *finished, bool trylock, bool final_wt);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
-		void set_done(void);
 		bool is_done(void);
 		NBlock *best_in_scope(NBlock *b);
 		void wont_release(NBlock *b);
@@ -58,7 +56,7 @@ namespace ARPBNF {
 		/**
 		 * Signal all threads to stop and resort the nblocks.
 		 */
-		void call_for_resort(bool final_weight, ARPBNFSearch *s);
+		void call_for_resort(NBlock *finished, bool final_weight, ARPBNFSearch *s);
 
 		/**
 		 * Test if the resort bit is set.
@@ -81,7 +79,7 @@ namespace ARPBNF {
 		void cpp_is_a_bad_language(const Projection *p, State *initial);
 		NBlock *create_nblock(unsigned int id);
 		NBlock *get_nblock_if_created(unsigned int hash);
-		void __set_done(void);
+		void set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);
 		void set_cold(NBlock *b);
@@ -90,12 +88,12 @@ namespace ARPBNF {
 		/**
 		 * Free an nblock
 		 */
-		void __free_nblock(NBlock *finished);
+		void free_nblock(NBlock *finished);
 
 		/**
 		 * Actually add the nblock to the freelist (if it is free)
 		 */
-		void __free_if_free(NBlock *finished);
+		void free_if_free(NBlock *finished);
 
 		/**
 		 * Resort all of the nblocks.

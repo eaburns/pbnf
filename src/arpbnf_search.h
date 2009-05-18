@@ -55,7 +55,7 @@ namespace ARPBNF {
 		bool incons;
 		const Projection *project;
 
-		SolutionStream *solutions;
+		SyncSolutionStream *solutions;
 		AtomicInt bound;
 
 		NBlockGraph *graph;

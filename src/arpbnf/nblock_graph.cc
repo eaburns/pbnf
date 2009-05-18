@@ -102,7 +102,7 @@ NBlockGraph::~NBlockGraph()
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
+NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, bool final_wt)
 {
 	NBlock *n = NULL;
 
@@ -137,18 +137,18 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 			}
 		}
 
-		__free_nblock(finished);
-
-		if (resort_flag) {
-			pthread_mutex_unlock(&mutex);
-			resort();
-			pthread_mutex_lock(&mutex);
-		}
+		free_nblock(finished);
 	}
 
 again:
+	if (resort_flag) {
+		pthread_mutex_unlock(&mutex);
+		resort();
+		pthread_mutex_lock(&mutex);
+	}
 
 	if (num_sigma_zero.read() == num_nblocks
+	    && !resort_flag
 	    && (free_list.empty()
 		|| free_list.front()->open.get_best_val() > bound->read())) {
 		list<NBlock*>::iterator iter;
@@ -171,16 +171,21 @@ again:
 	if (done)
 		goto out;
 
-	if (resort_flag) {
-		pthread_mutex_unlock(&mutex);
-		resort();
-		return next_nblock(NULL, false);
-	}
+	if (resort_flag)
+		goto again;
+
 
 	n = free_list.take();
 
-	if (n->open.get_best_val() > bound->read())
+	if (n->open.get_best_val() > bound->read()) {
+
+		free_if_free(n);
+
+		// Lets let some other threads progress before we try
+		// again.
+		pthread_cond_wait(&cond, &mutex);
 		goto again;
+	}
 
 	n->inuse = true;
 	update_scope_sigmas(n->id, 1);
@@ -192,12 +197,21 @@ again:
   assert((*iter)->sigma > 0);
 */
 out:
+	if (n == NULL && final_wt) {
+#if !defined(NDEBUG)
+		cerr << "Exiting with NULL:" << endl;
+		cerr << "\tnum_sigma_zero: " << num_sigma_zero.read() << endl;
+		cerr << "\tnum_nblocks: " << num_nblocks << endl;
+#endif	// !NDEBUG
+		set_done();
+	}
+
 	pthread_mutex_unlock(&mutex);
 
 	return n;
 }
 
-void NBlockGraph::__free_if_free(NBlock *finished)
+void NBlockGraph::free_if_free(NBlock *finished)
 {
 	if (is_free(finished)) {
 		free_list.add(finished);
@@ -205,18 +219,11 @@ void NBlockGraph::__free_if_free(NBlock *finished)
 	}
 }
 
-void NBlockGraph::__free_nblock(NBlock *finished)
-{
-	finished->inuse = false;
-	__free_if_free(finished);
-	update_scope_sigmas(finished->id, -1);
-}
-
 void NBlockGraph::free_nblock(NBlock *finished)
 {
-	pthread_mutex_lock(&mutex);
-	__free_nblock(finished);
-	pthread_mutex_unlock(&mutex);
+	finished->inuse = false;
+	free_if_free(finished);
+	update_scope_sigmas(finished->id, -1);
 }
 
 /**
@@ -323,7 +330,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		if (m->sigma == 0) {
 			if (m->hot)
 				set_cold(m);
-			__free_if_free(m);
+			free_if_free(m);
 			num_sigma_zero.inc();
 		}
 	}
@@ -332,41 +339,44 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 /**
  * Sets the done flag with out taking the lock.
  */
-void NBlockGraph::__set_done(void)
+void NBlockGraph::set_done(void)
 {
 	list<NBlock*>::iterator iter;
 
+	if (done)
+		return;
+
+#if !defined(NDEBUG)
+	cerr << endl;
+
+	if (!free_list.empty())
+		cerr << "Free list is empty" << endl;
+	else
+		cerr << "Free list is _NOT_ empty" << endl;
+
+	cerr << "num_sigma_zero: " << num_sigma_zero.read() << endl;
+	cerr << "num_nblocks: " << num_nblocks << endl;
+
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+		if (!(!(*iter)->hot)) {
+			cerr << "Done, but there is a hot block" << endl;
+		}
 
-		assert(!(*iter)->hot);
+		if (!((*iter)->incons.empty())) {
+			cerr << "Done, but there is a non-empty incons list" << endl;
+		}
 
-		assert((*iter)->incons.empty());
-
-		assert((*iter)->open.empty() || (*iter)->open.get_best_val() >= bound->read());
+		if (!((*iter)->open.empty() || (*iter)->open.get_best_val() >= bound->read())) {
+			cerr << "Done, but there is an openlist with in-bound values" << endl;
+			(*iter)->print(cerr);
+		}
 
 		(*iter)->open.verify();
-/*
-		if (!(*iter)->open.empty())
-			cout << "nblock pruned: "
-			     << (*iter)->open.get_best_val()
-			     << " >= "
-			     << bound->read()
-			     << endl;
-*/
 	}
+#endif	// !NDEBUG
 
 	done = true;
 	pthread_cond_broadcast(&cond);
-}
-
-/**
- * Sets the done flag.
- */
-void NBlockGraph::set_done(void)
-{
-	pthread_mutex_lock(&mutex);
-	__set_done();
-	pthread_mutex_unlock(&mutex);
 }
 
 /**
@@ -426,7 +436,7 @@ void NBlockGraph::set_cold(NBlock *b)
 		assert(b->id != *i);
 		NBlock *m = map.get(*i);
 		m->sigma_hot -= 1;
-		__free_if_free(m);
+		free_if_free(m);
 	}
 }
 
@@ -475,7 +485,7 @@ bool NBlockGraph::needs_resort()
 	return resort_flag;
 }
 
-void NBlockGraph::call_for_resort(bool final_weight, ARPBNFSearch *s)
+void NBlockGraph::call_for_resort(NBlock *finished, bool final_weight, ARPBNFSearch *s)
 {
 	int n = 0;
 #if !defined(NDEBUG)
@@ -499,6 +509,8 @@ void NBlockGraph::call_for_resort(bool final_weight, ARPBNFSearch *s)
 		return;
 	}
 	resort_flag = true;
+	if (finished)
+		free_nblock(finished);
 	pthread_cond_broadcast(&cond);
 	pthread_mutex_unlock(&mutex);
 
@@ -574,13 +586,13 @@ retry:
 			all_empty = false;
 		assert((*iter)->incons.empty());
 		assert((*iter)->pq_index == -1);
-		__free_if_free(*iter);
+		free_if_free(*iter);
 	}
 
 	assert(nodes_before == nodes_after);
 
 	if (all_empty || (!in_bound && final_weight))
-		__set_done();
+		set_done();
 
 	resort_flag = false;
 	resort_start = false;

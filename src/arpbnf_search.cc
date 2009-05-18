@@ -43,7 +43,7 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 	next:
 		if (graph->is_done())
 			break;
-		n = graph->next_nblock(n, !set_hot);
+		n = graph->next_nblock(n, !set_hot, search->final_weight);
 		set_hot = false;
 		if (n) {
 			expansions = 0;
@@ -51,14 +51,13 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 
 			if (path) {
 				if (search->set_path(path) && !search->final_weight) {
-					graph->free_nblock(n);
+					graph->call_for_resort(n, search->final_weight, search);
 					n = NULL;
-					graph->call_for_resort(search->final_weight, search);
 					goto next;
 				}
 			}
 		} else if (!search->final_weight) {
-			graph->call_for_resort(search->final_weight, search);
+			graph->call_for_resort(NULL, search->final_weight, search);
 #if !defined(NDEBUG) && 0
 			cout << "No solution found at weight "
 			     << search->weights->at(search->next_weight - 1)
@@ -70,9 +69,7 @@ void ARPBNFSearch::ARPBNFThread::run(void)
 			cout << "Done" << endl;
 #endif	// !NDEBUG
 		}
-	} while (n && !graph->is_done());
-
-	graph->set_done();
+	} while (!graph->is_done());
 }
 
 /**
