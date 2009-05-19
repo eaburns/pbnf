@@ -58,8 +58,8 @@ void SolutionStream::do_output_recur(ostream &o, Solution *s)
 	o << "row: "
 	  << s->path->at(0)->get_g() / fp_one << " "
 	  << s->path->size() << " "
-	  << s->generated << " "
 	  << s->expanded << " "
+	  << s->generated << " "
 	  << s->time << endl;
 }
 
