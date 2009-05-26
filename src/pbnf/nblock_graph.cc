@@ -54,6 +54,9 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
+#if !defined(NDEBUG)
+	map.set_observer(this);
+#endif	// NDEBUG
 
 	NBlock *n = map.get(init_nblock);
 	n->open.add(initial);
@@ -143,11 +146,12 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 
 		nblocks_assigned -= 1;
 
+		finished->inuse = false;
 		if (is_free(finished)) {
 			free_list.add(finished);
 			pthread_cond_broadcast(&cond);
 		}
-		finished->inuse = false;
+
 		update_scope_sigmas(finished->id, -1);
 
 		if (free_list.empty() && num_sigma_zero == num_nblocks) {
@@ -165,6 +169,11 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		goto out;
 
 	n = free_list.take();
+	if (!n) {
+		cerr << "-------------------- !n" << endl;
+		abort();
+	}
+
 	nblocks_assigned += 1;
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
@@ -247,7 +256,6 @@ fp_type NBlockGraph::best_val(void)
  */
 void NBlockGraph::__print(ostream &o)
 {
-
 	o << "Number of NBlocks: " << num_nblocks << endl;
 	o << "Number of NBlocks with sigma zero: " << num_sigma_zero << endl;
 	o << "All Blocks:" << endl;
@@ -314,6 +322,17 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
  */
 void NBlockGraph::__set_done(void)
 {
+#if !defined(NDEBUG)
+	list<NBlock*>::iterator iter;
+
+	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+		if (!(*iter)->open.empty())
+			cerr << "NBlock " << (*iter)->id << " is not empty" << endl;
+		if ((*iter)->hot)
+			cerr << "NBlock " << (*iter)->id << " is hot" << endl;
+	}
+#endif	// NDEBUG
+
 	done = true;
 	pthread_cond_broadcast(&cond);
 }
@@ -439,3 +458,10 @@ unsigned int NBlockGraph::get_ncreated_nblocks(void)
 {
 	return map.get_num_created();;
 }
+
+#if !defined(NDEBUG)
+void NBlockGraph::observe(NBlock *b)
+{
+	nblocks.push_back(b);
+}
+#endif	// NDEBUG

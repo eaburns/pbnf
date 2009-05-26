@@ -140,11 +140,12 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		nblocks_assigned -= 1;
 
 		// Possibly add this block back to the free list.
+		finished->inuse = false;
 		if (is_free(finished)) {
 			free_list.add(finished);
 			pthread_cond_broadcast(&cond);
 		}
-		finished->inuse = false;
+
 		update_scope_sigmas(finished->id, -1);
 
 		if (free_list.empty() && num_sigma_zero == num_nblocks) {

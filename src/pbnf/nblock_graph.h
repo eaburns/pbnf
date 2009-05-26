@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <map>
+#include <list>
 #include <vector>
 
 #include "nblock.h"
@@ -27,7 +28,11 @@
 using namespace std;
 
 namespace PBNF {
+#if !defined(NDEBUG)
+	class NBlockGraph : public NBlockMap<NBlock>::CreationObserver {
+#else
 	class NBlockGraph {
+#endif	/* NDEBUG */
 	public:
 		NBlockGraph(const Projection *p, State *init);
 
@@ -46,6 +51,9 @@ namespace PBNF {
 		unsigned int get_ncreated_nblocks(void);
 
 		fp_type best_val(void);
+
+		/* For NBlockMap::CreationObserver */
+		void observe(NBlock *b);
 
 	private:
 		void cpp_is_a_bad_language(const Projection *p, State *initial);
@@ -86,6 +94,10 @@ namespace PBNF {
 		 */
 		unsigned int nblocks_assigned;
 		unsigned int nblocks_assigned_max;
+
+#if !defined(NDEBUG)
+		list<NBlock*> nblocks;
+#endif	/* NDEBUG */
 	};
 } /* PBNF */
 
