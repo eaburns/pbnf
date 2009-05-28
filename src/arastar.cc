@@ -38,87 +38,91 @@ ARAStar::~ARAStar(void)
 /**
  * Perform an A* search.
  */
-vector<State *> *ARAStar::search(Timer *t, State *init)
-{
-	fp_type incumbent_cost = fp_infinity;
+// vector<State *> *ARAStar::search(Timer *t, State *init)
+// {
+// 	incumbent_cost = fp_infinity;
 
-	heuristic = init->get_domain()->get_heuristic();
-	next_weight = 1;
-	cur_weight = heuristic->get_weight();
+// 	heuristic = init->get_domain()->get_heuristic();
+// 	next_weight = 1;
+// 	cur_weight = heuristic->get_weight();
 
-	solutions = new SerialSolutionStream(t, 0.0001);
-	open.add(init);
+// 	solutions = new SerialSolutionStream(t, 0.0001);
+// 	open.add(init);
 
-	while (!open.empty() || !incons.empty()) {
-		if (open.empty()) {
-			if (!solutions->get_best_path())
-				return NULL;
-			else {
-#if !defined(NDEBUG)
-				cout << "No Solution found at weight "
-				     << weights->at(next_weight - 1)
-				     << endl;
-#endif	// !NDEBUG
-				move_to_next_weight();
-			}
-		}
+// 	while (!open.empty() || !incons.empty()) {
+// 		if (open.empty()) {
+// 			if (!solutions->get_best_path())
+// 				return NULL;
+// 			else {
+// #if !defined(NDEBUG)
+// 				cout << "No Solution found at weight "
+// 				     << weights->at(next_weight - 1)
+// 				     << endl;
+// #endif	// !NDEBUG
+// 				move_to_next_weight();
+// 				assert(!open.empty());
+// 			}
+// 		}
+
+// 		// Prune nodes with poor f-values.
+// 		if (open.peek()->get_f() >= incumbent_cost) {
+// 			open.take();
+// 			continue;
+// 		}
 
 
-		if (open.get_best_val() > incumbent_cost) {
-#if !defined(NDEBUG)
-			cout << "No Solution found at weight "
-			     << weights->at(next_weight - 1)
-			     << endl;
-#endif	// !NDEBUG
-			move_to_next_weight();
-			continue;
-		}
-		State *s = open.take();
+// 		if (open.get_best_val() > incumbent_cost) {
+// #if !defined(NDEBUG)
+// 			cout << "No Solution found at weight "
+// 			     << weights->at(next_weight - 1)
+// 			     << endl;
+// #endif	// !NDEBUG
+// 			move_to_next_weight();
+// 			continue;
+// 		}
+// 		State *s = open.take();
 
-		if (s->get_f() >= incumbent_cost)
-			continue;
+// 		if (s->is_goal()) {
+// 			vector<State*> *path = s->get_path();
+// 			solutions->see_solution(path,
+// 						get_generated(),
+// 						get_expanded());
+// #if !defined(NDEBUG)
+// 			cout << "Solution of cost " << path->at(0)->get_g() / fp_one
+// 			     << " found at weight " << weights->at(next_weight - 1)
+// 		     << endl;
+// #endif	// !NDEBUG
+// 			if (cur_weight == 1.0)
+// 				return path;
 
-		if (s->is_goal()) {
-			vector<State*> *path = s->get_path();
-			solutions->see_solution(path,
-						get_generated(),
-						get_expanded());
-#if !defined(NDEBUG)
-			cout << "Solution of cost " << path->at(0)->get_g() / fp_one
-			     << " found at weight " << weights->at(next_weight - 1)
-		     << endl;
-#endif	// !NDEBUG
-			if (cur_weight == 1.0)
-				return path;
+// 			move_to_next_weight();
+// 			incumbent_cost = s->get_g();
+// 		}
 
-			move_to_next_weight();
-			incumbent_cost = s->get_g();
-		}
+// 		vector<State *> *children = expand(s);
+// 		for (unsigned int i = 0; i < children->size(); i += 1) {
+// 			State *c = children->at(i);
+// 			State *dup = closed.lookup(c);
+// 			if (dup) {
+// 				if (dup->get_g() > c->get_g()) {
+// 					dup->update(c->get_parent(), c->get_c(), c->get_g());
+// 					if (dup->is_open())
+// 						open.see_update(dup);
+// 					else
+// 						incons.add(dup);
+// 				}
+// 				delete c;
+// 			} else {
+// 				open.add(c);
+// 				closed.add(c);
+// 			}
 
-		vector<State *> *children = expand(s);
-		for (unsigned int i = 0; i < children->size(); i += 1) {
-			State *c = children->at(i);
-			State *dup = closed.lookup(c);
-			if (dup) {
-				if (dup->get_g() > c->get_g()) {
-					dup->update(c->get_parent(), c->get_c(), c->get_g());
-					if (dup->is_open())
-						open.see_update(dup);
-					else
-						incons.add(dup);
-				}
-				delete c;
-			} else {
-				open.add(c);
-				closed.add(c);
-			}
+// 		}
+// 		delete children;
+// 	}
 
-		}
-		delete children;
-	}
-
-	return solutions->get_best_path();
-}
+// 	return solutions->get_best_path();
+// }
 
 void ARAStar::output_stats(void)
 {
@@ -140,4 +144,108 @@ void ARAStar::move_to_next_weight()
 	open.resort();
 	incons.re_open(&open);
 	closed.remove_closed_nodes();
+}
+
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+
+double ARAStar::get_eprime()
+{
+	double eprime;
+
+	fp_type best_incons_fixed = min_f_queue.empty()
+		? fp_infinity
+		: min_f_queue.front()->get_f();
+	double best_incons = (double) best_incons_fixed / (double) fp_one;
+	double goal_cost = (double) incumbent_cost / (double) fp_one;
+
+	if (min_f_queue.empty())
+		cout << "min_f_queue.empty()" << endl;
+
+
+	eprime = MIN(cur_weight, goal_cost / best_incons);
+
+#if !defined(NDEBUG)
+	cout << "cur_weight=" << cur_weight
+	     << " eprime=" << eprime
+	     << " goal_cost=" << goal_cost
+	     << " best_incons=" << best_incons << endl;
+#endif	// !NDEBUG
+
+	return eprime;
+}
+
+vector<State *> *ARAStar::search(Timer *t, State *init)
+{
+	double eprime;
+	incumbent_cost = fp_infinity;
+	next_weight = 1;
+ 	heuristic = init->get_domain()->get_heuristic();
+	cur_weight = heuristic->get_weight();
+	solutions = new SerialSolutionStream(t, 0.0001);
+
+	open.add(init);
+	min_f_queue.add(init);
+
+	improve_path();
+	eprime = get_eprime();
+	while (eprime > 1.0) {
+		move_to_next_weight();
+		improve_path();
+		eprime = get_eprime();
+	}
+
+	return solutions->get_best_path();
+}
+
+void ARAStar::improve_path(void)
+{
+	while (!open.empty() && incumbent_cost > open.get_best_val()) {
+		State *s = open.take();
+		min_f_queue.remove(s->f_pq_index);
+
+		// Prune based on f-value
+		if (s->get_f() >= incumbent_cost)
+			continue;
+
+		if (s->is_goal()) {
+			vector<State*> *path = s->get_path();
+			solutions->see_solution(path,
+						get_generated(),
+						get_expanded());
+#if !defined(NDEBUG)
+			cout << "Solution of cost " << path->at(0)->get_g() / fp_one
+			     << " found at weight " << weights->at(next_weight - 1)
+		     << endl;
+#endif	// !NDEBUG
+			move_to_next_weight();
+			incumbent_cost = s->get_g();
+		}
+
+		vector<State *> *children = expand(s);
+		for (unsigned int i = 0; i < children->size(); i += 1) {
+			State *c = children->at(i);
+			State *dup = closed.lookup(c);
+			if (dup) {
+				if (dup->get_g() > c->get_g()) {
+					dup->update(c->get_parent(), c->get_c(), c->get_g());
+					if (dup->is_open()) {
+						open.see_update(dup);
+						min_f_queue.see_update(dup->f_pq_index);
+					} else if (dup->is_incons()) {
+						min_f_queue.see_update(dup->f_pq_index);
+					} else {
+						min_f_queue.add(dup);
+						incons.add(dup);
+					}
+				}
+				delete c;
+			} else {
+				open.add(c);
+				min_f_queue.add(c);
+				closed.add(c);
+			}
+
+		}
+		delete children;
+	}
 }
