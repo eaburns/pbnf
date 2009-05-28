@@ -58,6 +58,10 @@ vector<State *> *AwAStar::search(Timer *t, State *init)
 		vector<State *> *children = expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
+			if (c->get_f() >= incumbent_cost) {
+				delete c;
+				continue;
+			}
 			State *dup = closed.lookup(c);
 			if (dup) {
 				if (dup->get_g() > c->get_g()) {
