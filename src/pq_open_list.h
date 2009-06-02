@@ -12,6 +12,7 @@
 
 #include <assert.h>
 
+#include <list>
 #include <limits>
 
 #include "state.h"
@@ -36,6 +37,9 @@ public:
 	bool empty(void);
 	void delete_all_states(void);
 	void prune(void);
+
+	list<State*> *states(void);
+
 	unsigned int size(void);
 	void remove(State *s);
 	void see_update(State *s);
@@ -184,6 +188,12 @@ void PQOpenList<PQCompare>::verify(void)
 {
 	assert(pq.heap_holds(0, pq.get_fill() - 1));
 	assert(pq.indexes_match());
+}
+
+template<class PQCompare>
+list<State*> *PQOpenList<PQCompare>::states(void)
+{
+	return pq.to_list();
 }
 
 #endif	/* !_PQ_OPEN_LIST_H_ */

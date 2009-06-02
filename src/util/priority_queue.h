@@ -45,6 +45,8 @@ public:
 	void reset(void);
 	void resort(void);
 
+	list<Elem> *to_list(void);
+
 	/** When the value of an element gets better (closer to the
 	 * front of the queue) this function re-sifts it. */
 	void see_update(int i);
@@ -438,6 +440,24 @@ template<class Elem, class PQOps>
 	delete [] old_heap;
 
 	assert(heap_holds(0, fill - 1));
+}
+
+/**
+ * Get a list of all of the PQ entries.  This list is in no *
+ * particular order.
+ */
+template<class Elem, class PQOps>
+	list<Elem> *PriorityQueue<Elem, PQOps>::to_list(void)
+{
+	list<Elem> *lst = new list<Elem>();
+
+	if (!lst)
+		return NULL;
+
+	for (int i = 0; i < fill; i += 1)
+		lst->push_front(heap[i]);
+
+	return lst;
 }
 
 #endif /* !_PRIORITY_QUEUE_H_ */

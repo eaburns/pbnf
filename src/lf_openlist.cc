@@ -120,3 +120,9 @@ unsigned int LF_OpenList::size(void)
 {
 	return fill.read();
 }
+
+list<State*> *LF_OpenList::states(void)
+{
+	assert("unimplemented" == NULL);
+	return NULL;
+}

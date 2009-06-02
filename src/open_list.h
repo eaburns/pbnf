@@ -10,6 +10,8 @@
 #if !defined(_OPEN_LIST_H_)
 #define _OPEN_LIST_H_
 
+#include <list>
+
 #include "util/fixed_point.h"
 #include "util/atomic_float.h"
 
@@ -30,6 +32,11 @@ public:
 	virtual void delete_all_states(void) = 0;
 	virtual void prune(void) = 0;
 	virtual unsigned int size(void) = 0;
+
+	/**
+	 * Get all states.
+	 */
+	virtual list<State*> *states(void) = 0;
 
 	virtual fp_type get_best_val(void);
 protected:

@@ -26,3 +26,8 @@ typedef uint64_t fp_type;
 #define fp_sqrt2 14142
 #define fp_one 10000
 #define fp_infinity (numeric_limits<fp_type>::max())
+
+/**
+ * Get a double from the given fixed point value.
+ */ 
+#define DOUBLE(fp) ((double) (fp) / (double) fp_one)

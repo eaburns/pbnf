@@ -28,6 +28,8 @@ public:
 	void delete_all_states(void);
 	void prune(void);
 	unsigned int size(void);
+
+	list<State*> *states(void);
 private:
 	struct lf_pq *pq;
 	AtomicInt fill;

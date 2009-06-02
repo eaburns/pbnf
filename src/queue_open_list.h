@@ -10,7 +10,7 @@
 #if !defined(_QUEUE_OPEN_LIST_H_)
 #define _QUEUE_OPEN_LIST_H_
 
-#include <queue>
+#include <list>
 
 #include "open_list.h"
 #include "state.h"
@@ -27,8 +27,9 @@ public:
 	void delete_all_states(void);
 	void prune(void);
 	unsigned int size(void);
+	list<State*> *states(void);
 private:
-	queue<State *> q;
+	list<State *> q;
 };
 
 #endif	/* !_QUEUE_OPEN_LIST_H_ */
