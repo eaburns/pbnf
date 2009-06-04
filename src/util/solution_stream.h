@@ -94,7 +94,7 @@ protected:
 	Timer *timer;
 
 	/** The solution granularity. */
-	fp_type granularity;
+	double granularity;
 };
 
 #endif /* !_SOLUTION_STREAM_H_ */
