@@ -21,15 +21,25 @@
  * The PQOps class must have the following methods:
  *
  *   int operator()(Elem *a, Elem *b);
- *       -- returns true if a is a predecessor of b.
+ *
+ *       -- returns true if a is a predecessor of b.  When used to
+ *          determine where a node should go in the queue's order, the
+ *          first argument will always be the new element.  This
+ *          guarentee allows the queue to perform FIFO tie-breaking.
+ *          Where the prec operator is not determining ordering in the
+ *          queue (when determining the 'max child' for example) there
+ *          is no guarentee).
  *
  *   int get_value(Elem *e);
+ *
  *       -- get the value of the element (for debugging only).
  *
  *   void operator()(Elem *e, int i);
+ *
  *       -- set the index of element e to the value i.
  *
  *   int operator()(Elem *e);
+ *
  *       -- get the index of element e.
  *
  */
