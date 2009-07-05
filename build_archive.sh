@@ -10,10 +10,10 @@ test -d $DIR && {
     exit 1
 }
 
-# Make the archive.
+echo "Making the archive"
 hg archive ${DIR}
 
-# Add file header comments.
+echo "Adding file header comments"
 cd ${DIR}
 for FILE in `find . -name \*.cpp; find . -name \*.h; find . -name \*.cpp`
 do
@@ -21,8 +21,15 @@ do
     mv ${FILE}~ ${FILE}
 done
 
-# Remove the FILE_HEADER template.
+echo "Removing the FILE_HEADER template from the archive"
 rm FILE_HEADER
 
-# Remove this script.
+echo "Remove this script from the archive"
 rm build_archive.sh
+
+echo "tar/bz2 the archive"
+cd ..
+tar -cjf ${DIR}.tar.bz2 ${DIR}
+
+echo "Removing the archive directory."
+rm -fr ${DIR}
