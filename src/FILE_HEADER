@@ -1,0 +1,18 @@
+/*
+ * Version 1.0
+ *
+ * This code was written by Ethan Burns and Seth Lemons.  It is made
+ * available for non-commercial research and educational use only.
+ * For any other use, including for-profit research or commercial use,
+ * please contact the authors.
+ *
+ * If you use or otherwise benefit from this code, please cite:
+ *
+ * Ethan Burns, Seth Lemons, Rong Zhou and Wheeler Ruml, "Best-First
+ * Heuristic Search for Multi-Core Machines," Proceedings of the
+ * Twenty-first International Joint Conference on Artificial
+ * Intelligence * (IJCAI-09), 2009.
+ */
+
+-------------------------------------------------------------------------
+The above header should appear at the top of all of the source files.
