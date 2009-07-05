@@ -32,12 +32,17 @@ public:
 private:
 	void move_to_next_weight();
 
+	double get_eprime(void);
+	void improve_path(void);
+
 	SolutionStream *solutions;
 	PQOpenList<State::PQOpsFPrime> open;
+	PriorityQueue<State *, State::PQOpsF> min_f_queue;
 	ClosedList closed;
 	InconsList incons;
 	vector<double> *weights;
 
+	fp_type incumbent_cost;
 
 	Heuristic *heuristic;
 	unsigned int next_weight;

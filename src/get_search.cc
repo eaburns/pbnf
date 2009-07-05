@@ -38,6 +38,7 @@
 #include "pastar.h"
 #include "prastar.h"
 #include "wprastar.h"
+#include "optimistic.h"
 
 #include "get_search.h"
 
@@ -54,7 +55,7 @@ using namespace std;
 unsigned int threads = 1;
 fp_type cost_bound = fp_infinity;
 unsigned int nblocks = 1;
-float weight = 1.0;
+double weight = 1.0;
 
 /**
  * Parse a weight schedule string.
@@ -106,14 +107,18 @@ Search *get_search(int argc, char *argv[])
 {
 	unsigned int min_expansions = 0;
 	unsigned int multiplier;
+	double bound;
 
 	if (argc > 1 && strcmp(argv[1], "astar") == 0) {
 		return new AStar();
-	} else if (argc > 1 && sscanf(argv[1], "wastar-%f", &weight) == 1) {
+	} else if (argc > 1 && sscanf(argv[1], "wastar-%lf", &weight) == 1) {
 		return new AStar(false);
-	} else if (argc > 1 && sscanf(argv[1], "wastardd-%f", &weight) == 1) {
+	} else if (argc > 1 && sscanf(argv[1], "optimistic-%lf", &bound) == 1) {
+		weight = ((bound - 1) * 2) + 1;
+		return new Optimistic(bound);
+	} else if (argc > 1 && sscanf(argv[1], "wastardd-%lf", &weight) == 1) {
 		return new AStar(true);
-	} else if (argc > 1 && sscanf(argv[1], "awastar-%f", &weight) == 1) {
+	} else if (argc > 1 && sscanf(argv[1], "awastar-%lf", &weight) == 1) {
 		return new AwAStar();
 	} else if (argc > 2 && strcmp(argv[1], "arastar") == 0) {
 		vector<double> *weights = parse_weights(argv[2]);
@@ -132,13 +137,13 @@ Search *get_search(int argc, char *argv[])
 		return new KBFS(threads);
 	} else if (argc > 1 && sscanf(argv[1], "pastar-%u", &threads) == 1) {
 		return new PAStar(threads);
-	} else if (argc > 1 && sscanf(argv[1], "lpastar-%f-%u", &weight, &threads) == 2) {
+	} else if (argc > 1 && sscanf(argv[1], "lpastar-%lf-%u", &weight, &threads) == 2) {
 		return new LPAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads);
-	} else if (argc > 1 && sscanf(argv[1], "wprastar-%f-%u-%u", &weight, &threads, &nblocks) == 3) {
+	} else if (argc > 1 && sscanf(argv[1], "wprastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads, false);
-	} else if (argc > 1 && sscanf(argv[1], "wprastardd-%f-%u-%u", &weight, &threads, &nblocks) == 3) {
+	} else if (argc > 1 && sscanf(argv[1], "wprastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads, true);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
@@ -148,12 +153,12 @@ Search *get_search(int argc, char *argv[])
 			     &min_expansions, &threads, &nblocks) == 4) {
 		return new BFPSDDSearch(threads, multiplier, min_expansions);
 	} else if (argc > 1
-		   && sscanf(argv[1], "wbfpsdd-%f-%u-%u-%u-%u", &weight,
+		   && sscanf(argv[1], "wbfpsdd-%lf-%u-%u-%u-%u", &weight,
 			     &multiplier, &min_expansions,
 			     &threads, &nblocks) == 5) {
 		return new WBFPSDDSearch(threads, multiplier, min_expansions, false);
 	} else if (argc > 1
-		   && sscanf(argv[1], "wbfpsdddd-%f-%u-%u-%u-%u", &weight,
+		   && sscanf(argv[1], "wbfpsdddd-%lf-%u-%u-%u-%u", &weight,
 			     &multiplier, &min_expansions,
 			     &threads, &nblocks) == 5) {
 		return new WBFPSDDSearch(threads, multiplier, min_expansions, true);
@@ -161,15 +166,15 @@ Search *get_search(int argc, char *argv[])
 		   && sscanf(argv[1], "idpsdd-%u-%u", &threads, &nblocks) == 2) {
 		return new IDPSDDSearch(threads);
 	} else if (argc > 1
-		   && sscanf(argv[1], "dynpsdd-%f-%u-%u",
+		   && sscanf(argv[1], "dynpsdd-%lf-%u-%u",
 			     &weight, &threads, &nblocks) == 3) {
 		return new DynamicBoundedPSDD(threads, weight);
 	} else if (argc > 1
-		   && sscanf(argv[1], "pbnf-%f-%u-%u-%u",
+		   && sscanf(argv[1], "pbnf-%lf-%u-%u-%u",
 			     &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new PBNF::PBNFSearch(threads, min_expansions, false);
 	} else if (argc > 1
-		   && sscanf(argv[1], "safepbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
+		   && sscanf(argv[1], "safepbnf-%lf-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new PBNF::PBNFSearch(threads, min_expansions, true);
 	} else if (argc > 2
 		   && sscanf(argv[1], "arpbnf-%u-%u-%u", &min_expansions, &threads, &nblocks) == 3) {
@@ -177,17 +182,17 @@ Search *get_search(int argc, char *argv[])
 		weight = weights->at(0);
 		return new ARPBNF::ARPBNFSearch(threads, min_expansions, weights);
 	} else if (argc > 1
-		   && sscanf(argv[1], "wpbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
+		   && sscanf(argv[1], "wpbnf-%lf-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new WPBNF::WPBNFSearch(threads, min_expansions, false);
 	} else if (argc > 1
-		   && sscanf(argv[1], "wpbnfdd-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
+		   && sscanf(argv[1], "wpbnfdd-%lf-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new WPBNF::WPBNFSearch(threads, min_expansions, true);
 	} else if (argc > 1
-		   && sscanf(argv[1], "opbnf-%f-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
+		   && sscanf(argv[1], "opbnf-%lf-%u-%u-%u", &weight, &min_expansions, &threads, &nblocks) == 4) {
 		return new OPBNF::OPBNFSearch(threads, min_expansions);
 	} else if (argc > 1 && sscanf(argv[1], "multiastar-%u", &threads) == 1) {
 		return new MultiAStar(threads);
-	} else if (argc > 1 && sscanf(argv[1], "multiwastar-%f-%u", &weight, &threads) == 2) {
+	} else if (argc > 1 && sscanf(argv[1], "multiwastar-%lf-%u", &weight, &threads) == 2) {
 		return new MultiAStar(threads);
 	} else {
 		cout << "Must supply a search algorithm:" << endl;

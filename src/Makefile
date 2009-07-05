@@ -27,6 +27,7 @@ SRC= \
 	synch_closed_list.cc \
 	search.cc \
 	astar.cc \
+	optimistic.cc \
 	awastar.cc \
 	arastar.cc \
 	multi_a_star.cc \

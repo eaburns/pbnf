@@ -11,6 +11,7 @@
 #define _IDA_STAR_H_
 
 #include <vector>
+#include <list>
 
 #include "state.h"
 #include "search.h"
@@ -20,6 +21,17 @@ using namespace std;
 class IDAStar : public Search {
 public:
 	virtual vector<State *> *search(Timer *, State *);
+	virtual void output_stats(void);
+private:
+	struct iteration {
+		unsigned int no;
+		fp_type bound;
+		unsigned long exp;
+		unsigned long gen;
+		unsigned long new_exp;
+	};
+
+	list<iteration> iters;
 };
 
 #endif	/* !_IDA_STAR_H_ */

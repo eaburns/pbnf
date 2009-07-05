@@ -30,7 +30,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	unsigned int timelimit = 90;	// seconds
+	unsigned int timelimit = 300;	// seconds
 	vector<State *> *path;
 	SyncWAStar *search;
 	GridWorld *g_orig = new GridWorld(cin);

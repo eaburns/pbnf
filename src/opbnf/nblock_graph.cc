@@ -157,12 +157,12 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock, fp_type bound)
 		}
 
 		// Possibly add this block back to the free list.
+		finished->inuse = false;
 		if (is_free(finished)) {
 			free_list_fp.add(finished);
 			free_list_f.add(finished);
 			pthread_cond_broadcast(&cond);
 		}
-		finished->inuse = false;
 		update_scope_sigmas(finished->id, -1);
 
 		if (free_list_fp.empty() && num_sigma_zero == num_nblocks) {

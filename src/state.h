@@ -79,6 +79,67 @@ public:
 		PQOpsF f_cmp;
 	};
 
+	class PQOpsFPrimeSilviaTieBreaking {
+		/** This class is the prio-queue operations for a
+		 * queue sorted on f' which uses Silvia Richter's
+		 * tie-breaking rules. */
+	public:
+		int inline operator()(State *a, State *b) const {
+			fp_type fa = a->get_f_prime();
+			fp_type fb = b->get_f_prime();
+			if (fa < fb) return true;
+			else if (fa > fb) return false;
+			else
+				/* If there is a tie then [a], the new
+				 * element, is not the predecessor. */
+				return false;
+		}
+
+		fp_type inline get_value(State *s) const {
+			return s->get_f_prime();
+		}
+		void inline operator()(State *a, int i)
+		{
+			a->f_prime_pq_index = i;
+		}
+
+		int inline operator()(State *a)
+		{
+			return a->f_prime_pq_index;
+		}
+	private:
+		PQOpsF f_cmp;
+	};
+
+	class PQOpsFPrimeGreaterFTieBreaking {
+		/** Tie breaking on the greater f-value being
+		 * preferred.  This is counter-intuitive, but Silvia
+		 * thinks it may make our search perform like hers. */
+	public:
+		int inline operator()(State *a, State *b) const {
+			fp_type fa = a->get_f_prime();
+			fp_type fb = b->get_f_prime();
+			if (fa < fb) return true;
+			else if (fa > fb) return false;
+			else return !f_cmp(a, b);
+		}
+
+		fp_type inline get_value(State *s) const {
+			return s->get_f_prime();
+		}
+		void inline operator()(State *a, int i)
+		{
+			a->f_prime_pq_index = i;
+		}
+
+		int inline operator()(State *a)
+		{
+			return a->f_prime_pq_index;
+		}
+	private:
+		PQOpsF f_cmp;
+	};
+
 	State(SearchDomain *d, State *parent, fp_type c, fp_type g);
 
 	virtual ~State();

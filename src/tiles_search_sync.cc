@@ -30,7 +30,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	// 90 seconds is too small to solve the 96 instance optimally in a consistent manner.
-	unsigned int timelimit = 180;	// seconds
+	unsigned int timelimit = 300;	// seconds
 	vector<State *> *path;
 	SyncWAStar *search;
 	Tiles *g_orig = new Tiles(cin);
