@@ -11,6 +11,8 @@ import sys, shutil, fileinput, math, os, subprocess, hashlib
 def usage():
     print "usage: make_tiles.py [-t] [MAX] [weight]"
     print "-t test whether A* can solve boards and keep only solvable ones"
+    print "runs A* with weight if provided"
+    print "outputs MAX number of boards to files named by MD5 of their content"
     print "provide tile boards on stdin in the following format:"
     print "\t[num] [tile1, tile2...]"
     print "assumes board is square or one off from being square"
@@ -99,7 +101,7 @@ def make_board(in_data, test, weight):
     return True
 
 if __name__ == '__main__':
-    if "--help" in sys.argv:
+    if "--usage" in sys.argv or "--help" in sys.argv:
         usage()
     else:
         if "-t" in sys.argv:

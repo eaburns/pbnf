@@ -116,10 +116,10 @@ PROFILE+=
 DEBUG+=-O3 -DNDEBUG
 #DEBUG+=-g -O0 -fno-default-inline -fno-implicit-inline-templates -fno-implement-inlines
 FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
-CXXFLAGS+=-Wnon-virtual-dtor 
-#LDFLAGS+=-lpthread $(PROFILE)
+CXXFLAGS+=-Wnon-virtual-dtor
+LDFLAGS+=-lpthread $(PROFILE)
 #LDFLAGS+=-lpthread $(PROFILE) -ltcmalloc
-LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
+#LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
 endif
 ############################################################
 

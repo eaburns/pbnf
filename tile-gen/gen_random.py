@@ -10,10 +10,11 @@ import random, sys, time
 
 def usage():
     print "usage: gen_random.py [size]"
-    print "\tprints unique, solvable, randomly generated sliding tiles boards"
-    print "\t\tof given size until killed"
-    print "\tBEWARE: program will hang if no more unique boards for given"
-    print "\t\tsize are possible"
+    print "prints unique, solvable, randomly generated sliding tiles boards"
+    print "\tof given size until killed"
+    print "size is in number of tiles"
+    print "BEWARE: program will hang if no more unique boards for given"
+    print "\tsize are possible"
     sys.exit(1)
 
 def is_solvable(dir):
@@ -40,7 +41,7 @@ def gen_board(ignore, size):
     return board
 
 if __name__ == '__main__':
-    if "--help" in sys.argv:
+    if "--usage" in sys.argv or "--help" in sys.argv:
         usage()
     else:
         if len(sys.argv) > 1:
