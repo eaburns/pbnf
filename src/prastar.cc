@@ -14,6 +14,11 @@
 #include <vector>
 #include <limits>
 
+extern "C" {
+#include "lockfree/include/atomic.h"
+}
+
+#include "util/msg_buffer.h"
 #include "prastar.h"
 #include "projection.h"
 #include "search.h"
@@ -27,12 +32,16 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
 	  cc(cc),
 	  q_empty(true)
 {
+	out_qs.resize(threads->size());
         completed = false;
         pthread_mutex_init(&mutex, NULL);
 }
 
-
 PRAStar::PRAStarThread::~PRAStarThread(void) {
+	 vector<MsgBuffer<State*> *>::iterator i;
+	for (i = out_qs.begin(); i != out_qs.end(); i++)
+		if (*i)
+			delete *i;
 }
 
 void PRAStar::PRAStarThread::add(State* c, bool self_add){
@@ -67,6 +76,45 @@ void PRAStar::PRAStarThread::add(State* c, bool self_add){
         pthread_mutex_unlock(&mutex);
 }
 
+vector<State*> *PRAStar::PRAStarThread::get_queue(void)
+{
+	return &q;
+}
+
+pthread_mutex_t *PRAStar::PRAStarThread::get_mutex(void)
+{
+	return &mutex;
+}
+
+void PRAStar::PRAStarThread::post_send(void)
+{
+	if (completed) {
+		/* Only one thread should uncomplete, so lets use some
+		 * atomic primitives to ensure this without taking a
+		 * lock. */
+		if (compare_and_swap((void*) &completed,
+				     (intptr_t) true,
+				     (intptr_t) false)) {
+			cc->uncomplete();
+		}
+	}
+	q_empty = false;
+}
+
+void PRAStar::PRAStarThread::flush_sends(bool force)
+{
+	unsigned int i;
+	for (i = 0; i < threads->size(); i += 1) {
+		bool post = force;
+		if (force)
+			out_qs[i]->force_flush();
+		else
+			post = out_qs[i]->try_flush();
+		if (post)
+			threads->at(i)->post_send();
+	}
+}
+
 /**
  * Flush the queue
  */
@@ -76,7 +124,7 @@ void PRAStar::PRAStarThread::flush_queue(void)
 	if (open.empty()) {
 		pthread_mutex_lock(&mutex);
 	} else if (pthread_mutex_trylock(&mutex) == EBUSY) {
-			return;
+		return;
 	}
 	if (q_empty) {
 		if (!open.empty()) {
@@ -125,9 +173,58 @@ void PRAStar::PRAStarThread::flush_queue(void)
 	pthread_mutex_unlock(&mutex);
 }
 
+void PRAStar::PRAStarThread::send_state(State *c, bool force)
+{
+	unsigned long hash = p->project->project(c);
+	unsigned int dest_tid = threads->at(hash % p->n_threads)->get_id();
+	bool self_add = dest_tid == this->get_id();
+
+	if (self_add) {
+		State *dup = closed.lookup(c);
+		if (dup){
+			if (dup->get_g() > c->get_g()) {
+				dup->update(c->get_parent(), c->get_c(), c->get_g());
+				if (dup->is_open())
+					open.see_update(dup);
+				else
+					open.add(dup);
+			}
+			delete c;
+		}
+		else{
+			open.add(c);
+			closed.add(c);
+		}
+		return;
+	}
+
+	// not a self add
+	if (!out_qs[dest_tid]) {
+		pthread_mutex_t *lk = threads->at(dest_tid)->get_mutex();
+		vector<State*> *qu = threads->at(dest_tid)->get_queue();
+		out_qs[dest_tid] = new MsgBuffer<State*>(lk, qu);
+	}
+
+	bool post = force;
+	if (force)
+		out_qs[dest_tid]->force_send(c);
+	else
+		post = out_qs[dest_tid]->try_send(c);
+
+	if (post)
+		threads->at(dest_tid)->post_send();
+
+}
+
 State *PRAStar::PRAStarThread::take(void){
+
 	while (open.empty() || !q_empty) {
 		flush_queue();
+
+		// if there are no open nodes, might as well sit on
+		// the lock.
+		flush_sends(open.empty());
+
 		if (cc->is_complete()){
 			p->set_done();
 			return NULL;
@@ -148,6 +245,7 @@ void PRAStar::PRAStarThread::run(void){
         vector<State *> *children = NULL;
 
         while(!p->is_done()){
+
 		State *s = take();
 		if (s == NULL)
 			continue;
@@ -163,8 +261,11 @@ void PRAStar::PRAStarThread::run(void){
 		children = p->expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
+			send_state(c, false);
+/*
 			bool self_add = threads->at(p->project->project(c)%p->n_threads)->get_id() == this->get_id();
 			threads->at(p->project->project(c)%p->n_threads)->add(c, self_add);
+*/
 		}
         }
 
@@ -177,7 +278,7 @@ void PRAStar::PRAStarThread::run(void){
 /************************************************************/
 
 
-PRAStar::PRAStar(unsigned int n_threads) 
+PRAStar::PRAStar(unsigned int n_threads)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
@@ -207,7 +308,7 @@ bool PRAStar::is_done()
 void PRAStar::set_path(vector<State *> *p)
 {
         pthread_mutex_lock(&mutex);
-        if (this->path == NULL || 
+        if (this->path == NULL ||
 	    this->path->at(0)->get_g() > p->at(0)->get_g()){
 		this->path = p;
 		bound.set(p->at(0)->get_g());
