@@ -42,6 +42,7 @@ SRC= \
 	util/eps.cc \
 	util/thread.cc \
 	util/completion_counter.cc \
+	util/mutex.cc \
 	util/timer.cc \
 	util/timeout.cc \
 	util/atomic_float.cc \

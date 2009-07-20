@@ -16,10 +16,11 @@
 #if !defined(_MSG_BUFFER_H_)
 #define _MSG_BUFFER_H_
 
-#include <pthread.h>
 #include <errno.h>
 
 #include <vector>
+
+#include "mutex.h"
 
 using namespace std;
 
@@ -46,7 +47,7 @@ public:
 	/**
 	 * Creates a new message buffer
 	 */
-	MsgBuffer(pthread_mutex_t *m, vector<Msg> *q,
+	MsgBuffer(Mutex *m, vector<Msg> *q,
 		  void (*ps)(void*), void *d) {
 		mutex = m;
 		queue = q;
@@ -61,11 +62,11 @@ public:
 	 */
 	bool try_send(Msg m) {
 		buffer.push_back(m);
-		if (pthread_mutex_trylock(mutex) == EBUSY) {
+		if (!mutex->try_lock()) {
 			return false;
 		} else {
 			__flush();
-			pthread_mutex_unlock(mutex);
+			mutex->unlock();
 			return true;
 		}
 	}
@@ -75,10 +76,10 @@ public:
 	 * lock until it is available for the send.
 	 */
 	void force_send(Msg m) {
-		pthread_mutex_lock(mutex);
+		mutex->lock();
 		buffer.push_back(m);
 		__flush();
-		pthread_mutex_unlock(mutex);
+		mutex->unlock();
 	}
 
 	/**
@@ -89,9 +90,9 @@ public:
 		if (buffer.empty())
 			return false;
 
-		if (pthread_mutex_trylock(mutex) != EBUSY) {
+		if (mutex->try_lock()) {
 			__flush();
-			pthread_mutex_unlock(mutex);
+			mutex->unlock();
 			return true;
 		}
 
@@ -102,9 +103,9 @@ public:
 	 * Forces a flush to the remote peer.
 	 */
 	void force_flush(void) {
-		pthread_mutex_lock(mutex);
+		mutex->lock();
 		__flush();
-		pthread_mutex_unlock(mutex);
+		mutex->unlock();
 	}
 
 	/**
@@ -116,7 +117,7 @@ public:
 
 private:
 	/* The lock on the message queue. */
-	pthread_mutex_t *mutex;
+	Mutex *mutex;
 
 	/* The queue to send messages */
 	vector<Msg> *queue;

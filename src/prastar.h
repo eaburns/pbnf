@@ -16,6 +16,7 @@
 #include "search.h"
 #include "pbnf/nblock_graph.h"
 #include "pbnf/nblock.h"
+#include "util/mutex.h"
 #include "util/msg_buffer.h"
 #include "util/atomic_int.h"
 #include "util/thread.h"
@@ -38,6 +39,8 @@ public:
         void set_path(vector<State *> *path);
         bool has_path();
 
+	virtual void output_stats(void);
+
 private:
         class PRAStarThread : public Thread {
         public:
@@ -53,7 +56,7 @@ private:
 		/**
 		 * Gets the lock on the message queue.
 		 */
-		pthread_mutex_t *get_mutex(void);
+		Mutex *get_mutex(void);
 
 		/**
 		 * Should be called when the message queue has had
@@ -69,7 +72,7 @@ private:
 
 
 		/* flushes the queue into the open list. */
-                void flush_queue(void);
+                void flush_receives(void);
 
 		/* sends the state to the appropriate thread (possibly
 		 * this thread). */
@@ -82,7 +85,7 @@ private:
 
 		/* The incoming message queue. */
 		vector<State *> q;
-                pthread_mutex_t mutex;
+		Mutex mutex;
 
 		/* The outgoing message queues (allocated lazily). */
 		vector<MsgBuffer<State*>* > out_qs;
@@ -103,13 +106,15 @@ private:
 
         bool done;
         pthread_cond_t cond;
-        pthread_mutex_t mutex;
+        Mutex mutex;
         const unsigned int n_threads;
 	AtomicInt bound;
 	const Projection *project;
         vector<State *> *path;
 	vector<PRAStarThread *> threads;
 	vector<PRAStarThread *>::iterator iter;
+
+	double time_spent_waiting;
 };
 
 #endif	/* !_PRASTAR_H_ */

@@ -18,6 +18,7 @@ extern "C" {
 #include "lockfree/include/atomic.h"
 }
 
+#include "util/mutex.h"
 #include "util/msg_buffer.h"
 #include "prastar.h"
 #include "projection.h"
@@ -34,7 +35,6 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
 {
 	out_qs.resize(threads->size(), NULL);
         completed = false;
-        pthread_mutex_init(&mutex, NULL);
 }
 
 PRAStar::PRAStarThread::~PRAStarThread(void) {
@@ -49,7 +49,7 @@ vector<State*> *PRAStar::PRAStarThread::get_queue(void)
 	return &q;
 }
 
-pthread_mutex_t *PRAStar::PRAStarThread::get_mutex(void)
+Mutex *PRAStar::PRAStarThread::get_mutex(void)
 {
 	return &mutex;
 }
@@ -83,32 +83,32 @@ void PRAStar::PRAStarThread::flush_sends(bool force)
 /**
  * Flush the queue
  */
-void PRAStar::PRAStarThread::flush_queue(void)
+void PRAStar::PRAStarThread::flush_receives(void)
 {
 	// wait for either completion or more nodes to expand
-	if (open.empty()) {
-		pthread_mutex_lock(&mutex);
-	} else if (pthread_mutex_trylock(&mutex) == EBUSY) {
+	if (open.empty())
+		mutex.lock();
+	else if (!mutex.try_lock())
 		return;
-	}
+
 	if (q_empty) {
 		if (!open.empty()) {
-			pthread_mutex_unlock(&mutex);
+			mutex.unlock();
 			return;
 		}
 		completed = true;
 		cc->complete();
 
 		// busy wait
-		pthread_mutex_unlock(&mutex);
+		mutex.unlock();
 		while (q_empty && !cc->is_complete() && !p->is_done())
 			;
-		pthread_mutex_lock(&mutex);
+		mutex.lock();
 
 		// we are done, just return
 		if (cc->is_complete()) {
 			assert(q_empty);
-			pthread_mutex_unlock(&mutex);
+			mutex.unlock();
 			return;
 		}
 	}
@@ -137,7 +137,7 @@ void PRAStar::PRAStarThread::flush_queue(void)
 	}
 	q.clear();
 	q_empty = true;
-	pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 void PRAStar::PRAStarThread::send_state(State *c, bool force)
@@ -173,7 +173,7 @@ void PRAStar::PRAStarThread::send_state(State *c, bool force)
 	// case we can just sit on a lock because there is no work to
 	// do anyway.
 	if (!out_qs[dest_tid]) {
-		pthread_mutex_t *lk = threads->at(dest_tid)->get_mutex();
+		Mutex *lk = threads->at(dest_tid)->get_mutex();
 		vector<State*> *qu = threads->at(dest_tid)->get_queue();
 		out_qs[dest_tid] =
 			new MsgBuffer<State*>(lk, qu,
@@ -191,7 +191,7 @@ void PRAStar::PRAStarThread::send_state(State *c, bool force)
 State *PRAStar::PRAStarThread::take(void){
 
 	while (open.empty() || !q_empty) {
-		flush_queue();
+		flush_receives();
 
 		// if there are no open nodes, might as well sit on
 		// the lock.
@@ -259,43 +259,38 @@ PRAStar::~PRAStar(void) {
 
 void PRAStar::set_done()
 {
-        pthread_mutex_lock(&mutex);
+	mutex.lock();
         done = true;
-        pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 bool PRAStar::is_done()
 {
-        bool ret;
-        pthread_mutex_lock(&mutex);
-        ret = done;
-        pthread_mutex_unlock(&mutex);
-        return ret;
+        return done;
 }
 
 void PRAStar::set_path(vector<State *> *p)
 {
-        pthread_mutex_lock(&mutex);
+	mutex.lock();
         if (this->path == NULL ||
 	    this->path->at(0)->get_g() > p->at(0)->get_g()){
 		this->path = p;
 		bound.set(p->at(0)->get_g());
         }
-        pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 bool PRAStar::has_path()
 {
         bool ret;
-        pthread_mutex_lock(&mutex);
+	mutex.lock();
         ret = (path != NULL);
-        pthread_mutex_unlock(&mutex);
+	mutex.unlock();
         return ret;
 }
 
 vector<State *> *PRAStar::search(Timer *timer, State *init)
 {
-        pthread_mutex_init(&mutex, NULL);
 	project = init->get_domain()->get_projection();
 
         CompletionCounter cc = CompletionCounter(n_threads);
@@ -312,10 +307,18 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 		(*iter)->start();
         }
 
+	time_spent_waiting = mutex.get_time_spent_waiting();
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
+		double t = (*iter)->get_mutex()->get_time_spent_waiting();
+		time_spent_waiting += t;
 		delete *iter;
         }
 
         return path;
+}
+
+void PRAStar::output_stats(void)
+{
+	cout << "time-locked: " << time_spent_waiting << endl;
 }
