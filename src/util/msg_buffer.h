@@ -51,6 +51,8 @@ private:
 			Msg m = buffer[i];
 			__send(m);
 		}
+
+		buffer.clear();
 	}
 
 public:

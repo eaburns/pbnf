@@ -32,7 +32,8 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
 	  cc(cc),
 	  q_empty(true)
 {
-	out_qs.resize(threads->size());
+	cout << "resizing out_qs to " << threads->size() << endl;
+	out_qs.resize(threads->size(), NULL);
         completed = false;
         pthread_mutex_init(&mutex, NULL);
 }
@@ -106,10 +107,12 @@ void PRAStar::PRAStarThread::flush_sends(bool force)
 	unsigned int i;
 	for (i = 0; i < threads->size(); i += 1) {
 		bool post = force;
-		if (force)
-			out_qs[i]->force_flush();
-		else
-			post = out_qs[i]->try_flush();
+		if (out_qs[i]) {
+			if (force)
+				out_qs[i]->force_flush();
+			else
+				post = out_qs[i]->try_flush();
+		}
 		if (post)
 			threads->at(i)->post_send();
 	}
@@ -155,7 +158,9 @@ void PRAStar::PRAStarThread::flush_queue(void)
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {
-				dup->update(c->get_parent(), c->get_c(), c->get_g());
+				dup->update(c->get_parent(),
+					    c->get_c(),
+					    c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
 				else
@@ -183,7 +188,9 @@ void PRAStar::PRAStarThread::send_state(State *c, bool force)
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {
-				dup->update(c->get_parent(), c->get_c(), c->get_g());
+				dup->update(c->get_parent(),
+					    c->get_c(),
+					    c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
 				else
@@ -332,9 +339,10 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 
         CompletionCounter cc = CompletionCounter(n_threads);
 
+	threads.resize(n_threads, NULL);
         for (unsigned int i = 0; i < n_threads; i += 1) {
 		PRAStarThread *t = new PRAStarThread(this, &threads, &cc);
-		threads.push_back(t);
+		threads[i] = t;
         }
 
         threads.at(project->project(init)%n_threads)->open.add(init);
