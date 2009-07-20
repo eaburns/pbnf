@@ -28,31 +28,16 @@ class MsgBuffer {
 private:
 
 	/**
-	 * Sends a message to the remote queue.  This assumes that the
-	 * caller will handle locking/unlocking the mutex.
-	 */
-	void __send(Msg m) {
-		queue->push_back(m);
-		post_send(data);
-	}
-
-	/**
 	 * Flushes the buffer to the remote queue.  This assumes that
 	 * the caller will handle the locking/unlocking of the mutex.
 	 */
 	void __flush(void) {
-/*
-		vector<Msg>::iterator iter;
-		for(iter = buffer.begin(); iter != buffer.end(); iter++) {
-			Msg m = *iter;
-			__send(m);
-		}
-*/
 		for (unsigned int i = 0; i < buffer.size(); i += 1) {
 			Msg m = buffer[i];
-			__send(m);
+			queue->push_back(m);
 		}
-
+		if (!buffer.empty())
+			post_send(data);
 		buffer.clear();
 	}
 
@@ -75,11 +60,11 @@ public:
 	 * occurs, or a flush operation is performed.
 	 */
 	bool try_send(Msg m) {
+		buffer.push_back(m);
 		if (pthread_mutex_trylock(mutex) == EBUSY) {
-			buffer.push_back(m);
 			return false;
 		} else {
-			__send(m);
+			__flush();
 			pthread_mutex_unlock(mutex);
 			return true;
 		}
@@ -91,7 +76,8 @@ public:
 	 */
 	void force_send(Msg m) {
 		pthread_mutex_lock(mutex);
-		__send(m);
+		buffer.push_back(m);
+		__flush();
 		pthread_mutex_unlock(mutex);
 	}
 

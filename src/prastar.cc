@@ -234,10 +234,6 @@ void PRAStar::PRAStarThread::run(void){
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
 			send_state(c, false);
-/*
-			bool self_add = threads->at(p->project->project(c)%p->n_threads)->get_id() == this->get_id();
-			threads->at(p->project->project(c)%p->n_threads)->add(c, self_add);
-*/
 		}
         }
 
