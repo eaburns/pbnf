@@ -12,6 +12,10 @@
 
 #include <pthread.h>
 
+#include <ostream>
+
+using namespace std;
+
 #include "timer.h"
 
 class Mutex {
@@ -33,8 +37,11 @@ public:
 	/** Wait on the condition. */
 	void cond_wait(void);
 
-	/** Signal all threads waiting on the condition. */
+	/** Signal one threads waiting on the condition. */
 	void cond_signal(void);
+
+	/** Signal all threads waiting on the condition. */
+	void cond_broadcast(void);
 
 	/**
 	 * Get the total time (in seconds) that threads have spent
@@ -46,6 +53,9 @@ public:
 	 * Get the amount of time spent waiting on a condition.
 	 */
 	double get_cond_wait_time(void);
+
+	/** Print the stats to the given output stream. */
+	void print_stats(ostream &o);
 
 private:
 	/** The accumulated time spent trying to acquire a lock. */

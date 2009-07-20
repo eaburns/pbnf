@@ -10,8 +10,6 @@
 #if !defined(_NBLOCK_GRAPH_H_)
 #define _NBLOCK_GRAPH_H_
 
-#include <pthread.h>
-
 #include <iostream>
 #include <map>
 #include <list>
@@ -24,6 +22,7 @@
 #include "../open_list.h"
 #include "../projection.h"
 #include "../util/nblock_map.h"
+#include "../util/mutex.h"
 
 using namespace std;
 
@@ -54,6 +53,9 @@ namespace PBNF {
 
 		/* For NBlockMap::CreationObserver */
 		void observe(NBlock *b);
+
+		/* Print statistics. */
+		void print_stats(ostream &o);
 
 	private:
 		void cpp_is_a_bad_language(const Projection *p, State *initial);
@@ -86,8 +88,7 @@ namespace PBNF {
 		 * has completed. */
 		bool done;
 
-		pthread_mutex_t mutex;
-		pthread_cond_t cond;
+		Mutex mutex;
 
 		/*
 		 * Statistics

@@ -10,6 +10,10 @@
 #include <errno.h>
 #include <pthread.h>
 
+#include <ostream>
+
+using namespace std;
+
 #include "timer.h"
 #include "mutex.h"
 
@@ -58,6 +62,11 @@ void Mutex::cond_signal(void)
 	pthread_cond_signal(&cond);
 }
 
+void Mutex::cond_broadcast(void)
+{
+	pthread_cond_broadcast(&cond);
+}
+
 double Mutex::get_lock_acquisition_time(void)
 {
 	return lock_acquisition_time;
@@ -66,4 +75,10 @@ double Mutex::get_lock_acquisition_time(void)
 double Mutex::get_cond_wait_time(void)
 {
 	return cond_wait_time;
+}
+
+void Mutex::print_stats(ostream &o)
+{
+	o << "time-acquiring-locks: " << lock_acquisition_time << endl;
+	o << "time-cond-waiting: " << cond_wait_time << endl;
 }

@@ -330,6 +330,8 @@ void PBNFSearch::output_stats(void)
 	cout << "failed-locks: " << PBNFSearch::failed.read() << endl;
 	cout << "succeeded-locks: " << PBNFSearch::succeeded.read() << endl;
 
+	graph->print_stats(cout);
+
 	if (solutions)
 		solutions->output(cout);
 }

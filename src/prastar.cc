@@ -320,6 +320,6 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 
 void PRAStar::output_stats(void)
 {
-	cout << "time-acquiring-locks:" << lock_acquisition_time << endl;
+	cout << "time-acquiring-locks: " << lock_acquisition_time << endl;
 	cout << "time-cond-waiting: 0.0" << endl;
 }
