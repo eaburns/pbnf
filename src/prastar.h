@@ -59,12 +59,7 @@ private:
 		 * Should be called when the message queue has had
 		 * things added to it.
 		 */
-		void post_send(void);
-
-		/**
-		 * Deprecated... if you call this, you will regret it.
-		 */
-                void add(State* c, bool self_add);
+		static void post_send(void *thr);
 
                 State *take(void);
 

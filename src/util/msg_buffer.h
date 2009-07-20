@@ -33,6 +33,7 @@ private:
 	 */
 	void __send(Msg m) {
 		queue->push_back(m);
+		post_send(data);
 	}
 
 	/**
@@ -60,9 +61,12 @@ public:
 	/**
 	 * Creates a new message buffer
 	 */
-	MsgBuffer(pthread_mutex_t *m, vector<Msg> *q) {
+	MsgBuffer(pthread_mutex_t *m, vector<Msg> *q,
+		  void (*ps)(void*), void *d) {
 		mutex = m;
 		queue = q;
+		post_send = ps;
+		data = d;
 	}
 
 	/**
@@ -95,6 +99,10 @@ public:
 	 * Tries to flush the queue to the remote peer.
 	 */
 	bool try_flush(void) {
+
+		if (buffer.empty())
+			return false;
+
 		if (pthread_mutex_trylock(mutex) != EBUSY) {
 			__flush();
 			pthread_mutex_unlock(mutex);
@@ -121,8 +129,19 @@ public:
 	}
 
 private:
+	/* The lock on the message queue. */
 	pthread_mutex_t *mutex;
+
+	/* The queue to send messages */
 	vector<Msg> *queue;
+
+	/* Called when a message is sent (with the mutex held). */
+	void (*post_send)(void *);
+
+	/* Data passed to post_send. */
+	void *data;
+
+	/* A local buffer for messages. */
 	vector<Msg> buffer;
 };
 

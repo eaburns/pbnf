@@ -32,7 +32,6 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
 	  cc(cc),
 	  q_empty(true)
 {
-	cout << "resizing out_qs to " << threads->size() << endl;
 	out_qs.resize(threads->size(), NULL);
         completed = false;
         pthread_mutex_init(&mutex, NULL);
@@ -45,40 +44,6 @@ PRAStar::PRAStarThread::~PRAStarThread(void) {
 			delete *i;
 }
 
-void PRAStar::PRAStarThread::add(State* c, bool self_add){
-	if (self_add){
-		//cout << "self" << endl;
-		State *dup = closed.lookup(c);
-		if (dup){
-			if (dup->get_g() > c->get_g()) {
-				dup->update(c->get_parent(),
-					    c->get_c(),
-					    c->get_g());
-				if (dup->is_open())
-					open.see_update(dup);
-				else
-					open.add(dup);
-			}
-			delete c;
-		}
-		else{
-			open.add(c);
-			closed.add(c);
-		}
-		//cout << "end self" << endl;
-
-		return;
-	}
-        pthread_mutex_lock(&mutex);
-        if (completed){
-		cc->uncomplete();
-		completed = false;
-        }
-        q.push_back(c);
-	q_empty = false;
-        pthread_mutex_unlock(&mutex);
-}
-
 vector<State*> *PRAStar::PRAStarThread::get_queue(void)
 {
 	return &q;
@@ -89,34 +54,29 @@ pthread_mutex_t *PRAStar::PRAStarThread::get_mutex(void)
 	return &mutex;
 }
 
-void PRAStar::PRAStarThread::post_send(void)
+void PRAStar::PRAStarThread::post_send(void *t)
 {
-	if (completed) {
-		/* Only one thread should uncomplete, so lets use some
-		 * atomic primitives to ensure this without taking a
-		 * lock. */
-		if (compare_and_swap((void*) &completed,
-				     (intptr_t) true,
-				     (intptr_t) false)) {
-			cc->uncomplete();
-		}
+
+	PRAStarThread *thr = (PRAStarThread*) t;
+	if (thr->completed) {
+		thr->cc->uncomplete();
+		thr->completed = false;
 	}
-	q_empty = false;
+	thr->q_empty = false;
 }
 
 void PRAStar::PRAStarThread::flush_sends(bool force)
 {
 	unsigned int i;
 	for (i = 0; i < threads->size(); i += 1) {
-		bool post = force;
+		if (!out_qs[i])
+			continue;
 		if (out_qs[i]) {
 			if (force)
 				out_qs[i]->force_flush();
 			else
-				post = out_qs[i]->try_flush();
+				out_qs[i]->try_flush();
 		}
-		if (post)
-			threads->at(i)->post_send();
 	}
 }
 
@@ -208,20 +168,23 @@ void PRAStar::PRAStarThread::send_state(State *c, bool force)
 	}
 
 	// not a self add
+	//
+	// Do a buffered send, unless the force flag is set, in which
+	// case we can just sit on a lock because there is no work to
+	// do anyway.
 	if (!out_qs[dest_tid]) {
 		pthread_mutex_t *lk = threads->at(dest_tid)->get_mutex();
 		vector<State*> *qu = threads->at(dest_tid)->get_queue();
-		out_qs[dest_tid] = new MsgBuffer<State*>(lk, qu);
+		out_qs[dest_tid] =
+			new MsgBuffer<State*>(lk, qu,
+					      post_send,
+					      threads->at(dest_tid));
 	}
 
-	bool post = force;
 	if (force)
 		out_qs[dest_tid]->force_send(c);
 	else
-		post = out_qs[dest_tid]->try_send(c);
-
-	if (post)
-		threads->at(dest_tid)->post_send();
+		out_qs[dest_tid]->try_send(c);
 
 }
 
