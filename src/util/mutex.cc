@@ -16,15 +16,20 @@
 Mutex::Mutex(void)
 {
 	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&cond, NULL);
+	lock_acquisition_time = 0.0;
+	cond_wait_time = 0.0;
 }
 
 void Mutex::lock(void)
 {
-	timer.start();
-	pthread_mutex_lock(&mutex);
-	timer.stop();
+	Timer t;
 
-	total_time += timer.get_wall_time();
+	t.start();
+	pthread_mutex_lock(&mutex);
+	t.stop();
+
+	lock_acquisition_time += t.get_wall_time();
 }
 
 void Mutex::unlock(void)
@@ -37,7 +42,28 @@ bool Mutex::try_lock(void)
 	return pthread_mutex_trylock(&mutex) != EBUSY;
 }
 
-double Mutex::get_time_spent_waiting(void)
+void Mutex::cond_wait(void)
 {
-	return total_time;
+	Timer t;
+
+	t.start();
+	pthread_cond_wait(&cond, &mutex);
+	t.stop();
+
+	cond_wait_time += t.get_wall_time();
+}
+
+void Mutex::cond_signal(void)
+{
+	pthread_cond_signal(&cond);
+}
+
+double Mutex::get_lock_acquisition_time(void)
+{
+	return lock_acquisition_time;
+}
+
+double Mutex::get_cond_wait_time(void)
+{
+	return cond_wait_time;
 }

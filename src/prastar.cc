@@ -307,11 +307,11 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 		(*iter)->start();
         }
 
-	time_spent_waiting = mutex.get_time_spent_waiting();
+	lock_acquisition_time = mutex.get_lock_acquisition_time();
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
-		double t = (*iter)->get_mutex()->get_time_spent_waiting();
-		time_spent_waiting += t;
+		double t = (*iter)->get_mutex()->get_lock_acquisition_time();
+		lock_acquisition_time += t;
 		delete *iter;
         }
 
@@ -320,5 +320,6 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 
 void PRAStar::output_stats(void)
 {
-	cout << "time-locked: " << time_spent_waiting << endl;
+	cout << "time-acquiring-locks:" << lock_acquisition_time << endl;
+	cout << "time-cond-waiting: 0.0" << endl;
 }

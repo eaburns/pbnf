@@ -18,23 +18,47 @@ class Mutex {
 public:
 	Mutex(void);
 
-	/* Lock the mutex */
+	/** Lock the mutex */
 	void lock(void);
 
-	/* Unlock the mutex */
+	/** Unlock the mutex */
 	void unlock(void);
 
-	/* Try the lock on the mutex, returns true if the lock is
-	 * acquired and false if not. */
+	/**
+	 * Try the lock on the mutex, returns true if the lock is
+	 * acquired and false if not.
+	 */
 	bool try_lock(void);
 
-	/* Get the total time (in seconds) that threads have spent
-	 * waiting on this mutex. */
-	double get_time_spent_waiting(void);
+	/** Wait on the condition. */
+	void cond_wait(void);
+
+	/** Signal all threads waiting on the condition. */
+	void cond_signal(void);
+
+	/**
+	 * Get the total time (in seconds) that threads have spent
+	 * waiting on this mutex.
+	 */
+	double get_lock_acquisition_time(void);
+
+	/**
+	 * Get the amount of time spent waiting on a condition.
+	 */
+	double get_cond_wait_time(void);
+
 private:
-	Timer timer;
-	double total_time;
+	/** The accumulated time spent trying to acquire a lock. */
+	double lock_acquisition_time;
+
+	/** Accumulated time waiting on a condition. */
+	double cond_wait_time;
+
+	/** The low-level mutex. */
 	pthread_mutex_t mutex;
+
+	/** Incase we want a condition on this mutex. */
+	pthread_cond_t cond;
 };
 
 #endif	/* _MUTEX_H_ */

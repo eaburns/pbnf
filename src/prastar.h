@@ -114,7 +114,7 @@ private:
 	vector<PRAStarThread *> threads;
 	vector<PRAStarThread *>::iterator iter;
 
-	double time_spent_waiting;
+	double lock_acquisition_time;
 };
 
 #endif	/* !_PRASTAR_H_ */
