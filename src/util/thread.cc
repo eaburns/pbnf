@@ -27,6 +27,17 @@ using namespace std;
 
 unsigned int Thread::next_id = 0;
 
+pthread_once_t Thread::init_current_key_once = PTHREAD_ONCE_INIT;
+pthread_key_t Thread::current_key;
+
+/**
+ * Initializes the current_key field.
+ */
+void init_current_key(void)
+{
+	pthread_key_create(&Thread::current_key, NULL);
+}
+
 /**
  * Create a new thread.
  */
@@ -38,6 +49,16 @@ Thread::Thread(void)
         pthread_cond_init(&cond, NULL);
         do_exit = false;
         signalled=0;
+
+	// initialize the current_key field... only do it once.
+	pthread_once(&init_current_key_once, init_current_key);
+
+	pthread_setspecific(current_key, (void*) this);
+}
+
+Thread* Thread::current(void)
+{
+	return (Thread*) pthread_getspecific(current_key);
 }
 
 /**

@@ -26,6 +26,9 @@ public:
 
 	virtual void run(void) = 0;
 
+	/* Get the current thread. */
+	static Thread *current(void);
+
 protected:
         pthread_mutex_t mutex; //cond and mutex for thread waits
         pthread_cond_t cond;
@@ -33,12 +36,19 @@ protected:
 
 private:
 	friend void *pthread_call_run(void *);
+	friend void init_current_key(void);
 
 	pthread_t pthread_id;
 	unsigned int id;
 
-	static unsigned int next_id;
         unsigned int signalled;
+
+	/* The next available ID number */
+	static unsigned int next_id;
+
+	/* Thread-local storage for the current() function return. */
+	static pthread_once_t init_current_key_once;
+	static pthread_key_t current_key;
 };
 
 #endif	/* !_THREAD_H_ */
