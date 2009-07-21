@@ -65,9 +65,10 @@ void PRAStar::PRAStarThread::post_send(void *t)
 	thr->q_empty = false;
 }
 
-void PRAStar::PRAStarThread::flush_sends(bool force)
+bool PRAStar::PRAStarThread::flush_sends(bool force)
 {
 	unsigned int i;
+	bool has_sends = false;
 	for (i = 0; i < threads->size(); i += 1) {
 		if (!out_qs[i])
 			continue;
@@ -76,14 +77,19 @@ void PRAStar::PRAStarThread::flush_sends(bool force)
 				out_qs[i]->force_flush();
 			else
 				out_qs[i]->try_flush();
+
+			if (!out_qs[i]->is_empty())
+				has_sends = true;
 		}
 	}
+
+	return has_sends;
 }
 
 /**
  * Flush the queue
  */
-void PRAStar::PRAStarThread::flush_receives(void)
+void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 {
 	// wait for either completion or more nodes to expand
 	if (open.empty())
@@ -91,7 +97,7 @@ void PRAStar::PRAStarThread::flush_receives(void)
 	else if (!mutex.try_lock())
 		return;
 
-	if (q_empty) {
+	if (q_empty && !has_sends) {
 		if (!open.empty()) {
 			mutex.unlock();
 			return;
@@ -197,11 +203,11 @@ void PRAStar::PRAStarThread::send_state(State *c, bool force)
 State *PRAStar::PRAStarThread::take(void){
 
 	while (open.empty() || !q_empty) {
-		flush_receives();
-
 		// if there are no open nodes, might as well sit on
 		// the lock.
-		flush_sends(open.empty());
+		bool has_sends = flush_sends(open.empty());
+
+		flush_receives(has_sends);
 
 		if (cc->is_complete()){
 			p->set_done();

@@ -68,11 +68,11 @@ private:
 
         private:
 		/* Flushes the send queues. */
-		void flush_sends(bool force);
+		bool flush_sends(bool force);
 
 
 		/* flushes the queue into the open list. */
-                void flush_receives(void);
+                void flush_receives(bool has_sends);
 
 		/* sends the state to the appropriate thread (possibly
 		 * this thread). */
