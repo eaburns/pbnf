@@ -140,10 +140,12 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "lpastar-%lf-%u", &weight, &threads) == 2) {
 		return new LPAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
-		return new PRAStar(threads);
-	} else if (argc > 1 && sscanf(argv[1], "wprastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
+		return new PRAStar(threads, false);
+	} else if (argc > 1 && sscanf(argv[1], "aprastar-%u-%u", &threads, &nblocks) == 2) {
+		return new PRAStar(threads, true);
+	} else if (argc > 1 && sscanf(argv[1], "waprastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads, false);
-	} else if (argc > 1 && sscanf(argv[1], "wprastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
+	} else if (argc > 1 && sscanf(argv[1], "waprastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads, true);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {

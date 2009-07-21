@@ -142,7 +142,13 @@ void PRAStar::PRAStarThread::flush_receives(void)
 
 void PRAStar::PRAStarThread::send_state(State *c, bool force)
 {
+/*
 	unsigned long hash = p->project->project(c);
+*/
+	unsigned long hash =
+		p->use_abstraction
+		? p->project->project(c)
+		: c->hash();
 	unsigned int dest_tid = threads->at(hash % p->n_threads)->get_id();
 	bool self_add = dest_tid == this->get_id();
 
@@ -246,11 +252,12 @@ void PRAStar::PRAStarThread::run(void){
 /************************************************************/
 
 
-PRAStar::PRAStar(unsigned int n_threads)
+PRAStar::PRAStar(unsigned int n_threads, bool use_abst)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
-	  path(NULL){
+	  path(NULL),
+	  use_abstraction(use_abst){
         done = false;
 }
 
@@ -296,12 +303,13 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
         CompletionCounter cc = CompletionCounter(n_threads);
 
 	threads.resize(n_threads, NULL);
-        for (unsigned int i = 0; i < n_threads; i += 1) {
-		PRAStarThread *t = new PRAStarThread(this, &threads, &cc);
-		threads[i] = t;
-        }
+        for (unsigned int i = 0; i < n_threads; i += 1)
+                threads.at(i) = new PRAStarThread(this, &threads, &cc);
 
-        threads.at(project->project(init)%n_threads)->open.add(init);
+	if (use_abstraction)
+		threads.at(project->project(init)%n_threads)->open.add(init);
+	else
+		threads.at(init->hash() % n_threads)->open.add(init);
 
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->start();

@@ -29,7 +29,7 @@ using namespace std;
 
 class PRAStar : public Search {
 public:
-        PRAStar(unsigned int n_threads);
+        PRAStar(unsigned int n_threads, bool use_abst);
 
         virtual ~PRAStar(void);
 
@@ -113,6 +113,10 @@ private:
         vector<State *> *path;
 	vector<PRAStarThread *> threads;
 	vector<PRAStarThread *>::iterator iter;
+
+	/* true: use abstraction for hashing, false: use basic
+	 * hashing. */
+	bool use_abstraction;
 
 	double lock_acquisition_time;
 };
