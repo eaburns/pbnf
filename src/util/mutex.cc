@@ -80,5 +80,5 @@ double Mutex::get_cond_wait_time(void)
 void Mutex::print_stats(ostream &o)
 {
 	o << "time-acquiring-locks: " << lock_acquisition_time << endl;
-	o << "time-cond-waiting: " << cond_wait_time << endl;
+	o << "time-waiting: " << cond_wait_time << endl;
 }

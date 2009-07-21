@@ -68,7 +68,7 @@ private:
 
         private:
 		/* Flushes the send queues. */
-		bool flush_sends(bool force);
+		bool flush_sends(void);
 
 
 		/* flushes the queue into the open list. */
@@ -76,7 +76,7 @@ private:
 
 		/* sends the state to the appropriate thread (possibly
 		 * this thread). */
-		void send_state(State *c, bool force);
+		void send_state(State *c);
 
                 PRAStar *p;
 
@@ -102,6 +102,9 @@ private:
                 PQOpenList<State::PQOpsFPrime> open;
                 ClosedList closed;
 		bool q_empty;
+
+		/* statistics */
+		double time_spinning;
         };
 
         bool done;
@@ -118,7 +121,9 @@ private:
 	 * hashing. */
 	bool use_abstraction;
 
+	/* Statistics */
 	double lock_acquisition_time;
+	double time_spinning;
 };
 
 #endif	/* !_PRASTAR_H_ */

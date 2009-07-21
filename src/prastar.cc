@@ -18,6 +18,7 @@ extern "C" {
 #include "lockfree/include/atomic.h"
 }
 
+#include "util/timer.h"
 #include "util/mutex.h"
 #include "util/msg_buffer.h"
 #include "prastar.h"
@@ -33,6 +34,7 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
 	  cc(cc),
 	  q_empty(true)
 {
+	time_spinning = 0;
 	out_qs.resize(threads->size(), NULL);
         completed = false;
 }
@@ -65,7 +67,7 @@ void PRAStar::PRAStarThread::post_send(void *t)
 	thr->q_empty = false;
 }
 
-bool PRAStar::PRAStarThread::flush_sends(bool force)
+bool PRAStar::PRAStarThread::flush_sends(void)
 {
 	unsigned int i;
 	bool has_sends = false;
@@ -73,11 +75,7 @@ bool PRAStar::PRAStarThread::flush_sends(bool force)
 		if (!out_qs[i])
 			continue;
 		if (out_qs[i]) {
-			if (force)
-				out_qs[i]->force_flush();
-			else
-				out_qs[i]->try_flush();
-
+			out_qs[i]->try_flush();
 			if (!out_qs[i]->is_empty())
 				has_sends = true;
 		}
@@ -146,7 +144,7 @@ void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 	mutex.unlock();
 }
 
-void PRAStar::PRAStarThread::send_state(State *c, bool force)
+void PRAStar::PRAStarThread::send_state(State *c)
 {
 /*
 	unsigned long hash = p->project->project(c);
@@ -181,9 +179,8 @@ void PRAStar::PRAStarThread::send_state(State *c, bool force)
 
 	// not a self add
 	//
-	// Do a buffered send, unless the force flag is set, in which
-	// case we can just sit on a lock because there is no work to
-	// do anyway.
+	// Do a buffered send, in which case we can just sit on a lock
+	// because there is no work to do anyway.
 	if (!out_qs[dest_tid]) {
 		Mutex *lk = threads->at(dest_tid)->get_mutex();
 		vector<State*> *qu = threads->at(dest_tid)->get_queue();
@@ -193,20 +190,19 @@ void PRAStar::PRAStarThread::send_state(State *c, bool force)
 					      threads->at(dest_tid));
 	}
 
-	if (force)
-		out_qs[dest_tid]->force_send(c);
-	else
-		out_qs[dest_tid]->try_send(c);
-
+	out_qs[dest_tid]->try_send(c);
 }
 
-State *PRAStar::PRAStarThread::take(void){
+State *PRAStar::PRAStarThread::take(void)
+{
+	Timer t;
+	bool entered_loop = false;
 
+	t.start();
 	while (open.empty() || !q_empty) {
-		// if there are no open nodes, might as well sit on
-		// the lock.
-		bool has_sends = flush_sends(open.empty());
+		entered_loop = true;
 
+		bool has_sends = flush_sends();
 		flush_receives(has_sends);
 
 		if (cc->is_complete()){
@@ -214,6 +210,9 @@ State *PRAStar::PRAStarThread::take(void){
 			return NULL;
 		}
         }
+	t.stop();
+	if (entered_loop)
+		time_spinning += t.get_wall_time();
 
 	State *ret = NULL;
 	if (!p->is_done())
@@ -245,7 +244,7 @@ void PRAStar::PRAStarThread::run(void){
 		children = p->expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
-			send_state(c, false);
+			send_state(c);
 		}
         }
 
@@ -322,10 +321,12 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
         }
 
 	lock_acquisition_time = mutex.get_lock_acquisition_time();
+	time_spinning = 0.0;
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 		double t = (*iter)->get_mutex()->get_lock_acquisition_time();
 		lock_acquisition_time += t;
+		time_spinning += (*iter)->time_spinning;
 		delete *iter;
         }
 
@@ -335,5 +336,5 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 void PRAStar::output_stats(void)
 {
 	cout << "time-acquiring-locks: " << lock_acquisition_time << endl;
-	cout << "time-cond-waiting: 0.0" << endl;
+	cout << "time-waiting: " << time_spinning << endl;
 }
