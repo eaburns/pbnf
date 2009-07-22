@@ -153,7 +153,6 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int mi
 	  min_expansions(min_expansions),
 	  multiplier(mult)
 {
-	pthread_mutex_init(&path_mutex, NULL);
 }
 
 /**
@@ -171,7 +170,6 @@ BFPSDDSearch::BFPSDDSearch(unsigned int n_threads, fp_type mult, unsigned int mi
 	  sum(0),
 	  num(0)
 {
-	pthread_mutex_init(&path_mutex, NULL);
 }
 
 
@@ -190,13 +188,13 @@ BFPSDDSearch::~BFPSDDSearch(void)
  */
 void BFPSDDSearch::set_path(vector<State *> *p)
 {
-	pthread_mutex_lock(&path_mutex);
+	path_mutex.lock();
 	assert(!p || p->at(0)->get_g() == p->at(0)->get_f());
 	if (p && bound.read() >= p->at(0)->get_g()) {
 		this->path = p;
 		bound.set(p->at(0)->get_g());
 	}
-	pthread_mutex_unlock(&path_mutex);
+	path_mutex.unlock();
 }
 
 
@@ -255,10 +253,13 @@ void BFPSDDSearch::output_stats(void)
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
 
-	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
+	cout << "nblock-graph-creation-time: "
+	     << graph_timer.get_wall_time() << endl;
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
+
+	Mutex::print_stats(cout);
 }
 
 /**

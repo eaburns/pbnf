@@ -11,7 +11,6 @@
 #define _BFPSDD_NBLOCK_GRAPH_H_
 
 #include <assert.h>
-#include <pthread.h>
 
 #include <iostream>
 #include <map>
@@ -24,6 +23,7 @@
 #include "../open_list.h"
 #include "../projection.h"
 #include "../util/nblock_map.h"
+#include "../util/mutex.h"
 #include "nblock.h"
 
 using namespace std;
@@ -47,6 +47,10 @@ namespace BFPSDD {
 		unsigned int get_ncreated_nblocks(void);
 
 		fp_type get_layer_value(void) const;
+
+		/* for printing locking statistics. */
+		double get_lock_acquisition_time(void);
+		double get_cond_wait_time(void);
 
 	private:
 		void __print(ostream &o);
@@ -72,9 +76,7 @@ namespace BFPSDD {
 		/* The value of this layer */
 		fp_type layer_value;
 
-
-		pthread_mutex_t mutex;
-		pthread_cond_t cond;
+		Mutex mutex;
 
 		/* This flag is set when a thread finds a path so that other
 		 * threads do not continue to wait for a new NBlock. */
@@ -118,8 +120,6 @@ namespace BFPSDD {
 		free_list.push_back(n);
 		layer_value = n->open.get_best_val();
 
-		pthread_mutex_init(&mutex, NULL);
-		pthread_cond_init(&cond, NULL);
 		path_found = false;
 
 		nblocks_assigned = 0;
@@ -149,7 +149,7 @@ namespace BFPSDD {
 	{
 		NBlock<StateCompare> *n = NULL;
 
-		pthread_mutex_lock(&mutex);
+		mutex.lock();
 
 		if (finished) {		// Release an NBlock
 			if (finished->sigma != 0) {
@@ -196,12 +196,12 @@ namespace BFPSDD {
 					path_found = true;
 
 				// Wake up everyone...
-				pthread_cond_broadcast(&cond);
+				mutex.cond_broadcast();
 			}
 		}
 
 		while (free_list.empty() && !path_found)
-			pthread_cond_wait(&cond, &mutex);
+			mutex.cond_wait();
 
 		if (path_found)
 			goto out;
@@ -214,7 +214,7 @@ namespace BFPSDD {
 			nblocks_assigned_max = nblocks_assigned;
 		update_scope_sigmas(n->id, 1);
 	out:
-		pthread_mutex_unlock(&mutex);
+		mutex.unlock();
 
 		return n;
 	}
@@ -273,9 +273,9 @@ namespace BFPSDD {
 	template<class NBlockPQ, class StateCompare>
 		void NBlockGraph<NBlockPQ, StateCompare>::print(ostream &o)
 	{
-		pthread_mutex_lock(&mutex);
+		mutex.lock();
 		__print(o);
-		pthread_mutex_unlock(&mutex);
+		mutex.unlock();
 	}
 
 /**
@@ -304,7 +304,7 @@ namespace BFPSDD {
 				if (yblk->open.get_best_val() == layer_value
 				    && yblk->inlayer) {
 					free_list.push_back(yblk);
-					pthread_cond_signal(&cond);
+					mutex.cond_broadcast();
 				} else {
 					nblock_pq.add(yblk);
 				}

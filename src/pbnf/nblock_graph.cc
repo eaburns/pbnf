@@ -452,7 +452,7 @@ unsigned int NBlockGraph::get_ncreated_nblocks(void)
 
 void NBlockGraph::print_stats(ostream &o)
 {
-	mutex.print_stats(o);
+	Mutex::print_stats(o);
 
 	//
 	// Print open list statistics.

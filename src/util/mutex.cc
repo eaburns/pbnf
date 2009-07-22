@@ -14,15 +14,15 @@
 
 using namespace std;
 
-#include "timer.h"
 #include "mutex.h"
+
+AtomicFloat Mutex::lock_acquisition_time(0.0);
+AtomicFloat Mutex::cond_wait_time(0.0);
 
 Mutex::Mutex(void)
 {
 	pthread_mutex_init(&mutex, NULL);
 	pthread_cond_init(&cond, NULL);
-	lock_acquisition_time = 0.0;
-	cond_wait_time = 0.0;
 }
 
 void Mutex::lock(void)
@@ -33,7 +33,7 @@ void Mutex::lock(void)
 	pthread_mutex_lock(&mutex);
 	t.stop();
 
-	lock_acquisition_time += t.get_wall_time();
+	lock_acquisition_time.add(t.get_wall_time());
 }
 
 void Mutex::unlock(void)
@@ -54,7 +54,7 @@ void Mutex::cond_wait(void)
 	pthread_cond_wait(&cond, &mutex);
 	t.stop();
 
-	cond_wait_time += t.get_wall_time();
+	cond_wait_time.add(t.get_wall_time());
 }
 
 void Mutex::cond_signal(void)
@@ -69,16 +69,16 @@ void Mutex::cond_broadcast(void)
 
 double Mutex::get_lock_acquisition_time(void)
 {
-	return lock_acquisition_time;
+	return lock_acquisition_time.read();
 }
 
 double Mutex::get_cond_wait_time(void)
 {
-	return cond_wait_time;
+	return cond_wait_time.read();
 }
 
 void Mutex::print_stats(ostream &o)
 {
-	o << "time-acquiring-locks: " << lock_acquisition_time << endl;
-	o << "time-waiting: " << cond_wait_time << endl;
+	o << "time-acquiring-locks: " << lock_acquisition_time.read() << endl;
+	o << "time-waiting: " << cond_wait_time.read() << endl;
 }

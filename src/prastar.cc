@@ -320,14 +320,11 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 		(*iter)->start();
         }
 
-	lock_acquisition_time = mutex.get_lock_acquisition_time();
 	time_spinning = 0.0;
 	max_open_size = 0;
 	avg_open_size = 0;
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
-		double t = (*iter)->get_mutex()->get_lock_acquisition_time();
-		lock_acquisition_time += t;
 		time_spinning += (*iter)->time_spinning;
 		avg_open_size += (*iter)->open.get_avg_size();
 		delete *iter;
@@ -339,7 +336,8 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 
 void PRAStar::output_stats(void)
 {
-	cout << "time-acquiring-locks: " << lock_acquisition_time << endl;
+	cout << "time-acquiring-locks: "
+	     << Mutex::get_lock_acquisition_time() << endl;
 	cout << "time-waiting: " << time_spinning << endl;
 	cout << "average-open-size: " << avg_open_size << endl;
 	cout << "max-open-size: " << max_open_size << endl;

@@ -18,9 +18,10 @@
 class AtomicFloat {
 public:
 	AtomicFloat(void);
-	AtomicFloat(float v);
-	float read(void);
-	void set(float);
+	AtomicFloat(double v);
+	double read(void);
+	void set(double);
+	void add(double);
 private:
 	AtomicInt value;
 };

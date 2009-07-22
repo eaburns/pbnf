@@ -17,6 +17,7 @@
 using namespace std;
 
 #include "timer.h"
+#include "atomic_float.h"
 
 class Mutex {
 public:
@@ -47,22 +48,22 @@ public:
 	 * Get the total time (in seconds) that threads have spent
 	 * waiting on this mutex.
 	 */
-	double get_lock_acquisition_time(void);
+	static double get_lock_acquisition_time(void);
 
 	/**
 	 * Get the amount of time spent waiting on a condition.
 	 */
-	double get_cond_wait_time(void);
+	static double get_cond_wait_time(void);
 
 	/** Print the stats to the given output stream. */
-	void print_stats(ostream &o);
+	static void print_stats(ostream &o);
 
 private:
 	/** The accumulated time spent trying to acquire a lock. */
-	double lock_acquisition_time;
+	static AtomicFloat lock_acquisition_time;
 
 	/** Accumulated time waiting on a condition. */
-	double cond_wait_time;
+	static AtomicFloat cond_wait_time;
 
 	/** The low-level mutex. */
 	pthread_mutex_t mutex;

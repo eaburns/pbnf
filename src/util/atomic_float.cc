@@ -15,32 +15,42 @@
 #include "atomic_float.h"
 
 union cast_union {
-	unsigned int l;
-	fp_type f;
+	uint64_t l;
+	double f;
 };
 
 AtomicFloat::AtomicFloat(void)
 {
-	assert(sizeof(unsigned int) == sizeof(fp_type));
+	assert(sizeof(uint64_t) == sizeof(double));
 	set(0);
 }
 
-AtomicFloat::AtomicFloat(float v)
+AtomicFloat::AtomicFloat(double v)
 {
-	assert(sizeof(unsigned int) == sizeof(fp_type));
+	assert(sizeof(uint64_t) == sizeof(double));
 	set(v);
 }
 
-float AtomicFloat::read(void)
+double AtomicFloat::read(void)
 {
 	union cast_union c;
 	c.l = value.read();
 	return c.f;
 }
 
-void AtomicFloat::set(float v)
+void AtomicFloat::set(double v)
 {
 	union cast_union c;
 	c.f = v;
 	value.set(c.l);
+}
+
+void AtomicFloat::add(double v)
+{
+	union cast_union o, n;
+
+	do {
+		o.l = value.read();
+		n.f = o.f + v;
+	} while (value.cmp_and_swap(o.l, n.l) != o.l);
 }

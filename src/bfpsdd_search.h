@@ -10,14 +10,13 @@
 #if !defined(_BFPSDD_H_)
 #define _BFPSDD_H_
 
-#include <pthread.h>
-
 #include <vector>
 
 #include "bfpsdd/nblock.h"
 #include "bfpsdd/nblock_graph.h"
 #include "bfpsdd/real_val_nblock_pq.h"
 #include "util/thread.h"
+#include "util/mutex.h"
 #include "util/cumulative_ave.h"
 #include "projection.h"
 #include "search.h"
@@ -60,7 +59,7 @@ private:
 	const Projection *project;
 	vector<State *> *path;
 	BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<State::PQOpsFPrime>, State::PQOpsFPrime> *graph;
-	pthread_mutex_t path_mutex;
+	Mutex path_mutex;
 	unsigned int min_expansions;
 	fp_type multiplier;
 
