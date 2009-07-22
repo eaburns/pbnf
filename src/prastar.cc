@@ -246,6 +246,8 @@ void PRAStar::PRAStarThread::run(void){
 			State *c = children->at(i);
 			if (c->get_f() < p->bound.read())
 				send_state(c);
+			else
+				delete c;
 		}
         }
 
