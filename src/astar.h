@@ -13,6 +13,7 @@
 #include "state.h"
 #include "search.h"
 #include "closed_list.h"
+#include "pq_open_list.h"
 
 /**
  * An A* search class.
@@ -23,7 +24,10 @@ public:
 	AStar(bool dd);
 	virtual ~AStar(void);
 	virtual vector<State *> *search(Timer *, State *);
+
+	void output_stats(void);
 private:
+	PQOpenList<State::PQOpsFPrime> open;
 	ClosedList closed;
 	bool dd;		/* dup dropping */
 };

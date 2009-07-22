@@ -9,9 +9,6 @@
 
 #include <assert.h>
 
-#include "state.h"
-#include "pq_open_list.h"
-#include "closed_list.h"
 #include "astar.h"
 
 AStar::AStar(void) : dd(false) { }
@@ -30,7 +27,6 @@ AStar::~AStar(void)
 vector<State *> *AStar::search(Timer *t, State *init)
 {
 	vector<State *> *path = NULL;
-	PQOpenList<State::PQOpsFPrime> open;
 
 	open.add(init);
 
@@ -65,4 +61,11 @@ vector<State *> *AStar::search(Timer *t, State *init)
 	}
 
 	return path;
+}
+
+void AStar::output_stats(void)
+{
+	open.print_stats(cout);
+	cout << "time acquiring locks: 0" << endl;
+	cout << "time waiting: 0" << endl;
 }
