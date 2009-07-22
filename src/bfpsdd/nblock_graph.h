@@ -31,7 +31,8 @@ using namespace std;
 namespace BFPSDD {
 
 	template<class NBlockPQ, class StateCompare>
-		class NBlockGraph {
+		class NBlockGraph
+		: NBlockMap<NBlock<StateCompare> >::CreationObserver {
 	public:
 		enum layer { LAYERA = 0, LAYERB };
 
@@ -48,10 +49,8 @@ namespace BFPSDD {
 
 		fp_type get_layer_value(void) const;
 
-		/* for printing locking statistics. */
-		double get_lock_acquisition_time(void);
-		double get_cond_wait_time(void);
-
+		void observe(NBlock<StateCompare> *b);
+		void print_stats(ostream &o);
 	private:
 		void __print(ostream &o);
 		void update_scope_sigmas(unsigned int y, int delta);
@@ -69,6 +68,9 @@ namespace BFPSDD {
 
 		/* list of free nblock numbers */
 		list<NBlock<StateCompare> *> free_list;
+
+		/* list of all nblocks. */
+		list<NBlock<StateCompare> *> nblocks;
 
 		/* prio-queue of NBlocks. */
 		NBlockPQ nblock_pq;
@@ -109,6 +111,7 @@ namespace BFPSDD {
 	{
 		unsigned int init_nblock = p->project(initial);
 
+		map.set_observer(this);
 		this->nthreads = nt;
 		num_sigma_zero = num_nblocks = p->get_num_nblocks();
 		this->multiplier = mult;
@@ -353,6 +356,38 @@ namespace BFPSDD {
 	unsigned int NBlockGraph<NBlockPQ, StateCompare>::get_ncreated_nblocks(void)
 	{
 		return map.get_num_created();
+	}
+
+	template<class NBlockPQ, class StateCompare>
+	void NBlockGraph<NBlockPQ, StateCompare>::observe(NBlock<StateCompare> *b)
+	{
+		nblocks.push_back(b);
+	}
+
+	template<class NBlockPQ, class StateCompare>
+	void NBlockGraph<NBlockPQ, StateCompare>::print_stats(ostream &o)
+	{
+		//
+		// Print open list statistics.
+		//
+		typename list<NBlock<StateCompare>* >::iterator iter;
+		unsigned int max = 0;
+		double sum = 0;
+		double num = 0;
+		for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+			NBlock<StateCompare> *n = *iter;
+			if (n->open.get_max_size() > max)
+				max = n->open.get_max_size();
+			sum += n->open.get_avg_size();
+			num += 1;
+		}
+		if (num > 0) {
+			cout << "average-open-size: " << (sum / num) << endl;
+			cout << "max-open-size: " << max << endl;
+		} else {
+			cout << "average-open-size: -1" << endl;
+			cout << "max-open-size: -1" << endl;
+		}
 	}
 
 } /* BFPSDD */

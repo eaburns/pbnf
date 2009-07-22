@@ -31,7 +31,7 @@ using namespace BFPSDD;
  * Create a new PSDD Search thread.
  */
 BFPSDDSearch::BFPSDDThread::BFPSDDThread(NBlockGraph<BFPSDD::RealValNBlockPQ<State::PQOpsFPrime>,State::PQOpsFPrime> *graph,
-	BFPSDDSearch *search)
+					 BFPSDDSearch *search)
 	: graph(graph), search(search) {}
 
 
@@ -219,30 +219,30 @@ vector<State *> *BFPSDDSearch::search(Timer *timer, State *initial)
 	graph_timer.start();
 	graph = new NBlockGraph<RealValNBlockPQ<State::PQOpsFPrime>,
 		State::PQOpsFPrime>(project,
-					n_threads,
-					multiplier,
-					initial);
-	graph_timer.stop();
+				    n_threads,
+				    multiplier,
+				    initial);
+graph_timer.stop();
 
-	for (unsigned int i = 0; i < n_threads; i += 1) {
-		BFPSDDThread *t = new BFPSDDThread(graph, this);
-		threads.push_back(t);
-		t->start();
+for (unsigned int i = 0; i < n_threads; i += 1) {
+	BFPSDDThread *t = new BFPSDDThread(graph, this);
+	threads.push_back(t);
+	t->start();
+}
+
+for (iter = threads.begin(); iter != threads.end(); iter++) {
+	(*iter)->join();
+
+	fp_type ave = (*iter)->get_ave_exp_per_nblock();
+	if (ave != 0.0) {
+		sum += ave;
+		num += 1;
 	}
 
-	for (iter = threads.begin(); iter != threads.end(); iter++) {
-		(*iter)->join();
+	delete *iter;
+}
 
-		fp_type ave = (*iter)->get_ave_exp_per_nblock();
-		if (ave != 0.0) {
-			sum += ave;
-			num += 1;
-		}
-
-		delete *iter;
-	}
-
-	return path;
+return path;
 }
 
 
