@@ -244,7 +244,8 @@ void PRAStar::PRAStarThread::run(void){
 		children = p->expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
-			send_state(c);
+			if (c->get_f() < p->bound.read())
+				send_state(c);
 		}
         }
 
@@ -327,6 +328,8 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 		(*iter)->join();
 		time_spinning += (*iter)->time_spinning;
 		avg_open_size += (*iter)->open.get_avg_size();
+		if ((*iter)->open.get_max_size() > max_open_size)
+			max_open_size = (*iter)->open.get_max_size();
 		delete *iter;
         }
 	avg_open_size /= n_threads;
