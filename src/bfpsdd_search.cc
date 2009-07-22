@@ -260,6 +260,7 @@ void BFPSDDSearch::output_stats(void)
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
 	Mutex::print_stats(cout);
+	graph->print_stats(cout);
 }
 
 /**
