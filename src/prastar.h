@@ -124,6 +124,8 @@ private:
 	/* Statistics */
 	double lock_acquisition_time;
 	double time_spinning;
+	double avg_open_size;
+	unsigned int max_open_size;
 };
 
 #endif	/* !_PRASTAR_H_ */
