@@ -249,11 +249,8 @@ void PRAStar::PRAStarThread::run(void){
 			else
 				delete c;
 		}
-        }
-
-	if (children)
 		delete children;
-
+        }
 }
 
 
