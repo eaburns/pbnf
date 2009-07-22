@@ -27,11 +27,7 @@
 using namespace std;
 
 namespace PBNF {
-#if !defined(NDEBUG)
 	class NBlockGraph : public NBlockMap<NBlock>::CreationObserver {
-#else
-	class NBlockGraph {
-#endif	/* NDEBUG */
 	public:
 		NBlockGraph(const Projection *p, State *init);
 
@@ -96,9 +92,8 @@ namespace PBNF {
 		unsigned int nblocks_assigned;
 		unsigned int nblocks_assigned_max;
 
-#if !defined(NDEBUG)
+		/* list of created nblocks. */
 		list<NBlock*> nblocks;
-#endif	/* NDEBUG */
 	};
 } /* PBNF */
 

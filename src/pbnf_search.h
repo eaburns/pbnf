@@ -59,7 +59,6 @@ namespace PBNF {
 			bool set_hot;
 			unsigned long exp_this_block;
 			CumulativeAverage ave_exp_per_nblock;
-			CumulativeAverage ave_open_size;
 			fp_type next_best;
 		};
 
@@ -77,11 +76,9 @@ namespace PBNF {
 		static AtomicInt failed;
 		static AtomicInt succeeded;
 
-		/* stats tracking */
+		/* For tracking avg nodes expanded per-nblock. */
 		fp_type sum;
 		unsigned int num;
-		fp_type osum;
-		unsigned int onum;
 	};
 }
 

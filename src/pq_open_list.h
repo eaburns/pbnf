@@ -71,6 +71,7 @@ void PQOpenList<PQCompare>::add(State *s)
 {
 	s->set_open(true);
 	pq.add(s);
+	change_size(1);
 	set_best_val(comp.get_value(pq.front()));
 }
 
@@ -85,6 +86,7 @@ State *PQOpenList<PQCompare>::take(void)
 
 	s = pq.take();
 	s->set_open(false);
+	change_size(-1);
 
 	if (pq.empty())
 		set_best_val(fp_infinity);
@@ -123,6 +125,7 @@ template<class PQCompare>
 		delete pq.take();
 
 	pq.reset();
+	set_size(0);
 }
 
 /**
@@ -137,6 +140,7 @@ template<class PQCompare>
 		pq.get_elem(i)->set_open(false);
 
 	pq.reset();
+	set_size(0);
 }
 
 template<class PQCompare>
@@ -164,6 +168,7 @@ template<class PQCompare>
 {
 	pq.remove(get_index(s));
 	s->set_open(false);
+	change_size(-1);
 	if (pq.empty())
 		set_best_val(fp_infinity);
 	else

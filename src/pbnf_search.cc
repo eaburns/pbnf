@@ -77,14 +77,6 @@ fp_type PBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
 }
 
 /**
- * Get the average size of open lists.
- */
-fp_type PBNFSearch::PBNFThread::get_ave_open_size(void)
-{
-	return ave_open_size.read();
-}
-
-/**
  * Search a single NBlock.
  */
 vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
@@ -94,7 +86,6 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 
 	while (!open->empty() && !should_switch(n)) {
 		State *s = open->take();
-		ave_open_size.add_val(open->size());
 
 		if (s->get_f() >= search->bound.read())
 			continue;
@@ -116,8 +107,10 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 				continue;
 			}
 			unsigned int block = search->project->project(*iter);
-			PQOpenList<State::PQOpsFPrime> *next_open = &graph->get_nblock(block)->open;
-			ClosedList *next_closed = &graph->get_nblock(block)->closed;
+			PQOpenList<State::PQOpsFPrime> *next_open =
+				&graph->get_nblock(block)->open;
+			ClosedList *next_closed =
+				&graph->get_nblock(block)->closed;
 			State *dup = next_closed->lookup(*iter);
 			if (dup) {
 				if (dup->get_g() > (*iter)->get_g()) {
@@ -128,7 +121,6 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 						next_open->see_update(dup);
 					else
 						next_open->add(dup);
-					ave_open_size.add_val(next_open->size());
 				}
 				delete *iter;
 			} else {
@@ -139,7 +131,6 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 					return path;
 				}
 				next_open->add(*iter);
-				ave_open_size.add_val(next_open->size());
 			}
 		}
 		delete children;
@@ -210,10 +201,7 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	  detect_livelocks(detect_livelocks),
 	  graph(NULL),
 	  sum(0.0),
-	  num(0),
-	  osum(0.0),
-	  onum(0)
-
+	  num(0)
 {
 	if (min_e == 0){
 		dynamic_m = true;
@@ -251,6 +239,8 @@ vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 		t->start();
 	}
 
+	// Accumulate statistics
+	sum = num = 0;
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
@@ -259,13 +249,6 @@ vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 			sum += ave;
 			num += 1;
 		}
-		fp_type oave = (*iter)->get_ave_open_size();
-		if (oave != 0) {
-			osum += oave;
-			onum += 1;
-		}
-
-		delete *iter;
 	}
 
 	return solutions->get_best_path();
@@ -319,10 +302,6 @@ void PBNFSearch::output_stats(void)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
-	if (onum == 0)
-		cout << "avg-open-list-size: -1" << endl;
-	else
-		cout << "avg-open-list-size: " << osum / onum << endl;
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;

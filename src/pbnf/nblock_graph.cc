@@ -54,9 +54,7 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
-#if !defined(NDEBUG)
 	map.set_observer(this);
-#endif	// NDEBUG
 
 	NBlock *n = map.get(init_nblock);
 	n->open.add(initial);
@@ -455,11 +453,31 @@ unsigned int NBlockGraph::get_ncreated_nblocks(void)
 void NBlockGraph::print_stats(ostream &o)
 {
 	mutex.print_stats(o);
+
+	//
+	// Print open list statistics.
+	//
+	list<NBlock*>::iterator iter;
+	unsigned int max = 0;
+	double sum = 0;
+	double num = 0;
+	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
+		NBlock *n = *iter;
+		if (n->open.get_max_size() > max)
+			max = n->open.get_max_size();
+		sum += n->open.get_avg_size();
+		num += 1;
+	}
+	if (num > 0) {
+		cout << "average-open-size: " << (sum / num) << endl;
+		cout << "max-open-size: " << max << endl;
+	} else {
+		cout << "average-open-size: -1" << endl;
+		cout << "max-open-size: -1" << endl;
+	}
 }
 
-#if !defined(NDEBUG)
 void NBlockGraph::observe(NBlock *b)
 {
 	nblocks.push_back(b);
 }
-#endif	// NDEBUG
