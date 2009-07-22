@@ -37,8 +37,6 @@ namespace PBNF {
 		virtual vector<State *> *search(Timer *t, State *initial);
 		virtual void output_stats(void);
 
-		static void inc_switch(bool failed);
-
 	private:
 		void set_path(vector<State *> *path);
 
@@ -73,8 +71,6 @@ namespace PBNF {
 
 		NBlockGraph *graph;
 		AtomicInt min_expansions;
-		static AtomicInt failed;
-		static AtomicInt succeeded;
 
 		/* For tracking avg nodes expanded per-nblock. */
 		fp_type sum;

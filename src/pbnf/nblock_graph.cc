@@ -104,17 +104,10 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 	// Take the lock, but if someone else already has it, just
 	// keep going.
 	if (trylock && finished && !finished->open.empty()) {
-		if (!mutex.try_lock()) {
-			PBNFSearch::inc_switch(true);
+		if (!mutex.try_lock())
 			return finished;
-		}
-		PBNFSearch::inc_switch(false);
-	} else if(!mutex.try_lock()) {
-		PBNFSearch::inc_switch(true);
+	} else {
 		mutex.lock();
-	}
-	else{
-		PBNFSearch::inc_switch(false);
 	}
 
 	if (finished) {		// Release an NBlock
@@ -363,13 +356,7 @@ void NBlockGraph::set_hot(NBlock *b)
 	set<unsigned int>::iterator i;
 	fp_type val = b->open.get_best_val();
 
-	if(!mutex.try_lock()) {
-		PBNFSearch::inc_switch(true);
-		mutex.lock();
-	}
-	else{
-		PBNFSearch::inc_switch(false);
-	}
+	mutex.lock();
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
@@ -421,13 +408,7 @@ void NBlockGraph::wont_release(NBlock *b)
 {
 	set<unsigned int>::iterator iter;
 
-	if(!mutex.try_lock()) {
-		PBNFSearch::inc_switch(true);
-		mutex.lock();
-	}
-	else{
-		PBNFSearch::inc_switch(false);
-	}
+	mutex.lock();
 
 	for (iter = b->interferes.begin();
 	     iter != b->interferes.end();

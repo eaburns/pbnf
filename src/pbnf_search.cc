@@ -27,9 +27,6 @@ using namespace PBNF;
 #define MIN_M 1
 #define MAX_INT std::numeric_limits<int>::max()
 
-AtomicInt PBNFSearch::failed;
-AtomicInt PBNFSearch::succeeded;
-
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
 	: graph(graph), search(search), set_hot(false) {
 	next_best = 0.0;
@@ -211,8 +208,6 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 		dynamic_m = false;
 		min_expansions = AtomicInt(min_e);
 	}
-	PBNFSearch::failed = AtomicInt(0);
-	PBNFSearch::succeeded = AtomicInt(0);
 }
 
 
@@ -276,22 +271,6 @@ void PBNFSearch::set_path(vector<State *> *p)
 	} while (bound.cmp_and_swap(oldb, b) != oldb);
 }
 
-void PBNFSearch::inc_switch(bool f)
-{
-	if (f){
-		unsigned int old = PBNFSearch::failed.read();
-		unsigned int o, n;
-		do { o = old; n = (unsigned int)(o+1); old = PBNFSearch::failed.cmp_and_swap(o, n);
-		} while (old != o);
-	}
-	else{
-		unsigned int old = PBNFSearch::succeeded.read();
-		unsigned int o, n;
-		do { o = old; n = (unsigned int)(o+1); old = PBNFSearch::succeeded.cmp_and_swap(o, n);
-		} while (old != o);
-	}
-}
-
 /**
  * Output extra "key: value" pairs.
  * keys should not have spaces in their names!
@@ -305,9 +284,6 @@ void PBNFSearch::output_stats(void)
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
-
-	cout << "failed-locks: " << PBNFSearch::failed.read() << endl;
-	cout << "succeeded-locks: " << PBNFSearch::succeeded.read() << endl;
 
 	graph->print_stats(cout);
 
