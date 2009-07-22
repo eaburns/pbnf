@@ -121,6 +121,10 @@ void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 	// and add stuff to the open list
 	for (unsigned int i = 0; i < q.size(); i += 1) {
 		State *c = q[i];
+		if (c->get_f() >= p->bound.read()) {
+			delete c;
+			continue;
+		}
 		State *dup = closed.lookup(c);
 		if (dup){
 			if (dup->get_g() > c->get_g()) {
@@ -295,9 +299,7 @@ void PRAStar::set_path(vector<State *> *p)
 bool PRAStar::has_path()
 {
         bool ret;
-	mutex.lock();
         ret = (path != NULL);
-	mutex.unlock();
         return ret;
 }
 
