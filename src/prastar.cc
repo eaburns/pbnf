@@ -39,7 +39,8 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
         completed = false;
 }
 
-PRAStar::PRAStarThread::~PRAStarThread(void) {
+PRAStar::PRAStarThread::~PRAStarThread(void)
+{
 	 vector<MsgBuffer<State*> *>::iterator i;
 	for (i = out_qs.begin(); i != out_qs.end(); i++)
 		if (*i)
@@ -160,6 +161,8 @@ void PRAStar::PRAStarThread::send_state(State *c)
 	unsigned int dest_tid = threads->at(hash % p->n_threads)->get_id();
 	bool self_add = dest_tid == this->get_id();
 
+	assert (p->n_threads != 1 || self_add);
+
 	if (self_add) {
 		State *dup = closed.lookup(c);
 		if (dup){
@@ -270,7 +273,11 @@ PRAStar::PRAStar(unsigned int n_threads, bool use_abst)
         done = false;
 }
 
-PRAStar::~PRAStar(void) {
+PRAStar::~PRAStar(void)
+{
+        for (iter = threads.begin(); iter != threads.end(); iter++)
+		delete (*iter);
+
 }
 
 void PRAStar::set_done()
@@ -322,24 +329,26 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 		(*iter)->start();
         }
 
-	time_spinning = 0.0;
-	max_open_size = 0;
-	avg_open_size = 0;
-        for (iter = threads.begin(); iter != threads.end(); iter++) {
+        for (iter = threads.begin(); iter != threads.end(); iter++)
 		(*iter)->join();
-		time_spinning += (*iter)->time_spinning;
-		avg_open_size += (*iter)->open.get_avg_size();
-		if ((*iter)->open.get_max_size() > max_open_size)
-			max_open_size = (*iter)->open.get_max_size();
-		delete *iter;
-        }
-	avg_open_size /= n_threads;
 
         return path;
 }
 
 void PRAStar::output_stats(void)
 {
+	time_spinning = 0.0;
+	max_open_size = 0;
+	avg_open_size = 0;
+        for (iter = threads.begin(); iter != threads.end(); iter++) {
+		time_spinning += (*iter)->time_spinning;
+		avg_open_size += (*iter)->open.get_avg_size();
+		if ((*iter)->open.get_max_size() > max_open_size)
+			max_open_size = (*iter)->open.get_max_size();
+        }
+	avg_open_size /= n_threads;
+
+
 	cout << "time-acquiring-locks: "
 	     << Mutex::get_lock_acquisition_time() << endl;
 	cout << "time-waiting: " << time_spinning << endl;
