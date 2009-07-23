@@ -354,7 +354,8 @@ void PRAStar::output_stats(void)
 	cout << "average-time-acquiring-locks: "
 	     << Mutex::get_avg_lock_acquisition_time() << endl;
 	cout << "total-time-waiting: " << time_spinning << endl;
-	cout << "avg-time-waiting: " << time_spinning / n_threads << endl;
+	cout << "avgerage-time-waiting: "
+	     << time_spinning / n_threads << endl;
 	cout << "average-open-size: " << avg_open_size << endl;
 	cout << "max-open-size: " << max_open_size << endl;
 }
