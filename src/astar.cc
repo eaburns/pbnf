@@ -66,6 +66,8 @@ vector<State *> *AStar::search(Timer *t, State *init)
 void AStar::output_stats(void)
 {
 	open.print_stats(cout);
-	cout << "time-acquiring-locks: 0" << endl;
-	cout << "time-waiting: 0" << endl;
+	cout << "total-time-acquiring-locks: 0" << endl;
+	cout << "average-time-acquiring-locks: 0" << endl;
+	cout << "total-time-waiting: 0" << endl;
+	cout << "average-time-waiting: 0" << endl;
 }

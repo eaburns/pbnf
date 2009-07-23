@@ -16,8 +16,8 @@ using namespace std;
 
 #include "mutex.h"
 
-AtomicFloat Mutex::lock_acquisition_time(0.0);
-AtomicFloat Mutex::cond_wait_time(0.0);
+ThreadSpecific<double> Mutex::lock_acquisition_times(0.0);
+ThreadSpecific<double> Mutex::cond_wait_times(0.0);
 
 Mutex::Mutex(void)
 {
@@ -33,7 +33,8 @@ void Mutex::lock(void)
 	pthread_mutex_lock(&mutex);
 	t.stop();
 
-	lock_acquisition_time.add(t.get_wall_time());
+	double time = lock_acquisition_times.get_value();
+	lock_acquisition_times.set_value(time + t.get_wall_time());
 }
 
 void Mutex::unlock(void)
@@ -54,7 +55,8 @@ void Mutex::cond_wait(void)
 	pthread_cond_wait(&cond, &mutex);
 	t.stop();
 
-	cond_wait_time.add(t.get_wall_time());
+	double time = cond_wait_times.get_value();
+	cond_wait_times.set_value(time + t.get_wall_time());
 }
 
 void Mutex::cond_signal(void)
@@ -67,18 +69,59 @@ void Mutex::cond_broadcast(void)
 	pthread_cond_broadcast(&cond);
 }
 
-double Mutex::get_lock_acquisition_time(void)
+double Mutex::get_total_lock_acquisition_time(void)
 {
-	return lock_acquisition_time.read();
+	double total_time;
+	vector<double> times;
+	vector<double>::iterator iter;
+
+	times = lock_acquisition_times.get_all_entries();
+	total_time = 0.0;
+	for (iter = times.begin(); iter != times.end(); iter++)
+		total_time += (*iter);
+
+	return total_time;
 }
 
-double Mutex::get_cond_wait_time(void)
+double Mutex::get_avg_lock_acquisition_time(void)
 {
-	return cond_wait_time.read();
+	double num = lock_acquisition_times.get_all_entries().size();
+
+	return get_total_lock_acquisition_time() / num;
 }
+
+double Mutex::get_total_cond_wait_time(void)
+{
+	double total_time;
+	vector<double> times;
+	vector<double>::iterator iter;
+
+	times = cond_wait_times.get_all_entries();
+	total_time = 0.0;
+	for (iter = times.begin(); iter != times.end(); iter++)
+		total_time += (*iter);
+
+	return total_time;
+
+}
+
+double Mutex::get_avg_cond_wait_time(void)
+{
+	double num = cond_wait_times.get_all_entries().size();
+
+	return get_total_cond_wait_time() / num;
+}
+
 
 void Mutex::print_stats(ostream &o)
 {
-	o << "time-acquiring-locks: " << lock_acquisition_time.read() << endl;
-	o << "time-waiting: " << cond_wait_time.read() << endl;
+	o << "total-time-acquiring-locks: "
+	  << get_total_lock_acquisition_time() << endl;
+	o << "average-time-acquiring-locks: "
+	  << get_avg_lock_acquisition_time() << endl;
+
+	o << "total-time-waiting: "
+	  << get_total_cond_wait_time() << endl;
+	o << "average-time-waiting: "
+	  << get_avg_cond_wait_time() << endl;
 }
