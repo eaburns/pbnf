@@ -333,8 +333,6 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
         for (iter = threads.begin(); iter != threads.end(); iter++)
 		(*iter)->join();
 
-	cerr << "Done Searching" << endl;
-
         return path;
 }
 
