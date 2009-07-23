@@ -52,13 +52,12 @@ Thread::Thread(void)
 
 	// initialize the current_key field... only do it once.
 	pthread_once(&init_current_key_once, init_current_key);
-
-	pthread_setspecific(current_key, (void*) this);
 }
 
 Thread* Thread::current(void)
 {
-	return (Thread*) pthread_getspecific(current_key);
+	Thread *current = (Thread*) pthread_getspecific(current_key);
+	return current;
 }
 
 /**
@@ -70,6 +69,7 @@ void *pthread_call_run(void *void_t)
 {
 	Thread *t = (Thread *) void_t;
 
+	pthread_setspecific(t->current_key, void_t);
 	t->run();
 
 	return NULL;
