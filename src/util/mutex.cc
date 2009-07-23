@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <pthread.h>
 
-#include <ostream>
+#include <iostream>
 
 using namespace std;
 
@@ -83,13 +83,6 @@ double Mutex::get_total_lock_acquisition_time(void)
 	return total_time;
 }
 
-double Mutex::get_avg_lock_acquisition_time(void)
-{
-	double num = lock_acquisition_times.get_all_entries().size();
-
-	return get_total_lock_acquisition_time() / num;
-}
-
 double Mutex::get_total_cond_wait_time(void)
 {
 	double total_time;
@@ -105,23 +98,10 @@ double Mutex::get_total_cond_wait_time(void)
 
 }
 
-double Mutex::get_avg_cond_wait_time(void)
-{
-	double num = cond_wait_times.get_all_entries().size();
-
-	return get_total_cond_wait_time() / num;
-}
-
-
 void Mutex::print_stats(ostream &o)
 {
 	o << "total-time-acquiring-locks: "
 	  << get_total_lock_acquisition_time() << endl;
-	o << "average-time-acquiring-locks: "
-	  << get_avg_lock_acquisition_time() << endl;
-
 	o << "total-time-waiting: "
 	  << get_total_cond_wait_time() << endl;
-	o << "average-time-waiting: "
-	  << get_avg_cond_wait_time() << endl;
 }

@@ -10,6 +10,8 @@
 #if !defined(_THREAD_SPECIFIC_H_)
 #define _THREAD_SPECIFIC_H_
 
+#include <limits.h>
+
 #include <vector>
 using namespace std;
 
@@ -18,37 +20,26 @@ using namespace std;
 /* To attempt to prevent cache ping-ponging? */
 #define PADDING 24 		/* bytes */
 
+
 template <class T>
 class ThreadSpecific {
-private:
-	/* Ensure that the array is large enough for [tid] number of
-	 * elements. */
-	void ensure_size(unsigned int tid)
-	{
-		if (tid >= entries.size()) {
-			struct padded_entry ent;
-			ent.data = init_val;
-			entries.resize(tid + 1, ent);
-		}
-
-	}
 public:
 	ThreadSpecific(T iv)
 	{
-		init_val = iv;
+		struct padded_entry init_val;
+		init_val.data = iv;
+		entries.resize(_POSIX_THREAD_THREADS_MAX, init_val);
 	}
 
 	T get_value(void)
 	{
 		unsigned int tid = Thread::current()->get_id();
-		ensure_size(tid);
 		return entries[tid].data;
 	}
 
 	void set_value(T v)
 	{
 		unsigned int tid = Thread::current()->get_id();
-		ensure_size(tid);
 		entries[tid].data = v;
 	}
 
@@ -67,8 +58,6 @@ public:
 	}
 
 private:
-	T init_val;
-
 	/* We want to try to get each element of the array on a
 	 * seperate cache line. */
 	struct padded_entry {
