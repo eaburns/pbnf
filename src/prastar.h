@@ -117,6 +117,9 @@ private:
 	vector<PRAStarThread *> threads;
 	vector<PRAStarThread *>::iterator iter;
 
+	SolutionStream *solutions;
+
+
 	/* true: use abstraction for hashing, false: use basic
 	 * hashing. */
 	bool use_abstraction;
