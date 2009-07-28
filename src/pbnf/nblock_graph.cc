@@ -63,6 +63,11 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 
 	done = false;
 
+	switch_locks_forced = 0;
+	switch_locks_forced_empty = 0;
+	switch_locks_forced_finished = 0;
+	switch_locks_forced_trylock = 0;
+	total_switches = 0;
 	nblocks_assigned = 0;
 	nblocks_assigned_max = 0;
 }
@@ -97,18 +102,28 @@ NBlockGraph::~NBlockGraph()
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
+NBlock *NBlockGraph::next_nblock(NBlock *finished)
 {
 	NBlock *n = NULL;
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
-	if (trylock && finished && !finished->open.empty()) {
+	if (finished && !finished->open.empty()) {
 		if (!mutex.try_lock())
 			return finished;
 	} else {
+/*
+		if (!trylock)
+			switch_locks_forced_trylock += 1;
+*/
+		if (!finished)
+			switch_locks_forced_finished += 1;
+		if (finished && finished->open.empty())
+			switch_locks_forced_empty += 1;
+		switch_locks_forced += 1;
 		mutex.lock();
 	}
+	total_switches += 1;
 
 	if (finished) {		// Release an NBlock
 		if (finished->sigma != 0) {
@@ -350,13 +365,18 @@ bool NBlockGraph::is_free(NBlock *b)
 
 /**
  * Mark an NBlock as hot, we want this one.
+ *
+ * \return true if the block is successfully set to hot, false
+ *         otherwise.
  */
-void NBlockGraph::set_hot(NBlock *b)
+bool NBlockGraph::set_hot(NBlock *b)
 {
 	set<unsigned int>::iterator i;
 	fp_type val = b->open.get_best_val();
 
-	mutex.lock();
+	if (!mutex.try_lock())
+		return false;
+
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
@@ -378,6 +398,7 @@ void NBlockGraph::set_hot(NBlock *b)
 	}
 out:
 	mutex.unlock();
+	return true;
 }
 
 /**
@@ -408,7 +429,12 @@ void NBlockGraph::wont_release(NBlock *b)
 {
 	set<unsigned int>::iterator iter;
 
-	mutex.lock();
+	// Don't bother locking if nothing is hot anyway.
+	if (b->sigma_hot == 0)
+		return;
+
+	if (!mutex.try_lock())
+		return;
 
 	for (iter = b->interferes.begin();
 	     iter != b->interferes.end();
@@ -456,6 +482,15 @@ void NBlockGraph::print_stats(ostream &o)
 		cout << "average-open-size: -1" << endl;
 		cout << "max-open-size: -1" << endl;
 	}
+
+	cout << "# switch-locks-forced: " << switch_locks_forced << endl;
+	cout << "# switch-locks-forced_empty: "
+	     << switch_locks_forced_empty << endl;
+	cout << "# switch-locks-forced_finished: "
+	     << switch_locks_forced_finished << endl;
+	cout << "# switch-locks-forced_trylock: "
+	     << switch_locks_forced_trylock << endl;
+	cout << "# total-switches: " << total_switches << endl;
 }
 
 void NBlockGraph::observe(NBlock *b)
