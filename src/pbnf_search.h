@@ -54,7 +54,6 @@ namespace PBNF {
 			unsigned int expansions; /* for testing switch */
 			NBlockGraph *graph;
 			PBNFSearch *search;
-			bool set_hot;
 			unsigned long exp_this_block;
 			CumulativeAverage ave_exp_per_nblock;
 			fp_type next_best;
