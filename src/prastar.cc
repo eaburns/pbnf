@@ -21,6 +21,7 @@ extern "C" {
 #include "util/timer.h"
 #include "util/mutex.h"
 #include "util/msg_buffer.h"
+#include "util/sync_solution_stream.h"
 #include "prastar.h"
 #include "projection.h"
 #include "search.h"
@@ -41,7 +42,7 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threa
 
 PRAStar::PRAStarThread::~PRAStarThread(void)
 {
-	 vector<MsgBuffer<State*> *>::iterator i;
+	vector<MsgBuffer<State*> *>::iterator i;
 	for (i = out_qs.begin(); i != out_qs.end(); i++)
 		if (*i)
 			delete *i;
@@ -295,6 +296,21 @@ bool PRAStar::is_done()
 
 void PRAStar::set_path(vector<State *> *p)
 {
+	fp_type b, oldb;
+
+	assert(solutions);
+
+	solutions->see_solution(p, get_generated(), get_expanded());
+	b = solutions->get_best_path()->at(0)->get_g();
+
+	// CAS in our new solution bound if it is still indeed better
+	// than the previous bound.
+	do {
+		oldb = bound.read();
+		if (oldb <= b)
+			return;
+	} while (bound.cmp_and_swap(oldb, b) != oldb);
+/*
 	mutex.lock();
         if (this->path == NULL ||
 	    this->path->at(0)->get_g() > p->at(0)->get_g()){
@@ -302,6 +318,7 @@ void PRAStar::set_path(vector<State *> *p)
 		bound.set(p->at(0)->get_g());
         }
 	mutex.unlock();
+*/
 }
 
 bool PRAStar::has_path()
@@ -313,6 +330,7 @@ bool PRAStar::has_path()
 
 vector<State *> *PRAStar::search(Timer *timer, State *init)
 {
+	solutions = new SyncSolutionStream(timer, 0.0001);
 	project = init->get_domain()->get_projection();
 
         CompletionCounter cc = CompletionCounter(n_threads);
@@ -333,7 +351,7 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
         for (iter = threads.begin(); iter != threads.end(); iter++)
 		(*iter)->join();
 
-        return path;
+        return solutions->get_best_path();
 }
 
 void PRAStar::output_stats(void)
@@ -348,6 +366,9 @@ void PRAStar::output_stats(void)
 			max_open_size = (*iter)->open.get_max_size();
         }
 	avg_open_size /= n_threads;
+
+	if (solutions)
+		solutions->output(cout);
 
 	cout << "total-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() << endl;
