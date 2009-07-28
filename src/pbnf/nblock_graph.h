@@ -33,7 +33,7 @@ namespace PBNF {
 
 		~NBlockGraph();
 
-		NBlock *next_nblock(NBlock *finished, bool trylock);
+		NBlock *next_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
@@ -41,7 +41,7 @@ namespace PBNF {
 		void set_done(void);
 		NBlock *best_in_scope(NBlock *b);
 		void wont_release(NBlock *b);
-		void set_hot(NBlock *b);
+		bool set_hot(NBlock *b);
 
 		unsigned int get_ncreated_nblocks(void);
 
@@ -89,6 +89,17 @@ namespace PBNF {
 		/*
 		 * Statistics
 		 */
+		/* total times a lock was taken without trylock on a
+		 * switch. */
+		unsigned int switch_locks_forced;
+		/* the block was empty on the force. */
+		unsigned int switch_locks_forced_empty;
+		/* finished was NULL on the force. */
+		unsigned int switch_locks_forced_finished;
+		/* trylock was not set on the force. */
+		unsigned int switch_locks_forced_trylock;
+		/* total number of times nblocks were switched. */
+		unsigned int total_switches;
 		unsigned int nblocks_assigned;
 		unsigned int nblocks_assigned_max;
 
