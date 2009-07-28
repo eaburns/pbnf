@@ -28,7 +28,8 @@ using namespace PBNF;
 #define MAX_INT std::numeric_limits<int>::max()
 
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
-	: graph(graph), search(search), set_hot(false) {
+	: graph(graph), search(search)
+{
 	next_best = 0.0;
 }
 
@@ -45,12 +46,11 @@ void PBNFSearch::PBNFThread::run(void)
 	NBlock *n = NULL;
 
 	do {
-		n = graph->next_nblock(n, !set_hot);
+		n = graph->next_nblock(n);
 
 		if (n && search->dynamic_m)
 			next_best = graph->best_val();
 
-		set_hot = false;
 		if (n) {
 			expansions = 0;
 			exp_this_block = 0;
@@ -170,8 +170,7 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 			if (!ret)
 				graph->wont_release(n);
 			else if (scope < free) {
-				graph->set_hot(best_scope);
-				set_hot = true;
+				ret = graph->set_hot(best_scope);
 			}
 		} else {
 			ret = free < cur;
