@@ -120,7 +120,7 @@ FLAGS+=-Wall -Werror -pipe $(DEBUG) $(PROFILE)
 CXXFLAGS+=-Wnon-virtual-dtor
 #LDFLAGS+=-lpthread $(PROFILE)
 #LDFLAGS+=-lpthread $(PROFILE) -ltcmalloc
-LDFLAGS+=-L /home/rai/eaburns/tmp/lib -ljemalloc_mt -lpthread $(PROFILE)
+LDFLAGS+=-L /home/aifs2/eaburns/lib -ljemalloc_mt -lpthread $(PROFILE)
 endif
 ############################################################
 
