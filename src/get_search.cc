@@ -139,7 +139,7 @@ Search *get_search(int argc, char *argv[])
 		return new PAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "lpastar-%lf-%u", &weight, &threads) == 2) {
 		return new LPAStar(threads);
-	} else if (argc > 1 && sscanf(argv[1], "prastar-%u-%u", &threads, &nblocks) == 2) {
+	} else if (argc > 1 && sscanf(argv[1], "prastar-%u", &threads) == 1) {
 		return new PRAStar(threads, false);
 	} else if (argc > 1 && sscanf(argv[1], "aprastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, true);
@@ -208,9 +208,10 @@ Search *get_search(int argc, char *argv[])
 		     << "\tarastar <weight-list>" << endl
 		     << "\tpastar-<threads>" << endl
 		     << "\tlpastar-<weight>-<threads>" << endl
-		     << "\tprastar-<threads>-<nblocks>" << endl
-		     << "\twprastar-<weight>-<threads>-<nblocks>" << endl
-		     << "\twprastardd-<weight>-<threads>-<nblocks>" << endl
+		     << "\tprastar-<threads>" << endl
+		     << "\taprastar-<threads>-<nblocks>" << endl
+		     << "\twaprastar-<weight>-<threads>-<nblocks>" << endl
+		     << "\twaprastardd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
