@@ -62,9 +62,6 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 
 	done = false;
 
-	pthread_mutex_init(&mutex, NULL);
-	pthread_cond_init(&cond, NULL);
-
 	nblocks_assigned = 0;
 	nblocks_assigned_max = 0;
 }
@@ -94,22 +91,21 @@ NBlockGraph::~NBlockGraph()
  * \note This call will block if there are currently no free nblocks.
  * \param finished If non-NULL, the finished nblock will be released
  *        into the next level's free_list.
- * \param trylock Set to true if a trylock should be attempted instead
- *                of a lock.
  * \return The next NBlock to expand or NULL if there is nothing left
  *         to do.
  */
-NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
+NBlock *NBlockGraph::next_nblock(NBlock *finished)
 {
 	NBlock *n = NULL;
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
-	if (trylock && finished && !finished->open_fp.empty()) {
-		if (pthread_mutex_trylock(&mutex) == EBUSY)
+	if (finished && !finished->open_fp.empty()) {
+		if (!mutex.try_lock())
 			return finished;
-	} else if(pthread_mutex_trylock(&mutex) == EBUSY)
-		pthread_mutex_lock(&mutex);
+	} else {
+		mutex.lock();
+	}
 
 	if (finished) {		// Release an NBlock
 		// Sanity check.
@@ -143,7 +139,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 		finished->inuse = false;
 		if (is_free(finished)) {
 			free_list.add(finished);
-			pthread_cond_broadcast(&cond);
+			mutex.cond_broadcast();
 		}
 
 		update_scope_sigmas(finished->id, -1);
@@ -157,7 +153,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
 	}
 
 	while (!done && free_list.empty())
-		pthread_cond_wait(&cond, &mutex);
+		mutex.cond_wait();
 
 	if (done)
 		goto out;
@@ -176,8 +172,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished, bool trylock)
   assert((*iter)->sigma > 0);
 */
 out:
-	pthread_mutex_unlock(&mutex);
-
+	mutex.unlock();
 	return n;
 }
 
@@ -191,8 +186,6 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 	fp_type best_val = fp_infinity;
 	set<unsigned int>::iterator i;
 
-//	pthread_mutex_lock(&mutex);
-
 	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 		NBlock *b = map.find(*i);
 		if (!b)
@@ -204,8 +197,6 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 			best_b = b;
 		}
 	}
-
-//	pthread_mutex_unlock(&mutex);
 
 	return best_b;
 }
@@ -259,9 +250,9 @@ void NBlockGraph::__print(ostream &o)
  */
 void NBlockGraph::print(ostream &o)
 {
-	pthread_mutex_lock(&mutex);
+	mutex.lock();
 	__print(o);
-	pthread_mutex_unlock(&mutex);
+	mutex.lock();
 }
 
 /**
@@ -300,7 +291,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 				set_cold(m);
 			if (is_free(m)) {
 				free_list.add(m);
-				pthread_cond_broadcast(&cond);
+				mutex.cond_broadcast();
 			}
 			num_sigma_zero += 1;
 		}
@@ -313,7 +304,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 void NBlockGraph::__set_done(void)
 {
 	done = true;
-	pthread_cond_broadcast(&cond);
+	mutex.cond_broadcast();
 }
 
 /**
@@ -323,13 +314,13 @@ void NBlockGraph::set_done(void)
 {
 	if (done)
 		return;
-	pthread_mutex_lock(&mutex);
+	mutex.lock();
 	if (done) {
-		pthread_mutex_unlock(&mutex);
+		mutex.unlock();
 		return;
 	}
 	__set_done();
-	pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 /**
@@ -346,13 +337,13 @@ bool NBlockGraph::is_free(NBlock *b)
 /**
  * Mark an NBlock as hot, we want this one.
  */
-void NBlockGraph::set_hot(NBlock *b)
+bool NBlockGraph::set_hot(NBlock *b)
 {
 	set<unsigned int>::iterator i;
 	fp_type f = b->open_fp.get_best_val();
 
-	if(pthread_mutex_trylock(&mutex) == EBUSY)
-		pthread_mutex_lock(&mutex);
+	if (!mutex.try_lock())
+		return false;
 
 	if (!b->hot && b->sigma > 0) {
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
@@ -374,7 +365,8 @@ void NBlockGraph::set_hot(NBlock *b)
 		}
 	}
 out:
-	pthread_mutex_unlock(&mutex);
+	mutex.unlock();
+	return true;
 }
 
 /**
@@ -392,7 +384,7 @@ void NBlockGraph::set_cold(NBlock *b)
 		m->sigma_hot -= 1;
 		if (is_free(m)) {
 			free_list.add(m);
-			pthread_cond_broadcast(&cond);
+			mutex.cond_broadcast();
 		}
 	}
 }
@@ -405,8 +397,12 @@ void NBlockGraph::wont_release(NBlock *b)
 {
 	set<unsigned int>::iterator iter;
 
-	if(pthread_mutex_trylock(&mutex) == EBUSY)
-		pthread_mutex_lock(&mutex);
+	// Don't bother locking if nothing is hot anyway.
+	if (b->sigma_hot == 0)
+		return;
+
+	if (!mutex.try_lock())
+		return;
 
 	for (iter = b->interferes.begin();
 	     iter != b->interferes.end();
@@ -418,7 +414,7 @@ void NBlockGraph::wont_release(NBlock *b)
 			set_cold(m);
 	}
 
-	pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 /**

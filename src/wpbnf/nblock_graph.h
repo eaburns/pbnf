@@ -10,8 +10,6 @@
 #if !defined(_WPBNF_NBLOCK_GRAPH_H_)
 #define _WPBNF_NBLOCK_GRAPH_H_
 
-#include <pthread.h>
-
 #include <iostream>
 #include <map>
 #include <vector>
@@ -24,6 +22,7 @@
 #include "../projection.h"
 #include "../util/nblock_map.h"
 #include "../util/priority_queue.h"
+#include "../util/mutex.h"
 
 using namespace std;
 
@@ -34,7 +33,7 @@ namespace WPBNF {
 
 		~NBlockGraph();
 
-		NBlock *next_nblock(NBlock *finished, bool trylock);
+		NBlock *next_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
@@ -42,7 +41,7 @@ namespace WPBNF {
 		void set_done(void);
 		NBlock *best_in_scope(NBlock *b);
 		void wont_release(NBlock *b);
-		void set_hot(NBlock *b);
+		bool set_hot(NBlock *b);
 
 		void observe(NBlock *b);
 
@@ -79,8 +78,7 @@ namespace WPBNF {
 		 * has completed. */
 		bool done;
 
-		pthread_mutex_t mutex;
-		pthread_cond_t cond;
+		Mutex mutex;
 
 		/*
 		 * Statistics
