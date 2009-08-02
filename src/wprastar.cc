@@ -172,8 +172,13 @@ void wPRAStar::wPRAStarThread::run(void){
 		children = p->expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
-			bool self_add = threads->at(p->project->project(c)%p->n_threads)->get_id() == this->get_id();
-			threads->at(p->project->project(c)%p->n_threads)->add(c, self_add);
+			unsigned long hash =
+				p->use_abstraction
+				? p->project->project(c)
+				: c->hash();
+			unsigned int dest_tid = threads->at(hash % p->n_threads)->get_id();
+			bool self_add = dest_tid == this->get_id();
+			threads->at(dest_tid)->add(c, self_add);
 		}
         }
 
@@ -186,22 +191,24 @@ void wPRAStar::wPRAStarThread::run(void){
 /************************************************************/
 
 
-wPRAStar::wPRAStar(unsigned int n_threads, bool d) 
+wPRAStar::wPRAStar(unsigned int n_threads, bool d, bool abst)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
 	  path(NULL),
-	  dd(d){
+	  dd(d),
+	  use_abstraction(abst){
         done = false;
 }
 
 
-wPRAStar::wPRAStar(unsigned int n_threads, fp_type bound, bool d) 
+wPRAStar::wPRAStar(unsigned int n_threads, fp_type bound, bool d, bool abst)
 	: n_threads(n_threads),
           bound(bound),
 	  project(NULL),
 	  path(NULL),
-	  dd(d) {
+	  dd(d),
+	  use_abstraction(abst) {
         done = false;
 }
 
@@ -227,7 +234,7 @@ bool wPRAStar::is_done()
 void wPRAStar::set_path(vector<State *> *p)
 {
         pthread_mutex_lock(&mutex);
-        if (this->path == NULL || 
+        if (this->path == NULL ||
 	    this->path->at(0)->get_g() > p->at(0)->get_g()){
 		this->path = p;
 		bound.set(p->at(0)->get_g());
@@ -252,12 +259,14 @@ vector<State *> *wPRAStar::search(Timer *t, State *init)
 
         CompletionCounter cc = CompletionCounter(n_threads);
 
-        for (unsigned int i = 0; i < n_threads; i += 1) {
-		wPRAStarThread *t = new wPRAStarThread(this, &threads, &cc);
-		threads.push_back(t);
-        }
+	threads.resize(n_threads, NULL);
+        for (unsigned int i = 0; i < n_threads; i += 1)
+		threads.at(i) = new wPRAStarThread(this, &threads, &cc);
 
-        threads.at(project->project(init)%n_threads)->open.add(init);
+	if (use_abstraction)
+		threads.at(project->project(init)%n_threads)->open.add(init);
+	else
+		threads.at(init->hash() % n_threads)->open.add(init);
 
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->start();

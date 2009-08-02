@@ -26,8 +26,8 @@ using namespace std;
 
 class wPRAStar : public Search {
 public:
-        wPRAStar(unsigned int n_threads, bool dd);
-        wPRAStar(unsigned int n_threads, fp_type bound, bool dd);
+        wPRAStar(unsigned int n_threads, bool dd, bool abst);
+        wPRAStar(unsigned int n_threads, fp_type bound, bool dd, bool abst);
 
         virtual ~wPRAStar(void);
 
@@ -74,6 +74,7 @@ private:
 	vector<wPRAStarThread *> threads;
 	vector<wPRAStarThread *>::iterator iter;
 	bool dd;
+	bool use_abstraction;
 };
 
 #endif	/* !_WPRASTAR_H_ */
