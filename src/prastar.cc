@@ -269,7 +269,6 @@ PRAStar::PRAStar(unsigned int n_threads, bool use_abst)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
-	  path(NULL),
 	  use_abstraction(use_abst){
         done = false;
 }
@@ -310,22 +309,6 @@ void PRAStar::set_path(vector<State *> *p)
 		if (oldb <= b)
 			return;
 	} while (bound.cmp_and_swap(oldb, b) != oldb);
-/*
-	mutex.lock();
-        if (this->path == NULL ||
-	    this->path->at(0)->get_g() > p->at(0)->get_g()){
-		this->path = p;
-		bound.set(p->at(0)->get_g());
-        }
-	mutex.unlock();
-*/
-}
-
-bool PRAStar::has_path()
-{
-        bool ret;
-        ret = (path != NULL);
-        return ret;
 }
 
 vector<State *> *PRAStar::search(Timer *timer, State *init)
