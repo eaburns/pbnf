@@ -28,7 +28,6 @@ wPRAStar::wPRAStarThread::wPRAStarThread(wPRAStar *p, vector<wPRAStarThread *> *
 	  q_empty(true)
 {
         completed = false;
-        pthread_mutex_init(&mutex, NULL);
 }
 
 
@@ -60,14 +59,14 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 
 		return;
 	}
-        pthread_mutex_lock(&mutex);
+	mutex.lock();
         if (completed){
 		cc->uncomplete();
 		completed = false;
         }
         q.push_back(c);
 	q_empty = false;
-        pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 /**
@@ -76,29 +75,29 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 void wPRAStar::wPRAStarThread::flush_queue(void)
 {
 	// wait for either completion or more nodes to expand
-	if (open.empty()) {
-		pthread_mutex_lock(&mutex);
-	} else if (pthread_mutex_trylock(&mutex) == EBUSY) {
+	if (open.empty())
+		mutex.lock();
+	else if (!mutex.try_lock())
 		return;
-	}
+
 	if (q_empty) {
 		if (!open.empty()) {
-			pthread_mutex_unlock(&mutex);
+			mutex.unlock();
 			return;
 		}
 		completed = true;
 		cc->complete();
 
 		// busy wait
-		pthread_mutex_unlock(&mutex);
+		mutex.unlock();
 		while (q_empty && !cc->is_complete() && !p->is_done())
 			;
-		pthread_mutex_lock(&mutex);
+		mutex.lock();
 
 		// we are done, just return
 		if (cc->is_complete()) {
 			assert(q_empty);
-			pthread_mutex_unlock(&mutex);
+			mutex.unlock();
 			return;
 		}
 	}
@@ -129,7 +128,7 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 	}
 	q.clear();
 	q_empty = true;
-	pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 State *wPRAStar::wPRAStarThread::take(void){
@@ -217,43 +216,38 @@ wPRAStar::~wPRAStar(void) {
 
 void wPRAStar::set_done()
 {
-        pthread_mutex_lock(&mutex);
+	mutex.lock();
         done = true;
-        pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 bool wPRAStar::is_done()
 {
         bool ret;
-        pthread_mutex_lock(&mutex);
         ret = done;
-        pthread_mutex_unlock(&mutex);
         return ret;
 }
 
 void wPRAStar::set_path(vector<State *> *p)
 {
-        pthread_mutex_lock(&mutex);
+	mutex.lock();
         if (this->path == NULL ||
 	    this->path->at(0)->get_g() > p->at(0)->get_g()){
 		this->path = p;
 		bound.set(p->at(0)->get_g());
         }
-        pthread_mutex_unlock(&mutex);
+	mutex.unlock();
 }
 
 bool wPRAStar::has_path()
 {
         bool ret;
-        pthread_mutex_lock(&mutex);
         ret = (path != NULL);
-        pthread_mutex_unlock(&mutex);
         return ret;
 }
 
 vector<State *> *wPRAStar::search(Timer *t, State *init)
 {
-        pthread_mutex_init(&mutex, NULL);
 	project = init->get_domain()->get_projection();
 	weight = init->get_domain()->get_heuristic()->get_weight();
 
