@@ -70,7 +70,6 @@ private:
 		/* Flushes the send queues. */
 		bool flush_sends(void);
 
-
 		/* flushes the queue into the open list. */
                 void flush_receives(bool has_sends);
 

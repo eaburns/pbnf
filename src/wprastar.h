@@ -16,6 +16,7 @@
 #include "search.h"
 #include "pbnf/nblock_graph.h"
 #include "pbnf/nblock.h"
+#include "util/msg_buffer.h"
 #include "util/atomic_int.h"
 #include "util/thread.h"
 #include "synch_pq_olist.h"
@@ -41,21 +42,41 @@ public:
 private:
         class wPRAStarThread : public Thread {
         public:
-                wPRAStarThread(wPRAStar *p, vector<wPRAStarThread *> *threads, CompletionCounter* cc);
+                wPRAStarThread(wPRAStar *p,
+			       vector<wPRAStarThread *> *threads,
+			       CompletionCounter* cc);
                 virtual ~wPRAStarThread(void);
                 virtual void run(void);
-                void add(State* s, bool self_add);
+
+		vector<State*> *get_queue(void);
+		Mutex *get_mutex();
+		static void post_send(void *thr);
+
                 State *take(void);
 
 
         private:
-                void flush_queue(void);
+		/* Flushes the send queues. */
+		bool flush_sends(void);
+
+                void flush_receives(bool has_sends);
+
+		/* sends the state to the appropriate thread (possibly
+		 * this thread). */
+		void send_state(State *c);
+
                 wPRAStar *p;
                 vector<wPRAStarThread *> *threads;
+
 		vector<State *> q;
 		Mutex mutex;
+
+		/* The outgoing message queues (allocated lazily). */
+		vector<MsgBuffer<State*>* > out_qs;
+
                 bool completed;
                 CompletionCounter *cc;
+
                 friend class wPRAStar;
                 PQOpenList<State::PQOpsFPrime> open;
                 ClosedList closed;

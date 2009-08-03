@@ -60,7 +60,6 @@ Mutex *PRAStar::PRAStarThread::get_mutex(void)
 
 void PRAStar::PRAStarThread::post_send(void *t)
 {
-
 	PRAStarThread *thr = (PRAStarThread*) t;
 	if (thr->completed) {
 		thr->cc->uncomplete();

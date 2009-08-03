@@ -20,6 +20,16 @@
 #include "search.h"
 #include "state.h"
 
+/*
+ * Test if we can drop this dupe
+ * og -- old g,
+ * pg -- parent g,
+ * c  -- cost
+ *
+ * assumes that there is a pointer 'p' to the wPRAStar search.
+ */
+#define CANT_DROP(og, pg, c) ((og) > (pg) + ((p->weight * (c)) / fp_one))
+
 using namespace std;
 
 wPRAStar::wPRAStarThread::wPRAStarThread(wPRAStar *p, vector<wPRAStarThread *> *threads, CompletionCounter* cc)
@@ -28,6 +38,7 @@ wPRAStar::wPRAStarThread::wPRAStarThread(wPRAStar *p, vector<wPRAStarThread *> *
 	  cc(cc),
 	  q_empty(true)
 {
+	out_qs.resize(threads->size(), NULL);
         completed = false;
 }
 
@@ -35,6 +46,44 @@ wPRAStar::wPRAStarThread::wPRAStarThread(wPRAStar *p, vector<wPRAStarThread *> *
 wPRAStar::wPRAStarThread::~wPRAStarThread(void) {
 }
 
+vector<State*> *wPRAStar::wPRAStarThread::get_queue(void)
+{
+	return &q;
+}
+
+Mutex *wPRAStar::wPRAStarThread::get_mutex(void)
+{
+	return &mutex;
+}
+
+void wPRAStar::wPRAStarThread::post_send(void *t)
+{
+	wPRAStarThread *thr = (wPRAStarThread*) t;
+	if (thr->completed) {
+		thr->cc->uncomplete();
+		thr->completed = false;
+	}
+	thr->q_empty = false;
+}
+
+bool wPRAStar::wPRAStarThread::flush_sends(void)
+{
+	unsigned int i;
+	bool has_sends = false;
+	for (i = 0; i < threads->size(); i += 1) {
+		if (!out_qs[i])
+			continue;
+		if (out_qs[i]) {
+			out_qs[i]->try_flush();
+			if (!out_qs[i]->is_empty())
+				has_sends = true;
+		}
+	}
+
+	return has_sends;
+}
+
+/*
 void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 	if (self_add){
 		State *dup = closed.lookup(c);
@@ -43,7 +92,8 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 				fp_type old_g = dup->get_g();
 				fp_type parent_g = c->get_g() - c->get_c();
 
-				dup->update(c->get_parent(), c->get_c(), c->get_g());
+				dup->update(c->get_parent(), c->get_c(),
+					    c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
 				else if (!p->dd || old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
@@ -69,11 +119,12 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 	q_empty = false;
 	mutex.unlock();
 }
+*/
 
 /**
  * Flush the queue
  */
-void wPRAStar::wPRAStarThread::flush_queue(void)
+void wPRAStar::wPRAStarThread::flush_receives(bool has_sends)
 {
 	// wait for either completion or more nodes to expand
 	if (open.empty())
@@ -81,7 +132,7 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 	else if (!mutex.try_lock())
 		return;
 
-	if (q_empty) {
+	if (q_empty && !has_sends) {
 		if (!open.empty()) {
 			mutex.unlock();
 			return;
@@ -115,7 +166,10 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 				dup->update(c->get_parent(), c->get_c(), c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
-				else if (!p->dd || old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
+				else if (!p->dd || CANT_DROP(old_g,
+							     parent_g,
+							     c->get_c())) {
+/* old_g > parent_g + ((p->weight * c->get_c()) / fp_one)*/
 					// Wheeler's dup dropping
 					open.add(dup);
 				}
@@ -132,9 +186,64 @@ void wPRAStar::wPRAStarThread::flush_queue(void)
 	mutex.unlock();
 }
 
-State *wPRAStar::wPRAStarThread::take(void){
+void wPRAStar::wPRAStarThread::send_state(State *c)
+{
+	unsigned long hash =
+		p->use_abstraction
+		? p->project->project(c)
+		: c->hash();
+	unsigned int dest_tid = threads->at(hash % p->n_threads)->get_id();
+	bool self_add = dest_tid == this->get_id();
+
+	assert (p->n_threads != 1 || self_add);
+
+	if (self_add) {
+		State *dup = closed.lookup(c);
+		if (dup){
+			if (dup->get_g() > c->get_g()) {
+				fp_type old_g = dup->get_g();
+				fp_type parent_g = c->get_g() - c->get_c();
+				dup->update(c->get_parent(),
+					    c->get_c(),
+					    c->get_g());
+				if (dup->is_open())
+					open.see_update(dup);
+				else if (!p->dd || CANT_DROP(old_g,
+							     parent_g,
+							     c->get_c()))
+					open.add(dup);
+			}
+			delete c;
+		}
+		else{
+			open.add(c);
+			closed.add(c);
+		}
+		return;
+	}
+
+	// not a self add
+	//
+	// Do a buffered send, in which case we can just sit on a lock
+	// because there is no work to do anyway.
+	if (!out_qs[dest_tid]) {
+		Mutex *lk = threads->at(dest_tid)->get_mutex();
+		vector<State*> *qu = threads->at(dest_tid)->get_queue();
+		out_qs[dest_tid] =
+			new MsgBuffer<State*>(lk, qu,
+					      post_send,
+					      threads->at(dest_tid));
+	}
+
+	out_qs[dest_tid]->try_send(c);
+}
+
+State *wPRAStar::wPRAStarThread::take(void)
+{
 	while (open.empty() || !q_empty) {
-		flush_queue();
+		bool has_sends = flush_sends();
+		flush_receives(has_sends);
+
 		if (cc->is_complete()){
 			p->set_done();
 			return NULL;
@@ -172,19 +281,13 @@ void wPRAStar::wPRAStarThread::run(void){
 		children = p->expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
-			unsigned long hash =
-				p->use_abstraction
-				? p->project->project(c)
-				: c->hash();
-			unsigned int dest_tid = threads->at(hash % p->n_threads)->get_id();
-			bool self_add = dest_tid == this->get_id();
-			threads->at(dest_tid)->add(c, self_add);
+			if (c->get_f() < p->bound.read())
+				send_state(c);
+			else
+				delete c;
 		}
-        }
-
-	if (children)
 		delete children;
-
+        }
 }
 
 
