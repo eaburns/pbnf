@@ -14,6 +14,7 @@
 #include <vector>
 #include <limits>
 
+#include "util/sync_solution_stream.h"
 #include "wprastar.h"
 #include "projection.h"
 #include "search.h"
@@ -194,7 +195,6 @@ wPRAStar::wPRAStar(unsigned int n_threads, bool d, bool abst)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
-	  path(NULL),
 	  dd(d),
 	  use_abstraction(abst){
         done = false;
@@ -205,7 +205,6 @@ wPRAStar::wPRAStar(unsigned int n_threads, fp_type bound, bool d, bool abst)
 	: n_threads(n_threads),
           bound(bound),
 	  project(NULL),
-	  path(NULL),
 	  dd(d),
 	  use_abstraction(abst) {
         done = false;
@@ -230,24 +229,25 @@ bool wPRAStar::is_done()
 
 void wPRAStar::set_path(vector<State *> *p)
 {
-	mutex.lock();
-        if (this->path == NULL ||
-	    this->path->at(0)->get_g() > p->at(0)->get_g()){
-		this->path = p;
-		bound.set(p->at(0)->get_g());
-        }
-	mutex.unlock();
-}
+	fp_type b, oldb;
 
-bool wPRAStar::has_path()
-{
-        bool ret;
-        ret = (path != NULL);
-        return ret;
+	assert(solutions);
+
+	solutions->see_solution(p, get_generated(), get_expanded());
+	b = solutions->get_best_path()->at(0)->get_g();
+
+	// CAS in our new solution bound if it is still indeed better
+	// than the previous bound.
+	do {
+		oldb = bound.read();
+		if (oldb <= b)
+			return;
+	} while (bound.cmp_and_swap(oldb, b) != oldb);
 }
 
 vector<State *> *wPRAStar::search(Timer *t, State *init)
 {
+	solutions = new SyncSolutionStream(t, 0.0001);
 	project = init->get_domain()->get_projection();
 	weight = init->get_domain()->get_heuristic()->get_weight();
 
@@ -271,5 +271,5 @@ vector<State *> *wPRAStar::search(Timer *t, State *init)
 		delete *iter;
         }
 
-        return path;
+        return solutions->get_best_path();
 }
