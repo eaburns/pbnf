@@ -35,7 +35,6 @@ public:
         void set_done();
         bool is_done();
         void set_path(vector<State *> *path);
-        bool has_path();
 
 	void set_bound(fp_type bound);
 
@@ -54,7 +53,7 @@ private:
                 wPRAStar *p;
                 vector<wPRAStarThread *> *threads;
 		vector<State *> q;
-                pthread_mutex_t mutex;
+		Mutex mutex;
                 bool completed;
                 CompletionCounter *cc;
                 friend class wPRAStar;
@@ -67,14 +66,15 @@ private:
 	fp_type weight;
 	AtomicInt bound;
         bool done;
-        pthread_cond_t cond;
-        pthread_mutex_t mutex;
+	Mutex mutex;
 	const Projection *project;
-        vector<State *> *path;
 	vector<wPRAStarThread *> threads;
 	vector<wPRAStarThread *>::iterator iter;
-	bool dd;
-	bool use_abstraction;
+
+	SolutionStream *solutions;
+
+	bool dd;		/* Use duplicate detection? */
+	bool use_abstraction;	/* Use abstraction for hashing? */
 };
 
 #endif	/* !_WPRASTAR_H_ */
