@@ -113,7 +113,6 @@ private:
         const unsigned int n_threads;
 	AtomicInt bound;
 	const Projection *project;
-        vector<State *> *path;
 	vector<PRAStarThread *> threads;
 	vector<PRAStarThread *>::iterator iter;
 
