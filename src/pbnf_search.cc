@@ -219,13 +219,15 @@ PBNFSearch::~PBNFSearch(void)
 
 vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 {
+	double weight;
 	solutions = new SyncSolutionStream(timer, 0.0001);
 	project = initial->get_domain()->get_projection();
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
 
-	graph = new NBlockGraph(project, initial);
+	weight = initial->get_domain()->get_heuristic()->get_weight();
+	graph = new NBlockGraph(project, initial, &bound, weight);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PBNFThread *t = new PBNFThread(graph, this);

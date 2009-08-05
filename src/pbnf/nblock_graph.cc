@@ -45,7 +45,10 @@ NBlock *NBlockGraph::create_nblock(unsigned int id)
  * just call this function in the constructor so that we can see what
  * is going on.
  */
-void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
+void NBlockGraph::cpp_is_a_bad_language(const Projection *p,
+					State *initial,
+					AtomicInt *b /* bound */,
+					double w /* weight */)
 {
 	unsigned int init_nblock = p->project(initial);
 
@@ -61,12 +64,14 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	n->closed.add(initial);
 	free_list.add(n);
 
+	bound = b;
+	weight = w;
+
 	done = false;
 
 	switch_locks_forced = 0;
 	switch_locks_forced_empty = 0;
 	switch_locks_forced_finished = 0;
-	switch_locks_forced_trylock = 0;
 	total_switches = 0;
 	nblocks_assigned = 0;
 	nblocks_assigned_max = 0;
@@ -76,10 +81,13 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
  * Create a new NBlock graph.
  * \param p The projection function.
  */
-NBlockGraph::NBlockGraph(const Projection *p, State *initial)
+NBlockGraph::NBlockGraph(const Projection *p,
+			 State *initial,
+			 AtomicInt *b /* bound */,
+			 double w /* weight */)
 	: map(p)
 {
-	cpp_is_a_bad_language(p, initial);
+	cpp_is_a_bad_language(p, initial, b, w);
 }
 
 /**
@@ -110,10 +118,6 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		if (!mutex.try_lock())
 			return finished;
 	} else {
-/*
-		if (!trylock)
-			switch_locks_forced_trylock += 1;
-*/
 		if (!finished)
 			switch_locks_forced_finished += 1;
 		if (finished && finished->open.empty())
@@ -132,35 +136,42 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		}
 		assert(finished->sigma == 0);
 
+/*
+  This is bogus, because what if there is a better block in our scope?
+  We would rather get that block than searching the same old ratty
+  nblock.
+
 		if (!finished->open.empty()) {
-			fp_type cur_f = finished->open.get_best_val();
+			fp_type cur_f = finished->best_value();
 			fp_type new_f;
 			if (free_list.empty())
 				new_f = fp_infinity;
 			else
-				new_f = free_list.front()->open.get_best_val();
+				new_f = free_list.front()->best_value();
 			if (cur_f <= new_f) {
 				n = finished;
 				goto out;
 			}
 		}
+*/
 
 		nblocks_assigned -= 1;
 
 		finished->inuse = false;
 		if (is_free(finished)) {
 			free_list.add(finished);
-			mutex.cond_broadcast();
+			mutex.cond_signal();
 		}
 
 		update_scope_sigmas(finished->id, -1);
 
-		if (free_list.empty() && num_sigma_zero == num_nblocks) {
-			__set_done();
-//			__print(cerr);
-			goto out;
-		}
+	}
 
+retry:
+
+	if (num_sigma_zero == num_nblocks && free_list.empty()) {
+		__set_done();
+		goto out;
 	}
 
 	while (!done && free_list.empty())
@@ -168,6 +179,18 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 
 	if (done)
 		goto out;
+
+	if (free_list.front()->best_value() >= (bound->read() * weight)) {
+		// This may be pretty weak, but it should allow for
+		// eariler stopping.
+
+		// If all sigma values are zero (no one else is
+		// searching) then we will set done on the retry.
+		if (num_sigma_zero == num_nblocks)
+			cerr << "# -------------------- quitting early" << endl;
+		prune_free_list();
+		goto retry;
+	}
 
 	n = free_list.take();
 	if (!n) {
@@ -209,13 +232,25 @@ NBlock *NBlockGraph::best_in_scope(NBlock *b)
 			continue;
 		if (b->open.empty())
 			continue;
-		if (!best_b || b->open.get_best_val() < best_val) {
-			best_val = b->open.get_best_val();
+		if (!best_b || b->best_value() < best_val) {
+			best_val = b->best_value();
 			best_b = b;
 		}
 	}
 
 	return best_b;
+}
+
+/*
+ * Remove all nblocks from the free_list.  The nodes in these nblocks
+ * will remain in their open lists, for pruning later... if they ever
+ * are added back to the free_list.  They can be added back to the
+ * free_list if a processor searches one of their neighbors and they
+ * gain a node worth looking at.
+ */
+void NBlockGraph::prune_free_list(void)
+{
+	free_list.reset();
 }
 
 /**
@@ -243,7 +278,7 @@ fp_type NBlockGraph::best_val(void)
 	NBlock *b = NULL;
 	b = free_list.front();
 	if (b)
-		return b->open.get_best_val();
+		return b->best_value();
 	return fp_infinity;
 }
 
@@ -307,7 +342,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 				set_cold(m);
 			if (is_free(m)) {
 				free_list.add(m);
-				mutex.cond_broadcast();
+				mutex.cond_signal();
 			}
 			num_sigma_zero += 1;
 		}
@@ -370,7 +405,7 @@ bool NBlockGraph::is_free(NBlock *b)
 bool NBlockGraph::set_hot(NBlock *b)
 {
 	set<unsigned int>::iterator i;
-	fp_type val = b->open.get_best_val();
+	fp_type val = b->best_value();
 
 	if (!mutex.try_lock())
 		return false;
@@ -379,7 +414,7 @@ bool NBlockGraph::set_hot(NBlock *b)
 		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
 			assert(b->id != *i);
 			NBlock *m = map.get(*i);
-			if (m->hot && m->open.get_best_val() < val)
+			if (m->hot && m->best_value() < val)
 				goto out;
 		}
 
@@ -414,7 +449,7 @@ void NBlockGraph::set_cold(NBlock *b)
 		m->sigma_hot -= 1;
 		if (is_free(m)) {
 			free_list.add(m);
-			mutex.cond_broadcast();
+			mutex.cond_signal();
 		}
 	}
 }
@@ -486,8 +521,6 @@ void NBlockGraph::print_stats(ostream &o)
 	     << switch_locks_forced_empty << endl;
 	cout << "# switch-locks-forced_finished: "
 	     << switch_locks_forced_finished << endl;
-	cout << "# switch-locks-forced_trylock: "
-	     << switch_locks_forced_trylock << endl;
 	cout << "# total-switches: " << total_switches << endl;
 }
 

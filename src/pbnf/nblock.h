@@ -18,6 +18,7 @@
 #include "../pq_open_list.h"
 #include "../closed_list.h"
 #include "../projection.h"
+#include "../util/fixed_point.h"
 
 using namespace std;
 
@@ -33,6 +34,9 @@ namespace PBNF {
 		void next_iteration(void);
 		bool operator<(NBlock *a);
 		void print(ostream &s);
+
+		/* Get the value of the best open node in this nblock. */
+		fp_type best_value(void);
 
 		struct NBlockPQFuncsFprime {
 			/* Predecessor operator. */

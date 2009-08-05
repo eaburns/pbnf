@@ -23,13 +23,15 @@
 #include "../projection.h"
 #include "../util/nblock_map.h"
 #include "../util/mutex.h"
+#include "../util/atomic_int.h"
 
 using namespace std;
 
 namespace PBNF {
 	class NBlockGraph : public NBlockMap<NBlock>::CreationObserver {
 	public:
-		NBlockGraph(const Projection *p, State *init);
+		NBlockGraph(const Projection *p, State *init,
+			    AtomicInt *b, double w);
 
 		~NBlockGraph();
 
@@ -54,7 +56,19 @@ namespace PBNF {
 		void print_stats(ostream &o);
 
 	private:
-		void cpp_is_a_bad_language(const Projection *p, State *initial);
+		void cpp_is_a_bad_language(const Projection *p,
+					   State *initial,
+					   AtomicInt *b /* bound */,
+					   double w /* weight */);
+
+		/* Remove all nblocks from the free_list.  The nodes in
+		 * these nblocks will remain in their open lists, for
+		 * pruning later... if they ever are added back to the
+		 * free_list.  They can be added back to the free_list
+		 * if a processor searches one of their neighbors and
+		 * they gain a node worth looking at. */
+		void prune_free_list(void);
+
 		NBlock *create_nblock(unsigned int id);
 		NBlock *get_nblock_if_created(unsigned int hash);
 		void __set_done(void);
@@ -86,6 +100,11 @@ namespace PBNF {
 
 		Mutex mutex;
 
+		/* A pointer to the bound used in the search.  For
+		 * early termination and free_list pruning. */
+		AtomicInt *bound;
+		double weight;
+
 		/*
 		 * Statistics
 		 */
@@ -96,8 +115,6 @@ namespace PBNF {
 		unsigned int switch_locks_forced_empty;
 		/* finished was NULL on the force. */
 		unsigned int switch_locks_forced_finished;
-		/* trylock was not set on the force. */
-		unsigned int switch_locks_forced_trylock;
 		/* total number of times nblocks were switched. */
 		unsigned int total_switches;
 		unsigned int nblocks_assigned;
