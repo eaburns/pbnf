@@ -240,6 +240,8 @@ void wPRAStar::wPRAStarThread::send_state(State *c)
 
 State *wPRAStar::wPRAStarThread::take(void)
 {
+	flush_sends();
+
 	while (open.empty() || !q_empty) {
 		bool has_sends = flush_sends();
 		flush_receives(has_sends);

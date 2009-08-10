@@ -205,6 +205,8 @@ State *PRAStar::PRAStarThread::take(void)
 	Timer t;
 	bool entered_loop = false;
 
+	flush_sends();
+
 	t.start();
 	while (open.empty() || !q_empty) {
 		entered_loop = true;
