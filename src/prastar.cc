@@ -205,13 +205,13 @@ State *PRAStar::PRAStarThread::take(void)
 	Timer t;
 	bool entered_loop = false;
 
-	flush_sends();
+	bool has_sends = flush_sends();
 
 	t.start();
 	while (open.empty() || !q_empty) {
 		entered_loop = true;
 
-		bool has_sends = flush_sends();
+		has_sends = flush_sends();
 		flush_receives(has_sends);
 
 		if (cc->is_complete()){
