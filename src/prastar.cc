@@ -29,7 +29,9 @@ extern "C" {
 
 using namespace std;
 
-PRAStar::PRAStarThread::PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, CompletionCounter* cc)
+PRAStar::PRAStarThread::PRAStarThread(PRAStar *p,
+				      vector<PRAStarThread *> *threads,
+				      CompletionCounter* cc)
 	: p(p),
 	  threads(threads),
 	  cc(cc),
@@ -91,9 +93,9 @@ bool PRAStar::PRAStarThread::flush_sends(void)
 void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 {
 	// wait for either completion or more nodes to expand
-	if (open.empty())
+	if (open.empty() || !p->async)
 		mutex.lock();
-	else if (!mutex.try_lock())
+	else if (!mutex.try_lock()) // asynchronous
 		return;
 
 	if (q_empty && !has_sends) {
@@ -149,11 +151,32 @@ void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 	mutex.unlock();
 }
 
+void PRAStar::PRAStarThread::do_async_send(unsigned int dest_tid, State *c)
+{
+	if (!out_qs[dest_tid]) {
+		Mutex *lk = threads->at(dest_tid)->get_mutex();
+		vector<State*> *qu = threads->at(dest_tid)->get_queue();
+		out_qs[dest_tid] =
+			new MsgBuffer<State*>(lk, qu,
+					      post_send,
+					      threads->at(dest_tid));
+	}
+
+	out_qs[dest_tid]->try_send(c);
+}
+
+void PRAStar::PRAStarThread::do_sync_send(unsigned int dest_tid, State *c)
+{
+	PRAStarThread *dest = threads->at(dest_tid);
+
+	dest->get_mutex()->lock();
+	dest->get_queue()->push_back(c);
+	post_send(dest);
+	dest->get_mutex()->unlock();
+}
+
 void PRAStar::PRAStarThread::send_state(State *c)
 {
-/*
-	unsigned long hash = p->project->project(c);
-*/
 	unsigned long hash =
 		p->use_abstraction
 		? p->project->project(c)
@@ -185,19 +208,10 @@ void PRAStar::PRAStarThread::send_state(State *c)
 	}
 
 	// not a self add
-	//
-	// Do a buffered send, in which case we can just sit on a lock
-	// because there is no work to do anyway.
-	if (!out_qs[dest_tid]) {
-		Mutex *lk = threads->at(dest_tid)->get_mutex();
-		vector<State*> *qu = threads->at(dest_tid)->get_queue();
-		out_qs[dest_tid] =
-			new MsgBuffer<State*>(lk, qu,
-					      post_send,
-					      threads->at(dest_tid));
-	}
-
-	out_qs[dest_tid]->try_send(c);
+	if (p->async)
+		do_async_send(dest_tid, c);
+	else
+		do_sync_send(dest_tid, c);
 }
 
 State *PRAStar::PRAStarThread::take(void)
@@ -266,11 +280,13 @@ void PRAStar::PRAStarThread::run(void){
 /************************************************************/
 
 
-PRAStar::PRAStar(unsigned int n_threads, bool use_abst)
+PRAStar::PRAStar(unsigned int n_threads, bool use_abst, bool asy)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
-	  use_abstraction(use_abst){
+	  use_abstraction(use_abst),
+	  async(asy)
+{
         done = false;
 }
 

@@ -140,9 +140,13 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "lpastar-%lf-%u", &weight, &threads) == 2) {
 		return new LPAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u", &threads) == 1) {
-		return new PRAStar(threads, false);
+		return new PRAStar(threads, false, false);
 	} else if (argc > 1 && sscanf(argv[1], "aprastar-%u-%u", &threads, &nblocks) == 2) {
-		return new PRAStar(threads, true);
+		return new PRAStar(threads, true, false);
+	} else if (argc > 1 && sscanf(argv[1], "hdastar-%u", &threads) == 1) {
+		return new PRAStar(threads, false, true);
+	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%u-%u", &threads, &nblocks) == 2) {
+		return new PRAStar(threads, true, true);
 	} else if (argc > 1 && sscanf(argv[1], "waprastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads, false, true);
 	} else if (argc > 1 && sscanf(argv[1], "waprastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
@@ -215,6 +219,8 @@ Search *get_search(int argc, char *argv[])
 		     << "\tlpastar-<weight>-<threads>" << endl
 		     << "\tprastar-<threads>" << endl
 		     << "\taprastar-<threads>-<nblocks>" << endl
+		     << "\thdastar-<threads>" << endl
+		     << "\tahdastar-<threads>-<nblocks>" << endl
 		     << "\twaprastar-<weight>-<threads>-<nblocks>" << endl
 		     << "\twaprastardd-<weight>-<threads>-<nblocks>" << endl
 		     << "\twprastar-<weight>-<threads>" << endl

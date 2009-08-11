@@ -29,7 +29,7 @@ using namespace std;
 
 class PRAStar : public Search {
 public:
-        PRAStar(unsigned int n_threads, bool use_abst);
+        PRAStar(unsigned int n_threads, bool use_abst, bool async);
 
         virtual ~PRAStar(void);
 
@@ -44,7 +44,9 @@ public:
 private:
         class PRAStarThread : public Thread {
         public:
-                PRAStarThread(PRAStar *p, vector<PRAStarThread *> *threads, CompletionCounter* cc);
+                PRAStarThread(PRAStar *p,
+			      vector<PRAStarThread *> *threads,
+			      CompletionCounter* cc);
                 virtual ~PRAStarThread(void);
                 virtual void run(void);
 
@@ -76,6 +78,14 @@ private:
 		/* sends the state to the appropriate thread (possibly
 		 * this thread). */
 		void send_state(State *c);
+
+		/* Perform an asynchronous send to another thread (not called
+		 * for self-sends). */
+		void do_async_send(unsigned int dest_tid, State *c);
+
+		/* Perform an synchronous send to another thread (not called
+		 * for self-sends). */
+		void do_sync_send(unsigned int dest_tid, State *c);
 
                 PRAStar *p;
 
@@ -121,6 +131,9 @@ private:
 	/* true: use abstraction for hashing, false: use basic
 	 * hashing. */
 	bool use_abstraction;
+
+	/* Use asynchronous sends? */
+	bool async;
 
 	/* Statistics */
 	double time_spinning;
