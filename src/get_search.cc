@@ -147,15 +147,14 @@ Search *get_search(int argc, char *argv[])
 		return new PRAStar(threads, false, true);
 	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, true, true);
-	} else if (argc > 1 && sscanf(argv[1], "waprastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
+	} else if (argc > 1 && sscanf(argv[1], "wahdastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads, false, true);
-	} else if (argc > 1 && sscanf(argv[1], "waprastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
+	} else if (argc > 1 && sscanf(argv[1], "wahdastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads, true, true);
-	} else if (argc > 1 && sscanf(argv[1], "wprastar-%lf-%u", &weight, &threads) == 2) {
+	} else if (argc > 1 && sscanf(argv[1], "whdastar-%lf-%u", &weight, &threads) == 2) {
 		return new wPRAStar(threads, false, false);
-	} else if (argc > 1 && sscanf(argv[1], "wprastardd-%lf-%u", &weight, &threads) == 2) {
+	} else if (argc > 1 && sscanf(argv[1], "whdastardd-%lf-%u", &weight, &threads) == 2) {
 		return new wPRAStar(threads, true, false);
-
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
@@ -221,10 +220,10 @@ Search *get_search(int argc, char *argv[])
 		     << "\taprastar-<threads>-<nblocks>" << endl
 		     << "\thdastar-<threads>" << endl
 		     << "\tahdastar-<threads>-<nblocks>" << endl
-		     << "\twaprastar-<weight>-<threads>-<nblocks>" << endl
-		     << "\twaprastardd-<weight>-<threads>-<nblocks>" << endl
-		     << "\twprastar-<weight>-<threads>" << endl
-		     << "\twprastardd-<weight>-<threads>" << endl
+		     << "\twahdastar-<weight>-<threads>-<nblocks>" << endl
+		     << "\twahdastardd-<weight>-<threads>-<nblocks>" << endl
+		     << "\twhdastar-<weight>-<threads>" << endl
+		     << "\twhdastardd-<weight>-<threads>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
