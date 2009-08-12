@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
 		project = new Tiles::OneTileProject(&g);
 	} else if (nblocks == 2 || nblocks == 3360) {
 		project = new Tiles::TwoTileProject(&g);
+	} else if (nblocks == 3 || nblocks == 43680) {
+		project = new Tiles::ThreeTileProject(&g);
 	} else {
 		cerr << "Invalid abstraction size: " << nblocks << endl;
 		cerr << "15-puzzle: 240=1tile, 3360=2tile" << endl;

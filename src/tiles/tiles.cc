@@ -615,3 +615,165 @@ void Tiles::TwoTileProject::print(unsigned int b, ostream &o) const
 	  << ", two=" << unproj[b][2]
 	  << endl;
 }
+
+
+/**********************************************************************/
+
+int Tiles::ThreeTileProject::setup_proj(unsigned int id,
+					unsigned int i,
+					unsigned int j,
+					unsigned int k,
+					unsigned int l)
+{
+	if (i == j || i == k || i == l || j == k || j == l || l == k)
+		return 0;
+
+	proj[i][j][k][l] = id;
+	unproj[id].resize(4);
+	unproj[id][0] = i;
+	unproj[id][1] = j;
+	unproj[id][2] = k;
+	unproj[id][3] = l;
+
+	return 1;
+}
+
+Tiles::ThreeTileProject::ThreeTileProject(const SearchDomain *d)
+{
+	tiles = dynamic_cast<const Tiles *>(d);
+	unsigned int size = tiles->width * tiles->height;
+	unsigned int id = 0;
+
+	nnblocks = size * (size - 1) * (size - 2) * (size - 3);
+
+	unproj.resize(nnblocks);
+	proj.resize(size);
+	for (unsigned int i = 0; i < size; i += 1) {
+		proj[i].resize(size);
+		for (unsigned int j = 0; j < size; j += 1) {
+			proj[i][j].resize(size);
+			for (unsigned int k = 0; k < size; k += 1) {
+				proj[i][j][k].resize(size);
+				for (unsigned int l = 0; l < size; l += 1)
+					id += setup_proj(id, i, j, k, l);
+			}
+		}
+	}
+}
+
+Tiles::ThreeTileProject::~ThreeTileProject(void)
+{
+	// nothing
+}
+
+unsigned int Tiles::ThreeTileProject::project(State *s) const
+{
+	TilesState *ts = dynamic_cast<TilesState *>(s);
+	const vector<unsigned int> *t = ts->get_tiles();
+	unsigned int size = t->size();
+	unsigned int blank = 0;
+	unsigned int one = 0;
+	unsigned int two = 0;
+	unsigned int three = 0;
+
+	for (unsigned int i = 0; i < size; i += 1) {
+		if (t->at(i) == 0)
+			blank = i;
+		else if (t->at(i) == 1)
+			one = i;
+		else if (t->at(i) == 2)
+			two = i;
+		else if (t->at(i) == 3)
+			three = i;
+	}
+
+	assert(blank != one);
+	assert(blank != two);
+	assert(blank != three);
+	assert(one != two);
+	assert(one != three);
+	assert(two != three);
+
+	return proj[blank][one][two][three];
+}
+
+unsigned int Tiles::ThreeTileProject::get_num_nblocks(void) const
+{
+	return nnblocks;
+}
+
+/* Get the neighbor ID for a state with blank, one, two, three, and
+ * the blank moves to new_blank. */
+unsigned int
+Tiles::ThreeTileProject::get_neighbor(unsigned int blank,
+				      unsigned int one,
+				      unsigned int two,
+				      unsigned int three,
+				      unsigned int new_blank) const
+{
+	// The blank swaps with the 1, 2 or 3 tile.
+	if (one == new_blank)
+		return proj[one][blank][two][three];
+	else if (two == new_blank)
+		return proj[two][one][blank][three];
+	else if (three == new_blank)
+		return proj[three][one][two][blank];
+
+	// The blank does not swap with another important tile.
+	return proj[new_blank][one][two][three];
+}
+
+
+vector<unsigned int> Tiles::ThreeTileProject::get_neighbors(unsigned int b) const
+{
+	vector<unsigned int> ret;
+	unsigned int blank = unproj[b][0];
+	unsigned int one = unproj[b][1];
+	unsigned int two = unproj[b][2];
+	unsigned int three = unproj[b][3];
+	unsigned int width = tiles->width;
+	unsigned int col = blank % width;
+	unsigned int row = blank / width;
+
+	if (col > 0) {
+		unsigned int i = blank - 1;
+		ret.push_back(get_neighbor(blank, one, two, three, i));
+	}
+	if (col < width - 1) {
+		unsigned int i = blank + 1;
+		ret.push_back(get_neighbor(blank, one, two, three, i));
+	}
+	if (row > 0) {
+		unsigned int i = blank - width;
+		ret.push_back(get_neighbor(blank, one, two, three, i));
+	}
+	if (row < tiles->height - 1) {
+		unsigned int i = blank + width;
+		ret.push_back(get_neighbor(blank, one, two, three, i));
+	}
+
+	return ret;
+}
+
+vector<unsigned int> Tiles::ThreeTileProject::get_successors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+vector<unsigned int> Tiles::ThreeTileProject::get_predecessors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+/**
+ * Print the projection with the given ID, b.
+ */
+void Tiles::ThreeTileProject::print(unsigned int b, ostream &o) const
+{
+	o << b << ": "
+	  << "blank=" << unproj[b][0]
+	  << ", one=" << unproj[b][1]
+	  << ", two=" << unproj[b][2]
+	  << ", three=" << unproj[b][3]
+	  << endl;
+}
