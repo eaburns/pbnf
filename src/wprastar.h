@@ -27,8 +27,12 @@ using namespace std;
 
 class wPRAStar : public Search {
 public:
-        wPRAStar(unsigned int n_threads, bool dd, bool abst);
-        wPRAStar(unsigned int n_threads, fp_type bound, bool dd, bool abst);
+        wPRAStar(unsigned int n_threads, bool dd, bool abst, bool async);
+        wPRAStar(unsigned int n_threads,
+		 fp_type bound,
+		 bool dd,
+		 bool abst,
+		 bool async);
 
         virtual ~wPRAStar(void);
 
@@ -60,6 +64,9 @@ private:
 		bool flush_sends(void);
 
                 void flush_receives(bool has_sends);
+
+		void do_async_send(unsigned int dest_tid, State *c);
+		void do_sync_send(unsigned int dest_tid, State *c);
 
 		/* sends the state to the appropriate thread (possibly
 		 * this thread). */
@@ -96,6 +103,7 @@ private:
 
 	bool dd;		/* Use duplicate detection? */
 	bool use_abstraction;	/* Use abstraction for hashing? */
+	bool async;		/* Asynchronous send/recv? */
 };
 
 #endif	/* !_WPRASTAR_H_ */

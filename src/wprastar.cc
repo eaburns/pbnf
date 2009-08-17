@@ -32,7 +32,9 @@
 
 using namespace std;
 
-wPRAStar::wPRAStarThread::wPRAStarThread(wPRAStar *p, vector<wPRAStarThread *> *threads, CompletionCounter* cc)
+wPRAStar::wPRAStarThread::wPRAStarThread(wPRAStar *p,
+					 vector<wPRAStarThread *> *threads,
+					 CompletionCounter* cc)
 	: p(p),
 	  threads(threads),
 	  cc(cc),
@@ -83,43 +85,6 @@ bool wPRAStar::wPRAStarThread::flush_sends(void)
 	return has_sends;
 }
 
-/*
-void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
-	if (self_add){
-		State *dup = closed.lookup(c);
-		if (dup){
-			if (dup->get_g() > c->get_g()) {
-				fp_type old_g = dup->get_g();
-				fp_type parent_g = c->get_g() - c->get_c();
-
-				dup->update(c->get_parent(), c->get_c(),
-					    c->get_g());
-				if (dup->is_open())
-					open.see_update(dup);
-				else if (!p->dd || old_g > parent_g + ((p->weight * c->get_c()) / fp_one)) {
-					//  Wheeler's dup dropping
-					open.add(dup);
-				}
-			}
-			delete c;
-		}
-		else{
-			open.add(c);
-			closed.add(c);
-		}
-
-		return;
-	}
-	mutex.lock();
-        if (completed){
-		cc->uncomplete();
-		completed = false;
-        }
-        q.push_back(c);
-	q_empty = false;
-	mutex.unlock();
-}
-*/
 
 /**
  * Flush the queue
@@ -127,7 +92,7 @@ void wPRAStar::wPRAStarThread::add(State* c, bool self_add){
 void wPRAStar::wPRAStarThread::flush_receives(bool has_sends)
 {
 	// wait for either completion or more nodes to expand
-	if (open.empty())
+	if (open.empty() || !p->async)
 		mutex.lock();
 	else if (!mutex.try_lock())
 		return;
@@ -163,7 +128,9 @@ void wPRAStar::wPRAStarThread::flush_receives(bool has_sends)
 			if (dup->get_g() > c->get_g()) {
 				fp_type old_g = dup->get_g();
 				fp_type parent_g = c->get_g() - c->get_c();
-				dup->update(c->get_parent(), c->get_c(), c->get_g());
+				dup->update(c->get_parent(),
+					    c->get_c(),
+					    c->get_g());
 				if (dup->is_open())
 					open.see_update(dup);
 				else if (!p->dd || CANT_DROP(old_g,
@@ -184,6 +151,30 @@ void wPRAStar::wPRAStarThread::flush_receives(bool has_sends)
 	q.clear();
 	q_empty = true;
 	mutex.unlock();
+}
+
+void wPRAStar::wPRAStarThread::do_async_send(unsigned int dest_tid, State *c)
+{
+	if (!out_qs[dest_tid]) {
+		Mutex *lk = threads->at(dest_tid)->get_mutex();
+		vector<State*> *qu = threads->at(dest_tid)->get_queue();
+		out_qs[dest_tid] =
+			new MsgBuffer<State*>(lk, qu,
+					      post_send,
+					      threads->at(dest_tid));
+	}
+
+	out_qs[dest_tid]->try_send(c);
+}
+
+void wPRAStar::wPRAStarThread::do_sync_send(unsigned int dest_tid, State *c)
+{
+	wPRAStarThread *dest = threads->at(dest_tid);
+
+	dest->get_mutex()->lock();
+	dest->get_queue()->push_back(c);
+	post_send(dest);
+	dest->get_mutex()->unlock();
 }
 
 void wPRAStar::wPRAStarThread::send_state(State *c)
@@ -223,19 +214,11 @@ void wPRAStar::wPRAStarThread::send_state(State *c)
 	}
 
 	// not a self add
-	//
-	// Do a buffered send, in which case we can just sit on a lock
-	// because there is no work to do anyway.
-	if (!out_qs[dest_tid]) {
-		Mutex *lk = threads->at(dest_tid)->get_mutex();
-		vector<State*> *qu = threads->at(dest_tid)->get_queue();
-		out_qs[dest_tid] =
-			new MsgBuffer<State*>(lk, qu,
-					      post_send,
-					      threads->at(dest_tid));
-	}
+	if (p->async)
+		do_async_send(dest_tid, c);
+	else
+		do_sync_send(dest_tid, c);
 
-	out_qs[dest_tid]->try_send(c);
 }
 
 State *wPRAStar::wPRAStarThread::take(void)
@@ -296,22 +279,30 @@ void wPRAStar::wPRAStarThread::run(void){
 /************************************************************/
 
 
-wPRAStar::wPRAStar(unsigned int n_threads, bool d, bool abst)
+wPRAStar::wPRAStar(unsigned int n_threads, bool d, bool abst, bool as)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
 	  dd(d),
-	  use_abstraction(abst){
+	  use_abstraction(abst),
+	  async(as)
+{
         done = false;
 }
 
 
-wPRAStar::wPRAStar(unsigned int n_threads, fp_type bound, bool d, bool abst)
+wPRAStar::wPRAStar(unsigned int n_threads,
+		   fp_type bound,
+		   bool d,
+		   bool abst,
+		   bool as)
 	: n_threads(n_threads),
           bound(bound),
 	  project(NULL),
 	  dd(d),
-	  use_abstraction(abst) {
+	  use_abstraction(abst),
+	  async(as)
+{
         done = false;
 }
 

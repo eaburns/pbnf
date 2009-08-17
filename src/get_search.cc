@@ -148,13 +148,13 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, true, true);
 	} else if (argc > 1 && sscanf(argv[1], "wahdastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
-		return new wPRAStar(threads, false, true);
+		return new wPRAStar(threads, false, true, true);
 	} else if (argc > 1 && sscanf(argv[1], "wahdastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
-		return new wPRAStar(threads, true, true);
+		return new wPRAStar(threads, true, true, true);
 	} else if (argc > 1 && sscanf(argv[1], "whdastar-%lf-%u", &weight, &threads) == 2) {
-		return new wPRAStar(threads, false, false);
+		return new wPRAStar(threads, false, false, true);
 	} else if (argc > 1 && sscanf(argv[1], "whdastardd-%lf-%u", &weight, &threads) == 2) {
-		return new wPRAStar(threads, true, false);
+		return new wPRAStar(threads, true, false, true);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
