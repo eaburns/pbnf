@@ -218,12 +218,16 @@ State *PRAStar::PRAStarThread::take(void)
 {
 	Timer t;
 	bool entered_loop = false;
+	bool timer_started = false;
 
 	bool has_sends = flush_sends();
 
-	if (open.empty() || !q_empty)
-		t.start();
 	while (open.empty() || !q_empty) {
+		if (!timer_started) {
+			timer_started = true;
+			t.start();
+		}
+
 		entered_loop = true;
 
 		if (has_sends)
@@ -236,7 +240,7 @@ State *PRAStar::PRAStarThread::take(void)
 		}
         }
 
-	if (entered_loop) {
+	if (timer_started) {
 		t.stop();
 		time_spinning += t.get_wall_time();
 	}
