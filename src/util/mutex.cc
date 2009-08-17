@@ -16,8 +16,10 @@ using namespace std;
 
 #include "mutex.h"
 
+#if defined(INSTRUMENTED)
 ThreadSpecific<double> Mutex::lock_acquisition_times(0.0);
 ThreadSpecific<double> Mutex::cond_wait_times(0.0);
+#endif	// INSTRUMENTED
 
 Mutex::Mutex(void)
 {
@@ -27,14 +29,18 @@ Mutex::Mutex(void)
 
 void Mutex::lock(void)
 {
+#if defined(INSTRUMENTED)
 	Timer t;
 
 	t.start();
+#endif
 	pthread_mutex_lock(&mutex);
+#if defined(INSTRUMENTED)
 	t.stop();
 
 	double time = lock_acquisition_times.get_value();
 	lock_acquisition_times.set_value(time + t.get_wall_time());
+#endif
 }
 
 void Mutex::unlock(void)
@@ -49,14 +55,18 @@ bool Mutex::try_lock(void)
 
 void Mutex::cond_wait(void)
 {
+#if defined(INSTRUMENTED)
 	Timer t;
 
 	t.start();
+#endif
 	pthread_cond_wait(&cond, &mutex);
+#if defined(INSTRUMENTED)
 	t.stop();
 
 	double time = cond_wait_times.get_value();
 	cond_wait_times.set_value(time + t.get_wall_time());
+#endif
 }
 
 void Mutex::cond_signal(void)
@@ -69,6 +79,7 @@ void Mutex::cond_broadcast(void)
 	pthread_cond_broadcast(&cond);
 }
 
+#if defined(INSTRUMENTED)
 double Mutex::get_total_lock_acquisition_time(void)
 {
 	double total_time;
@@ -105,3 +116,9 @@ void Mutex::print_stats(ostream &o)
 	o << "total-time-waiting: "
 	  << get_total_cond_wait_time() << endl;
 }
+#else  // !INSTRUMENTED
+void Mutex::print_stats(ostream &o)
+{
+}
+
+#endif	// INSTRUMENTED

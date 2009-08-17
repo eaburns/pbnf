@@ -260,11 +260,13 @@ void BFPSDDSearch::output_stats(void)
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
 	Mutex::print_stats(cout);
+#if defined(INSTRUMENTED)
 	cout << "average-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() / n_threads
 	     << endl;
 	cout << "average-time-waiting: "
 	     << Mutex::get_total_cond_wait_time() / n_threads << endl;
+#endif	// INSTRUMENTED
 	graph->print_stats(cout);
 }
 

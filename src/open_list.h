@@ -45,9 +45,11 @@ public:
 	/* Print statistic information. */
 	void print_stats(ostream &o);
 
+#if defined(INSTRUMENTED)
 	/* Get statistic information. */
 	float get_avg_size(void);
 	unsigned int get_max_size(void);
+#endif	/* INSTRUMENTED */
 
 protected:
 	void set_best_val(fp_type f);

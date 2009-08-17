@@ -57,7 +57,9 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p,
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
+#if defined(INSTRUMENTED)
 	map.set_observer(this);
+#endif	// INSTRUMENTED
 
 	NBlock *n = map.get(init_nblock);
 	n->open.add(initial);
@@ -69,12 +71,14 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p,
 
 	done = false;
 
+#if defined(INSTRUMENTED)
 	switch_locks_forced = 0;
 	switch_locks_forced_empty = 0;
 	switch_locks_forced_finished = 0;
 	total_switches = 0;
 	nblocks_assigned = 0;
 	nblocks_assigned_max = 0;
+#endif	// INSTRUMENTED
 }
 
 /**
@@ -118,14 +122,18 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		if (!mutex.try_lock())
 			return finished;
 	} else {
+#if defined(INSTRUMENTED)
 		if (!finished)
 			switch_locks_forced_finished += 1;
 		if (finished && finished->open.empty())
 			switch_locks_forced_empty += 1;
 		switch_locks_forced += 1;
+#endif	// INSTRUMENTED
 		mutex.lock();
 	}
+#if defined(INSTRUMENTED)
 	total_switches += 1;
+#endif	// INSTRUMENTED
 
 	if (finished) {		// Release an NBlock
 		if (finished->sigma != 0) {
@@ -155,7 +163,9 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		}
 */
 
+#if defined(INSTRUMENTED)
 		nblocks_assigned -= 1;
+#endif	// INSTRUMENTED
 
 		finished->inuse = false;
 		if (is_free(finished)) {
@@ -198,9 +208,12 @@ retry:
 		abort();
 	}
 
+#if defined(INSTRUMENTED)
 	nblocks_assigned += 1;
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
+#endif	// INSTRUMENTED
+
 	n->inuse = true;
 	update_scope_sigmas(n->id, 1);
 
@@ -261,6 +274,7 @@ NBlock *NBlockGraph::get_nblock(unsigned int hash)
 	return map.get(hash);
 }
 
+#if defined(INSTRUMENTED)
 /**
  * Get the statistics on the maximum number of NBlocks assigned at one time.
  */
@@ -269,6 +283,7 @@ unsigned int NBlockGraph::get_max_assigned_nblocks(void) const
 
 	return nblocks_assigned_max;
 }
+#endif	// INSTRUMENTED
 
 /**
  * Get the value of the best nblock.
@@ -497,6 +512,7 @@ void NBlockGraph::print_stats(ostream &o)
 	//
 	// Print open list statistics.
 	//
+#if defined(INSTRUMENTED)
 	list<NBlock*>::iterator iter;
 	unsigned int max = 0;
 	double sum = 0;
@@ -522,9 +538,12 @@ void NBlockGraph::print_stats(ostream &o)
 	cout << "# switch-locks-forced_finished: "
 	     << switch_locks_forced_finished << endl;
 	cout << "# total-switches: " << total_switches << endl;
+#endif	// INSTRUMENTED
 }
 
 void NBlockGraph::observe(NBlock *b)
 {
+#if defined(INSTRUMENTED)
 	nblocks.push_back(b);
+#endif	// INSTRUMENTED
 }

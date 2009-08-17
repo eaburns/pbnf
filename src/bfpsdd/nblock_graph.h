@@ -370,12 +370,14 @@ namespace BFPSDD {
 		//
 		// Print open list statistics.
 		//
+#if defined(INSTRUMENTED)
 		typename list<NBlock<StateCompare>* >::iterator iter;
 		unsigned int max = 0;
 		double sum = 0;
 		double num = 0;
 		for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
 			NBlock<StateCompare> *n = *iter;
+
 			if (n->open.get_max_size() > max)
 				max = n->open.get_max_size();
 			sum += n->open.get_avg_size();
@@ -388,6 +390,7 @@ namespace BFPSDD {
 			cout << "average-open-size: -1" << endl;
 			cout << "max-open-size: -1" << endl;
 		}
+#endif	/* INSTRUMENTED */
 	}
 
 } /* BFPSDD */

@@ -39,7 +39,9 @@ namespace PBNF {
 		NBlock *get_nblock(unsigned int hash);
 		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
+#if defined(INSTRUMENTED)
 		unsigned int get_max_assigned_nblocks(void) const;
+#endif	/* INSTRUMENTED */
 		void set_done(void);
 		NBlock *best_in_scope(NBlock *b);
 		void wont_release(NBlock *b);
@@ -108,6 +110,7 @@ namespace PBNF {
 		/*
 		 * Statistics
 		 */
+#if defined(INSTRUMENTED)
 		/* total times a lock was taken without trylock on a
 		 * switch. */
 		unsigned int switch_locks_forced;
@@ -120,8 +123,10 @@ namespace PBNF {
 		unsigned int nblocks_assigned;
 		unsigned int nblocks_assigned_max;
 
+
 		/* list of created nblocks. */
 		list<NBlock*> nblocks;
+#endif	/* INSTRUMENTED */
 	};
 } /* PBNF */
 

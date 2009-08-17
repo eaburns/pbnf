@@ -291,9 +291,11 @@ void PBNFSearch::output_stats(void)
 	if (solutions)
 		solutions->output(cout);
 
+#if defined(INSTRUMENTED)
 	cout << "average-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() / n_threads
 	     << endl;
 	cout << "average-time-waiting: "
 	     << Mutex::get_total_cond_wait_time() / n_threads << endl;
+#endif	// INSTRUMENTED
 }

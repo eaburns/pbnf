@@ -216,19 +216,23 @@ void PRAStar::PRAStarThread::send_state(State *c)
 
 State *PRAStar::PRAStarThread::take(void)
 {
+#if defined(INSTRUMENTED)
 	Timer t;
 	bool entered_loop = false;
 	bool timer_started = false;
+#endif	// INSTRUMENTED
 
 	bool has_sends = flush_sends();
 
 	while (open.empty() || !q_empty) {
+#if defined(INSTRUMENTED)
 		if (!timer_started) {
 			timer_started = true;
 			t.start();
 		}
 
 		entered_loop = true;
+#endif	// INSTRUMENTED
 
 		if (has_sends)
 			has_sends = flush_sends();
@@ -240,10 +244,12 @@ State *PRAStar::PRAStarThread::take(void)
 		}
         }
 
+#if defined(INSTRUMENTED)
 	if (timer_started) {
 		t.stop();
 		time_spinning += t.get_wall_time();
 	}
+#endif	// INSTRUMENTED
 
 	State *ret = NULL;
 	if (!p->is_done())
@@ -368,6 +374,7 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 
 void PRAStar::output_stats(void)
 {
+#if defined(INSTRUMENTED)
 	time_spinning = 0.0;
 	max_open_size = 0;
 	avg_open_size = 0;
@@ -378,10 +385,12 @@ void PRAStar::output_stats(void)
 			max_open_size = (*iter)->open.get_max_size();
         }
 	avg_open_size /= n_threads;
+#endif	// INSTRUMENTED
 
 	if (solutions)
 		solutions->output(cout);
 
+#if defined(INSTRUMENTED)
 	cout << "total-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() << endl;
 	cout << "average-time-acquiring-locks: "
@@ -392,4 +401,5 @@ void PRAStar::output_stats(void)
 	     << time_spinning / n_threads << endl;
 	cout << "average-open-size: " << avg_open_size << endl;
 	cout << "max-open-size: " << max_open_size << endl;
+#endif	// INSTRUMENTED
 }

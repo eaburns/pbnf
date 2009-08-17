@@ -44,6 +44,7 @@ public:
 	/** Signal all threads waiting on the condition. */
 	void cond_broadcast(void);
 
+#if defined(INSTRUMENTED)
 	/**
 	 * Get the total time (in seconds) that threads have spent
 	 * waiting on this mutex.
@@ -54,16 +55,19 @@ public:
 	 * Get the amount of time spent waiting on a condition.
 	 */
 	static double get_total_cond_wait_time(void);
+#endif	/* INSTRUMENTED */
 
 	/** Print the stats to the given output stream. */
 	static void print_stats(ostream &o);
 
 private:
+#if defined(INSTRUMENTED)
 	/** The accumulated time spent trying to acquire a lock. */
 	static ThreadSpecific<double> lock_acquisition_times;
 
 	/** Accumulated time waiting on a condition. */
 	static ThreadSpecific<double> cond_wait_times;
+#endif	/* INSTRUMENTED */
 
 	/** The low-level mutex. */
 	pthread_mutex_t mutex;
