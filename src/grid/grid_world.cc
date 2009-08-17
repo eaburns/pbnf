@@ -54,11 +54,15 @@ GridWorld::GridWorld(istream &s)
 		cerr << endl << "Parse error: [" << c << "]" << endl;
 		exit(EXIT_FAILURE);
 	}
+
+	obstacles.resize(width * height);
 	for (int h = 0; h < height; h += 1) {
 		for (int w = 0; w < width; w += 1) {
 			c = s.get();
 			if (c == '#')
 				obstacles[width * h + w] = true;
+			else
+				obstacles[width * h + w] = false;
 		}
 		c = s.get();	// new-line
 		if (c != '\n') {
@@ -261,11 +265,7 @@ enum GridWorld::move_type GridWorld::get_move_type(void) const
  */
 bool GridWorld::is_obstacle(int x, int y) const
 {
-	map<int, bool>::const_iterator iter;
-
-	iter = obstacles.find(width * y + x);
-
-	return iter != obstacles.end();
+	return obstacles[width * y + x];
 }
 
 /**

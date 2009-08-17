@@ -113,7 +113,9 @@ private:
 	int width, height;
 	int start_x, start_y;
 	int goal_x, goal_y;
-	map<int, bool> obstacles;
+
+	/* the array of the obstacle status of each grid square. */
+	vector<bool> obstacles;
 
 #if defined(ENABLE_IMAGES)
 	void expanded_state(GridState *s);
