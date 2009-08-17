@@ -29,7 +29,10 @@ using namespace std;
 
 class PRAStar : public Search {
 public:
-        PRAStar(unsigned int n_threads, bool use_abst, bool async);
+        PRAStar(unsigned int n_threads,
+		bool use_abst,
+		bool async_send,
+		bool async_recv);
 
         virtual ~PRAStar(void);
 
@@ -132,8 +135,9 @@ private:
 	 * hashing. */
 	bool use_abstraction;
 
-	/* Use asynchronous sends? */
-	bool async;
+	/* Level of asynchronousity. */
+	bool async_send;
+	bool async_recv;
 
 	/* Statistics */
 	double time_spinning;

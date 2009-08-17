@@ -93,7 +93,7 @@ bool PRAStar::PRAStarThread::flush_sends(void)
 void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 {
 	// wait for either completion or more nodes to expand
-	if (open.empty() || !p->async)
+	if (open.empty() || !p->async_recv)
 		mutex.lock();
 	else if (!mutex.try_lock()) // asynchronous
 		return;
@@ -208,7 +208,7 @@ void PRAStar::PRAStarThread::send_state(State *c)
 	}
 
 	// not a self add
-	if (p->async)
+	if (p->async_send)
 		do_async_send(dest_tid, c);
 	else
 		do_sync_send(dest_tid, c);
@@ -280,12 +280,16 @@ void PRAStar::PRAStarThread::run(void){
 /************************************************************/
 
 
-PRAStar::PRAStar(unsigned int n_threads, bool use_abst, bool asy)
+PRAStar::PRAStar(unsigned int n_threads,
+		 bool use_abst,
+		 bool a_send,
+		 bool a_recv)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
 	  use_abstraction(use_abst),
-	  async(asy)
+	  async_send(a_send),
+	  async_recv(a_recv)
 {
         done = false;
 }
