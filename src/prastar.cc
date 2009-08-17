@@ -221,11 +221,13 @@ State *PRAStar::PRAStarThread::take(void)
 
 	bool has_sends = flush_sends();
 
-	t.start();
+	if (open.empty() || !q_empty)
+		t.start();
 	while (open.empty() || !q_empty) {
 		entered_loop = true;
 
-		has_sends = flush_sends();
+		if (has_sends)
+			has_sends = flush_sends();
 		flush_receives(has_sends);
 
 		if (cc->is_complete()){
@@ -233,9 +235,11 @@ State *PRAStar::PRAStarThread::take(void)
 			return NULL;
 		}
         }
-	t.stop();
-	if (entered_loop)
+
+	if (entered_loop) {
+		t.stop();
 		time_spinning += t.get_wall_time();
+	}
 
 	State *ret = NULL;
 	if (!p->is_done())
