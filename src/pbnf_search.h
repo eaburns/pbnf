@@ -55,7 +55,9 @@ namespace PBNF {
 			NBlockGraph *graph;
 			PBNFSearch *search;
 			unsigned long exp_this_block;
+#if defined(INSTRUMENTED)
 			CumulativeAverage ave_exp_per_nblock;
+#endif	/* INSTRUMENTED */
 			fp_type next_best;
 		};
 

@@ -58,13 +58,16 @@ void PBNFSearch::PBNFThread::run(void)
 
 			if (path)
 				search->set_path(path);
+#if defined(INSTRUMENTED)
 			ave_exp_per_nblock.add_val(exp_this_block);
+#endif	// INSTRUMENTED
 		}
 	} while (n);
 
 	graph->set_done();
 }
 
+#if defined(INSTRUMENTED)
 /**
  * Get the average number of expansions per-nblock.
  */
@@ -72,6 +75,7 @@ fp_type PBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
 {
 	return ave_exp_per_nblock.read();
 }
+#endif	// INSTRUMENTED
 
 /**
  * Search a single NBlock.
@@ -240,11 +244,13 @@ vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
+#if defined(INSTRUMENTED)
 		fp_type ave = (*iter)->get_ave_exp_per_nblock();
 		if (ave != 0) {
 			sum += ave;
 			num += 1;
 		}
+#endif	// INSTRUMENTED
 	}
 
 	return solutions->get_best_path();
@@ -278,10 +284,12 @@ void PBNFSearch::set_path(vector<State *> *p)
  */
 void PBNFSearch::output_stats(void)
 {
+#if defined(INSTRUMENTED)
 	if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
 		cout << "expansions-per-nblock: " << sum / num << endl;
+#endif	// INSTRUMENTED
 
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
