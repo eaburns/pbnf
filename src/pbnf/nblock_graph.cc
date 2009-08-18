@@ -40,7 +40,6 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p,
 {
 	unsigned int init_nblock = p->project(initial);
 
-	nblocks_created = 0;
 	project = p;
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
@@ -123,33 +122,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 #endif	// INSTRUMENTED
 
 	if (finished) {		// Release an NBlock
-		if (finished->sigma != 0) {
-			cerr << "A proc had an NBlock with sigma != 0" << endl;
-			finished->print(cerr);
-			cerr << endl << endl << endl;
-			__print(cerr);
-		}
 		assert(finished->sigma == 0);
-
-/*
-  This is bogus, because what if there is a better block in our scope?
-  We would rather get that block than searching the same old ratty
-  nblock.
-
-		if (!finished->open.empty()) {
-			fp_type cur_f = finished->best_value();
-			fp_type new_f;
-			if (free_list.empty())
-				new_f = fp_infinity;
-			else
-				new_f = free_list.front()->best_value();
-			if (cur_f <= new_f) {
-				n = finished;
-				goto out;
-			}
-		}
-*/
-
 #if defined(INSTRUMENTED)
 		nblocks_assigned -= 1;
 #endif	// INSTRUMENTED
@@ -165,9 +138,8 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 	}
 
 retry:
-
 	if (num_sigma_zero == num_nblocks && free_list.empty()) {
-		__set_done();
+		set_done();
 		goto out;
 	}
 
@@ -345,39 +317,12 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 }
 
 /**
- * Sets the done flag with out taking the lock.
- */
-void NBlockGraph::__set_done(void)
-{
-#if !defined(NDEBUG) && defined(INSTRUMENTED)
-	list<NBlock*>::iterator iter;
-
-	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
-		if (!(*iter)->open.empty())
-			cerr << "NBlock " << (*iter)->id << " is not empty" << endl;
-		if ((*iter)->hot)
-			cerr << "NBlock " << (*iter)->id << " is hot" << endl;
-	}
-#endif	// !NDEBUG && INSTRUMENTED
-
-	done = true;
-	mutex.cond_broadcast();
-}
-
-/**
  * Sets the done flag.
  */
 void NBlockGraph::set_done(void)
 {
-	if (done)
-		return;
-	mutex.lock();
-	if (done) {
-		mutex.unlock();
-		return;
-	}
-	__set_done();
-	mutex.lock();
+	done = true;
+	mutex.cond_broadcast();
 }
 
 /**

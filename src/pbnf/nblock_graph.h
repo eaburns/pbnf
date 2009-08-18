@@ -71,7 +71,6 @@ namespace PBNF {
 		 * they gain a node worth looking at. */
 		void prune_free_list(void);
 
-		void __set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);
 
@@ -83,13 +82,12 @@ namespace PBNF {
 
 		const Projection *project;
 
-		/* NBlocks (this may be incomplete because nblocks are created lazily). */
-//		NBlock **_blocks;
+		/* NBlocks (this may be incomplete because nblocks are
+		 * created lazily). */
 		NBlockMap<NBlock> map;
 
 		/* The total number of NBlocks. */
 		unsigned int num_nblocks;
-		unsigned int nblocks_created;
 
 		/* The number of NBlocks with sigma values of zero. */
 		unsigned int num_sigma_zero;
