@@ -219,10 +219,11 @@ void wPRAStar::wPRAStarThread::send_state(State *c)
 
 State *wPRAStar::wPRAStarThread::take(void)
 {
-	flush_sends();
+	bool has_sends = flush_sends();
 
 	while (open.empty() || !q_empty) {
-		bool has_sends = flush_sends();
+		if (has_sends)
+			has_sends = flush_sends();
 		flush_receives(has_sends);
 
 		if (cc->is_complete()){
@@ -252,7 +253,7 @@ void wPRAStar::wPRAStarThread::run(void){
 		if (s->get_f_prime() >= p->bound.read()) {
 			open.prune();
 		}
-		if (p->weight * s->get_f() >= p->bound.read()) {
+		if ((p->weight * s->get_f()) / fp_one >= p->bound.read()) {
 			continue;
 		}
 		if (s->is_goal()) {
@@ -262,7 +263,9 @@ void wPRAStar::wPRAStarThread::run(void){
 		children = p->expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
-			if (c->get_f() < p->bound.read())
+			if (c->get_f_prime() < p->bound.read()
+			    && ((c->get_f() * p->weight) / fp_one
+				< p->bound.read()))
 				send_state(c);
 			else
 				delete c;
@@ -312,7 +315,7 @@ void wPRAStar::set_done()
 
 bool wPRAStar::is_done()
 {
-        return done
+        return done;
 }
 
 void wPRAStar::set_path(vector<State *> *p)

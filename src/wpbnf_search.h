@@ -52,10 +52,6 @@ namespace WPBNF {
 			NBlockGraph *graph;
 			WPBNFSearch *search;
 			bool set_hot;
-			unsigned long exp_this_block;
-			CumulativeAverage ave_exp_per_nblock;
-			CumulativeAverage ave_open_size;
-			fp_type next_best;
 		};
 
 		unsigned int n_threads;
@@ -68,17 +64,18 @@ namespace WPBNF {
 		bool dynamic_m;
 
 		NBlockGraph *graph;
-		static AtomicInt min_expansions;
+		unsigned int min_expansions;
 
 		fp_type weight;
 
 
+#if defined(INSTRUMENTED)
 		/* stats tracking */
 		fp_type sum;
 		unsigned int num;
 		fp_type osum;
 		unsigned int onum;
-		Timer graph_timer;
+#endif	/* INSTRUMENTED */
 
 		/* duplicate dropping? */
 		bool dd;
