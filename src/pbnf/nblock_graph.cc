@@ -191,13 +191,6 @@ retry:
 		goto out;
 
 	if (free_list.front()->best_value() >= (bound->read() * weight)) {
-		// This may be pretty weak, but it should allow for
-		// eariler stopping.
-
-		// If all sigma values are zero (no one else is
-		// searching) then we will set done on the retry.
-		if (num_sigma_zero == num_nblocks)
-			cerr << "# -------------------- quitting early" << endl;
 		prune_free_list();
 		goto retry;
 	}
@@ -233,14 +226,13 @@ out:
 /**
  * Get the best NBlock in the interference scope of b which is not free.
  */
-NBlock *NBlockGraph::best_in_scope(NBlock *b)
+NBlock *NBlockGraph::best_in_scope(NBlock *block)
 {
 	NBlock *best_b = NULL;
 	fp_type best_val = fp_infinity;
-	set<unsigned int>::iterator i;
 
-	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-		NBlock *b = map.find(*i);
+	for (unsigned int i = 0; i < block->ninterferes; i++) {
+		NBlock *b = map.find(block->interferes[i]);
 		if (!b)
 			continue;
 		if (b->open.empty())
@@ -327,7 +319,7 @@ void NBlockGraph::print(ostream &o)
  */
 void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 {
-	set<unsigned int>::iterator iter;
+	bool broadcast = false;
 	NBlock *n = map.get(y);
 
 	assert(n->sigma == 0);
@@ -341,10 +333,8 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 	  \sigma(y'') <- \sigma(y'') +- 1
 	*/
 
-	for (iter = n->interferes.begin();
-	     iter != n->interferes.end();
-	     iter++) {
-		NBlock *m = map.get(*iter);
+	for (unsigned int i = 0; i < n->ninterferes; i++) {
+		NBlock *m = map.get(n->interferes[i]);
 		if (m->sigma == 0) {
 			assert(delta > 0);
 			if (is_free(m) && m->pq_index != -1)
@@ -354,14 +344,17 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 		m->sigma += delta;
 		if (m->sigma == 0) {
 			if (m->hot)
-				set_cold(m);
+				broadcast |= set_cold(m);
 			if (is_free(m)) {
 				free_list.add(m);
-				mutex.cond_signal();
+				broadcast = true;
 			}
 			num_sigma_zero += 1;
 		}
 	}
+
+	if (broadcast)
+		mutex.cond_broadcast();
 }
 
 /**
@@ -369,7 +362,7 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
  */
 void NBlockGraph::__set_done(void)
 {
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) && defined(INSTRUMENTED)
 	list<NBlock*>::iterator iter;
 
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
@@ -378,7 +371,7 @@ void NBlockGraph::__set_done(void)
 		if ((*iter)->hot)
 			cerr << "NBlock " << (*iter)->id << " is hot" << endl;
 	}
-#endif	// NDEBUG
+#endif	// !NDEBUG && INSTRUMENTED
 
 	done = true;
 	mutex.cond_broadcast();
@@ -419,32 +412,36 @@ bool NBlockGraph::is_free(NBlock *b)
  */
 bool NBlockGraph::set_hot(NBlock *b)
 {
-	set<unsigned int>::iterator i;
 	fp_type val = b->best_value();
+	bool broadcast = false;
 
 	if (!mutex.try_lock())
 		return false;
 
 	if (!b->hot && b->sigma > 0) {
-		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-			assert(b->id != *i);
-			NBlock *m = map.get(*i);
+		for (unsigned int i = 0; i < b->ninterferes; i++) {
+			assert(b->id != b->interferes[i]);
+			NBlock *m = map.get(b->interferes[i]);
 			if (m->hot && m->best_value() < val)
 				goto out;
 		}
 
 		b->hot = true;
-		for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-			assert(b->id != *i);
-			NBlock *m = map.get(*i);
+		for (unsigned int i = 0; i < b->ninterferes; i++) {
+			assert(b->id != b->interferes[i]);
+			NBlock *m = map.get(b->interferes[i]);
 			if (is_free(m) && m->pq_index != -1)
 				free_list.remove(m->pq_index);
 			if (m->hot)
-				set_cold(m);
+				broadcast |= set_cold(m);
 			m->sigma_hot += 1;
 		}
 	}
 out:
+
+	if (broadcast)
+		mutex.cond_broadcast();
+
 	mutex.unlock();
 	return true;
 }
@@ -453,20 +450,22 @@ out:
  * Mark an NBlock as cold.  The mutex must be held *before* this
  * function is called.n
  */
-void NBlockGraph::set_cold(NBlock *b)
+bool NBlockGraph::set_cold(NBlock *b)
 {
-	set<unsigned int>::iterator i;
+	bool broadcast = false;
 
 	b->hot = false;
-	for (i = b->interferes.begin(); i != b->interferes.end(); i++) {
-		assert(b->id != *i);
-		NBlock *m = map.get(*i);
+	for (unsigned int i = 0; i < b->ninterferes; i++) {
+		assert(b->id != b->interferes[i]);
+		NBlock *m = map.get(b->interferes[i]);
 		m->sigma_hot -= 1;
 		if (is_free(m)) {
 			free_list.add(m);
-			mutex.cond_signal();
+			broadcast = true;
 		}
 	}
+
+	return broadcast;
 }
 
 /**
@@ -475,7 +474,7 @@ void NBlockGraph::set_cold(NBlock *b)
  */
 void NBlockGraph::wont_release(NBlock *b)
 {
-	set<unsigned int>::iterator iter;
+	bool broadcast = false;
 
 	// Don't bother locking if nothing is hot anyway.
 	if (b->sigma_hot == 0)
@@ -484,15 +483,16 @@ void NBlockGraph::wont_release(NBlock *b)
 	if (!mutex.try_lock())
 		return;
 
-	for (iter = b->interferes.begin();
-	     iter != b->interferes.end();
-	     iter++) {
-		NBlock *m = map.find(*iter);
+	for (unsigned int i = 0; i < b->ninterferes; i++) {
+		NBlock *m = map.find(b->interferes[i]);
 		if (!m)
 			continue;
 		if (m->hot)
-			set_cold(m);
+			broadcast |= set_cold(m);
 	}
+
+	if (broadcast)
+		mutex.cond_broadcast();
 
 	mutex.unlock();
 }

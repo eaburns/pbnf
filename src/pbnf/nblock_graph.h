@@ -76,7 +76,11 @@ namespace PBNF {
 		void __set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);
-		void set_cold(NBlock *b);
+
+		/* Set an nblock to cold.  Returns true if the caller
+		 * needs to pthread_broadcast. */
+		bool set_cold(NBlock *b);
+
 		void update_scope_sigmas(unsigned int y, int delta);
 
 		const Projection *project;

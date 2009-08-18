@@ -84,9 +84,10 @@ namespace PBNF {
 		int inuse;
 		int pq_index;
 
-		set<unsigned int> interferes;
-		set<unsigned int> preds;
-		set<unsigned int> succs;
+		unsigned int *interferes;
+		unsigned int ninterferes;
+		vector<unsigned int> preds;
+		vector<unsigned int> succs;
 	};
 }	/* PBNF */
 #endif	/* !_NBLOCK_H_ */
