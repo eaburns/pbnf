@@ -30,7 +30,6 @@ using namespace PBNF;
 PBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, PBNFSearch *search)
 	: graph(graph), search(search)
 {
-	next_best = 0.0;
 }
 
 
@@ -48,12 +47,11 @@ void PBNFSearch::PBNFThread::run(void)
 	do {
 		n = graph->next_nblock(n);
 
-		if (n && search->dynamic_m)
-			next_best = graph->best_val();
-
 		if (n) {
 			expansions = 0;
+#if defined(INSTRUMENTED)
 			exp_this_block = 0;
+#endif	// INSTRUMENTED
 			path = search_nblock(n);
 
 			if (path)
@@ -97,7 +95,9 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		}
 
 		expansions += 1;
+#if defined(INSTRUMENTED)
 		exp_this_block += 1;
+#endif	// INSTRUMENTED
 
 		vector<State *> *children = search->expand(s);
 		vector<State *>::iterator iter;
@@ -152,13 +152,8 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (next_best == 0.0 || graph->best_val() != 0.0){
-		if (expansions < search->min_expansions.read())
-			return false;
-	}
-	else{
-		return n->open.get_best_val() > next_best;
-	}
+	if (expansions < search->min_expansions)
+		return false;
 
 	expansions = 0;
 
@@ -200,17 +195,12 @@ PBNFSearch::PBNFSearch(unsigned int n_threads,
 	  bound(fp_infinity),
 	  detect_livelocks(detect_livelocks),
 	  graph(NULL),
-	  sum(0.0),
-	  num(0)
+	  min_expansions(min_e)
 {
-	if (min_e == 0){
-		dynamic_m = true;
-		min_expansions = AtomicInt(MIN_M);
-	}
-	else{
-		dynamic_m = false;
-		min_expansions = AtomicInt(min_e);
-	}
+#if defined(INSTRUMENTED)
+	sum = 0.0;
+	num = 0;
+#endif	// INSTRUMENTED
 }
 
 
@@ -219,7 +209,6 @@ PBNFSearch::~PBNFSearch(void)
 	if (graph)
 		delete graph;
 }
-
 
 vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 {
@@ -240,7 +229,9 @@ vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 	}
 
 	// Accumulate statistics
+#if defined(INSTRUMENTED)
 	sum = num = 0;
+#endif	// INSTRUMENTED
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
