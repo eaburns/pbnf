@@ -71,8 +71,6 @@ namespace PBNF {
 		 * they gain a node worth looking at. */
 		void prune_free_list(void);
 
-		NBlock *create_nblock(unsigned int id);
-		NBlock *get_nblock_if_created(unsigned int hash);
 		void __set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);

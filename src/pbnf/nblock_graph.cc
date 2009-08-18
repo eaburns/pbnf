@@ -29,18 +29,6 @@ using namespace std;
 using namespace PBNF;
 
 /**
- * Create the nblock with the given ID.
- */
-NBlock *NBlockGraph::create_nblock(unsigned int id)
-{
-	NBlock *n = new NBlock(project, id);
-
-	nblocks_created += 1;
-
-	return n;
-}
-
-/**
  * Apparently gdb can't single step inside a c++ constructor... so we
  * just call this function in the constructor so that we can see what
  * is going on.
@@ -68,7 +56,6 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p,
 
 	bound = b;
 	weight = w;
-
 	done = false;
 
 #if defined(INSTRUMENTED)
