@@ -94,7 +94,6 @@ private:
 	fp_type weight;
 	AtomicInt bound;
         bool done;
-	Mutex mutex;
 	const Projection *project;
 	vector<wPRAStarThread *> threads;
 	vector<wPRAStarThread *>::iterator iter;

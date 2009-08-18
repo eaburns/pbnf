@@ -318,9 +318,7 @@ PRAStar::~PRAStar(void)
 
 void PRAStar::set_done()
 {
-	mutex.lock();
         done = true;
-	mutex.unlock();
 }
 
 bool PRAStar::is_done()

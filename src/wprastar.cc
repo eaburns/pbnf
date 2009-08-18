@@ -311,9 +311,7 @@ wPRAStar::~wPRAStar(void) {
 
 void wPRAStar::set_done()
 {
-	mutex.lock();
         done = true;
-	mutex.unlock();
 }
 
 bool wPRAStar::is_done()

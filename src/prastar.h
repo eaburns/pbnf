@@ -121,7 +121,6 @@ private:
 
         bool done;
         pthread_cond_t cond;
-        Mutex mutex;
         const unsigned int n_threads;
 	AtomicInt bound;
 	const Projection *project;

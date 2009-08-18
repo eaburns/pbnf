@@ -147,6 +147,8 @@ Search *get_search(int argc, char *argv[])
 		return new PRAStar(threads, false, true, true);
 	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, true, true, true);
+	} else if (argc > 1 && sscanf(argv[1], "waprastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
+		return new wPRAStar(threads, false, false, false);
 	} else if (argc > 1 && sscanf(argv[1], "wahdastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads, false, true, true);
 	} else if (argc > 1 && sscanf(argv[1], "wahdastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
