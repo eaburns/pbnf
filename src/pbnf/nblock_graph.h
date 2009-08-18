@@ -37,7 +37,6 @@ namespace PBNF {
 
 		NBlock *next_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
-		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
 #if defined(INSTRUMENTED)
 		unsigned int get_max_assigned_nblocks(void) const;
