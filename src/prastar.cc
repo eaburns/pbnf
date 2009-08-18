@@ -98,11 +98,7 @@ void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 	else if (!mutex.try_lock()) // asynchronous
 		return;
 
-	if (q_empty && !has_sends) {
-		if (!open.empty()) {
-			mutex.unlock();
-			return;
-		}
+	if (q_empty && !has_sends && open.empty()) {
 		completed = true;
 		cc->complete();
 
