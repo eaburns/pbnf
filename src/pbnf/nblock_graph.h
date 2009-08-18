@@ -107,10 +107,10 @@ namespace PBNF {
 		AtomicInt *bound;
 		double weight;
 
+#if defined(INSTRUMENTED)
 		/*
 		 * Statistics
 		 */
-#if defined(INSTRUMENTED)
 		/* total times a lock was taken without trylock on a
 		 * switch. */
 		unsigned int switch_locks_forced;
