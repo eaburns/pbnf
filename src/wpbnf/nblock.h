@@ -72,9 +72,13 @@ namespace WPBNF {
 		int inuse;
 		int pq_index; // Index into the f_min PQ
 		int fp_pq_index; // Index into the free list PQ
-		set<unsigned int> interferes;
-		set<unsigned int> preds;
-		set<unsigned int> succs;
+
+
+		unsigned int *interferes;
+		unsigned int ninterferes;
+
+		vector<unsigned int> preds;
+		vector<unsigned int> succs;
 	};
 }	/* PBNF */
 #endif	/* !_WPBNF_NBLOCK_H_ */
