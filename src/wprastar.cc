@@ -312,9 +312,7 @@ void wPRAStar::set_done()
 
 bool wPRAStar::is_done()
 {
-        bool ret;
-        ret = done;
-        return ret;
+        return done
 }
 
 void wPRAStar::set_path(vector<State *> *p)
