@@ -44,7 +44,10 @@ NBlock *NBlockGraph::create_nblock(unsigned int id)
  * just call this function in the constructor so that we can see what
  * is going on.
  */
-void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
+void NBlockGraph::cpp_is_a_bad_language(const Projection *p,
+					State *initial,
+					AtomicInt *b /* bound */,
+					double w /* weight */)
 {
 	unsigned int init_nblock = p->project(initial);
 
@@ -53,14 +56,14 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
-	//map.set_observer(this);
-
 	NBlock *n = map.get(init_nblock);
 	n->open_fp.add(initial);
 	n->closed.add(initial);
 	free_list.add(n);
 
 	done = false;
+	bound = b;
+	weight = w;
 
 	nblocks_assigned = 0;
 	nblocks_assigned_max = 0;
@@ -70,10 +73,13 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p, State *initial)
  * Create a new NBlock graph.
  * \param p The projection function.
  */
-NBlockGraph::NBlockGraph(const Projection *p, State *initial)
+NBlockGraph::NBlockGraph(const Projection *p,
+			 State *initial,
+			 AtomicInt *b /* bound */,
+			 double w /* weight */)
 	: map(p)
 {
-	cpp_is_a_bad_language(p, initial);
+	cpp_is_a_bad_language(p, initial, b, w);
 }
 
 /**
@@ -108,30 +114,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 	}
 
 	if (finished) {		// Release an NBlock
-		// Sanity check.
-		if (finished->sigma != 0) {
-			cerr << "A proc had an NBlock with sigma != 0" << endl;
-			finished->print(cerr);
-			cerr << endl << endl << endl;
-			__print(cerr);
-		}
 		assert(finished->sigma == 0);
-
-		// Test if this nblock is still worse than the front
-		// of the free list.  If not, then just keep searching
-		// it.
-		if (!finished->open_fp.empty()) {
-			fp_type cur_f = finished->open_fp.get_best_val();
-			fp_type new_f;
-			if (free_list.empty())
-				new_f = fp_infinity;
-			else
-				new_f = free_list.front()->open_fp.get_best_val();
-			if (cur_f <= new_f) {
-				n = finished;
-				goto out;
-			}
-		}
 
 		nblocks_assigned -= 1;
 
@@ -142,14 +125,14 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			mutex.cond_broadcast();
 		}
 
-		update_scope_sigmas(finished->id, -1);
+		update_scope_sigmas(finished, -1);
+	}
 
-		if (free_list.empty() && num_sigma_zero == num_nblocks) {
-			__set_done();
-//			__print(cerr);
-			goto out;
-		}
+retry:
 
+	if (num_sigma_zero == num_nblocks && free_list.empty()) {
+		set_done();
+		goto out;
 	}
 
 	while (!done && free_list.empty())
@@ -158,12 +141,17 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 	if (done)
 		goto out;
 
+	if (free_list.front()->best_value() >= (bound->read() * weight)) {
+		prune_free_list();
+		goto retry;
+	}
+
 	n = free_list.take();
 	nblocks_assigned += 1;
 	if (nblocks_assigned > nblocks_assigned_max)
 		nblocks_assigned_max = nblocks_assigned;
 	n->inuse = true;
-	update_scope_sigmas(n->id, 1);
+	update_scope_sigmas(n, 1);
 
 /*
   for (set<NBlock *>::iterator iter = n->interferes.begin();
@@ -199,6 +187,19 @@ NBlock *NBlockGraph::best_in_scope(NBlock *block)
 
 	return best_b;
 }
+
+/*
+ * Remove all nblocks from the free_list.  The nodes in these nblocks
+ * will remain in their open lists, for pruning later... if they ever
+ * are added back to the free_list.  They can be added back to the
+ * free_list if a processor searches one of their neighbors and they
+ * gain a node worth looking at.
+ */
+void NBlockGraph::prune_free_list(void)
+{
+	free_list.reset();
+}
+
 
 /**
  * Get the NBlock given by the hash value.
@@ -258,10 +259,8 @@ void NBlockGraph::print(ostream &o)
  * Update the sigmas by delta for all of the predecessors of y and all
  * of the predecessors of the successors of y.
  */
-void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
+void NBlockGraph::update_scope_sigmas(NBlock *n, int delta)
 {
-	NBlock *n = map.get(y);
-
 	assert(n->sigma == 0);
 
 	/*
@@ -295,28 +294,12 @@ void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
 }
 
 /**
- * Sets the done flag with out taking the lock.
- */
-void NBlockGraph::__set_done(void)
-{
-	done = true;
-	mutex.cond_broadcast();
-}
-
-/**
  * Sets the done flag.
  */
 void NBlockGraph::set_done(void)
 {
-	if (done)
-		return;
-	mutex.lock();
-	if (done) {
-		mutex.unlock();
-		return;
-	}
-	__set_done();
-	mutex.unlock();
+	done = true;
+	mutex.cond_broadcast();
 }
 
 /**

@@ -77,7 +77,7 @@ namespace PBNF {
 		 * needs to pthread_broadcast. */
 		bool set_cold(NBlock *b);
 
-		void update_scope_sigmas(unsigned int y, int delta);
+		void update_scope_sigmas(NBlock *n, int delta);
 
 		const Projection *project;
 

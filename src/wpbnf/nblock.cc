@@ -108,3 +108,9 @@ void NBlock::print(ostream &o)
 		o << (*i) << " ";
 	o << endl;
 }
+
+
+fp_type NBlock::best_value(void)
+{
+	return open_fp.get_best_val();
+}

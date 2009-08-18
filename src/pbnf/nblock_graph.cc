@@ -133,7 +133,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 			mutex.cond_signal();
 		}
 
-		update_scope_sigmas(finished->id, -1);
+		update_scope_sigmas(finished, -1);
 
 	}
 
@@ -167,7 +167,7 @@ retry:
 #endif	// INSTRUMENTED
 
 	n->inuse = true;
-	update_scope_sigmas(n->id, 1);
+	update_scope_sigmas(n, 1);
 
 /*
   for (set<NBlock *>::iterator iter = n->interferes.begin();
@@ -276,10 +276,9 @@ void NBlockGraph::print(ostream &o)
  * Update the sigmas by delta for all of the predecessors of y and all
  * of the predecessors of the successors of y.
  */
-void NBlockGraph::update_scope_sigmas(unsigned int y, int delta)
+void NBlockGraph::update_scope_sigmas(NBlock *n, int delta)
 {
 	bool broadcast = false;
-	NBlock *n = map.get(y);
 
 	assert(n->sigma == 0);
 

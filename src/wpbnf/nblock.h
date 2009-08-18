@@ -62,6 +62,8 @@ namespace WPBNF {
 		bool operator<(NBlock *a);
 		void print(ostream &s);
 
+		/* Get the value of teh best open node in this nblock. */
+		fp_type best_value(void);
 
 		unsigned int id;
 		unsigned int sigma;
@@ -76,7 +78,6 @@ namespace WPBNF {
 
 		unsigned int *interferes;
 		unsigned int ninterferes;
-
 		vector<unsigned int> preds;
 		vector<unsigned int> succs;
 	};

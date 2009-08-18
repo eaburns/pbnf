@@ -251,11 +251,8 @@ vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 	cout << "weight: " << h->get_weight() << endl;
 #endif	// !NDEBUG
 
-	graph_timer.start();
-	graph = new NBlockGraph(project, initial);
-	graph_timer.stop();
-
 	weight = initial->get_domain()->get_heuristic()->get_weight();
+	graph = new NBlockGraph(project, initial, &bound, weight);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PBNFThread *t = new PBNFThread(graph, this);
