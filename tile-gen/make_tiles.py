@@ -94,7 +94,6 @@ def make_board(in_data, test, weight):
                 finished = "cost:" in "".join(results)
                 solved = not "No Solution" in results[0]
             else:
-<<<<<<< local
                 finished = False
             #if not, delete the board and return false
             if not finished:
@@ -110,19 +109,13 @@ def make_board(in_data, test, weight):
                 #cost = results[0].split()[1]
                 #gen = results[-1].split()[1]
                 #print "finished with cost", cost, "generated", gen
-=======
                 print "failed to finish"
             os.remove(path)
-            #sys.exit(1)
             return False
         else:
             cost = results[0].split()[1]
             gen = results[-1].split()[1]
             print "finished with cost", cost, "generated", gen
-            #os.remove(path)
-    else:
-        shutil.move(path, new_path)
->>>>>>> other
     
     return True
 
