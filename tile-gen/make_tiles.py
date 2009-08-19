@@ -63,6 +63,10 @@ def make_board(in_data, test, weight):
     m.update(open(path).read())
     new_path = m.hexdigest()+".tile"
 
+    if os.path.exists(new_path):
+        os.remove(path)
+        return False
+
     if test:
         #run A* or wA* to see if the board is solvable
         if weight > 1:
@@ -97,6 +101,8 @@ def make_board(in_data, test, weight):
             gen = results[-1].split()[1]
             print "finished with cost", cost, "generated", gen
             #os.remove(path)
+    else:
+        shutil.move(path, new_path)
     
     return True
 
