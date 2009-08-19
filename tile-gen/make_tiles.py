@@ -61,8 +61,7 @@ def make_board(in_data, test, weight):
     
     m = hashlib.md5()
     m.update(open(path).read())
-    print executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" hash="+m.hexdigest()
-    new_path=os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" hash="+m.hexdigest(), "r").readline().split()[1]
+    new_path=os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" hash="+m.hexdigest(), "r").readline().split()[-1]
     print new_path
     #new_path = m.hexdigest()+".tile"
     shutil.move(path, new_path)
