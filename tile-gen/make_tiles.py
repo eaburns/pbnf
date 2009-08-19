@@ -80,8 +80,10 @@ def make_board(in_data, test, weight):
         weight = str(weight)
         algs += ["pbnf-"+weight+"-64-8-"+nblocks,
                  "safepbnf-"+weight+"-64-8-"+nblocks,
-                 "prastar-"+weight+"-8",
-                 "aprastar-"+weight+"-8-"+nblocks,
+                 #"prastar-"+weight+"-8",
+                 #"aprastar-"+weight+"-8-"+nblocks,
+                 "prastar-"+"-8",
+                 "aprastar-"+"-8-"+nblocks,
                  "whdastar-"+weight+"-8",
                  "wahdastar-"+weight+"-8-"+nblocks]
         for alg in algs:
