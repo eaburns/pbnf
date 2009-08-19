@@ -26,11 +26,9 @@ using namespace WPBNF;
 #define MIN_M 1
 #define MAX_INT std::numeric_limits<int>::max()
 
-AtomicInt WPBNFSearch::min_expansions(MIN_M);
-
 WPBNFSearch::PBNFThread::PBNFThread(NBlockGraph *graph, WPBNFSearch *search)
-	: graph(graph), search(search) {
-	next_best = 0.0;
+	: graph(graph), search(search)
+{
 }
 
 
@@ -48,38 +46,17 @@ void WPBNFSearch::PBNFThread::run(void)
 	do {
 		n = graph->next_nblock(n);
 
-		if (n && search->dynamic_m)
-			next_best = graph->best_free_val();
-
 		if (n) {
 			expansions = 0;
-			exp_this_block = 0;
 			path = search_nblock(n);
 
 			if (path)
 				search->set_path(path);
-			ave_exp_per_nblock.add_val(exp_this_block);
 		}
 	} while (!search->done && n);
 
 	search->done = true;
 	graph->set_done();
-}
-
-/**
- * Get the average number of expansions per-nblock.
- */
-fp_type WPBNFSearch::PBNFThread::get_ave_exp_per_nblock(void)
-{
-	return ave_exp_per_nblock.read();
-}
-
-/**p
- * Get the average size of open lists.
- */
-fp_type WPBNFSearch::PBNFThread::get_ave_open_size(void)
-{
-	return ave_open_size.read();
 }
 
 /**
@@ -93,7 +70,6 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 
 	while (!search->done && !open_fp->empty() && !should_switch(n)) {
 		State *s = open_fp->take();
-		ave_open_size.add_val(open_fp->size());
 
 		// If the best f' value in this nblock is out of
 		// bounds, prune everything.
@@ -112,7 +88,6 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		}
 
 		expansions += 1;
-		exp_this_block += 1;
 
 		vector<State *> *children = search->expand(s);
 		vector<State *>::iterator iter;
@@ -137,7 +112,6 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 						// this is Wheeler's duplicate dropping test.
 						next_open_fp->add(dup);
 					}
-					ave_open_size.add_val(next_open_fp->size());
 				}
 				delete ch;
 			} else {
@@ -148,7 +122,6 @@ vector<State *> *WPBNFSearch::PBNFThread::search_nblock(NBlock *n)
 					return path;
 				}
 				next_open_fp->add(ch);
-				ave_open_size.add_val(next_open_fp->size());
 			}
 		}
 		delete children;
@@ -169,13 +142,8 @@ bool WPBNFSearch::PBNFThread::should_switch(NBlock *n)
 {
 	bool ret;
 
-	if (next_best == 0.0 || graph->best_free_val() != 0.0){
-		if (expansions < search->min_expansions.read())
-			return false;
-	}
-	else{
-		return n->open_fp.get_best_val() > next_best;
-	}
+	if (expansions < search->min_expansions)
+		return false;
 
 	expansions = 0;
 
@@ -213,22 +181,15 @@ WPBNFSearch::WPBNFSearch(unsigned int n_threads,
 	  bound(fp_infinity),
 	  done(false),
 	  graph(NULL),
-	  sum(0),
-	  num(0),
-	  osum(0),
-	  onum(0),
 	  dd(dup_drop)
 
 {
 	pthread_mutex_init(&path_mutex, NULL);
-	if (min_e == 0){
-		dynamic_m = true;
-		WPBNFSearch::min_expansions = AtomicInt(MIN_M);
-	}
-	else{
-		dynamic_m = false;
-		WPBNFSearch::min_expansions = AtomicInt(min_e);
-	}
+	min_expansions = min_e;
+
+#if defined(INSTRUMENTED)
+	sum = num = osum = onum = 0;
+#endif	// INSTRUMENTED
 }
 
 
@@ -251,11 +212,8 @@ vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 	cout << "weight: " << h->get_weight() << endl;
 #endif	// !NDEBUG
 
-	graph_timer.start();
-	graph = new NBlockGraph(project, initial);
-	graph_timer.stop();
-
 	weight = initial->get_domain()->get_heuristic()->get_weight();
+	graph = new NBlockGraph(project, initial, &bound, weight);
 
 	for (unsigned int i = 0; i < n_threads; i += 1) {
 		PBNFThread *t = new PBNFThread(graph, this);
@@ -266,6 +224,7 @@ vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
+#if defined(INSTRUMENTED)
 		fp_type ave = (*iter)->get_ave_exp_per_nblock();
 		if (ave != 0) {
 			sum += ave;
@@ -276,7 +235,7 @@ vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 			osum += oave;
 			onum += 1;
 		}
-
+#endif	// INSTRUMENTED
 		delete *iter;
 	}
 
@@ -285,6 +244,7 @@ vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 
 void WPBNFSearch::output_stats(void)
 {
+#if defined(INSTRUMENTED)
 	if (num == 0)
 		cout << "expansions-per-nblock: -1" << endl;
 	else
@@ -294,10 +254,9 @@ void WPBNFSearch::output_stats(void)
 	else
 		cout << "avg-open-list-size: " << osum / onum << endl;
 
-	cout << "nblock-graph-creation-time: " << graph_timer.get_wall_time() << endl;
-
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
+#endif	// INSTRUMENTED
 }
 
 /**

@@ -20,6 +20,7 @@
 #include "../queue_open_list.h"
 #include "../open_list.h"
 #include "../projection.h"
+#include "../util/atomic_int.h"
 #include "../util/nblock_map.h"
 #include "../util/priority_queue.h"
 #include "../util/mutex.h"
@@ -29,7 +30,10 @@ using namespace std;
 namespace WPBNF {
 	class NBlockGraph {
 	public:
-		NBlockGraph(const Projection *p, State *init);
+		NBlockGraph(const Projection *p,
+			    State *init,
+			    AtomicInt *bound,
+			    double weight);
 
 		~NBlockGraph();
 
@@ -49,14 +53,17 @@ namespace WPBNF {
 		fp_type best_free_val(void);
 
 	private:
-		void cpp_is_a_bad_language(const Projection *p, State *initial);
+		void cpp_is_a_bad_language(const Projection *p,
+					   State *initial,
+					   AtomicInt *bound,
+					   double weight);
 		NBlock *create_nblock(unsigned int id);
 		NBlock *get_nblock_if_created(unsigned int hash);
-		void __set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);
 		void set_cold(NBlock *b);
-		void update_scope_sigmas(unsigned int y, int delta);
+		void update_scope_sigmas(NBlock *n, int delta);
+		void prune_free_list(void);
 
 		const Projection *project;
 
@@ -79,6 +86,11 @@ namespace WPBNF {
 		bool done;
 
 		Mutex mutex;
+
+		/* A pointer to the bound used in the search.  For
+		 * early termination and free_list pruning. */
+		AtomicInt *bound;
+		double weight;
 
 		/*
 		 * Statistics

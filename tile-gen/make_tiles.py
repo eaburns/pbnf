@@ -20,9 +20,9 @@ def usage():
     sys.exit(1)
 
 width, height, n = None, None, None
-dir, model, executable = "boards", "random", "/home/rai/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
-search_exec = "/home/rai/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
-#search_exec = "../src/tiles_search.i386"
+nblocks, threads = "2", "8"
+dir, model, executable = "/home/aifs2/group/data/tiles_instances/", "snlemons_easy", "/home/aifs2/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
+search_exec = "/home/aifs2/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
 #search_exec = "../src/tiles_search.i386"
 ulimit = "ulimit -v 15000000"
 
@@ -50,7 +50,6 @@ def make_board(in_data, test, weight):
         width, height = str(width), str(height)
     tiles = "\n".join(tiles)
     path = num+"_"+width+"x"+height+".tile"
-    #path=os.popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" num="+num, "r").readline().split()[1]
     outfile = open(path, "w")
     outfile.write(width+" "+height+"\n")
     outfile.write("starting positions for each tile:\n")
@@ -61,42 +60,56 @@ def make_board(in_data, test, weight):
     
     m = hashlib.md5()
     m.update(open(path).read())
-    new_path = m.hexdigest()+".tile"
+    new_path=subprocess.Popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" hash="+m.hexdigest(), shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()[-1].split()[-1]
+    #new_path = m.hexdigest()+".tile"
+
+    if os.path.exists(new_path):
+        os.remove(path)
+        return False
+
+    shutil.move(path, new_path)
+    path = new_path
 
     if test:
         #run A* or wA* to see if the board is solvable
         if weight > 1:
-            alg = "wastar-"+str(weight)
+            #IMPORTANT: only wA* is used here, rather than all algorithms
+            algs = ["wastar-"+str(weight)]
         else:
-            alg = "astar"
-        cmd = ulimit+"; "+search_exec+" "+alg+" < "+path
-        results = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
-        is_output = len(results) > 0
-        shutil.move(path, new_path)
-        path = new_path
-        if is_output:
-            finished = "cost" in results[0]
-            solved = not "No Solution" in results[0]
-        else:
-            finished = False
-        #if not, delete the board and return false
-        if not finished:
-            if is_output and not solved:
-                print results
-                #print ", ".join(in_data)
-                print "no solution!"
-                #sys.exit(0)
-                #os.remove(path)
+            algs = ["astar"]
+        weight = str(weight)
+        algs += ["pbnf-"+weight+"-64-"+threads+"-"+nblocks,
+                 "safepbnf-"+weight+"-64-"+threads+"-"+nblocks,
+                 #"prastar-"+weight+"-"+threads,
+                 #"aprastar-"+weight+"-"+threads+"-"+nblocks,
+                 "prastar-"+threads,
+                 "aprastar-"+threads+"-"+nblocks,
+                 "whdastar-"+weight+"-"+threads,
+                 "wahdastar-"+weight+"-"+threads+"-"+nblocks]
+        for alg in algs:
+            cmd = ulimit+"; "+search_exec+" "+alg+" < "+path
+            results = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
+            #print results
+            is_output = len(results) > 0
+            if is_output:
+                finished = "cost:" in "".join(results)
+                solved = not "No Solution" in results[0]
             else:
-                print "failed to finish"
-            os.remove(path)
-            #sys.exit(1)
-            return False
-        else:
-            cost = results[0].split()[1]
-            gen = results[-1].split()[1]
-            print "finished with cost", cost, "generated", gen
-            #os.remove(path)
+                finished = False
+            #if not, delete the board and return false
+            if not finished:
+                if is_output and not solved:
+                    print results
+                    print alg, "found no solution!"
+                else:
+                    print alg, "failed to finish"
+                os.remove(path)
+                return False
+            else:
+                print alg, "finished"
+                #cost = results[0].split()[1]
+                #gen = results[-1].split()[1]
+                #print "finished with cost", cost, "generated", gen
     
     return True
 

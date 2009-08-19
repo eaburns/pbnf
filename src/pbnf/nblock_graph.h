@@ -37,7 +37,6 @@ namespace PBNF {
 
 		NBlock *next_nblock(NBlock *finished);
 		NBlock *get_nblock(unsigned int hash);
-		NBlock *__get_nblock(unsigned int hash);
 		void print(ostream &o);
 #if defined(INSTRUMENTED)
 		unsigned int get_max_assigned_nblocks(void) const;
@@ -71,23 +70,23 @@ namespace PBNF {
 		 * they gain a node worth looking at. */
 		void prune_free_list(void);
 
-		NBlock *create_nblock(unsigned int id);
-		NBlock *get_nblock_if_created(unsigned int hash);
-		void __set_done(void);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);
-		void set_cold(NBlock *b);
-		void update_scope_sigmas(unsigned int y, int delta);
+
+		/* Set an nblock to cold.  Returns true if the caller
+		 * needs to pthread_broadcast. */
+		bool set_cold(NBlock *b);
+
+		void update_scope_sigmas(NBlock *n, int delta);
 
 		const Projection *project;
 
-		/* NBlocks (this may be incomplete because nblocks are created lazily). */
-//		NBlock **_blocks;
+		/* NBlocks (this may be incomplete because nblocks are
+		 * created lazily). */
 		NBlockMap<NBlock> map;
 
 		/* The total number of NBlocks. */
 		unsigned int num_nblocks;
-		unsigned int nblocks_created;
 
 		/* The number of NBlocks with sigma values of zero. */
 		unsigned int num_sigma_zero;
@@ -107,10 +106,10 @@ namespace PBNF {
 		AtomicInt *bound;
 		double weight;
 
+#if defined(INSTRUMENTED)
 		/*
 		 * Statistics
 		 */
-#if defined(INSTRUMENTED)
 		/* total times a lock was taken without trylock on a
 		 * switch. */
 		unsigned int switch_locks_forced;

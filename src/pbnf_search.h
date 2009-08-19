@@ -54,11 +54,11 @@ namespace PBNF {
 			unsigned int expansions; /* for testing switch */
 			NBlockGraph *graph;
 			PBNFSearch *search;
-			unsigned long exp_this_block;
 #if defined(INSTRUMENTED)
+			unsigned long exp_this_block;
 			CumulativeAverage ave_exp_per_nblock;
 #endif	/* INSTRUMENTED */
-			fp_type next_best;
+
 		};
 
 		unsigned int n_threads;
@@ -68,14 +68,15 @@ namespace PBNF {
 		AtomicInt bound;
 
 		bool detect_livelocks;
-		bool dynamic_m;
 
 		NBlockGraph *graph;
-		AtomicInt min_expansions;
+		unsigned int min_expansions;
 
+#if defined(INSTRUMENTED)
 		/* For tracking avg nodes expanded per-nblock. */
 		fp_type sum;
 		unsigned int num;
+#endif	/* INSTRUMENTED */
 	};
 }
 
