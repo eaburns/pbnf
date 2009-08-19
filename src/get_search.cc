@@ -226,6 +226,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\twahdastardd-<weight>-<threads>-<nblocks>" << endl
 		     << "\twhdastar-<weight>-<threads>" << endl
 		     << "\twhdastardd-<weight>-<threads>" << endl
+		     << "\twaprastar-<weight>-<threads>-<nblocks>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
