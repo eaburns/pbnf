@@ -20,12 +20,11 @@ def usage():
     sys.exit(1)
 
 width, height, n = None, None, None
-nblocks, threads = "2", "2"
+nblocks, threads = "2", "8"
 dir, model, executable = "/home/aifs2/group/data/tiles_instances/", "snlemons_easy", "/home/aifs2/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
-dir = "test"
 search_exec = "/home/aifs2/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
 #search_exec = "../src/tiles_search.i386"
-ulimit = "ulimit -v 1000000"
+ulimit = "ulimit -v 15000000"
 
 def switch_rep(tiles):
     other = [0]*len(tiles)
@@ -63,12 +62,13 @@ def make_board(in_data, test, weight):
     m.update(open(path).read())
     new_path=subprocess.Popen(executable+" "+dir+" model="+model+" rows="+height+" cols="+width+" hash="+m.hexdigest(), shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()[-1].split()[-1]
     #new_path = m.hexdigest()+".tile"
-    shutil.move(path, new_path)
-    path = new_path
 
     if os.path.exists(new_path):
         os.remove(path)
         return False
+
+    shutil.move(path, new_path)
+    path = new_path
 
     if test:
         #run A* or wA* to see if the board is solvable
@@ -78,19 +78,18 @@ def make_board(in_data, test, weight):
         else:
             algs = ["astar"]
         weight = str(weight)
-        algs += ["pbnf-"+weight+"-64-8-"+nblocks,
-                 "safepbnf-"+weight+"-64-8-"+nblocks,
-                 #"prastar-"+weight+"-8",
-                 #"aprastar-"+weight+"-8-"+nblocks,
-                 "prastar-"+"-8",
-                 "aprastar-"+"-8-"+nblocks,
-                 "whdastar-"+weight+"-8",
-                 "wahdastar-"+weight+"-8-"+nblocks]
+        algs += ["pbnf-"+weight+"-64-"+threads+"-"+nblocks,
+                 "safepbnf-"+weight+"-64-"+threads+"-"+nblocks,
+                 #"prastar-"+weight+"-"+threads,
+                 #"aprastar-"+weight+"-"+threads+"-"+nblocks,
+                 "prastar-"+threads,
+                 "aprastar-"+threads+"-"+nblocks,
+                 "whdastar-"+weight+"-"+threads,
+                 "wahdastar-"+weight+"-"+threads+"-"+nblocks]
         for alg in algs:
-            print path
             cmd = ulimit+"; "+search_exec+" "+alg+" < "+path
             results = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
-            print results
+            #print results
             is_output = len(results) > 0
             if is_output:
                 finished = "cost:" in "".join(results)
