@@ -22,8 +22,8 @@ def usage():
 max_exp = 3500000
 width, height, n = None, None, None
 nblocks, threads = "2", "8"
-dir, model, executable = "/home/aifs2/group/data/tiles_instances/", "snlemons_easy", "/home/aifs2/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
-search_exec = "/home/aifs2/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
+dir, model, executable = "~/aifs2/group/data/tiles_instances/", "snlemons_easy", "~/aifs2/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
+search_exec = "~/aifs2/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
 #search_exec = "../src/tiles_search.i386"
 ulimit = "ulimit -v 15000000"
 
@@ -113,7 +113,7 @@ def make_board(in_data, test, weight):
                 print alg, "finished"
                 for line in results:
                     if "expan" in line or "Expan" in line:
-                        expansions = int(line[line.index(":")+2:])
+                        exp = int(line[line.index(":")+2:])
                 if exp > max_exp:
                     print "but too many nodes were expanded!"
                     os.remove(path)
@@ -148,5 +148,6 @@ if __name__ == '__main__':
             made += 1
             if made > max:
                 sys.exit(0)
+            print "trying to make board #"+str(made)
             if not make_board(line, test, weight):
                 made -= 1
