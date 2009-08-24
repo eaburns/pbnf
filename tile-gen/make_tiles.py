@@ -19,7 +19,7 @@ def usage():
     print "ignores the first line, since gen.c gives a pre-solved board first"
     sys.exit(1)
 
-max_exp = 2000000
+max_exp = 3500000
 width, height, n = None, None, None
 nblocks, threads = "2", "8"
 dir, model, executable = "/home/aifs2/group/data/tiles_instances/", "snlemons_easy", "/home/aifs2/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
