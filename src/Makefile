@@ -143,6 +143,7 @@ CXXFLAGS+=$(FLAGS)
 # 	pq_test
 # 	one_tile_project_test
 # 	two_tile_project_test
+# 	two_tile_no_blank_project_test
 PROGS=$(addsuffix .$(MARCH), \
 	grid_search \
 	tiles_search \
@@ -193,6 +194,9 @@ one_tile_project_test.$(MARCH): $(OBJ) tiles/one_tile_project_test.cc
 
 two_tile_project_test.$(MARCH): $(OBJ) tiles/two_tile_project_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/two_tile_project_test.cc
+
+two_tile_no_blank_project_test.$(MARCH): $(OBJ) tiles/two_tile_no_blank_project_test.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) tiles/two_tile_no_blank_project_test.cc
 
 pq_open_list_test.$(MARCH): $(OBJ) pq_open_list_test.cc
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) pq_open_list_test.cc

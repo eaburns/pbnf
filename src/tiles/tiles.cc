@@ -44,8 +44,8 @@ Tiles::Tiles(istream &in)
 	in >> width;
 
 /*
-	cout << "height = " << height << endl;
-	cout << "width = " << width << endl;
+  cout << "height = " << height << endl;
+  cout << "width = " << width << endl;
 */
 
 	assert((width * height - 1) <= (sizeof(pow) * 8));
@@ -339,7 +339,7 @@ fp_type Tiles::ManhattanDist::compute_full(TilesState *s) const
  * the heuristic value of the parent's state.
  */
 fp_type Tiles::ManhattanDist::compute_incr(TilesState *s,
-					 TilesState *p) const
+					   TilesState *p) const
 {
 	unsigned int new_b = s->get_blank();
 	unsigned int par_b = p->get_blank();
@@ -613,6 +613,266 @@ void Tiles::TwoTileProject::print(unsigned int b, ostream &o) const
 	  << "blank=" << unproj[b][0]
 	  << ", one=" << unproj[b][1]
 	  << ", two=" << unproj[b][2]
+	  << endl;
+}
+
+
+/**********************************************************************/
+
+int Tiles::TwoTileNoBlankProject::setup_proj(unsigned int id,
+					     unsigned int i,
+					     unsigned int j,
+					     unsigned int k)
+{
+	if (i == j || i == k || j == k)
+		return 0;
+
+	proj[i][j][k] = id;
+	unproj[id].resize(3);
+	unproj[id][0] = i;
+	unproj[id][1] = j;
+	unproj[id][2] = k;
+
+	return 1;
+}
+
+static void swap(unsigned int *a, unsigned int *b)
+{
+	unsigned int t;
+	t = *a;
+	*a = *b;
+	*b = t;
+}
+
+void Tiles::TwoTileNoBlankProject::init(const SearchDomain *d,
+					unsigned int a,
+					unsigned int b,
+					unsigned int c)
+{
+	tiles = dynamic_cast<const Tiles *>(d);
+	unsigned int size = tiles->width * tiles->height;
+	unsigned int id = 0;
+
+	assert(a != b);
+	assert(a != c);
+	assert(b != c);
+
+	// sort the tiles a < b < c
+	// This is just a stupid bubble sort.
+	if (a > b)
+		swap(&a, &b);
+	if (b > c)
+		swap(&b, &c);
+	if (a > b)
+		swap(&a, &b);
+	assert(a < b && b < c);
+
+	a_tile = a;
+	b_tile = b;
+	c_tile = c;
+
+	nnblocks = size * (size - 1) * (size - 2);
+
+	unproj.resize(nnblocks);
+	proj.resize(size);
+	for (unsigned int i = 0; i < size; i += 1) {
+		proj[i].resize(size);
+		for (unsigned int j = 0; j < size; j += 1) {
+			proj[i][j].resize(size);
+			for (unsigned int k = 0; k < size; k += 1)
+				id += setup_proj(id, i, j, k);
+		}
+	}
+}
+
+
+Tiles::TwoTileNoBlankProject::TwoTileNoBlankProject(const SearchDomain *d,
+						    unsigned int a,
+						    unsigned int b,
+						    unsigned int c)
+{
+	init(d, a, b, c);
+}
+
+Tiles::TwoTileNoBlankProject::TwoTileNoBlankProject(const SearchDomain *d)
+{
+	init(d, 1, 2, 3);
+}
+
+Tiles::TwoTileNoBlankProject::~TwoTileNoBlankProject(void)
+{
+	// nothing
+}
+
+unsigned int Tiles::TwoTileNoBlankProject::project(State *s) const
+{
+	TilesState *ts = dynamic_cast<TilesState *>(s);
+	const vector<unsigned int> *t = ts->get_tiles();
+	unsigned int size = t->size();
+	unsigned int a = 0;
+	unsigned int b = 0;
+	unsigned int c = 0;
+
+	for (unsigned int i = 0; i < size; i += 1) {
+		if (t->at(i) == a_tile)
+			a = i;
+		else if (t->at(i) == b_tile)
+			b = i;
+		else if (t->at(i) == c_tile)
+			c = i;
+	}
+
+	assert(a != b);
+	assert(a != c);
+	assert(b != c);
+
+	return proj[a][b][c];
+}
+
+unsigned int Tiles::TwoTileNoBlankProject::get_num_nblocks(void) const
+{
+	return nnblocks;
+}
+
+vector<unsigned int> Tiles::TwoTileNoBlankProject::get_neighbors(unsigned int block) const
+{
+	vector<unsigned int> ret;
+	unsigned int a = unproj[block][0];
+	unsigned int b = unproj[block][1];
+	unsigned int c = unproj[block][2];
+	unsigned int width = tiles->width;
+	unsigned int height = tiles->height;
+
+	//
+	// A
+	//
+	unsigned int col = a % width;
+	unsigned int row = a / width;
+	// left
+	if (col > 0) {
+		unsigned int i = a - 1;
+		if (a_tile == 0 && i == b)
+			ret.push_back(proj[i][a][c]);
+		else if (a_tile == 0 && i == c)
+			ret.push_back(proj[i][b][a]);
+		else if (i != b && i != c)
+			ret.push_back(proj[i][b][c]);
+	}
+	// right
+	if (col < width - 1) {
+		unsigned int i = a + 1;
+		if (a_tile == 0 && i == b)
+			ret.push_back(proj[i][a][c]);
+		else if (a_tile == 0 && i == c)
+			ret.push_back(proj[i][b][a]);
+		else if (i != b && i != c)
+			ret.push_back(proj[i][b][c]);
+	}
+	// up
+	if (row > 0) {
+		unsigned int i = a - width;
+		if (a_tile == 0 && i == b)
+			ret.push_back(proj[i][a][c]);
+		else if (a_tile == 0 && i == c)
+			ret.push_back(proj[i][b][a]);
+		else if (i != b && i != c)
+			ret.push_back(proj[i][b][c]);
+	}
+	// down
+	if (row < height - 1) {
+		unsigned int i = a + width;
+		if (a_tile == 0 && i == b)
+			ret.push_back(proj[i][a][c]);
+		else if (a_tile == 0 && i == c)
+			ret.push_back(proj[i][b][a]);
+		else if (i != b && i != c)
+			ret.push_back(proj[i][b][c]);
+	}
+
+
+	//
+	// B
+	//
+	col = b % width;
+	row = b / width;
+	// left
+	if (col > 0) {
+		unsigned int i = b - 1;
+		if (i != a && i != c)
+			ret.push_back(proj[a][i][c]);
+	}
+	// right
+	if (col < width - 1) {
+		unsigned int i = b + 1;
+		if (i != a && i != c)
+			ret.push_back(proj[a][i][c]);
+	}
+	// up
+	if (row > 0) {
+		unsigned int i = b - width;
+		if (i != a && i != c)
+			ret.push_back(proj[a][i][c]);
+	}
+	// down
+	if (row < height - 1) {
+		unsigned int i = b + width;
+		if (i != a && i != c)
+			ret.push_back(proj[a][i][c]);
+	}
+
+	//
+	// C
+	//
+	col = c % width;
+	row = c / width;
+	// left
+	if (col > 0) {
+		unsigned int i = c - 1;
+		if (i != a && i != b)
+			ret.push_back(proj[a][b][i]);
+	}
+	// right
+	if (col < width - 1) {
+		unsigned int i = c + 1;
+		if (i != a && i != b)
+			ret.push_back(proj[a][b][i]);
+	}
+	// up
+	if (row > 0) {
+		unsigned int i = c - width;
+		if (i != a && i != b)
+			ret.push_back(proj[a][b][i]);
+	}
+	// down
+	if (row < height - 1) {
+		unsigned int i = c + width;
+		if (i != a && i != b)
+			ret.push_back(proj[a][b][i]);
+	}
+
+
+	return ret;
+}
+
+vector<unsigned int> Tiles::TwoTileNoBlankProject::get_successors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+vector<unsigned int> Tiles::TwoTileNoBlankProject::get_predecessors(unsigned int b) const
+{
+	return get_neighbors(b);
+}
+
+/**
+ * Print the projection with the given ID, b.
+ */
+void Tiles::TwoTileNoBlankProject::print(unsigned int b, ostream &o) const
+{
+	o << b << ": "
+	  << a_tile << "=" << unproj[b][0]
+	  << ", " << b_tile<< "=" << unproj[b][1]
+	  << ", " << c_tile << "=" << unproj[b][2]
 	  << endl;
 }
 

@@ -115,6 +115,46 @@ public:
 		const Tiles* tiles;
 	};
 
+	/* look at the three given tiles. */
+	class TwoTileNoBlankProject : public Projection {
+	public:
+		TwoTileNoBlankProject(const SearchDomain *d,
+				      unsigned int a,
+				      unsigned int b,
+				      unsigned int c);
+		TwoTileNoBlankProject(const SearchDomain *d);
+		virtual ~TwoTileNoBlankProject(void);
+		virtual unsigned int project(State *s) const;
+		virtual unsigned int get_num_nblocks(void) const;
+		virtual vector<unsigned int> get_successors(unsigned int b) const;
+		virtual vector<unsigned int> get_predecessors(unsigned int b) const;
+		void print(unsigned int b, ostream &o) const;
+	private:
+		void init(const SearchDomain *d,
+			  unsigned int a,
+			  unsigned int b,
+			  unsigned int c);
+		int setup_proj(unsigned int id,
+			       unsigned int i,
+			       unsigned int j,
+			       unsigned int k);
+
+		vector<unsigned int> get_neighbors(unsigned int b) const;
+
+		vector<vector<vector<unsigned int> > > proj;
+
+		/* Mapping from NBlock IDs to a pair containing the
+		 * position of the a, b and c tiles. */
+		vector<vector<unsigned int> > unproj;
+
+		/* The three tile numbers to look at. */
+		unsigned int a_tile, b_tile, c_tile;
+
+		unsigned int nnblocks;
+
+		const Tiles* tiles;
+	};
+
 	class ThreeTileProject : public Projection {
 	public:
 		ThreeTileProject(const SearchDomain *d);
