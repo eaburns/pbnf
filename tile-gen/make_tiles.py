@@ -24,7 +24,7 @@ nblocks, threads = "2", "8"
 dir, model, executable = "/home/aifs2/group/data/tiles_instances/", "snlemons_easy", "/home/aifs2/eaburns/src/ocaml/rdb/rdb_get_path.unix_unknown"
 search_exec = "/home/aifs2/eaburns/src/cpp-search/src/tiles_search.x86_64.bin"
 #search_exec = "../src/tiles_search.i386"
-ulimit = "ulimit -v 15000000"
+ulimit = "ulimit -v 10000000"
 
 def switch_rep(tiles):
     other = [0]*len(tiles)
@@ -73,17 +73,22 @@ def make_board(in_data, test, weight):
     if test:
         #run A* or wA* to see if the board is solvable
         if weight > 1:
-            #IMPORTANT: only wA* is used here, rather than all algorithms
+            weight = str(weight)
             algs = ["wastar-"+str(weight)]
+            algs += ["pbnf-"+weight+"-64-"+threads+"-"+nblocks,
+                     "safepbnf-"+weight+"-64-"+threads+"-"+nblocks,
+                     "wprastar-"+weight+"-"+threads,
+                     "waprastar-"+weight+"-"+threads+"-"+nblocks,
+                     "whdastar-"+weight+"-"+threads,
+                     "wahdastar-"+weight+"-"+threads+"-"+nblocks]
         else:
             algs = ["astar"]
-        weight = str(weight)
-        algs += ["pbnf-"+weight+"-64-"+threads+"-"+nblocks,
-                 "safepbnf-"+weight+"-64-"+threads+"-"+nblocks,
-                 "wprastar-"+weight+"-"+threads,
-                 "waprastar-"+weight+"-"+threads+"-"+nblocks,
-                 "whdastar-"+weight+"-"+threads,
-                 "wahdastar-"+weight+"-"+threads+"-"+nblocks]
+            algs += ["pbnf-64-"+threads+"-"+nblocks,
+                     "safepbnf-64-"+threads+"-"+nblocks,
+                     "prastar-"+threads,
+                     "aprastar-"+threads+"-"+nblocks,
+                     "hdastar-"+threads,
+                     "ahdastar-"+threads+"-"+nblocks]
         for alg in algs:
             cmd = ulimit+"; "+search_exec+" "+alg+" < "+path
             results = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, executable="/bin/bash").stdout.readlines()
