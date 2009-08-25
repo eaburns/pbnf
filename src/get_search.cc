@@ -152,7 +152,7 @@ Search *get_search(int argc, char *argv[])
 		return new PRAStar(threads, true,
 				   false, // async_send
 				   true); // async_recv
-	} else if (argc > 1 && sscanf(argv[1], "ahdastar-syncrecv-%u-%u", &threads, &nblocks) == 2) {
+	} else if (argc > 1 && sscanf(argv[1], "ahdastar-syncrecvs-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, true,
 				   true,   // async_send
 				   false); // async_recv
@@ -235,7 +235,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\thdastar-<threads>" << endl
 		     << "\tahdastar-<threads>-<nblocks>" << endl
 		     << "\tahdastar-syncsends-<threads>-<nblocks>" << endl
-		     << "\tahdastar-syncrecv-<threads>-<nblocks>" << endl
+		     << "\tahdastar-syncrecvs-<threads>-<nblocks>" << endl
 		     << "\twahdastar-<weight>-<threads>-<nblocks>" << endl
 		     << "\twahdastardd-<weight>-<threads>-<nblocks>" << endl
 		     << "\twhdastar-<weight>-<threads>" << endl
