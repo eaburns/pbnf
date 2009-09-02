@@ -20,7 +20,7 @@ public:
   virtual void run(void){
     vector<State *> *children = NULL;
     State *s;
-    
+
     while(!p->is_done()){
       pthread_mutex_lock(mut);
       if(!p->open.empty()){
@@ -29,7 +29,7 @@ public:
       }
       else{
 	cc->complete();
-	cout << "completed " << cc->get_count() << endl;
+	//cout << "completed " << cc->get_count() << endl;
         if (cc->is_complete()){
           p->set_done();
         }
@@ -45,19 +45,19 @@ public:
 	pthread_mutex_lock(mut);
         cc->uncomplete();
 	pthread_mutex_unlock(mut);
-	cout << "uncompleted " << cc->get_count() << endl;
+	//cout << "uncompleted " << cc->get_count() << endl;
 	continue;
       }
 
       if (s->get_f() >= p->bound.read()) {
 	      p->open.prune();
-	      cout << "pruned" << endl;
+	      //cout << "pruned" << endl;
 	      continue;
       }
 
       if (s->is_goal()) {
         p->set_path(s->get_path());
-	cout << "solution found" << endl;
+//	cout << "solution found" << endl;
       }
 
       children = p->expand(s);
@@ -82,10 +82,10 @@ public:
 	}
       }
     }
-    
+
     delete children;
   }
-  
+
 private:
   PAStar *p;
   pthread_mutex_t* mut;
@@ -119,7 +119,7 @@ bool PAStar::is_done()
 void PAStar::set_path(vector<State *> *p)
 {
         pthread_mutex_lock(&mutex);
-        if (this->path == NULL || 
+        if (this->path == NULL ||
 	    this->path->at(0)->get_g() > p->at(0)->get_g()){
 		this->path = p;
 		bound.set(p->at(0)->get_g());
