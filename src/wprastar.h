@@ -27,12 +27,14 @@ using namespace std;
 
 class wPRAStar : public Search {
 public:
-        wPRAStar(unsigned int n_threads, bool dd, bool abst, bool async);
+        wPRAStar(unsigned int n_threads, bool dd, bool abst, bool async,
+		 unsigned int max_e);
         wPRAStar(unsigned int n_threads,
 		 fp_type bound,
 		 bool dd,
 		 bool abst,
-		 bool async);
+		 bool async,
+		 unsigned int max_e);
 
         virtual ~wPRAStar(void);
 
@@ -84,6 +86,8 @@ private:
                 bool completed;
                 CompletionCounter *cc;
 
+		unsigned int expansions;
+
                 friend class wPRAStar;
                 PQOpenList<State::PQOpsFPrime> open;
                 ClosedList closed;
@@ -103,6 +107,8 @@ private:
 	bool dd;		/* Use duplicate detection? */
 	bool use_abstraction;	/* Use abstraction for hashing? */
 	bool async;		/* Asynchronous send/recv? */
+
+	unsigned int max_exp;
 };
 
 #endif	/* !_WPRASTAR_H_ */

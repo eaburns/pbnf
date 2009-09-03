@@ -40,6 +40,7 @@ wPRAStar::wPRAStarThread::wPRAStarThread(wPRAStar *p,
 	  cc(cc),
 	  q_empty(true)
 {
+	expansions = 0;
 	out_qs.resize(threads->size(), NULL);
         completed = false;
 }
@@ -72,6 +73,8 @@ bool wPRAStar::wPRAStarThread::flush_sends(void)
 {
 	unsigned int i;
 	bool has_sends = false;
+
+	expansions = 0;
 	for (i = 0; i < threads->size(); i += 1) {
 		if (!out_qs[i])
 			continue;
@@ -219,7 +222,11 @@ void wPRAStar::wPRAStarThread::send_state(State *c)
 
 State *wPRAStar::wPRAStarThread::take(void)
 {
-	bool has_sends = flush_sends();
+	bool has_sends = true;
+
+	expansions += 1;
+	if (p->max_exp == 0 || expansions > p->max_exp)
+		has_sends = flush_sends();
 
 	while (open.empty() || !q_empty) {
 		if (has_sends)
@@ -278,7 +285,8 @@ void wPRAStar::wPRAStarThread::run(void){
 /************************************************************/
 
 
-wPRAStar::wPRAStar(unsigned int n_threads, bool d, bool abst, bool as)
+wPRAStar::wPRAStar(unsigned int n_threads, bool d, bool abst, bool as,
+		   unsigned int max_e)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
@@ -286,6 +294,12 @@ wPRAStar::wPRAStar(unsigned int n_threads, bool d, bool abst, bool as)
 	  use_abstraction(abst),
 	  async(as)
 {
+	max_exp = max_e;
+	if (max_exp != 0 && !async) {
+		cerr << "Max expansions must be zero for synchronous sends"
+		     << endl;
+		abort();
+	}
         done = false;
 }
 
@@ -294,7 +308,8 @@ wPRAStar::wPRAStar(unsigned int n_threads,
 		   fp_type bound,
 		   bool d,
 		   bool abst,
-		   bool as)
+		   bool as,
+		   unsigned int max_e)
 	: n_threads(n_threads),
           bound(bound),
 	  project(NULL),
@@ -302,6 +317,12 @@ wPRAStar::wPRAStar(unsigned int n_threads,
 	  use_abstraction(abst),
 	  async(as)
 {
+	max_exp = max_e;
+	if (max_exp != 0 && !async) {
+		cerr << "Max expansions must be zero for synchronous sends"
+		     << endl;
+		abort();
+	}
         done = false;
 }
 

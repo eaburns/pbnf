@@ -37,6 +37,7 @@ PRAStar::PRAStarThread::PRAStarThread(PRAStar *p,
 	  cc(cc),
 	  q_empty(true)
 {
+	expansions = 0;
 	time_spinning = 0;
 	out_qs.resize(threads->size(), NULL);
         completed = false;
@@ -74,6 +75,8 @@ bool PRAStar::PRAStarThread::flush_sends(void)
 {
 	unsigned int i;
 	bool has_sends = false;
+
+	expansions = 0;
 	for (i = 0; i < threads->size(); i += 1) {
 		if (!out_qs[i])
 			continue;
@@ -217,8 +220,11 @@ State *PRAStar::PRAStarThread::take(void)
 	bool entered_loop = false;
 	bool timer_started = false;
 #endif	// INSTRUMENTED
+	bool has_sends = true;
 
-	bool has_sends = flush_sends();
+	expansions += 1;
+	if (p->max_exp == 0 || expansions > p->max_exp)
+		has_sends = flush_sends();
 
 	while (open.empty() || !q_empty) {
 #if defined(INSTRUMENTED)
@@ -295,14 +301,21 @@ void PRAStar::PRAStarThread::run(void){
 PRAStar::PRAStar(unsigned int n_threads,
 		 bool use_abst,
 		 bool a_send,
-		 bool a_recv)
+		 bool a_recv,
+		 unsigned int max_e)
 	: n_threads(n_threads),
 	  bound(fp_infinity),
 	  project(NULL),
 	  use_abstraction(use_abst),
 	  async_send(a_send),
-	  async_recv(a_recv)
+	  async_recv(a_recv),
+	  max_exp(max_e)
 {
+	if (max_e != 0 && !async_send) {
+		cerr << "Max expansions must be zero for synchronous sends"
+		     << endl;
+		abort();
+	}
         done = false;
 }
 

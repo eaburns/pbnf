@@ -32,7 +32,8 @@ public:
         PRAStar(unsigned int n_threads,
 		bool use_abst,
 		bool async_send,
-		bool async_recv);
+		bool async_recv,
+		unsigned int max_exp);
 
         virtual ~PRAStar(void);
 
@@ -105,6 +106,9 @@ private:
 		/* Marks whether or not this thread has posted completion */
                 bool completed;
 
+		/* expansions between flushes of the send queue. */
+		unsigned int expansions;
+
 		/* A pointer to the completion counter. */
                 CompletionCounter *cc;
 
@@ -137,6 +141,10 @@ private:
 	/* Level of asynchronousity. */
 	bool async_send;
 	bool async_recv;
+
+	/* Max expansions before flushing the send queue.  If we are
+	 * doing synchronous sends, this will be zero. */
+	unsigned int max_exp;
 
 	/* Statistics */
 	double time_spinning;

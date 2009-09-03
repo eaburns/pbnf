@@ -106,6 +106,7 @@ vector<double> *parse_weights(char *str)
 Search *get_search(int argc, char *argv[])
 {
 	unsigned int min_expansions = 0;
+	unsigned int max_e = 0;
 	unsigned int multiplier;
 	double bound;
 
@@ -140,55 +141,84 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "lpastar-%lf-%u", &weight, &threads) == 2) {
 		return new LPAStar(threads);
 	} else if (argc > 1 && sscanf(argv[1], "prastar-%u", &threads) == 1) {
-		return new PRAStar(threads, false, false, false);
+		return new PRAStar(threads, false, false, false, 0);
 	} else if (argc > 1 && sscanf(argv[1], "aprastar-%u-%u", &threads, &nblocks) == 2) {
-		return new PRAStar(threads, true, false, false);
-	} else if (argc > 1 && sscanf(argv[1], "hdastar-%u", &threads) == 1) {
-		return new PRAStar(threads, false, true, true);
-	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%u-%u", &threads, &nblocks) == 2) {
-		return new PRAStar(threads, true, true, true);
+		return new PRAStar(threads, true, false, false, 0);
+	} else if (argc > 1 && sscanf(argv[1], "hdastar-%u-%u", &max_e, &threads) == 2) {
+		return new PRAStar(threads, false, true, true, max_e);
+	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%u-%u-%u", &max_e, &threads, &nblocks) == 3) {
+		return new PRAStar(threads, true, true, true, max_e);
 
-	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
-		return new PRAStar(threads, true, true, true);
+	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%lf-%u-%u-%u", &weight, &max_e, &threads, &nblocks) == 4) {
+		return new PRAStar(threads, true, true, true, max_e);
 
 	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncsends-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, false,
 				   false, // async_send
-				   true); // async_recv
-	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncrecvs-%u-%u", &threads, &nblocks) == 2) {
+				   true,  // async_recv
+				   0);
+	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncrecvs-%u-%u-%u", &max_e, &threads, &nblocks) == 3) {
 		return new PRAStar(threads, false,
 				   true,   // async_send
-				   false); // async_recv
-
+				   false,  // async_recv
+				   max_e);
 	} else if (argc > 1 && sscanf(argv[1], "ahdastar-syncsends-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, true,
 				   false, // async_send
-				   true); // async_recv
-	} else if (argc > 1 && sscanf(argv[1], "ahdastar-syncrecvs-%u-%u", &threads, &nblocks) == 2) {
+				   true,  // async_recv
+				   0);
+	} else if (argc > 1 && sscanf(argv[1], "ahdastar-syncrecvs-%u-%u-%u", &max_e, &threads, &nblocks) == 3) {
 		return new PRAStar(threads, true,
 				   true,   // async_send
-				   false); // async_recv
+				   false,  // async_recv
+				   max_e);
 
 	} else if (argc > 1 && sscanf(argv[1], "waprastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads,
 				    false /* dd */,
 				    true /* abst */,
-				    false /* async */);
+				    false /* async */,
+				    0);
 	} else if (argc > 1 && sscanf(argv[1], "waprastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
 		return new wPRAStar(threads,
 				    true /* dd */,
 				    false /* abst */,
-				    false /* async */);
+				    false /* async */,
+				    0);
 	} else if (argc > 1 && sscanf(argv[1], "wprastar-%lf-%u", &weight, &threads) == 2) {
-		return new wPRAStar(threads, false, false, false);
-	} else if (argc > 1 && sscanf(argv[1], "wahdastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
-		return new wPRAStar(threads, false, true, true);
-	} else if (argc > 1 && sscanf(argv[1], "wahdastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
-		return new wPRAStar(threads, true, true, true);
-	} else if (argc > 1 && sscanf(argv[1], "whdastar-%lf-%u", &weight, &threads) == 2) {
-		return new wPRAStar(threads, false, false, true);
-	} else if (argc > 1 && sscanf(argv[1], "whdastardd-%lf-%u", &weight, &threads) == 2) {
-		return new wPRAStar(threads, true, false, true);
+		return new wPRAStar(threads,
+				    false, // dd
+				    false, // abst
+				    false, // async
+				    0);
+	} else if (argc > 1 && sscanf(argv[1], "wahdastar-%lf-%u-%u-%u",
+				      &weight, &max_e, &threads, &nblocks) == 4) {
+		return new wPRAStar(threads,
+				    false, // dd
+				    true,  // abst
+				    true,  // async
+				    max_e);
+	} else if (argc > 1 && sscanf(argv[1], "wahdastardd-%lf-%u-%u-%u",
+				      &weight, &max_e, &threads, &nblocks) == 4) {
+		return new wPRAStar(threads,
+				    true, // dd
+				    true, // abst
+				    true, // async
+				    max_e);
+	} else if (argc > 1 && sscanf(argv[1], "whdastar-%lf-%u-%u",
+				      &weight, &max_e, &threads) == 3) {
+		return new wPRAStar(threads,
+				    false, // dd
+				    false, // abst
+				    true,  // async
+				    max_e);
+	} else if (argc > 1 && sscanf(argv[1], "whdastardd-%lf-%u-%u",
+				      &weight, &max_e, &threads) == 3) {
+		return new wPRAStar(threads,
+				    true,  // dd
+				    false, // abst
+				    true,  // async
+				    max_e);
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
@@ -252,17 +282,17 @@ Search *get_search(int argc, char *argv[])
 		     << "\tlpastar-<weight>-<threads>" << endl
 		     << "\tprastar-<threads>" << endl
 		     << "\taprastar-<threads>-<nblocks>" << endl
-		     << "\thdastar-<threads>" << endl
-		     << "\tahdastar-<threads>-<nblocks>" << endl
-		     << "\tahdastar-<weight>-<threads>-<nblocks>" << endl
+		     << "\thdastar-<max-expansions>-<threads>" << endl
+		     << "\tahdastar-<max-expansions>-<threads>-<nblocks>" << endl
+		     << "\tahdastar-<max-expansions>-<weight>-<threads>-<nblocks>" << endl
 		     << "\thdastar-syncsends-<threads>-<nblocks>" << endl
-		     << "\thdastar-syncrecvs-<threads>-<nblocks>" << endl
+		     << "\thdastar-syncrecvs-<max-expansions>-<threads>-<nblocks>" << endl
 		     << "\tahdastar-syncsends-<threads>-<nblocks>" << endl
-		     << "\tahdastar-syncrecvs-<threads>-<nblocks>" << endl
-		     << "\twahdastar-<weight>-<threads>-<nblocks>" << endl
-		     << "\twahdastardd-<weight>-<threads>-<nblocks>" << endl
-		     << "\twhdastar-<weight>-<threads>" << endl
-		     << "\twhdastardd-<weight>-<threads>" << endl
+		     << "\tahdastar-syncrecvs-<max-expansions>-<threads>-<nblocks>" << endl
+		     << "\twahdastar-<weight>-<max-expansions>-<threads>-<nblocks>" << endl
+		     << "\twahdastardd-<weight>-<max-expansions>-<threads>-<nblocks>" << endl
+		     << "\twhdastar-<weight>-<max-expansions>-<threads>" << endl
+		     << "\twhdastardd-<weight>-<max-expansions>-<threads>" << endl
 		     << "\twprastar-<weight>-<threads>" << endl
 		     << "\twaprastar-<weight>-<threads>-<nblocks>" << endl
 		     << "\twaprastardd-<weight>-<threads>-<nblocks>" << endl
