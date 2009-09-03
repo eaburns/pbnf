@@ -148,6 +148,9 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, true, true, true);
 
+	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
+		return new PRAStar(threads, true, true, true);
+
 	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncsends-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, false,
 				   false, // async_send
@@ -243,6 +246,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\taprastar-<threads>-<nblocks>" << endl
 		     << "\thdastar-<threads>" << endl
 		     << "\tahdastar-<threads>-<nblocks>" << endl
+		     << "\tahdastar-<weight>-<threads>-<nblocks>" << endl
 		     << "\thdastar-syncsends-<threads>-<nblocks>" << endl
 		     << "\thdastar-syncrecvs-<threads>-<nblocks>" << endl
 		     << "\tahdastar-syncsends-<threads>-<nblocks>" << endl

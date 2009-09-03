@@ -267,7 +267,9 @@ void PRAStar::PRAStarThread::run(void){
 			continue;
 
 		if (s->get_f() >= p->bound.read()) {
+/*
 			open.prune();
+*/
 			continue;
 		}
 		if (s->is_goal()) {
