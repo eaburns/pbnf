@@ -665,6 +665,13 @@ unsigned int GridWorld::CoarseProject::project(State *s) const
 	g = dynamic_cast<GridState *>(s);
 
 	unsigned int id =  get_id(g->get_x() / cols_div, g->get_y() / rows_div);
+#if !defined(NDEBUG)
+	if (id >= (rows * cols)) {
+		cerr << "rows=" << rows << ", cols=" << cols << endl
+		     << "x=" << g->get_x() << ", y=" << g->get_y() << endl
+		     << "id=" << id << endl;
+	}
+#endif	// !NDEBUG
 	assert(id < (rows * cols));
 
 /*
