@@ -170,7 +170,15 @@ Search *get_search(int argc, char *argv[])
 				   false); // async_recv
 
 	} else if (argc > 1 && sscanf(argv[1], "waprastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
-		return new wPRAStar(threads, false, false, false);
+		return new wPRAStar(threads,
+				    false /* dd */,
+				    true /* abst */,
+				    false /* async */);
+	} else if (argc > 1 && sscanf(argv[1], "waprastardd-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
+		return new wPRAStar(threads,
+				    true /* dd */,
+				    false /* abst */,
+				    false /* async */);
 	} else if (argc > 1 && sscanf(argv[1], "wprastar-%lf-%u", &weight, &threads) == 2) {
 		return new wPRAStar(threads, false, false, false);
 	} else if (argc > 1 && sscanf(argv[1], "wahdastar-%lf-%u-%u", &weight, &threads, &nblocks) == 3) {
@@ -257,6 +265,7 @@ Search *get_search(int argc, char *argv[])
 		     << "\twhdastardd-<weight>-<threads>" << endl
 		     << "\twprastar-<weight>-<threads>" << endl
 		     << "\twaprastar-<weight>-<threads>-<nblocks>" << endl
+		     << "\twaprastardd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tpsdd-<threads>-<nblocks>" << endl
 		     << "\tdynpsdd-<weight>-<threads>-<nblocks>" << endl
 		     << "\tbfpsdd-<multiplier>-<min-expansions>-<threads>-<nblocks>" << endl
