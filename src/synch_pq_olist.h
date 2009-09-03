@@ -117,7 +117,12 @@ void SynchPQOList<PQCompare>::see_update(State *s)
 
 {
 	pthread_mutex_lock(&mutex);
-	PQOpenList<PQCompare>::see_update(s);
+	if (!s->is_open())
+		/* it is possible that someone removed this before we
+		 * were able to update it... just re-add it. */
+		PQOpenList<PQCompare>::add(s);
+	else
+		PQOpenList<PQCompare>::see_update(s);
 	pthread_mutex_unlock(&mutex);
 }
 
