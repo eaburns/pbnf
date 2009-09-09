@@ -225,8 +225,10 @@ State *PRAStar::PRAStarThread::take(void)
 	expansions += 1;
 	if (p->max_exp == 0 || expansions > p->max_exp)
 		has_sends = flush_sends();
+	if (!q_empty)
+		flush_receives(has_sends);
 
-	while (open.empty() || !q_empty) {
+	while (open.empty()) {
 #if defined(INSTRUMENTED)
 		if (!timer_started) {
 			timer_started = true;
@@ -236,9 +238,11 @@ State *PRAStar::PRAStarThread::take(void)
 		entered_loop = true;
 #endif	// INSTRUMENTED
 
+
 		if (has_sends)
 			has_sends = flush_sends();
-		flush_receives(has_sends);
+		if (!q_empty)
+			flush_receives(has_sends);
 
 		if (cc->is_complete()){
 			p->set_done();
