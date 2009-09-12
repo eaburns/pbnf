@@ -18,6 +18,8 @@
 
 using namespace std;
 
+void output_search_stats_on_timeout(void);
+
 /**
  * An abstract search class that collects some statistics.
  */

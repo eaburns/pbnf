@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "../search.h"
+
 using namespace std;
 
 static volatile bool timeout_stopped = false;
@@ -22,6 +24,8 @@ extern "C" void alarm_action(int sig)
 {
 	if (timeout_stopped)
 		return;
+
+	output_search_stats_on_timeout();
 
 	cout << "# Time out" << endl
 	     << "cost: infinity" << endl

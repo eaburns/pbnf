@@ -29,7 +29,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	unsigned int timelimit = 300;	// seconds
+	unsigned int timelimit = 60;	// seconds
 	vector<State *> *path;
 	Search *search = get_search(argc, argv);
 	GridWorld g(cin);

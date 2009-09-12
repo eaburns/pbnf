@@ -13,7 +13,18 @@
 #include "state.h"
 #include "search.h"
 
-Search::Search(void) : expanded(0), generated(0) {}
+static Search *instance = NULL;
+
+void output_search_stats_on_timeout(void)
+{
+	if (instance)
+		instance->output_stats();
+}
+
+Search::Search(void) : expanded(0), generated(0)
+{
+	instance = this;
+}
 
 /**
  * Call the expand method of the given state and track stats on number
