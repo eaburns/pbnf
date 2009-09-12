@@ -20,6 +20,8 @@ using namespace std;
 
 static volatile bool timeout_stopped = false;
 
+static unsigned int timelimit = 0;
+
 extern "C" void alarm_action(int sig)
 {
 	if (timeout_stopped)
@@ -28,6 +30,7 @@ extern "C" void alarm_action(int sig)
 	output_search_stats_on_timeout();
 
 	cout << "# Time out" << endl
+	     << "time-limit: " << timelimit << endl
 	     << "cost: infinity" << endl
 	     << "length: infinity" << endl
 	     << "wall_time: infinity" << endl
@@ -42,8 +45,9 @@ void timeout(unsigned int sec)
 {
 	struct sigaction sa;
 
-	memset(&sa, '\0', sizeof(sa));
+	timelimit = sec;
 
+	memset(&sa, '\0', sizeof(sa));
 	sa.sa_handler = alarm_action;
 	sigfillset(&sa.sa_mask);
 	sigaction(SIGALRM, &sa, NULL);
