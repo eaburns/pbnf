@@ -10,10 +10,26 @@
 
 using namespace std;
 
+#include <signal.h>
+
 #include "../state.h"
 #include "solution_stream.h"
 #include "serial_solution_stream.h"
 #include "timer.h"
+
+static void restore_sigs(sigset_t *oldmask)
+{
+        if (sigprocmask(SIG_SETMASK, oldmask, NULL) == -1)
+                cerr << "restore_sigs: sigprocmask failed" << endl;
+}
+
+static void block_sigs(sigset_t *oldmask)
+{
+        sigset_t mask;
+        sigfillset(&mask);
+        if (sigprocmask(SIG_SETMASK, &mask, oldmask) == -1)
+                cerr << "block_sigs: sigprocmask failed" << endl;
+}
 
 SerialSolutionStream::SerialSolutionStream(Timer *t, double g)
 	: SolutionStream(t, g), best(NULL), lst(NULL)
@@ -24,7 +40,10 @@ void SerialSolutionStream::see_solution(vector<State *> *path,
 					 unsigned int gen,
 					 unsigned int exp)
 {
+	sigset_t mask;
 	double time = timer->get_lap_time();
+
+	block_sigs(&mask);
 
 	if (!better(path, best))
 		return;
@@ -36,6 +55,8 @@ void SerialSolutionStream::see_solution(vector<State *> *path,
 		t->next = lst;
 		lst = t;
 	}
+
+	restore_sigs(&mask);
 }
 
 vector<State *> *SerialSolutionStream::get_best_path(void)
@@ -56,5 +77,3 @@ void SerialSolutionStream::output(ostream &o)
 
 	SolutionStream::do_output(o, best);
 }
-
-
