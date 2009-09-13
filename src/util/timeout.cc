@@ -38,7 +38,7 @@ extern "C" void alarm_action(int sig)
 	     << "generated: infinity" << endl
 	     << "expanded: infinity" << endl;
 
-	exit(EXIT_SUCCESS);
+	_exit(EXIT_SUCCESS);
 }
 
 void timeout(unsigned int sec)
