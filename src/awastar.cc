@@ -38,7 +38,7 @@ vector<State *> *AwAStar::search(Timer *t, State *init)
 	fp_type incumbent_cost = fp_infinity;
 	PQOpenList<State::PQOpsFPrime> open;
 
-	solutions = new SerialSolutionStream(t, 0.0001);
+	solutions = new SerialSolutionStream(t, 0.01);
 	open.add(init);
 
 	while (!open.empty()) {
