@@ -38,6 +38,9 @@ extern "C" void alarm_action(int sig)
 	     << "generated: infinity" << endl
 	     << "expanded: infinity" << endl;
 
+	cout.flush();
+	cerr.flush();
+
 	_exit(EXIT_SUCCESS);
 }
 
