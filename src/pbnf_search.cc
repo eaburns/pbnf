@@ -285,7 +285,8 @@ void PBNFSearch::output_stats(void)
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
-	graph->print_stats(cout);
+	if (graph)
+		graph->print_stats(cout);
 
 	if (solutions)
 		solutions->output(cout);

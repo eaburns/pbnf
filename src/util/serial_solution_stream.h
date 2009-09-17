@@ -63,6 +63,8 @@ public:
 private:
 	Solution *best;
 	Solution *lst;
+
+	bool solution_found;
 };
 
 #endif /* !_SERIAL_SOLUTION_STREAM_H_ */

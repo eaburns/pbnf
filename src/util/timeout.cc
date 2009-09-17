@@ -27,10 +27,11 @@ extern "C" void alarm_action(int sig)
 	if (timeout_stopped)
 		return;
 
+	cout << "# Timeout" << endl;
+
 	output_search_stats_on_timeout();
 
-	cout << "# Time out" << endl
-	     << "time-limit: " << timelimit << endl
+	cout << "time-limit: " << timelimit << endl
 	     << "cost: infinity" << endl
 	     << "length: infinity" << endl
 	     << "wall_time: infinity" << endl

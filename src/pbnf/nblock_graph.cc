@@ -438,6 +438,7 @@ unsigned int NBlockGraph::get_ncreated_nblocks(void)
 
 void NBlockGraph::print_stats(ostream &o)
 {
+	o << "# entering print stats" << endl;
 	Mutex::print_stats(o);
 
 	//
@@ -470,6 +471,7 @@ void NBlockGraph::print_stats(ostream &o)
 	     << switch_locks_forced_finished << endl;
 	cout << "# total-switches: " << total_switches << endl;
 #endif	// INSTRUMENTED
+	cout << "# exiting print stats" << endl;
 }
 
 void NBlockGraph::observe(NBlock *b)

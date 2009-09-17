@@ -66,8 +66,10 @@ void SolutionStream::do_output_recur(ostream &o, Solution *s)
 void SolutionStream::do_output(ostream &o, Solution *s)
 {
 
-	if (!s)
+	if (!s) {
+		o << "# no solutions" << endl;
 		return;
+	}
 
 	o << "cols: \"sol cost\" \"sol length\" "
 	  << "\"nodes expanded\" \"nodes generated\" "

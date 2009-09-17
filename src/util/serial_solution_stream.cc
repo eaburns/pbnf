@@ -11,6 +11,7 @@
 using namespace std;
 
 #include <signal.h>
+#include <stdlib.h>
 
 #include "../state.h"
 #include "solution_stream.h"
@@ -32,7 +33,8 @@ static void block_sigs(sigset_t *oldmask)
 }
 
 SerialSolutionStream::SerialSolutionStream(Timer *t, double g)
-	: SolutionStream(t, g), best(NULL), lst(NULL)
+	: SolutionStream(t, g), best(NULL), lst(NULL),
+		solution_found(false)
 {
 }
 
@@ -44,6 +46,8 @@ void SerialSolutionStream::see_solution(vector<State *> *path,
 	double time = timer->get_lap_time();
 
 	block_sigs(&mask);
+
+	solution_found = true;
 
 	if (!better(path, best))
 		return;
@@ -72,6 +76,15 @@ vector<State *> *SerialSolutionStream::get_best_path(void)
  */
 void SerialSolutionStream::output(ostream &o)
 {
+	if (!best) {
+		if (solution_found) {
+			cerr << "Solution found, but best is NULL"
+	        	     << endl;
+			abort();
+		}
+		return;
+	}
+
 	if (best->next == NULL && lst != best)
 		best->next = lst;
 
