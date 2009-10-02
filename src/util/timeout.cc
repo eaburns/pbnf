@@ -43,6 +43,7 @@ extern "C" void alarm_action(int sig)
 	cerr.flush();
 
 	_exit(EXIT_SUCCESS);
+	exit(EXIT_SUCCESS);
 }
 
 void timeout(unsigned int sec)
@@ -57,7 +58,11 @@ void timeout(unsigned int sec)
 	sigaction(SIGALRM, &sa, NULL);
 
 	timeout_stopped = false;
-	alarm(sec);
+	unsigned int err = alarm(sec);
+	if (err) {
+		cerr << "Failed to set the alarm: " << err << endl;
+		abort();
+	}
 }
 
 void timeout_stop(void)
