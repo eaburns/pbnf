@@ -14,6 +14,8 @@
 //#define PQ_DEBUG
 
 #include <iostream>
+#include <list>
+using namespace std;
 
 /**
  * A template priority queue class.

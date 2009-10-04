@@ -43,7 +43,7 @@ public:
 	int value;
 };
 
-void print(PriorityQueue<Int*, Int::IntPQOps> pq)
+void print(PriorityQueue<Int*, Int::IntPQOps> &pq)
 {
 	for (int i = 0; i < pq.get_fill(); i += 1) {
 		cout << "[" << pq.get_vec()[i]->value << "]";
@@ -52,7 +52,7 @@ void print(PriorityQueue<Int*, Int::IntPQOps> pq)
 }
 
 /*
-void print (PriorityQueue<Int*, Int::IntPQOps> pq) {}
+void print (PriorityQueue<Int*, Int::IntPQOps> &pq) {}
 */
 
 
