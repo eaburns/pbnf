@@ -241,8 +241,8 @@ State *PRAStar::PRAStarThread::take(void)
 
 		if (has_sends)
 			has_sends = flush_sends();
-		if (!q_empty)
-			flush_receives(has_sends);
+
+		flush_receives(has_sends);
 
 		if (cc->is_complete()){
 			p->set_done();
