@@ -17,6 +17,7 @@
 #include "util/thread.h"
 #include "util/atomic_int.h"
 #include "util/cumulative_ave.h"
+#include "util/solution_stream.h"
 #include "projection.h"
 #include "search.h"
 #include "state.h"
@@ -32,8 +33,8 @@ namespace WPBNF {
 		virtual ~WPBNFSearch(void);
 
 		virtual vector<State *> *search(Timer *t, State *initial);
-
 		void output_stats(void);
+
 	private:
 		void set_path(vector<State *> *path);
 
@@ -56,8 +57,7 @@ namespace WPBNF {
 
 		unsigned int n_threads;
 		const Projection *project;
-		pthread_mutex_t path_mutex;
-		vector<State *> *path;
+		SolutionStream *solutions;
 		AtomicInt bound;
 		bool done;
 

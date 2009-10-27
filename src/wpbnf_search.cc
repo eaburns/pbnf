@@ -19,6 +19,7 @@
 #include "state.h"
 #include "util/timer.h"
 #include "util/cumulative_ave.h"
+#include "util/sync_solution_stream.h"
 
 using namespace std;
 using namespace WPBNF;
@@ -177,14 +178,12 @@ WPBNFSearch::WPBNFSearch(unsigned int n_threads,
 			 unsigned int min_e, bool dup_drop)
 	: n_threads(n_threads),
 	  project(NULL),
-	  path(NULL),
 	  bound(fp_infinity),
 	  done(false),
 	  graph(NULL),
 	  dd(dup_drop)
 
 {
-	pthread_mutex_init(&path_mutex, NULL);
 	min_expansions = min_e;
 
 #if defined(INSTRUMENTED)
@@ -203,6 +202,7 @@ WPBNFSearch::~WPBNFSearch(void)
 vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 {
 	project = initial->get_domain()->get_projection();
+	solutions = new SyncSolutionStream(t, 0.0001);
 
 	vector<PBNFThread *> threads;
 	vector<PBNFThread *>::iterator iter;
@@ -239,7 +239,7 @@ vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 		delete *iter;
 	}
 
-	return path;
+	return solutions->get_best_path();
 }
 
 void WPBNFSearch::output_stats(void)
@@ -257,6 +257,10 @@ void WPBNFSearch::output_stats(void)
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 #endif	// INSTRUMENTED
+
+	if (solutions)
+		solutions->output(cout);
+
 }
 
 /**
@@ -264,11 +268,26 @@ void WPBNFSearch::output_stats(void)
  */
 void WPBNFSearch::set_path(vector<State *> *p)
 {
-	pthread_mutex_lock(&path_mutex);
-	assert(p->at(0)->get_g() == p->at(0)->get_f());
-	if (p && bound.read() > p->at(0)->get_g()) {
-		this->path = p;
-		bound.set(p->at(0)->get_g());
-	}
-	pthread_mutex_unlock(&path_mutex);
+	fp_type b, oldb;
+
+	assert(solutions);
+
+	solutions->see_solution(p, get_generated(), get_expanded());
+	b = solutions->get_best_path()->at(0)->get_g();
+
+	// CAS in our new solution bound if it is still indeed better
+	// than the previous bound.
+	do {
+		oldb = bound.read();
+		if (oldb <= b)
+			return;
+	} while (bound.cmp_and_swap(oldb, b) != oldb);
+
+// 	pthread_mutex_lock(&path_mutex);
+// 	assert(p->at(0)->get_g() == p->at(0)->get_f());
+// 	if (p && bound.read() > p->at(0)->get_g()) {
+// 		this->path = p;
+// 		bound.set(p->at(0)->get_g());
+// 	}
+//	pthread_mutex_unlock(&path_mutex);
 }
