@@ -261,6 +261,7 @@ void NBlockGraph::print(ostream &o)
  */
 void NBlockGraph::update_scope_sigmas(NBlock *n, int delta)
 {
+	bool broadcast = false;
 	assert(n->sigma == 0);
 
 	/*
@@ -286,11 +287,14 @@ void NBlockGraph::update_scope_sigmas(NBlock *n, int delta)
 				set_cold(m);
 			if (is_free(m)) {
 				free_list.add(m);
-				mutex.cond_broadcast();
+				broadcast = true;
 			}
 			num_sigma_zero += 1;
 		}
 	}
+
+	if (broadcast)
+		mutex.cond_broadcast();
 }
 
 /**
@@ -319,6 +323,7 @@ bool NBlockGraph::is_free(NBlock *b)
 bool NBlockGraph::set_hot(NBlock *b)
 {
 	fp_type f = b->open_fp.get_best_val();
+	bool broadcast = false;
 
 	if (!mutex.try_lock())
 		return false;
@@ -338,11 +343,13 @@ bool NBlockGraph::set_hot(NBlock *b)
 			if (is_free(m) && m->fp_pq_index != -1)
 				free_list.remove(m->fp_pq_index);
 			if (m->hot)
-				set_cold(m);
+				broadcast |= set_cold(m);
 			m->sigma_hot += 1;
 		}
 	}
 out:
+	if (broadcast)
+		mutex.cond_broadcast();
 	mutex.unlock();
 	return true;
 }
@@ -351,8 +358,9 @@ out:
  * Mark an NBlock as cold.  The mutex must be held *before* this
  * function is called.n
  */
-void NBlockGraph::set_cold(NBlock *b)
+bool NBlockGraph::set_cold(NBlock *b)
 {
+	bool broadcast = false;
 	b->hot = false;
 	for (unsigned int i = 0; i < b->ninterferes; i++) {
 		assert(b->id != b->interferes[i]);
@@ -360,9 +368,11 @@ void NBlockGraph::set_cold(NBlock *b)
 		m->sigma_hot -= 1;
 		if (is_free(m)) {
 			free_list.add(m);
-			mutex.cond_broadcast();
+			broadcast = true;
 		}
 	}
+
+	return broadcast;
 }
 
 /**
@@ -371,6 +381,8 @@ void NBlockGraph::set_cold(NBlock *b)
  */
 void NBlockGraph::wont_release(NBlock *b)
 {
+	bool broadcast = false;
+
 	// Don't bother locking if nothing is hot anyway.
 	if (b->sigma_hot == 0)
 		return;
@@ -383,8 +395,11 @@ void NBlockGraph::wont_release(NBlock *b)
 		if (!m)
 			continue;
 		if (m->hot)
-			set_cold(m);
+			broadcast |= set_cold(m);
 	}
+
+	if (broadcast)
+		mutex.cond_broadcast();
 
 	mutex.unlock();
 }

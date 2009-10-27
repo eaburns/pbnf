@@ -61,7 +61,7 @@ namespace WPBNF {
 		NBlock *get_nblock_if_created(unsigned int hash);
 		void __print(ostream &o);
 		bool is_free(NBlock *b);
-		void set_cold(NBlock *b);
+		bool set_cold(NBlock *b);
 		void update_scope_sigmas(NBlock *n, int delta);
 		void prune_free_list(void);
 
