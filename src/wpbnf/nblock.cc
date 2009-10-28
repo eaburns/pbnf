@@ -27,7 +27,7 @@ using namespace WPBNF;
 NBlock::NBlock(const Projection *project, unsigned int ident)
 	: id(ident),
 	  sigma(0),
-	  closed(1000),
+	  closed(10000),
 	  sigma_hot(0),
 	  hot(false),
 	  inuse(false),
