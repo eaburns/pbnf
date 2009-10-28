@@ -122,7 +122,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 		finished->inuse = false;
 		if (is_free(finished)) {
 			free_list.add(finished);
-			mutex.cond_broadcast();
+			mutex.cond_signal();
 		}
 
 		update_scope_sigmas(finished, -1);
