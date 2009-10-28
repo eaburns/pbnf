@@ -284,7 +284,7 @@ void NBlockGraph::update_scope_sigmas(NBlock *n, int delta)
 		m->sigma += delta;
 		if (m->sigma == 0) {
 			if (m->hot)
-				set_cold(m);
+				broadcast |= set_cold(m);
 			if (is_free(m)) {
 				free_list.add(m);
 				broadcast = true;
