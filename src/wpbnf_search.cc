@@ -224,18 +224,6 @@ vector<State *> *WPBNFSearch::search(Timer *t, State *initial)
 	for (iter = threads.begin(); iter != threads.end(); iter++) {
 		(*iter)->join();
 
-#if defined(INSTRUMENTED)
-		fp_type ave = (*iter)->get_ave_exp_per_nblock();
-		if (ave != 0) {
-			sum += ave;
-			num += 1;
-		}
-		fp_type oave = (*iter)->get_ave_open_size();
-		if (oave != 0) {
-			osum += oave;
-			onum += 1;
-		}
-#endif	// INSTRUMENTED
 		delete *iter;
 	}
 
