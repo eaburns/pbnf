@@ -152,12 +152,12 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%lf-%u-%u-%u", &weight, &max_e, &threads, &nblocks) == 4) {
 		return new PRAStar(threads, true, true, true, max_e);
 
-	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncsends-%u-%u", &threads, &nblocks) == 2) {
+	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncsends-%u", &threads) == 1) {
 		return new PRAStar(threads, false,
 				   false, // async_send
 				   true,  // async_recv
 				   0);
-	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncrecvs-%u-%u-%u", &max_e, &threads, &nblocks) == 3) {
+	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncrecvs-%u-%u", &max_e, &threads) == 2) {
 		return new PRAStar(threads, false,
 				   true,   // async_send
 				   false,  // async_recv
