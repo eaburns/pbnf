@@ -152,7 +152,7 @@ Search *get_search(int argc, char *argv[])
 	} else if (argc > 1 && sscanf(argv[1], "ahdastar-%lf-%u-%u-%u", &weight, &max_e, &threads, &nblocks) == 4) {
 		return new PRAStar(threads, true, true, true, max_e);
 
-	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncsends-%u-%u", &max_e, &threads) == 2) {
+	} else if (argc > 1 && sscanf(argv[1], "hdastar-syncsends-%u", &threads) == 1) {
 		return new PRAStar(threads, false,
 				   false, // async_send
 				   true,  // async_recv
@@ -162,7 +162,7 @@ Search *get_search(int argc, char *argv[])
 				   true,   // async_send
 				   false,  // async_recv
 				   max_e);
-	} else if (argc > 1 && sscanf(argv[1], "ahdastar-syncsends-%u-%u-%u", &max_e, &threads, &nblocks) == 3) {
+	} else if (argc > 1 && sscanf(argv[1], "ahdastar-syncsends-%u-%u", &threads, &nblocks) == 2) {
 		return new PRAStar(threads, true,
 				   false, // async_send
 				   true,  // async_recv
@@ -285,9 +285,9 @@ Search *get_search(int argc, char *argv[])
 		     << "\thdastar-<max-expansions>-<threads>" << endl
 		     << "\tahdastar-<max-expansions>-<threads>-<nblocks>" << endl
 		     << "\tahdastar-<max-expansions>-<weight>-<threads>-<nblocks>" << endl
-		     << "\thdastar-syncsends-<max-expansions>-<threads>" << endl
+		     << "\thdastar-syncsends-<threads>" << endl
 		     << "\thdastar-syncrecvs-<max-expansions>-<threads>" << endl
-		     << "\tahdastar-syncsends-<max-expansions>-<threads>-<nblocks>" << endl
+		     << "\tahdastar-syncsends-<threads>-<nblocks>" << endl
 		     << "\tahdastar-syncrecvs-<max-expansions>-<threads>-<nblocks>" << endl
 		     << "\twahdastar-<weight>-<max-expansions>-<threads>-<nblocks>" << endl
 		     << "\twahdastardd-<weight>-<max-expansions>-<threads>-<nblocks>" << endl

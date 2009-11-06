@@ -76,6 +76,9 @@ bool PRAStar::PRAStarThread::flush_sends(void)
 	unsigned int i;
 	bool has_sends = false;
 
+	if (!p->async_send)
+		return false;
+
 	expansions = 0;
 	for (i = 0; i < threads->size(); i += 1) {
 		if (!out_qs[i])
