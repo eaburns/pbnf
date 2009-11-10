@@ -119,6 +119,7 @@ namespace PBNF {
 		unsigned int switch_locks_forced_finished;
 		/* total number of times nblocks were switched. */
 		unsigned int total_switches;
+		unsigned int total_waits;
 		unsigned int nblocks_assigned;
 		unsigned int nblocks_assigned_max;
 

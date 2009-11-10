@@ -101,6 +101,9 @@ NBlockGraph::~NBlockGraph()
 NBlock *NBlockGraph::next_nblock(NBlock *finished)
 {
 	NBlock *n = NULL;
+#if defined(INSTRUMENTED)
+	bool waited = false;
+#endif	// INSTRUMENTED
 
 	// Take the lock, but if someone else already has it, just
 	// keep going.
@@ -143,8 +146,13 @@ retry:
 		goto out;
 	}
 
-	while (!done && free_list.empty())
+	while (!done && free_list.empty()) {
+#if defined(INSTRUMENTED)
+		if (!waited)
+			total_waits += 1;
+#endif	// INSTRUMENTED
 		mutex.cond_wait();
+	}
 
 	if (done)
 		goto out;
@@ -469,7 +477,8 @@ void NBlockGraph::print_stats(ostream &o)
 	     << switch_locks_forced_empty << endl;
 	cout << "# switch-locks-forced_finished: "
 	     << switch_locks_forced_finished << endl;
-	cout << "# total-switches: " << total_switches << endl;
+	cout << "total-switches: " << total_switches << endl;
+	cout << "total-waits: " << total_waits << endl;
 #endif	// INSTRUMENTED
 	cout << "# exiting print stats" << endl;
 }
