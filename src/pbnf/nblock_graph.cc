@@ -102,7 +102,7 @@ NBlock *NBlockGraph::next_nblock(NBlock *finished)
 {
 	NBlock *n = NULL;
 #if defined(INSTRUMENTED)
-	bool waited = false;
+	bool waiting = false;
 #endif	// INSTRUMENTED
 
 	// Take the lock, but if someone else already has it, just
@@ -148,8 +148,10 @@ retry:
 
 	while (!done && free_list.empty()) {
 #if defined(INSTRUMENTED)
-		if (!waited)
+		if (!waiting) {
 			total_waits += 1;
+			waiting = true;
+		}
 #endif	// INSTRUMENTED
 		mutex.cond_wait();
 	}
