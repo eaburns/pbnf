@@ -125,7 +125,7 @@ endif
 ############################################################
 
 #FLAGS+=-DENABLE_IMAGES
-FLAGS+=-DINSTRUMENTED
+#FLAGS+=-DINSTRUMENTED
 #FLAGS+=-DUNLAZY
 
 CFLAGS+=$(FLAGS)
