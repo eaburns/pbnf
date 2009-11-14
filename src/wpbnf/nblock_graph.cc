@@ -252,7 +252,7 @@ void NBlockGraph::print(ostream &o)
 {
 	mutex.lock();
 	__print(o);
-	mutex.lock();
+	mutex.unlock();
 }
 
 /**
