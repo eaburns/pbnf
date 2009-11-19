@@ -45,17 +45,21 @@ namespace PBNF {
 				fp_type bfp = b->open.get_best_val();
 
 				if (afp == bfp) {
-					fp_type af = a->open.get_best_val();
-					fp_type bf = b->open.get_best_val();
-					if (af == bf) {
-						fp_type ag = fp_infinity;
-						fp_type bg = fp_infinity;
-						if (!a->open.empty())
-							ag = a->open.peek()->get_g();
-						if (!b->open.empty())
-							bg = b->open.peek()->get_g();
-						return ag > bg;
+					fp_type af = fp_infinity;
+					fp_type bf = fp_infinity;
+					fp_type ag = fp_infinity;
+					fp_type bg = fp_infinity;
+
+					if (!a->open.empty()) {
+						a->open.peek()->get_f();
+						ag = a->open.peek()->get_g();
 					}
+					if (!b->open.empty()) {
+						b->open.peek()->get_f();
+						bg = b->open.peek()->get_g();
+					}
+					if (af == bf)
+						return ag > bg;
 					return af < bf;
 				}
 				return afp < bfp;
