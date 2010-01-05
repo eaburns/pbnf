@@ -53,6 +53,17 @@ public:
 };
 
 /**
+ * Inverse cost function makes the cost of moving a tile the
+ * inverse of its number.
+ */
+class TilesInverseCost  : public TilesCostFunction {
+public:
+	double operator()(unsigned int tile_number) {
+		return 1.0 / tile_number;
+	}
+};
+
+/**
  * Gets a cost function given its name.
  */
 TilesCostFunction& get_cost_function_by_name(string name);

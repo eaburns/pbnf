@@ -22,14 +22,16 @@ struct cost_tab_ent {
 };
 
 
-static TilesUnitCost unit_cost = TilesUnitCost ();
-static TilesSqrtCost sqrt_cost = TilesSqrtCost ();
+static TilesUnitCost unit_cost = TilesUnitCost();
+static TilesSqrtCost sqrt_cost = TilesSqrtCost();
+static TilesInverseCost inverse_cost = TilesInverseCost();
 
 // Table of cost functions.
 static cost_tab_ent cost_functions[] = {
 	{ "", unit_cost }, // default value
 	{ "unit", unit_cost },
 	{ "sqrt", sqrt_cost },
+	{ "inverse", inverse_cost },
 };
 
 
