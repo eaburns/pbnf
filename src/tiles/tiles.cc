@@ -177,37 +177,47 @@ vector<unsigned int> Tiles::child(const vector<unsigned int> *tiles,
  */
 vector<State *> *Tiles::expand(State *s)
 {
-	const unsigned int cost = fp_one;
 	TilesState *t = dynamic_cast<TilesState *>(s);
+	Tiles *tiles_domain = dynamic_cast<Tiles *>(t->get_domain());
+	TilesCostFunction &cost_fun = tiles_domain->cost;
 	vector<State *> *children = new vector<State *>;
 	const vector<unsigned int> *tiles = t->get_tiles();
 	unsigned int blank = t->get_blank();
 	unsigned int col = blank % width;
 	unsigned int row = blank / width;
 
-	TilesState *gp =
-		dynamic_cast<TilesState *>(s->get_parent());
+	TilesState *gp = dynamic_cast<TilesState *>(s->get_parent());
 
-	if (col > 0 && (!gp || gp->get_blank() != blank -1)) {
-		children->push_back(new TilesState(this, s, cost, s->get_g() + cost,
+	if (col > 0 && (!gp || gp->get_blank() != blank - 1)) {
+		fp_type cost = FIXED_OF_DOUBLE(cost_fun(tiles->at(blank - 1)));
+		children->push_back(new TilesState(this, s, cost,
+						   s->get_g() + cost,
 						   child(tiles, blank,
 							 blank - 1),
 						   blank - 1));
 	}
 	if (col < width - 1 && (!gp || gp->get_blank() != blank + 1)) {
-		children->push_back(new TilesState(this, s, cost, s->get_g() + cost,
+		fp_type cost = FIXED_OF_DOUBLE(cost_fun(tiles->at(blank + 1)));
+		children->push_back(new TilesState(this, s, cost,
+						   s->get_g() + cost,
 						   child(tiles, blank,
 							 blank + 1),
 						   blank + 1));
 	}
 	if (row > 0 && (!gp || gp->get_blank() != blank - width)) {
-		children->push_back(new TilesState(this, s, cost, s->get_g() + cost,
+		fp_type cost =
+			FIXED_OF_DOUBLE(cost_fun(tiles->at(blank - width)));
+		children->push_back(new TilesState(this, s, cost,
+						   s->get_g() + cost,
 						   child(tiles, blank,
 							 blank - width),
 						   blank - width));
 	}
 	if (row < height - 1 && (!gp || gp->get_blank() != blank + width)) {
-		children->push_back(new TilesState(this, s, cost, s->get_g() + cost,
+		fp_type cost =
+			FIXED_OF_DOUBLE(cost_fun(tiles->at(blank + width)));
+		children->push_back(new TilesState(this, s, cost,
+						   s->get_g() + cost,
 						   child(tiles, blank,
 							 blank + width),
 						   blank + width));
@@ -268,7 +278,8 @@ void Tiles::ManhattanDist::init(const SearchDomain *d)
 
 	// build the manhattan distance table.
 	table.resize(width * height * width * height);
-	for (unsigned int tile = 0; tile < width * height; tile += 1) {
+	for (unsigned int tile = 1; tile < width * height; tile += 1) {
+		fp_type cost = FIXED_OF_DOUBLE(t->cost(tile));
 		unsigned int goal_pos;
 		for (goal_pos = 0; goal_pos < width * height; goal_pos += 1) {
 			if (goal->at(goal_pos) == tile)
@@ -283,7 +294,8 @@ void Tiles::ManhattanDist::init(const SearchDomain *d)
 			int row = pos / width;
 
 			table[(tile * (width * height)) + pos] =
-				(abs(goal_col - col) + abs(goal_row - row)) * fp_one;
+				(abs(goal_col - col) + abs(goal_row - row))
+				* cost;
 		}
 	}
 }

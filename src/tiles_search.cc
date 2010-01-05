@@ -36,12 +36,6 @@ int main(int argc, char *argv[])
 	Tiles g(cin, cost);
 	Timer timer;
 
-/*
-	if (ratio == 0)
-		ratio = 1.0;
-	int denom = g.get_height() / ((int) ratio * threads);
-	unsigned int nblocks = g.get_height() / denom;
-*/
 	Projection *project;
 	if (nblocks == 0) {
 		project = NULL;

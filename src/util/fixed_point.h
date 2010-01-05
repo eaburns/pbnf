@@ -29,5 +29,10 @@ typedef uint64_t fp_type;
 
 /**
  * Get a double from the given fixed point value.
- */ 
+ */
 #define DOUBLE(fp) ((double) (fp) / (double) fp_one)
+
+/*
+ * Get a fixed point value from the given double.
+ */
+#define FIXED_OF_DOUBLE(d) ((fp_type) ((d) * fp_one))
