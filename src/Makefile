@@ -54,6 +54,7 @@ SRC= \
 	grid/grid_world.cc \
 	tiles/tiles_state.cc \
 	tiles/tiles.cc \
+	tiles/tiles_costs.cc \
 	psdd/nblock.cc \
 	psdd/nblock_graph.cc \
 	psdd_search.cc \

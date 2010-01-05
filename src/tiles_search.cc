@@ -32,7 +32,8 @@ int main(int argc, char *argv[])
 	unsigned int timelimit = 120;	// seconds
 	vector<State *> *path;
 	Search *search = get_search(argc, argv);
-	Tiles g(cin);
+	string cost = argc == 2 ? "unit" : argv[2];
+	Tiles g(cin, cost);
 	Timer timer;
 
 /*

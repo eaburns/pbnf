@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <utility>
+#include <string>
 
 #include "tiles.h"
 #include "tiles_state.h"
@@ -32,7 +33,8 @@ using namespace std;
  * the 0th tile (the blank).  The next number read is the position of
  * the 1 tile, etc.
  */
-Tiles::Tiles(istream &in)
+Tiles::Tiles(istream &in, string c)
+	: cost(get_cost_function_by_name(c))
 {
 	unsigned int pos;
 	unsigned int g_blank = 0;
@@ -120,8 +122,16 @@ const vector<uint64_t> *Tiles::get_fact_ary() const
  * Create an arbitrary puzzle.  You can't use the starting state of
  * this, it is just really for testing purposes.
  */
-Tiles::Tiles(unsigned int width, unsigned int height)
-	: width(width), height(height) {}
+Tiles::Tiles(unsigned int w, unsigned int h)
+	  : width(w), height(h), cost(get_cost_function_by_name("")) { }
+
+
+/**
+ * Create an arbitrary puzzle.  You can't use the starting state of
+ * this, it is just really for testing purposes.
+ */
+Tiles::Tiles(unsigned int w, unsigned int h, string c)
+	  : width(w), height(h), cost(get_cost_function_by_name(c)) { }
 
 
 /**

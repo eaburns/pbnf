@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	unsigned int timelimit = 120;	// seconds
 	vector<State *> *path;
 	SyncWAStar *search;
-	Tiles *g_orig = new Tiles(cin);
+	Tiles *g_orig = new Tiles(cin, "");
 	Timer timer;
 
 	Projection *project;

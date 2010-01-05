@@ -14,19 +14,22 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <string>
 
 #include "../search_domain.h"
 #include "../state.h"
 #include "../projection.h"
 #include "../heuristic.h"
 #include "tiles_state.h"
+#include "tiles_costs.h"
 
 using namespace std;
 
 class Tiles : public SearchDomain {
 public:
-	Tiles(istream &i);
+	Tiles(istream &i, string cost);
 	Tiles(unsigned int width, unsigned int height);
+	Tiles(unsigned int width, unsigned int height, string cost);
 	virtual ~Tiles(void);
 
 	virtual State *initial_state(void);
@@ -209,6 +212,9 @@ private:
 	vector<unsigned int> initial;
 	unsigned int initial_blank;
 	TilesState *goal;
+
+	/* The cost function. */
+	TilesCostFunction &cost;
 
 	/* Korf's crazy table of the number of ones in the binary
 	 * representation on an integer. */
