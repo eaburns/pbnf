@@ -3,7 +3,7 @@
  *
  * Contains the PAStar class.
  *
- * \author Seth Lemons
+ * \author Sofia Lemons
  * \date 2008-11-02
  */
 

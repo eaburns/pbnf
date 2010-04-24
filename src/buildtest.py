@@ -3,7 +3,7 @@
 #
 # Tests important algorithms after build.
 #
-# Seth Lemons
+# Sofia Lemons
 # October 31, 2008
 
 import timeit, sys

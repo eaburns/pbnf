@@ -3,7 +3,7 @@
  *
  *
  *
- * \author Ethan Burns (modified from Seth Lemons' pastar.cc)
+ * \author Ethan Burns (modified from Sofia Lemons' pastar.cc)
  * \date 2009-04-12
  */
 

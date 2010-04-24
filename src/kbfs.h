@@ -3,7 +3,7 @@
  *
  * Contains the KBFS class.
  *
- * \author Seth Lemons
+ * \author Sofia Lemons
  * \date 2008-10-09
  */
 

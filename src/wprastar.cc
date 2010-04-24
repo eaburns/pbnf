@@ -3,7 +3,7 @@
  *
  *
  *
- * \author Seth Lemons
+ * \author Sofia Lemons
  * \date 2009-03-19
  */
 

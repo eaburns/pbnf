@@ -3,7 +3,7 @@
  *
  * Contains the PAStar class.
  *
- * \author Ethan Burns (modified from Seth Lemons' pastar.h)
+ * \author Ethan Burns (modified from Sofia Lemons' pastar.h)
  * \date 2009-04-12
  */
 
