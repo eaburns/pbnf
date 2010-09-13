@@ -50,6 +50,7 @@ SRC= \
 	util/solution_stream.cc \
 	util/sync_solution_stream.cc \
 	util/serial_solution_stream.cc \
+	util/fhist.cc \
 	grid/grid_state.cc \
 	grid/grid_world.cc \
 	tiles/tiles_state.cc \
@@ -126,7 +127,7 @@ endif
 ############################################################
 
 #FLAGS+=-DENABLE_IMAGES
-#FLAGS+=-DINSTRUMENTED
+FLAGS+=-DINSTRUMENTED
 #FLAGS+=-DUNLAZY
 
 CFLAGS+=$(FLAGS)

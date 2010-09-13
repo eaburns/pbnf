@@ -9,6 +9,8 @@
 
 #include "open_list.h"
 
+F_hist OpenList::fs;
+
 OpenList::OpenList()
 {
 	best.set(fp_infinity);
@@ -72,6 +74,12 @@ unsigned int OpenList::get_max_size()
 {
 	return max_size;
 }
+
+F_hist &OpenList::get_fs(void)
+{
+	return fs;
+}
+
 #else  // INSTRUMENTED
 void OpenList::print_stats(ostream &o)
 {

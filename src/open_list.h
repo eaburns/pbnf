@@ -16,6 +16,7 @@
 #include "util/fixed_point.h"
 #include "util/atomic_float.h"
 #include "util/cumulative_ave.h"
+#include "util/fhist.h"
 
 #include "state.h"
 
@@ -49,6 +50,7 @@ public:
 	/* Get statistic information. */
 	float get_avg_size(void);
 	unsigned int get_max_size(void);
+	static F_hist &get_fs(void);
 #endif	/* INSTRUMENTED */
 
 protected:
@@ -71,6 +73,10 @@ private:
 	unsigned int cur_size;
 	unsigned int max_size;
 	CumulativeAverage avg_size;
+
+#if defined(INSTRUMENTED)
+	static F_hist fs;
+#endif	/* INSTRUMENTED */
 };
 
 #endif	/* !_OPEN_LIST_H_ */

@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <math.h>
 
+#include <fstream>
 #include <limits>
 #include <vector>
 #include <algorithm>
@@ -243,6 +244,14 @@ vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 		}
 #endif	// INSTRUMENTED
 	}
+
+#if defined(INSTRUMENTED)
+	ofstream o;
+	std::cout << "Outputting to pbnf-fs.dat" << std::endl;
+	o.open("pbnf-fs.dat", std::ios_base::app);
+	OpenList::get_fs().output_above(o, bound.read());
+	o.close();
+#endif	// INSTRUMENTED
 
 	return solutions->get_best_path();
 }

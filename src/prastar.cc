@@ -401,7 +401,15 @@ void PRAStar::output_stats(void)
 			max_open_size = (*iter)->open.get_max_size();
         }
 	avg_open_size /= n_threads;
+
+
+	ofstream o;
+	std::cout << "Outputting to prastar-fs.dat" << std::endl;
+	o.open("prastar-fs.dat", std::ios_base::app);
+	OpenList::get_fs().output_above(o, bound.read());
+	o.close();
 #endif	// INSTRUMENTED
+
 
 	if (solutions)
 		solutions->output(cout);
