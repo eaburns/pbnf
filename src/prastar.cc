@@ -396,6 +396,7 @@ void PRAStar::output_stats(void)
 		double t = (*iter) -> time_spinning;
 		if (t > max_spinning)
 			max_spinning = t;
+		cout << "wait-time: " << t << endl;
 		time_spinning += t;
 		avg_open_size += (*iter)->open.get_avg_size();
 		if ((*iter)->open.get_max_size() > max_open_size)
