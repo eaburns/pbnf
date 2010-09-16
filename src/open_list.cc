@@ -9,9 +9,9 @@
 
 #include "open_list.h"
 
-#if defined(INSTRUMENTED)
+#if defined(COUNT_FS)
 F_hist OpenList::fs;
-#endif // INSTRUMENTED
+#endif // COUNT_FS
 
 OpenList::OpenList()
 {
@@ -77,13 +77,16 @@ unsigned int OpenList::get_max_size()
 	return max_size;
 }
 
-F_hist &OpenList::get_fs(void)
-{
-	return fs;
-}
-
 #else  // INSTRUMENTED
 void OpenList::print_stats(ostream &o)
 {
 }
 #endif	// INSTRUMENTED
+
+
+#if defined(COUNT_FS)
+F_hist &OpenList::get_fs(void)
+{
+	return fs;
+}
+#endif // COUNT_FS

@@ -94,6 +94,21 @@ double Mutex::get_total_lock_acquisition_time(void)
 	return total_time;
 }
 
+double Mutex::get_max_lock_acquisition_time(void)
+{
+	double max_time;
+	vector<double> times;
+	vector<double>::iterator iter;
+
+	times = lock_acquisition_times.get_all_entries();
+	max_time = 0.0;
+	for (iter = times.begin(); iter != times.end(); iter++)
+		if (*iter > max_time)
+			max_time = (*iter);
+
+	return max_time;
+}
+
 double Mutex::get_total_cond_wait_time(void)
 {
 	double total_time;
@@ -109,6 +124,22 @@ double Mutex::get_total_cond_wait_time(void)
 
 }
 
+double Mutex::get_max_cond_wait_time(void)
+{
+	double max_time;
+	vector<double> times;
+	vector<double>::iterator iter;
+
+	times = cond_wait_times.get_all_entries();
+	max_time = 0.0;
+	for (iter = times.begin(); iter != times.end(); iter++)
+		if (*iter > max_time)
+			max_time = (*iter);
+
+	return max_time;
+
+}
+
 void Mutex::print_stats(ostream &o)
 {
 	o << "total-time-acquiring-locks: "
@@ -116,9 +147,30 @@ void Mutex::print_stats(ostream &o)
 	o << "total-time-waiting: "
 	  << get_total_cond_wait_time() << endl;
 }
+
+void Mutex::print_pre_thread_stats(ostream &o)
+{
+	vector<double> times;
+	vector<double>::iterator iter;
+
+	times = cond_wait_times.get_all_entries();
+	for (iter = times.begin(); iter != times.end(); iter++)
+		if (*iter > 0)
+			o << "wait-time: " << *iter << endl;
+
+	times = lock_acquisition_times.get_all_entries();
+	for (iter = times.begin(); iter != times.end(); iter++)
+		if (*iter > 0)
+			o << "lock-time: " << *iter << endl;
+}
+
 #else  // !INSTRUMENTED
+
 void Mutex::print_stats(ostream &o)
 {
 }
 
+void Mutex::print_pre_thread_stats(ostream &o)
+{
+}
 #endif	// INSTRUMENTED

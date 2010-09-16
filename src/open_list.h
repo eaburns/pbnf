@@ -50,8 +50,11 @@ public:
 	/* Get statistic information. */
 	float get_avg_size(void);
 	unsigned int get_max_size(void);
-	static F_hist &get_fs(void);
 #endif	/* INSTRUMENTED */
+
+#if defined(COUNT_FS)
+	static F_hist &get_fs(void);
+#endif	/* COUNT_FS */
 
 protected:
 	void set_best_val(fp_type f);
@@ -74,9 +77,9 @@ private:
 	unsigned int max_size;
 	CumulativeAverage avg_size;
 
-#if defined(INSTRUMENTED)
+#if defined(COUNT_FS)
 	static F_hist fs;
-#endif	/* INSTRUMENTED */
+#endif	/* COUNT_FS */
 };
 
 #endif	/* !_OPEN_LIST_H_ */

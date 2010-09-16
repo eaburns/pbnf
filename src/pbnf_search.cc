@@ -245,13 +245,13 @@ vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 #endif	// INSTRUMENTED
 	}
 
-#if defined(INSTRUMENTED)
+#if defined(COUNT_FS)
 	ofstream o;
 	std::cout << "Outputting to pbnf-fs.dat" << std::endl;
 	o.open("pbnf-fs.dat", std::ios_base::app);
 	OpenList::get_fs().output_above(o, bound.read());
 	o.close();
-#endif	// INSTRUMENTED
+#endif	// COUNT_FS
 
 	return solutions->get_best_path();
 }
@@ -301,10 +301,15 @@ void PBNFSearch::output_stats(void)
 		solutions->output(cout);
 
 #if defined(INSTRUMENTED)
+	Mutex::print_pre_thread_stats(cout);
 	cout << "average-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() / n_threads
 	     << endl;
+	cout << "max-time-acquiring-locks: "
+	     << Mutex::get_max_lock_acquisition_time() << endl;
 	cout << "average-time-waiting: "
 	     << Mutex::get_total_cond_wait_time() / n_threads << endl;
+	cout << "max-time-waiting: "
+	     << Mutex::get_max_cond_wait_time() << endl;
 #endif	// INSTRUMENTED
 }

@@ -131,6 +131,8 @@ let do_output num lines out_file out_attrs =
     in
     let sol_found = ref false in
       Buffer.add_string buf "#start data file format 4\n";
+      Buffer.add_string buf "#altcols \"wait\"\t\"thread wait time\"\n";
+      Buffer.add_string buf "#altcols \"lock\"\t\"thread lock time\"\n";
       pair "wall start date" (!! {(cmd "date") with pout = pout_string});
       pair "wall start time" (sprintf "%f" (Unix.gettimeofday ()));
       pair "machine id" mach_id;
@@ -183,14 +185,26 @@ let do_output num lines out_file out_attrs =
 		 pair "total time acquiring locks" vl
 	     | "average-time-acquiring-locks:" :: vl :: [] ->
 		 pair "average time acquiring locks" vl
+	     | "max-time-acquiring-locks:" :: vl :: [] ->
+		 pair "max time acquiring locks" vl
 	     | "total-time-waiting:" :: vl :: [] ->
 		 pair "total time waiting" vl
 	     | "average-time-waiting:" :: vl :: [] ->
 		 pair "average time waiting" vl
+	     | "max-time-waiting:" :: vl :: [] ->
+		 pair "max time waiting" vl
 	     | "total-switches:" :: vl :: [] ->
 		 pair "total nblock switches" vl
 	     | "total-waits:" :: vl :: [] ->
 		 pair "total nblock waits" vl
+	     | "wait-time:" :: vl :: [] ->
+		 Buffer.add_string
+		   buf
+		   (sprintf "#altrow \"wait\"\t\"%s\"\n" vl)
+	     | "lock-time:" :: vl :: [] ->
+		 Buffer.add_string
+		   buf
+		   (sprintf "#altrow \"lock\"\t\"%s\"\n" vl)
 	     | _ -> failwith (sprintf "Bad output line: %s" l))
 	lines;
       pair "found solution" (if !sol_found then "yes" else "no");

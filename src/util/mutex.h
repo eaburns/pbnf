@@ -51,14 +51,21 @@ public:
 	 */
 	static double get_total_lock_acquisition_time(void);
 
+
+	static double get_max_lock_acquisition_time(void);
+
 	/**
 	 * Get the amount of time spent waiting on a condition.
 	 */
 	static double get_total_cond_wait_time(void);
+
+	static double get_max_cond_wait_time(void);
 #endif	/* INSTRUMENTED */
 
 	/** Print the stats to the given output stream. */
 	static void print_stats(ostream &o);
+
+	static void print_pre_thread_stats(ostream &o);
 
 private:
 #if defined(INSTRUMENTED)

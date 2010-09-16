@@ -148,6 +148,7 @@ private:
 
 	/* Statistics */
 	double time_spinning;
+	double max_spinning;
 	double avg_open_size;
 	unsigned int max_open_size;
 };

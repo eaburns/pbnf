@@ -235,10 +235,6 @@ void PRAStar::PRAStarThread::send_state(State *c)
 
 State *PRAStar::PRAStarThread::take(void)
 {
-#if defined(INSTRUMENTED)
-	Timer t;
-	bool timer_started = false;
-#endif	// INSTRUMENTED
 	bool has_sends = true;
 
 	expansions += 1;
@@ -248,13 +244,6 @@ State *PRAStar::PRAStarThread::take(void)
 		flush_receives(has_sends);
 
 	while (open.empty()) {
-#if defined(INSTRUMENTED)
-		if (!timer_started) {
-			timer_started = true;
-			t.start();
-		}
-#endif	// INSTRUMENTED
-
 
 		if (has_sends)
 			has_sends = flush_sends();
@@ -267,12 +256,6 @@ State *PRAStar::PRAStarThread::take(void)
 		}
         }
 
-#if defined(INSTRUMENTED)
-	if (timer_started) {
-		t.stop();
-		time_spinning += t.get_wall_time();
-	}
-#endif	// INSTRUMENTED
 
 	State *ret = NULL;
 	if (!p->is_done())
@@ -406,10 +389,14 @@ void PRAStar::output_stats(void)
 {
 #if defined(INSTRUMENTED)
 	time_spinning = 0.0;
+	max_spinning = 0.0;
 	max_open_size = 0;
 	avg_open_size = 0;
         for (iter = threads.begin(); iter != threads.end(); iter++) {
-		time_spinning += (*iter)->time_spinning;
+		double t = (*iter) -> time_spinning;
+		if (t > max_spinning)
+			max_spinning = t;
+		time_spinning += t;
 		avg_open_size += (*iter)->open.get_avg_size();
 		if ((*iter)->open.get_max_size() > max_open_size)
 			max_open_size = (*iter)->open.get_max_size();
@@ -431,14 +418,18 @@ void PRAStar::output_stats(void)
 		solutions->output(cout);
 
 #if defined(INSTRUMENTED)
+	Mutex::print_pre_thread_stats(cout);
 	cout << "total-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() << endl;
 	cout << "average-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() / n_threads
 	     << endl;
+	cout << "max-time-acquiring-locks: "
+	     << Mutex::get_max_lock_acquisition_time() << endl;
 	cout << "total-time-waiting: " << time_spinning << endl;
 	cout << "average-time-waiting: "
 	     << time_spinning / n_threads << endl;
+	cout << "max-time-waiting: " << max_spinning << endl;
 	cout << "average-open-size: " << avg_open_size << endl;
 	cout << "max-open-size: " << max_open_size << endl;
 #endif	// INSTRUMENTED

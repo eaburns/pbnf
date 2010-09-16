@@ -73,9 +73,9 @@ void PQOpenList<PQCompare>::add(State *s)
 	pq.add(s);
 	change_size(1);
 	set_best_val(comp.get_value(pq.front()));
-#if defined(INSTRUMENTED)
+#if defined(COUNT_FS)
 	fs.see_f(s->get_f());
-#endif	/* INSTRUMENTED */
+#endif	/* COUNT_FS */
 }
 
 /**
@@ -161,9 +161,9 @@ template<class PQCompare>
 {
 	pq.see_update(get_index(s));
 	set_best_val(comp.get_value(pq.front()));
-#if defined(INSTRUMENTED)
+#if defined(COUNT_FS)
 	fs.see_f(s->get_f());
-#endif	/* INSTRUMENTED */
+#endif	/* COUNT_FS */
 }
 
 /**

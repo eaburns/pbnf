@@ -12,16 +12,21 @@ let march = !! {(cmd "uname -m") with pout = pout_string}
 
 let by_name domain =
   let threads =
+(*
     if march = "sun4v" then [1; 2; 4; 8; 16; 32; 64; (* 128; 256 *)]
     else  Lst.range 8
+*)
+    [8]
 
   and nblocks, abst_name =
     if domain.kind = "tiles"
     then
       ([
 	 (* 3360 nblocks, 0-tile, 1-tile and 2-tile. *)
+(*
 	 (16 * 15 * 14);
 
+*)
 	 (* Technically there aren't 123 nblocks, this abst pays
 	    attentions to the 1-tile, 2-tile and 3-tile. *)
 	 123;
@@ -36,11 +41,11 @@ let by_name domain =
 
   and max_exps =
     if domain.kind = "tiles"
-    then [ 16; 32; ]
+    then [ 32; ]
     else [ 32; 64; ]
 
   and min_exps =
-    if domain.kind = "tiles" then [ 16; 32; ]
+    if domain.kind = "tiles" then [ 16; ]
     else if domain.kind = "grid" then [  64; ]
     else []
 
