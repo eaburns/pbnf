@@ -98,6 +98,10 @@ bool PRAStar::PRAStarThread::flush_sends(void)
  */
 void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 {
+#if defined(INSTRUMENTED)
+	Timer t;
+	bool timer_started = false;
+#endif // INSTRUMENTED
 	// wait for either completion or more nodes to expand
 	if (open.empty() || !p->async_recv)
 		mutex.lock();
@@ -107,6 +111,13 @@ void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 	if (q_empty && !has_sends && open.empty()) {
 		completed = true;
 		cc->complete();
+
+#if defined(INSTRUMENTED)
+		if (!timer_started) {
+			timer_started = true;
+			t.start();
+		}
+#endif	// INSTRUMENTED
 
 		// busy wait
 		mutex.unlock();
@@ -121,6 +132,12 @@ void PRAStar::PRAStarThread::flush_receives(bool has_sends)
 			return;
 		}
 	}
+#if defined(INSTRUMENTED)
+	if (timer_started) {
+		t.stop();
+		time_spinning += t.get_wall_time();
+	}
+#endif	// INSTRUMENTED
 
 	// got some stuff on the queue, lets do duplicate detection
 	// and add stuff to the open list
@@ -220,7 +237,6 @@ State *PRAStar::PRAStarThread::take(void)
 {
 #if defined(INSTRUMENTED)
 	Timer t;
-	bool entered_loop = false;
 	bool timer_started = false;
 #endif	// INSTRUMENTED
 	bool has_sends = true;
@@ -237,8 +253,6 @@ State *PRAStar::PRAStarThread::take(void)
 			timer_started = true;
 			t.start();
 		}
-
-		entered_loop = true;
 #endif	// INSTRUMENTED
 
 
@@ -401,14 +415,16 @@ void PRAStar::output_stats(void)
 			max_open_size = (*iter)->open.get_max_size();
         }
 	avg_open_size /= n_threads;
+#endif	// INSTRUMENTED
 
 
+#if defined(COUNT_FS)
 	ofstream o;
 	std::cout << "Outputting to prastar-fs.dat" << std::endl;
 	o.open("prastar-fs.dat", std::ios_base::app);
 	OpenList::get_fs().output_above(o, bound.read());
 	o.close();
-#endif	// INSTRUMENTED
+#endif	// COUNT_FS
 
 
 	if (solutions)
