@@ -9,7 +9,9 @@
 
 #include "open_list.h"
 
+#if defined(INSTRUMENTED)
 F_hist OpenList::fs;
+#endif // INSTRUMENTED
 
 OpenList::OpenList()
 {
