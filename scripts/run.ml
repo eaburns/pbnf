@@ -266,8 +266,11 @@ let main () =
 
   let march = !! { (cmd "uname -m") with pout = pout_string } in
   let bin_path =
+(*
     if march = "sun4v" then "/home/rai/eaburns/aifs2/eaburns/src/cpp-search/src"
     else "/home/rai/eaburns/aifs2/eaburns/src/cpp-search/src"
+*)
+    "/home/rai/eaburns/aifs2/eaburns/src/ai/parallel-search/src"
   and data_root = sprintf "/home/rai/eaburns/aifs2/group/data/%s_instances" domain.Scripts_domain.kind
   and out_root = sprintf "/home/rai/eaburns/aifs2/eaburns/data/%s/%s" march domain.Scripts_domain.kind in
 
