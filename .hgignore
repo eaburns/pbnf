@@ -1,5 +1,6 @@
 syntax: glob
 
+depends/*
 .depend
 .hgignore
 .DS_Store
@@ -9,6 +10,9 @@ syntax: glob
 *~
 #*#
 *.o
+*.cmx
+*.cmo
+*.cmi
 
 src/atomic_float_test.*
 src/atomic_int_test.*
