@@ -200,11 +200,11 @@ let do_output num lines out_file out_attrs =
 	     | "wait-time:" :: vl :: [] ->
 		 Buffer.add_string
 		   buf
-		   (sprintf "#altrow \"wait\"\t\"%s\"\n" vl)
+		   (sprintf "#altrow \"wait\"\t%s\n" vl)
 	     | "lock-time:" :: vl :: [] ->
 		 Buffer.add_string
 		   buf
-		   (sprintf "#altrow \"lock\"\t\"%s\"\n" vl)
+		   (sprintf "#altrow \"lock\"\t%s\n" vl)
 	     | _ -> failwith (sprintf "Bad output line: %s" l))
 	lines;
       pair "found solution" (if !sol_found then "yes" else "no");
