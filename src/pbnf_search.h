@@ -77,6 +77,10 @@ namespace PBNF {
 		fp_type sum;
 		unsigned int num;
 #endif	/* INSTRUMENTED */
+
+#if defined(COUNT_FS)
+		static F_hist fs;
+#endif	/* COUNT_FS */
 	};
 }
 

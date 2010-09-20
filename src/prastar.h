@@ -151,6 +151,10 @@ private:
 	double max_spinning;
 	double avg_open_size;
 	unsigned int max_open_size;
+
+#if defined(COUNT_FS)
+	static F_hist fs;
+#endif	/* COUNT_FS */
 };
 
 #endif	/* !_PRASTAR_H_ */

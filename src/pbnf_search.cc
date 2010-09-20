@@ -19,6 +19,7 @@
 #include "search.h"
 #include "state.h"
 #include "util/timer.h"
+#include "util/fhist.h"
 #include "util/cumulative_ave.h"
 #include "util/sync_solution_stream.h"
 
@@ -100,6 +101,9 @@ vector<State *> *PBNFSearch::PBNFThread::search_nblock(NBlock *n)
 		exp_this_block += 1;
 #endif	// INSTRUMENTED
 
+#if defined(COUNT_FS)
+		fs.see_f(s->get_f());
+#endif // COUNT_FS
 		vector<State *> *children = search->expand(s);
 		vector<State *>::iterator iter;
 
@@ -187,6 +191,9 @@ bool PBNFSearch::PBNFThread::should_switch(NBlock *n)
 /************************************************************/
 /************************************************************/
 
+#if defined(COUNT_FS)
+F_hist PBNFSearch::fs;
+#endif // COUNT_FS
 
 PBNFSearch::PBNFSearch(unsigned int n_threads,
 		       unsigned int min_e,
@@ -249,7 +256,7 @@ vector<State *> *PBNFSearch::search(Timer *timer, State *initial)
 	ofstream o;
 	std::cout << "Outputting to pbnf-fs.dat" << std::endl;
 	o.open("pbnf-fs.dat", std::ios_base::app);
-	OpenList::get_fs().output_above(o, bound.read());
+	fs.output_above(o, bound.read());
 	o.close();
 #endif	// COUNT_FS
 

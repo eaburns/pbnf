@@ -29,6 +29,11 @@ extern "C" {
 
 using namespace std;
 
+#if defined(COUNT_FS)
+F_hist PRAStar::fs;
+#endif // COUNT_FS
+
+
 PRAStar::PRAStarThread::PRAStarThread(PRAStar *p,
 				      vector<PRAStarThread *> *threads,
 				      CompletionCounter* cc)
@@ -286,6 +291,9 @@ void PRAStar::PRAStarThread::run(void){
 			p->set_path(s->get_path());
 		}
 
+#if defined(COUNT_FS)
+		fs.see_f(s->get_f());
+#endif // COUNT_FS
 		children = p->expand(s);
 		for (unsigned int i = 0; i < children->size(); i += 1) {
 			State *c = children->at(i);
@@ -410,7 +418,7 @@ void PRAStar::output_stats(void)
 	ofstream o;
 	std::cout << "Outputting to prastar-fs.dat" << std::endl;
 	o.open("prastar-fs.dat", std::ios_base::app);
-	OpenList::get_fs().output_above(o, bound.read());
+	fs.output_above(o, bound.read());
 	o.close();
 #endif	// COUNT_FS
 

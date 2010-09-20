@@ -52,10 +52,6 @@ public:
 	unsigned int get_max_size(void);
 #endif	/* INSTRUMENTED */
 
-#if defined(COUNT_FS)
-	static F_hist &get_fs(void);
-#endif	/* COUNT_FS */
-
 protected:
 	void set_best_val(fp_type f);
 
@@ -76,10 +72,6 @@ private:
 	unsigned int cur_size;
 	unsigned int max_size;
 	CumulativeAverage avg_size;
-
-#if defined(COUNT_FS)
-	static F_hist fs;
-#endif	/* COUNT_FS */
 };
 
 #endif	/* !_OPEN_LIST_H_ */

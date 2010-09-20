@@ -7,6 +7,9 @@
  * \date 08-09-2010
  */
 
+#if !defined(_F_HIST_H_)
+#define _F_HIST_H_
+
 #include "fixed_point.h"
 #include "mutex.h"
 
@@ -30,3 +33,5 @@ private:
 
 	Mutex mutex;
 };
+
+#endif // !_F_HIST_H_

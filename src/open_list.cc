@@ -9,10 +9,6 @@
 
 #include "open_list.h"
 
-#if defined(COUNT_FS)
-F_hist OpenList::fs;
-#endif // COUNT_FS
-
 OpenList::OpenList()
 {
 	best.set(fp_infinity);
@@ -82,11 +78,3 @@ void OpenList::print_stats(ostream &o)
 {
 }
 #endif	// INSTRUMENTED
-
-
-#if defined(COUNT_FS)
-F_hist &OpenList::get_fs(void)
-{
-	return fs;
-}
-#endif // COUNT_FS
