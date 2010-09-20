@@ -16,7 +16,7 @@ let by_name domain =
     if march = "sun4v" then [1; 2; 4; 8; 16; 32; 64; (* 128; 256 *)]
     else  Lst.range 8
 *)
-    [8]
+    [1; 8; 7; 6; 5; 4; 3; 2;]
 
   and nblocks, abst_name =
     if domain.kind = "tiles"
@@ -25,7 +25,6 @@ let by_name domain =
 	 (* 3360 nblocks, 0-tile, 1-tile and 2-tile. *)
 (*
 	 (16 * 15 * 14);
-
 *)
 	 (* Technically there aren't 123 nblocks, this abst pays
 	    attentions to the 1-tile, 2-tile and 3-tile. *)
@@ -36,17 +35,17 @@ let by_name domain =
       then
 	if domain.name = "grids" || domain.name = "grids_unit4"
 	then ([ (* 1600; 2500; *) 6400; ], "course-grid")
-	else ([ 10_000; (* 62_500; 250_000; *) ], "course-grid")
+	else ([ (* 10_000; *) 62_500; (* 250_000; *) ], "course-grid")
       else ([], "<none>")
 
   and max_exps =
     if domain.kind = "tiles"
     then [ 32; ]
-    else [ 32; 64; ]
+    else [ 64; ]
 
   and min_exps =
     if domain.kind = "tiles" then [ 16; ]
-    else if domain.kind = "grid" then [  64; ]
+    else if domain.kind = "grid" then [ 32; ]
     else []
 
   and weights =
