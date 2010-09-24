@@ -197,6 +197,10 @@ let do_output num lines out_file out_attrs =
 		 pair "total nblock switches" vl
 	     | "total-waits:" :: vl :: [] ->
 		 pair "total nblock waits" vl
+	     | "mean-pq-cpu-time:" :: vl :: [] ->
+		 pair "mean pq cpu time" vl
+	     | "mean-pq-wall-time:" :: vl :: [] ->
+		 pair "mean pq wall time" vl
 	     | "wait-time:" :: vl :: [] ->
 		 Buffer.add_string
 		   buf

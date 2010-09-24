@@ -23,12 +23,12 @@ let by_name domain =
     then
       ([
 	 (* 3360 nblocks, 0-tile, 1-tile and 2-tile. *)
-(*
 	 (16 * 15 * 14);
-*)
+(*
 	 (* Technically there aren't 123 nblocks, this abst pays
 	    attentions to the 1-tile, 2-tile and 3-tile. *)
 	 123;
+*)
        ], "ignore-tiles")
     else
       if domain.kind = "grid"
@@ -39,9 +39,7 @@ let by_name domain =
       else ([], "<none>")
 
   and max_exps =
-    if domain.kind = "tiles"
-    then [ 32; ]
-    else [ 64; ]
+    if domain.kind = "tiles" then [ 32; ] else [ 64; ]
 
   and min_exps =
     if domain.kind = "tiles" then [ 16; ]

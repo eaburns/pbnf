@@ -122,11 +122,12 @@ namespace PBNF {
 		unsigned int total_waits;
 		unsigned int nblocks_assigned;
 		unsigned int nblocks_assigned_max;
+#endif	/* INSTRUMENTED */
 
-
+#if defined(INSTRUMENTED) || defined(QUEUE_SIZES)
 		/* list of created nblocks. */
 		list<NBlock*> nblocks;
-#endif	/* INSTRUMENTED */
+#endif	/* INSTRUMENTED || QUEUE_SIZES*/
 	};
 } /* PBNF */
 

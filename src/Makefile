@@ -44,6 +44,7 @@ SRC= \
 	util/completion_counter.cc \
 	util/mutex.cc \
 	util/timer.cc \
+	util/cpu_timer.cc \
 	util/timeout.cc \
 	util/atomic_float.cc \
 	util/cumulative_ave.cc \
@@ -127,8 +128,10 @@ endif
 ############################################################
 
 #FLAGS+=-DENABLE_IMAGES
-FLAGS+=-DINSTRUMENTED
-FLAGS+=-DCOUNT_FS
+#FLAGS+=-DINSTRUMENTED
+#FLAGS+=-DQUEUE_SIZES
+#FLAGS+=-DTIME_QUEUES
+#FLAGS+=-DCOUNT_FS
 #FLAGS+=-DUNLAZY
 
 CFLAGS+=$(FLAGS)

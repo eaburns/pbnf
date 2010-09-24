@@ -38,34 +38,31 @@ unsigned int OpenList::size()
 
 void OpenList::set_size(unsigned int s)
 {
-#if defined(INSTRUMENTED)
+#if defined(QUEUE_SIZES)
 	cur_size = s;
 	if (s > max_size)
 		max_size = s;
-	avg_size.add_val(s);
-#endif	// INSTRUMENTED
+	sum += s;
+	num += 1;
+#endif	// QUEUE_SIZES
 }
 
 void OpenList::change_size(unsigned int delta)
 {
-#if defined(INSTRUMENTED)
+#if defined(QUEUE_SIZES)
 	cur_size += delta;
 	if (cur_size > max_size)
 		max_size = cur_size;
-	avg_size.add_val(cur_size);
-#endif	// INSTRUMENTED
+	sum += cur_size;
+	num += 1;
+#endif	// QUEUE_SIZES
 }
 
-#if defined(INSTRUMENTED)
+#if defined(QUEUE_SIZES)
 void OpenList::print_stats(ostream &o)
 {
-	o << "average-open-size: " << avg_size.read() << endl;
-	o << "max-open-size: " << max_size << endl;
-}
-
-float OpenList::get_avg_size()
-{
-	return avg_size.read();
+	o << "average-open-size: " << sum / num << endl;
+	o << "max-open-size: " << sum / num << endl;
 }
 
 unsigned int OpenList::get_max_size()
@@ -73,8 +70,8 @@ unsigned int OpenList::get_max_size()
 	return max_size;
 }
 
-#else  // INSTRUMENTED
+#else  // QUEUE_SIZES
 void OpenList::print_stats(ostream &o)
 {
 }
-#endif	// INSTRUMENTED
+#endif	// QUEUE_SIZES

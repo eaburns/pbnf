@@ -395,24 +395,43 @@ vector<State *> *PRAStar::search(Timer *timer, State *init)
 
 void PRAStar::output_stats(void)
 {
+#if defined(QUEUE_SIZES)
+	max_open_size = 0;
+	avg_open_size = 0;
+	unsigned long sum = 0;
+	unsigned long num = 0;
+        for (iter = threads.begin(); iter != threads.end(); iter++) {
+		sum += (*iter)->open.get_sum();
+		num += (*iter)->open.get_num();
+		if ((*iter)->open.get_max_size() > max_open_size)
+			max_open_size = (*iter)->open.get_max_size();
+        }
+	avg_open_size = (double) sum / num;
+	cout << "average-open-size: " << avg_open_size << endl;
+	cout << "max-open-size: " << max_open_size << endl;
+#endif	// QUEUE_SIZES
+
+#if defined(TIME_QUEUES)
+	double cpu_time_sum = 0;
+	unsigned long time_count = 0;
+        for (iter = threads.begin(); iter != threads.end(); iter++) {
+		cpu_time_sum += (*iter)->open.get_cpu_sum();
+		time_count += (*iter)->open.get_time_count();
+	}
+	cout << "mean-pq-cpu-time: " << cpu_time_sum / time_count << endl;
+#endif
+
 #if defined(INSTRUMENTED)
 	time_spinning = 0.0;
 	max_spinning = 0.0;
-	max_open_size = 0;
-	avg_open_size = 0;
         for (iter = threads.begin(); iter != threads.end(); iter++) {
 		double t = (*iter) -> time_spinning;
 		if (t > max_spinning)
 			max_spinning = t;
 		cout << "wait-time: " << t << endl;
 		time_spinning += t;
-		avg_open_size += (*iter)->open.get_avg_size();
-		if ((*iter)->open.get_max_size() > max_open_size)
-			max_open_size = (*iter)->open.get_max_size();
         }
-	avg_open_size /= n_threads;
-#endif	// INSTRUMENTED
-
+#endif	// QUEUE_SIZES
 
 #if defined(COUNT_FS)
 	ofstream o;
@@ -439,7 +458,5 @@ void PRAStar::output_stats(void)
 	cout << "average-time-waiting: "
 	     << time_spinning / n_threads << endl;
 	cout << "max-time-waiting: " << max_spinning << endl;
-	cout << "average-open-size: " << avg_open_size << endl;
-	cout << "max-open-size: " << max_open_size << endl;
 #endif	// INSTRUMENTED
 }

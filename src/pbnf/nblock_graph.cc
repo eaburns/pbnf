@@ -44,9 +44,9 @@ void NBlockGraph::cpp_is_a_bad_language(const Projection *p,
 	num_sigma_zero = num_nblocks = p->get_num_nblocks();
 	assert(init_nblock < num_nblocks);
 
-#if defined(INSTRUMENTED)
+#if defined(INSTRUMENTED) || defined(QUEUE_SIZES)
 	map.set_observer(this);
-#endif	// INSTRUMENTED
+#endif	// INSTRUMENTED || QUEUE_SIZES
 
 	NBlock *n = map.get(init_nblock);
 	n->open.add(initial);
@@ -451,29 +451,42 @@ void NBlockGraph::print_stats(ostream &o)
 	o << "# entering print stats" << endl;
 	Mutex::print_stats(o);
 
+#if defined(QUEUE_SIZES)
 	//
 	// Print open list statistics.
 	//
-#if defined(INSTRUMENTED)
 	list<NBlock*>::iterator iter;
 	unsigned int max = 0;
-	double sum = 0;
-	double num = 0;
+	unsigned long sum = 0;
+	unsigned long num = 0;
 	for (iter = nblocks.begin(); iter != nblocks.end(); iter++) {
 		NBlock *n = *iter;
 		if (n->open.get_max_size() > max)
 			max = n->open.get_max_size();
-		sum += n->open.get_avg_size();
-		num += 1;
+		sum += n->open.get_sum();
+		num += n->open.get_num();
 	}
 	if (num > 0) {
-		cout << "average-open-size: " << (sum / num) << endl;
+		cout << "average-open-size: " << ((double)sum / num) << endl;
 		cout << "max-open-size: " << max << endl;
 	} else {
 		cout << "average-open-size: -1" << endl;
 		cout << "max-open-size: -1" << endl;
 	}
+#endif	// QUEUE_SIZES
 
+#if defined(TIME_QUEUES)
+	double cpu_time_sum = 0;
+	unsigned long time_count = 0;
+	list<NBlock*>::iterator it;
+        for (it = nblocks.begin(); it != nblocks.end(); it++) {
+		cpu_time_sum += (*it)->open.get_cpu_sum();
+		time_count += (*it)->open.get_time_count();
+	}
+	cout << "mean-pq-cpu-time: " << cpu_time_sum / time_count << endl;
+#endif
+
+#if defined(INSTRUMENTED)
 	cout << "# switch-locks-forced: " << switch_locks_forced << endl;
 	cout << "# switch-locks-forced_empty: "
 	     << switch_locks_forced_empty << endl;
@@ -487,7 +500,7 @@ void NBlockGraph::print_stats(ostream &o)
 
 void NBlockGraph::observe(NBlock *b)
 {
-#if defined(INSTRUMENTED)
+#if defined(INSTRUMENTED) || defined(QUEUE_SIZES)
 	nblocks.push_back(b);
-#endif	// INSTRUMENTED
+#endif	// INSTRUMENTED || QUEUE_SIZES
 }

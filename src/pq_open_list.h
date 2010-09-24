@@ -18,8 +18,23 @@
 #include "state.h"
 #include "open_list.h"
 #include "util/priority_queue.h"
+#include "util/cpu_timer.h"
 
 using namespace std;
+
+#if defined(TIME_QUEUES)
+#define start_queue_timer() do { t.start(); } while (0)
+#define stop_queue_timer()				\
+	do {						\
+		t.stop();				\
+		time_count += 1;			\
+		cpu_time_sum += t.get_time(); \
+	} while (0)
+#else
+#define start_queue_timer()
+#define stop_queue_timer()
+#endif // TIME_QUEUES
+
 
 /**
  * A priority queue for states based on their f(s) = g(s) + h(s)
@@ -47,10 +62,21 @@ public:
 
 	/* Verify the heap property holds */
 	void verify();
+
+#if defined(TIME_QUEUES)
+	double get_cpu_sum(void) { return cpu_time_sum; }
+	unsigned long get_time_count(void) { return time_count; }
+#endif
 private:
 	PriorityQueue<State *, PQCompare> pq;
 	PQCompare get_index;
 	PQCompare comp;
+
+#if defined(TIME_QUEUES)
+	CPU_timer t;
+	double cpu_time_sum;
+	unsigned long time_count;
+#endif
 };
 
 /**
@@ -69,7 +95,10 @@ template<class PQCompare>
 template<class PQCompare>
 void PQOpenList<PQCompare>::add(State *s)
 {
+	start_queue_timer();
 	s->set_open(true);
+	stop_queue_timer();
+
 	pq.add(s);
 	change_size(1);
 	set_best_val(comp.get_value(pq.front()));
@@ -84,7 +113,10 @@ State *PQOpenList<PQCompare>::take(void)
 {
 	State *s;
 
+	start_queue_timer();
 	s = pq.take();
+	stop_queue_timer();
+
 	s->set_open(false);
 	change_size(-1);
 
@@ -156,7 +188,10 @@ template<class PQCompare>
 template<class PQCompare>
 	void PQOpenList<PQCompare>::see_update(State *s)
 {
+	start_queue_timer();
 	pq.see_update(get_index(s));
+	stop_queue_timer();
+
 	set_best_val(comp.get_value(pq.front()));
 }
 
@@ -166,7 +201,10 @@ template<class PQCompare>
 template<class PQCompare>
 	void PQOpenList<PQCompare>::remove(State *s)
 {
+	start_queue_timer();
 	pq.remove(get_index(s));
+	stop_queue_timer();
+
 	s->set_open(false);
 	change_size(-1);
 	if (pq.empty())
@@ -181,7 +219,10 @@ template<class PQCompare>
 template<class PQCompare>
 void PQOpenList<PQCompare>::resort(void)
 {
+	start_queue_timer();
 	pq.resort();
+	stop_queue_timer();
+
 	if (pq.empty())
 		set_best_val(fp_infinity);
 	else

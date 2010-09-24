@@ -21,7 +21,7 @@
 #include "search.h"
 #include "h_zero.h"
 #include "grid/grid_world.h"
-#include "util/timer.h"
+#include "util/cpu_timer.h"
 #include "util/timeout.h"
 #include "util/fixed_point.h"
 #include "sync_wastar.h"

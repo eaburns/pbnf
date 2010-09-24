@@ -15,7 +15,6 @@
 
 #include "util/fixed_point.h"
 #include "util/atomic_float.h"
-#include "util/cumulative_ave.h"
 #include "util/fhist.h"
 
 #include "state.h"
@@ -46,11 +45,13 @@ public:
 	/* Print statistic information. */
 	void print_stats(ostream &o);
 
-#if defined(INSTRUMENTED)
+#if defined(QUEUE_SIZES)
 	/* Get statistic information. */
 	float get_avg_size(void);
 	unsigned int get_max_size(void);
-#endif	/* INSTRUMENTED */
+	unsigned long get_sum(void) { return sum; }
+	unsigned long get_num(void) { return num; }
+#endif	/* QUEUE_SIZES */
 
 protected:
 	void set_best_val(fp_type f);
@@ -71,7 +72,8 @@ private:
 	/* Statistic tracking for open list sizes. */
 	unsigned int cur_size;
 	unsigned int max_size;
-	CumulativeAverage avg_size;
+	unsigned long sum;
+	unsigned long num;
 };
 
 #endif	/* !_OPEN_LIST_H_ */
