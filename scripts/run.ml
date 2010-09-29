@@ -133,6 +133,7 @@ let do_output num lines out_file out_attrs =
       Buffer.add_string buf "#start data file format 4\n";
       Buffer.add_string buf "#altcols \"wait\"\t\"thread wait time\"\n";
       Buffer.add_string buf "#altcols \"lock\"\t\"thread lock time\"\n";
+      Buffer.add_string buf "#altcols \"coord\"\t\"total coord time\"\n";
       pair "wall start date" (!! {(cmd "date") with pout = pout_string});
       pair "wall start time" (sprintf "%f" (Unix.gettimeofday ()));
       pair "machine id" mach_id;
@@ -205,6 +206,10 @@ let do_output num lines out_file out_attrs =
 		 Buffer.add_string
 		   buf
 		   (sprintf "#altrow \"wait\"\t%s\n" vl)
+	     | "coord-time:" :: vl :: [] ->
+		 Buffer.add_string
+		   buf
+		   (sprintf "#altrow \"coord\"\t%s\n" vl)
 	     | "lock-time:" :: vl :: [] ->
 		 Buffer.add_string
 		   buf

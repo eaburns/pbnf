@@ -370,7 +370,7 @@ namespace BFPSDD {
 		//
 		// Print open list statistics.
 		//
-#if defined(INSTRUMENTED)
+#if defined(QUEUE_SIZES)
 		typename list<NBlock<StateCompare>* >::iterator iter;
 		unsigned int max = 0;
 		double sum = 0;
@@ -390,7 +390,7 @@ namespace BFPSDD {
 			cout << "average-open-size: -1" << endl;
 			cout << "max-open-size: -1" << endl;
 		}
-#endif	/* INSTRUMENTED */
+#endif	/* QUEUE_SIZES */
 	}
 
 } /* BFPSDD */

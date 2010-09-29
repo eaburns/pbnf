@@ -424,11 +424,20 @@ void PRAStar::output_stats(void)
 #if defined(INSTRUMENTED)
 	time_spinning = 0.0;
 	max_spinning = 0.0;
+	ThreadSpecific<double> lock_times = Mutex::get_lock_times();
         for (iter = threads.begin(); iter != threads.end(); iter++) {
-		double t = (*iter) -> time_spinning;
+		PRAStarThread *thr = *iter;
+		double t = thr->time_spinning;
+		double l = lock_times.get_value_for(thr->get_id());
 		if (t > max_spinning)
 			max_spinning = t;
-		cout << "wait-time: " << t << endl;
+		if (t > 0.)
+			cout << "wait-time: " << t << endl;
+		if (l > 0.)
+			cout << "lock-time: " << l << endl;
+		if (t + l > 0.)
+			cout << "coord-time: " << t + l << endl;
+
 		time_spinning += t;
         }
 #endif	// QUEUE_SIZES
@@ -446,7 +455,6 @@ void PRAStar::output_stats(void)
 		solutions->output(cout);
 
 #if defined(INSTRUMENTED)
-	Mutex::print_pre_thread_stats(cout);
 	cout << "total-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() << endl;
 	cout << "average-time-acquiring-locks: "

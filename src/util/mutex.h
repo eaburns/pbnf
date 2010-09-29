@@ -60,6 +60,10 @@ public:
 	static double get_total_cond_wait_time(void);
 
 	static double get_max_cond_wait_time(void);
+
+	static ThreadSpecific<double>& get_lock_times(void) {
+		return lock_acquisition_times;
+	}
 #endif	/* INSTRUMENTED */
 
 	/** Print the stats to the given output stream. */

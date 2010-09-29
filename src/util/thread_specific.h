@@ -37,6 +37,11 @@ public:
 		return entries[tid].data;
 	}
 
+	T get_value_for(unsigned int tid)
+	{
+		return entries[tid].data;
+	}
+
 	void set_value(T v)
 	{
 		unsigned int tid = Thread::current()->get_id();

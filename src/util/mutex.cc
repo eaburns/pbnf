@@ -150,18 +150,19 @@ void Mutex::print_stats(ostream &o)
 
 void Mutex::print_pre_thread_stats(ostream &o)
 {
-	vector<double> times;
-	vector<double>::iterator iter;
+	vector<double> wait_times, lock_times;
 
-	times = cond_wait_times.get_all_entries();
-	for (iter = times.begin(); iter != times.end(); iter++)
-		if (*iter > 0)
-			o << "wait-time: " << *iter << endl;
-
-	times = lock_acquisition_times.get_all_entries();
-	for (iter = times.begin(); iter != times.end(); iter++)
-		if (*iter > 0)
-			o << "lock-time: " << *iter << endl;
+	wait_times = cond_wait_times.get_all_entries();
+	lock_times = lock_acquisition_times.get_all_entries();
+	for (unsigned int i = 0; i < lock_times.size(); i += 1) {
+		double sum = wait_times[i] + lock_times[i];
+		if (wait_times[i] > 0)
+			o << "wait-time: " << wait_times[i] << endl;
+		if (lock_times[i] > 0)
+			o << "lock-time: " << lock_times[i] << endl;
+		if (sum > 0)
+			o << "coord-time: " << sum << endl;
+	}
 }
 
 #else  // !INSTRUMENTED
