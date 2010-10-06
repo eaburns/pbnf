@@ -18,6 +18,10 @@
 
 using namespace std;
 
+//
+// This technique is from Korf, R.E. and Schultze P, "Large-Scale
+// Parallel Breadth-First Search, AAAI-05.
+//
 void TilesState::compute_hash(void)
 {
 	unsigned int bits = 0;

@@ -20,6 +20,7 @@
 #include "bfpsdd/nblock.h"
 #include "util/thread.h"
 #include "util/timer.h"
+#include "util/sync_solution_stream.h"
 #include "projection.h"
 #include "open_list.h"
 #include "closed_list.h"
@@ -188,13 +189,20 @@ BFPSDDSearch::~BFPSDDSearch(void)
  */
 void BFPSDDSearch::set_path(vector<State *> *p)
 {
-	path_mutex.lock();
-	assert(!p || p->at(0)->get_g() == p->at(0)->get_f());
-	if (p && bound.read() >= p->at(0)->get_g()) {
-		this->path = p;
-		bound.set(p->at(0)->get_g());
-	}
-	path_mutex.unlock();
+	fp_type b, oldb;
+
+	assert(solutions);
+
+	solutions->see_solution(p, get_generated(), get_expanded());
+	b = solutions->get_best_path()->at(0)->get_g();
+
+	// CAS in our new solution bound if it is still indeed better
+	// than the previous bound.
+	do {
+		oldb = bound.read();
+		if (oldb <= b)
+			return;
+	} while (bound.cmp_and_swap(oldb, b) != oldb);
 }
 
 
@@ -211,6 +219,7 @@ bool BFPSDDSearch::path_found(void) const
  */
 vector<State *> *BFPSDDSearch::search(Timer *timer, State *initial)
 {
+	solutions = new SyncSolutionStream(timer, 0.0001);
 	project = initial->get_domain()->get_projection();
 
 	vector<BFPSDDThread *> threads;
@@ -222,27 +231,27 @@ vector<State *> *BFPSDDSearch::search(Timer *timer, State *initial)
 				    n_threads,
 				    multiplier,
 				    initial);
-graph_timer.stop();
+	graph_timer.stop();
 
-for (unsigned int i = 0; i < n_threads; i += 1) {
-	BFPSDDThread *t = new BFPSDDThread(graph, this);
-	threads.push_back(t);
-	t->start();
-}
-
-for (iter = threads.begin(); iter != threads.end(); iter++) {
-	(*iter)->join();
-
-	fp_type ave = (*iter)->get_ave_exp_per_nblock();
-	if (ave != 0.0) {
-		sum += ave;
-		num += 1;
+	for (unsigned int i = 0; i < n_threads; i += 1) {
+		BFPSDDThread *t = new BFPSDDThread(graph, this);
+		threads.push_back(t);
+		t->start();
 	}
 
-	delete *iter;
-}
+	for (iter = threads.begin(); iter != threads.end(); iter++) {
+		(*iter)->join();
 
-return path;
+		fp_type ave = (*iter)->get_ave_exp_per_nblock();
+		if (ave != 0.0) {
+			sum += ave;
+			num += 1;
+		}
+
+		delete *iter;
+	}
+
+	return solutions->get_best_path();
 }
 
 
@@ -259,7 +268,10 @@ void BFPSDDSearch::output_stats(void)
 	cout << "total-nblocks: " << project->get_num_nblocks() << endl;
 	cout << "created-nblocks: " << graph->get_ncreated_nblocks() << endl;
 
+	Mutex::print_pre_thread_stats(cout);
+
 	Mutex::print_stats(cout);
+
 #if defined(INSTRUMENTED)
 	cout << "average-time-acquiring-locks: "
 	     << Mutex::get_total_lock_acquisition_time() / n_threads

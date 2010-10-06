@@ -17,6 +17,7 @@
 #include "bfpsdd/real_val_nblock_pq.h"
 #include "util/thread.h"
 #include "util/mutex.h"
+#include "util/solution_stream.h"
 #include "util/cumulative_ave.h"
 #include "projection.h"
 #include "search.h"
@@ -59,7 +60,7 @@ private:
 	const Projection *project;
 	vector<State *> *path;
 	BFPSDD::NBlockGraph<BFPSDD::RealValNBlockPQ<State::PQOpsFPrime>, State::PQOpsFPrime> *graph;
-	Mutex path_mutex;
+	SolutionStream *solutions;
 	unsigned int min_expansions;
 	fp_type multiplier;
 

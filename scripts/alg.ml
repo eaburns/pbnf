@@ -16,19 +16,22 @@ let by_name domain =
     if march = "sun4v" then [1; 2; 4; 8; 16; 32; 64; (* 128; 256 *)]
     else  Lst.range 8
 *)
-    [1; 8; 7; 6; 5; 4; 3; 2;]
+    [8; 7; 6; 5; 4; 3; 2; 1;]
 
   and nblocks, abst_name =
     if domain.kind = "tiles"
     then
       ([
-	 (* 3360 nblocks, 0-tile, 1-tile and 2-tile. *)
+	 (* 0-tile and 1-tile. *)
+         (16 * 15)
+
 (*
+	 (* 3360 nblocks, 0-tile, 1-tile and 2-tile. *)
 	 (16 * 15 * 14);
-*)
 	 (* Technically there aren't 123 nblocks, this abst pays
 	    attentions to the 1-tile, 2-tile and 3-tile. *)
 	 123;
+*)
        ], "ignore-tiles")
     else
       if domain.kind = "grid"
@@ -76,7 +79,7 @@ let by_name domain =
 	"2.0,1.5,1.25,1.125,1.0";]
       *)
 
-  and multipliers = [ 1; 2; 4; ] in
+  and multipliers = [ 4; ] in
 
   let algtab = [
     (* (name:string * abstraction:bool * params:(string * (string * string) list) list) the
