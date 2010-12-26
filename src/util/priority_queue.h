@@ -261,8 +261,9 @@ template<class Elem, class PQOps>
 		Elem *new_heap = new Elem[size];
 		for (int i = 0; i < fill; i += 1)
 			new_heap[i] = heap[i];
-		delete[] heap;
+		Elem *heap_tmp = heap;
 		heap = new_heap;
+		delete[] heap_tmp;
 	}
 
 	heap[fill] = e;
