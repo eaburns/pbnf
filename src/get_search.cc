@@ -57,6 +57,7 @@ unsigned int threads = 1;
 fp_type cost_bound = fp_infinity;
 unsigned int nblocks = 1;
 double weight = 1.0;
+double bound = -1.0;
 
 /**
  * Parse a weight schedule string.
@@ -220,6 +221,10 @@ Search *get_search(int argc, char *argv[])
 				    false, // abst
 				    true,  // async
 				    max_e);
+	} else if (argc > 1
+		   && sscanf(argv[1], "psdd-%u-%u-%lf", &threads, &nblocks,
+			     &bound) == 3) {
+		return new PSDDSearch(threads, FIXED_OF_DOUBLE(bound));
 	} else if (argc > 1
 		   && sscanf(argv[1], "psdd-%u-%u", &threads, &nblocks) == 2) {
 		return new PSDDSearch(threads);
