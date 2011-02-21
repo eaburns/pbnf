@@ -15,7 +15,7 @@ hg archive ${DIR}
 
 echo "Adding file header comments"
 cd ${DIR}
-for FILE in `find . -name \*.cpp; find . -name \*.h; find . -name \*.cpp`
+for FILE in `find . -name \*.c -o -name \*.cc -o -name \*.h -o -name \*.cpp`
 do
     cat FILE_HEADER ${FILE} > ${FILE}~
     mv ${FILE}~ ${FILE}
