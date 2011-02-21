@@ -8,8 +8,7 @@
  *
  * If you use or otherwise benefit from this code, please cite:
  *
- * Ethan Burns, Seth Lemons, Rong Zhou and Wheeler Ruml, "Best-First
- * Heuristic Search for Multi-Core Machines," Proceedings of the
- * Twenty-first International Joint Conference on Artificial
- * Intelligence * (IJCAI-09), 2009.
+ * Ethan Burns, Sofia Lemons, Wheeler Ruml and Rong Zhou, Best-First
+ * Heuristic Search for Multicore Machines, Journal of Artificial
+ * Intelligence Research, volume 39, pages 689-743, 2010.
  */

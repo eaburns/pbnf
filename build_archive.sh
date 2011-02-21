@@ -29,7 +29,7 @@ rm build_archive.sh
 
 echo "tar/bz2 the archive"
 cd ..
-tar -cjf ${DIR}.tar.bz2 ${DIR}
+tar --exclude=scripts --exclude=tile-gen -cjf ${DIR}.tar.bz2 ${DIR}
 
 echo "Removing the archive directory."
 rm -fr ${DIR}
