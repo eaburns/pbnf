@@ -46,19 +46,19 @@ $(LIBLOCKFREE): $(OBJS)
 	$(AR) crs $@ $^
 
 prio_queue_test-$(MARCH): $(OBJDIR)/prio_queue_test.o $(LIBLOCKFREE)
-	$(CC) $(CFLAGS) -lpthread $^ -o $@
+	$(CC) $(CFLAGS) $^ -lpthread -o $@
 
 ordlist_test-$(MARCH): $(OBJDIR)/ordlist_test.o $(LIBLOCKFREE)
-	$(CC) $(CFLAGS) -lpthread $^ -o $@
+	$(CC) $(CFLAGS) $^ -lpthread -o $@
 
 queue_test-$(MARCH): $(OBJDIR)/queue_test.o $(LIBLOCKFREE)
-	$(CC) $(CFLAGS) -lpthread $^ -o $@
+	$(CC) $(CFLAGS) $^ -lpthread -o $@
 
 atomic_test-$(MARCH): $(OBJDIR)/atomic_test.o $(LIBLOCKFREE)
-	$(CC) $(CFLAGS) -lpthread $^ -o $@
+	$(CC) $(CFLAGS) $^ -lpthread -o $@
 
 mem_test-$(MARCH): $(OBJDIR)/mem_test.o $(LIBLOCKFREE)
-	$(CC) $(CFLAGS) -lpthread $^ -o $@
+	$(CC) $(CFLAGS) $^ -lpthread -o $@
 
 $(OBJDIR):
 	mkdir $@

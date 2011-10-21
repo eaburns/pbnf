@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 		inits->push_back(g->initial_state());
 	}
 
-	search = new SyncWAStar::SyncWAStar(threads, inits, dd);
+	search = new SyncWAStar(threads, inits, dd);
 
 #if defined(NDEBUG)
 	timeout(timelimit);

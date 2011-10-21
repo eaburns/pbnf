@@ -104,7 +104,7 @@ NB *NBlockMap<NB>::get(unsigned int id)
 #else
 	if (!blocks[id]) {
 		NB *b = new NB(project, id);
-		if (compare_and_swap(&blocks[id], NULL, (intptr_t) b)) {
+		if (compare_and_swap(&blocks[id], (intptr_t) NULL, (intptr_t) b)) {
 			if (observer)
 				observer->observe(blocks[id]);
 			num_created += 1;
