@@ -32,6 +32,11 @@ int main(int argc, char *argv[])
 	unsigned int timelimit = 120;	// seconds
 	vector<State *> *path;
 	Search *search = get_search(argc, argv);
+
+	if (strcmp(argv[1], "arastar") == 0) {	// hack to peal off extra ARA* argument
+		argv++;
+		argc--;
+	}
 	string cost = argc == 2 ? "unit" : argv[2];
 	Tiles g(cin, cost);
 	Timer timer;
