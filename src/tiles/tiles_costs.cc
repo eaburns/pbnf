@@ -44,5 +44,6 @@ TilesCostFunction &get_cost_function_by_name(string name)
 		if (cost_functions[i].name == name)
 			return cost_functions[i].fun;
 
+	std::cerr << "Bad cost function: " << name << std::endl;
 	exit(EXIT_FAILURE);
 }
