@@ -480,7 +480,7 @@ fp_type GridWorld::ManhattanDist::compute4(const GridWorld *w,
 }
 
 /**
- * Compute the 4-way movement heuristic
+ * Compute the 8-way movement heuristic
  */
 fp_type GridWorld::ManhattanDist::compute8(const GridWorld *w,
 					 GridState *s) const
