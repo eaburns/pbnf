@@ -160,8 +160,8 @@ int Thread::start(void)
 
 	ret = pthread_create(&pthread_id, &attr, __pthread_call_run, this);
 	if (ret < 0) {
-		strerror_r(ret, buf, LINE_MAX);
-		cerr << "Error starting thread: " << buf << endl;
+		char* err_str = strerror_r(ret, buf, LINE_MAX);
+		cerr << "Error starting thread: " << err_str << endl;
 	}
 
 	return ret;

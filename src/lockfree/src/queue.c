@@ -155,7 +155,6 @@ struct lf_queue *lf_queue_create(size_t nbrelm)
 
 void lf_queue_destroy(struct lf_queue *queue)
 {
-	size_t nfreed;
 /*
 	while (!lf_queue_empty(queue))
 		lf_queue_dequeue(queue);
@@ -165,8 +164,7 @@ void lf_queue_destroy(struct lf_queue *queue)
 */
 	mem_release(queue->freelist, queue->head);
 	mem_release(queue->freelist, queue->tail);
-	nfreed = mem_freelist_destroy(queue->freelist);
-	assert(nfreed == queue->num_nodes);
+	mem_freelist_destroy(queue->freelist);
 
 	free(queue);
 }

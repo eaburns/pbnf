@@ -405,17 +405,13 @@ err_fl:
 
 void lf_ordlist_destroy(struct lf_ordlist *lst)
 {
-	size_t nfreed;
-
 	if (lst->tail->n.refct_claim != 4)
 		lf_ordlist_print(stdout, lst);
 	assert(lst->tail->n.refct_claim == 4);
 	mem_release(lst->fl, lst->head);
 	assert(lst->tail->n.refct_claim == 2);
 	mem_release(lst->fl, lst->tail);
-	nfreed = mem_freelist_destroy(lst->fl);
-
-	assert(nfreed == lst->nelms);
+	mem_freelist_destroy(lst->fl);
 
 	free(lst);
 }

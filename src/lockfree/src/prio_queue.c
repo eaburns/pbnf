@@ -432,7 +432,6 @@ int lf_pq_property_holds(FILE *f, struct lf_pq *pq)
 int lf_pq_insert(struct lf_pq *pq, void *val, void *key)
 {
 	int i, level;
-	void *value2;
 	struct lf_pq_node *new_node;
 	struct lf_pq_node *node1, *node2;
 	struct lf_pq_node *saved_nodes[MAX_LEVEL];
@@ -465,7 +464,6 @@ int lf_pq_insert(struct lf_pq *pq, void *val, void *key)
 	 */
 	for ( ; ; ) {
 		node2 = scan_key(pq, &node1, 0, new_node);
-		value2 = node2->value;
 
 		/* I left out a chunk of code here that overwrites the
 		 * value of a node with the same key as the node being
