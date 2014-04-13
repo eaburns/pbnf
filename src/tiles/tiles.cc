@@ -179,8 +179,8 @@ vector<unsigned int> Tiles::child(const vector<unsigned int> *tiles,
  */
 vector<State *> *Tiles::expand(State *s)
 {
-	TilesState *t = dynamic_cast<TilesState *>(s);
-	Tiles *tiles_domain = dynamic_cast<Tiles *>(t->get_domain());
+	TilesState *t = static_cast<TilesState *>(s);
+	Tiles *tiles_domain = static_cast<Tiles *>(t->get_domain());
 	TilesCostFunction &cost_fun = tiles_domain->cost;
 	vector<State *> *children = new vector<State *>;
 	const vector<unsigned int> *tiles = t->get_tiles();
@@ -188,7 +188,7 @@ vector<State *> *Tiles::expand(State *s)
 	unsigned int col = blank % width;
 	unsigned int row = blank / width;
 
-	TilesState *gp = dynamic_cast<TilesState *>(s->get_parent());
+	TilesState *gp = static_cast<TilesState *>(s->get_parent());
 
 	if (col > 0 && (!gp || gp->get_blank() != blank - 1)) {
 		fp_type cost = FIXED_OF_DOUBLE(cost_fun(tiles->at(blank - 1)));
@@ -272,7 +272,7 @@ unsigned int Tiles::get_height(void) const
 
 void Tiles::ManhattanDist::init(const SearchDomain *d)
 {
-	const Tiles *t = dynamic_cast<const Tiles*>(d);
+	const Tiles *t = static_cast<const Tiles*>(d);
 	const vector<unsigned int> *goal = t->goal->get_tiles();
 
 	width = t->width;
@@ -327,12 +327,12 @@ Tiles::ManhattanDist::~ManhattanDist(void)
 fp_type Tiles::ManhattanDist::compute(State *state) const
 {
 	fp_type ret = 0;
-	TilesState *s = dynamic_cast<TilesState *>(state);
+	TilesState *s = static_cast<TilesState *>(state);
 	State *p = s->get_parent();
 
 	if (p) {
 		TilesState *ptile =
-			dynamic_cast<TilesState *>(p);
+			static_cast<TilesState *>(p);
 		ret = compute_incr(s, ptile);
 //		assert(ret == compute_full(s));
 	} else
@@ -380,7 +380,7 @@ fp_type Tiles::ManhattanDist::compute_incr(TilesState *s,
 
 Tiles::OneTileProject::OneTileProject(const SearchDomain *d)
 {
-	tiles = dynamic_cast<const Tiles *>(d);
+	tiles = static_cast<const Tiles *>(d);
 	unsigned int size = tiles->width * tiles->height;
 	unsigned int id = 0;
 
@@ -409,7 +409,7 @@ Tiles::OneTileProject::~OneTileProject(void)
 
 unsigned int Tiles::OneTileProject::project(State *s) const
 {
-	TilesState *ts = dynamic_cast<TilesState *>(s);
+	TilesState *ts = static_cast<TilesState *>(s);
 	const vector<unsigned int> *t = ts->get_tiles();
 	unsigned int size = t->size();
 	unsigned int blank = 0;
@@ -515,7 +515,7 @@ int Tiles::TwoTileProject::setup_proj(unsigned int id,
 
 Tiles::TwoTileProject::TwoTileProject(const SearchDomain *d)
 {
-	tiles = dynamic_cast<const Tiles *>(d);
+	tiles = static_cast<const Tiles *>(d);
 	unsigned int size = tiles->width * tiles->height;
 	unsigned int id = 0;
 
@@ -540,7 +540,7 @@ Tiles::TwoTileProject::~TwoTileProject(void)
 
 unsigned int Tiles::TwoTileProject::project(State *s) const
 {
-	TilesState *ts = dynamic_cast<TilesState *>(s);
+	TilesState *ts = static_cast<TilesState *>(s);
 	const vector<unsigned int> *t = ts->get_tiles();
 	unsigned int size = t->size();
 	unsigned int blank = 0;
@@ -673,7 +673,7 @@ void Tiles::TwoTileNoBlankProject::init(const SearchDomain *d,
 					unsigned int b,
 					unsigned int c)
 {
-	tiles = dynamic_cast<const Tiles *>(d);
+	tiles = static_cast<const Tiles *>(d);
 	unsigned int size = tiles->width * tiles->height;
 	unsigned int id = 0;
 
@@ -730,7 +730,7 @@ Tiles::TwoTileNoBlankProject::~TwoTileNoBlankProject(void)
 
 unsigned int Tiles::TwoTileNoBlankProject::project(State *s) const
 {
-	TilesState *ts = dynamic_cast<TilesState *>(s);
+	TilesState *ts = static_cast<TilesState *>(s);
 	const vector<unsigned int> *t = ts->get_tiles();
 	unsigned int size = t->size();
 	unsigned int a = 0;
@@ -924,7 +924,7 @@ int Tiles::ThreeTileProject::setup_proj(unsigned int id,
 
 Tiles::ThreeTileProject::ThreeTileProject(const SearchDomain *d)
 {
-	tiles = dynamic_cast<const Tiles *>(d);
+	tiles = static_cast<const Tiles *>(d);
 	unsigned int size = tiles->width * tiles->height;
 	unsigned int id = 0;
 
@@ -952,7 +952,7 @@ Tiles::ThreeTileProject::~ThreeTileProject(void)
 
 unsigned int Tiles::ThreeTileProject::project(State *s) const
 {
-	TilesState *ts = dynamic_cast<TilesState *>(s);
+	TilesState *ts = static_cast<TilesState *>(s);
 	const vector<unsigned int> *t = ts->get_tiles();
 	unsigned int size = t->size();
 	unsigned int blank = 0;

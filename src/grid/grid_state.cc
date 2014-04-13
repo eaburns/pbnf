@@ -42,7 +42,7 @@ bool GridState::is_goal(void)
 {
 	const GridWorld *d;
 
-	d = dynamic_cast<const GridWorld *>(domain);
+	d = static_cast<const GridWorld *>(domain);
 
 	return d->get_goal_x() == x && d->get_goal_y() == y;
 }
@@ -55,7 +55,7 @@ uint64_t GridState::hash(void) const
 {
 	const GridWorld *d;
 
-	d = dynamic_cast<const GridWorld *>(domain);
+	d = static_cast<const GridWorld *>(domain);
 
 	return x * d->get_height() + y;
 }
@@ -66,7 +66,7 @@ uint64_t GridState::hash(void) const
  */
 State *GridState::clone(void) const
 {
-	GridWorld *d = dynamic_cast<GridWorld *>(domain);
+	GridWorld *d = static_cast<GridWorld *>(domain);
 
 	return new GridState(d, parent, c, g, x, y);
 }
@@ -88,7 +88,7 @@ bool GridState::equals(State *state) const
 {
 	GridState *s;
 
-	s = dynamic_cast<GridState *>(state);
+	s = static_cast<GridState *>(state);
 
 	return s->x == x && s->y == y;
 }

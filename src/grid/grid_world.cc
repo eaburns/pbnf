@@ -195,7 +195,7 @@ vector<State*> *GridWorld::expand8(GridState *s)
  */
 vector<State*> *GridWorld::expand(State *state)
 {
-	GridState *s = dynamic_cast<GridState*>(state);
+	GridState *s = static_cast<GridState*>(state);
 
 #if defined(ENABLE_IMAGES)
 	expanded.inc();
@@ -310,7 +310,7 @@ bool GridWorld::on_path(const vector<State *> *path, int x, int y) const
 		return false;
 
 	for (unsigned int i = 0; i < path->size(); i += 1) {
-		GridState *s = dynamic_cast<GridState *>(path->at(i));
+		GridState *s = static_cast<GridState *>(path->at(i));
 		if (s->get_x() == x && s->get_y() == y)
 			return true;
 	}
@@ -522,8 +522,8 @@ fp_type GridWorld::ManhattanDist::compute8(const GridWorld *w,
  */
 fp_type GridWorld::ManhattanDist::compute(State *state) const
 {
-	GridState *s = dynamic_cast<GridState *>(state);
-	const GridWorld *w = dynamic_cast<const GridWorld *>(domain);
+	GridState *s = static_cast<GridState *>(state);
+	const GridWorld *w = static_cast<const GridWorld *>(domain);
 
 	if (w->get_move_type() == FOUR_WAY_MOVES)
 		return compute4(w, s);
@@ -546,7 +546,7 @@ GridWorld::RowModProject::RowModProject(const SearchDomain *d,
 {
 	const GridWorld *g;
 
-	g = dynamic_cast<const GridWorld *>(d);
+	g = static_cast<const GridWorld *>(d);
 
 	max_row = g->get_height();
 }
@@ -561,7 +561,7 @@ unsigned int GridWorld::RowModProject::project(State *s) const
 {
 	GridState *g;
 
-	g = dynamic_cast<GridState *>(s);
+	g = static_cast<GridState *>(s);
 
 	return g->get_y() % mod_val;
 }
@@ -627,7 +627,7 @@ GridWorld::CoarseProject::CoarseProject(const SearchDomain *d,
 {
 	const GridWorld *g;
 
-	g = dynamic_cast<const GridWorld *>(d);
+	g = static_cast<const GridWorld *>(d);
 
 	if (g->width % c)
 		c += 1;
@@ -664,7 +664,7 @@ unsigned int GridWorld::CoarseProject::project(State *s) const
 {
 	GridState *g;
 
-	g = dynamic_cast<GridState *>(s);
+	g = static_cast<GridState *>(s);
 
 	unsigned int id =  get_id(g->get_x() / cols_div, g->get_y() / rows_div);
 #if !defined(NDEBUG)

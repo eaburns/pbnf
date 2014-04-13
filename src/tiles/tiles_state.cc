@@ -27,7 +27,7 @@ using namespace std;
 void TilesState::compute_hash(void)
 {
 	unsigned int bits = 0;
-	const Tiles *t = dynamic_cast<const Tiles *>(domain);
+	const Tiles *t = static_cast<const Tiles *>(domain);
 	const vector<uint64_t> *ones = t->get_ones();
 	const vector<uint64_t> *fact_ary = t->get_fact_ary();
 
@@ -76,7 +76,7 @@ TilesState::TilesState(SearchDomain *d, State *parent, fp_type c, fp_type g,
  */
 bool TilesState::is_goal(void)
 {
-	Tiles * t= dynamic_cast<Tiles*>(domain);
+	Tiles * t= static_cast<Tiles*>(domain);
 
 	return t->is_goal(this);
 }
@@ -96,7 +96,7 @@ State *TilesState::clone(void) const
 
 void TilesState::print(ostream &o) const
 {
-	Tiles *t = dynamic_cast<Tiles*>(domain);
+	Tiles *t = static_cast<Tiles*>(domain);
 	unsigned int i = 0;
 
 	o << "Hash: " << hash_val << endl;
@@ -116,7 +116,7 @@ void TilesState::print(ostream &o) const
  */
 bool TilesState::equals(State *s) const
 {
-	TilesState *other = dynamic_cast<TilesState *>(s);
+	TilesState *other = static_cast<TilesState *>(s);
 
 	for (unsigned int i = 0; i < tiles.size(); i += 1)
 		if (tiles[i] != other->tiles[i])
