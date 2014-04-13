@@ -1,0 +1,4 @@
+This is the source code for PBNF and the algorithms described in:
+Ethan Burns, Sofia Lemons, Wheeler Ruml and Rong Zhou, "Best-First
+Heuristic Search for Multicore Machines", Journal of Artificial
+Intelligence Research, volume 39, pages 689-743, 2010.
