@@ -1,3 +1,5 @@
+/* © 2014 the PBNF Authors under the MIT license. See AUTHORS for the list of authors.*/
+
 /**
  * \file real_val_nblock_pq.h
  *
